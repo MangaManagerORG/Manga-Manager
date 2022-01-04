@@ -73,7 +73,9 @@ def updateZip(zipFilePath, coverFilePath,coverFileName,coverFileFormat):
     with zipfile.ZipFile(new_zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
         zf.write(coverFilePath,new_coverFileName)
     os.rename(new_zipFilePath,oldZipFilePath)
-
+def formatTimestamp(timestamp):
+    date_time = datetime.fromtimestamp(timestamp)
+    return date_time.strftime("%Y/%m/%d %H:%M:%S")
 def appendZip(zipFilePath, coverFilePath,coverFileName,coverFileFormat):
     new_zipFilePath =  "{}.zip".format(re.findall(r'(?i)(.*)(?:\.[a-z]{3})$',zipFilePath)[0])
     os.rename(zipFilePath,new_zipFilePath)
@@ -100,6 +102,7 @@ font_H3 = ("BOLD",12)
 
 MainWindow = Tk()
 MainWindow.geometry('1200x300')
+MainWindow.maxsize(height=650)
 MainWindow.configure(bg='#181A1B',padx=30,pady=30)
 
 
@@ -466,20 +469,18 @@ class MangaManager:
                     self.volNumber = volNumber
                 def run(self):
                     
-                    now = datetime.now()
-                    date_time = now.strftime("%m/%d/%Y-%H:%M:%S")
+                    timestamp = time.time()
+                    
+                    
                     undoJson["Rename"] = {}
-                    undoJson["Rename"][date_time] = []
-                    print("date and time:",date_time)
+                    undoJson["Rename"][timestamp] = []
+                    # print("date and time:",date_time)
                     for chapterinfoFileName in self.filesToRrename_data:
                         newFile_Name = f"{chapterinfoFileName.name} Vol.{self.volNumber} {chapterinfoFileName.chapterinfo}{chapterinfoFileName.afterchapter}"
-                        print(chapterinfoFileName.name)
-                        print(chapterinfoFileName.chapterinfo)
-                        print(chapterinfoFileName.afterchapter)
                         oldPath = chapterinfoFileName.fullpath
                         newPath = f"{os.path.dirname(chapterinfoFileName.fullpath)}\{newFile_Name}"
                         print("####\n")
-                        undoJson["Rename"][date_time].append({"oldPath":oldPath,"newPath":newPath})
+                        undoJson["Rename"][timestamp].append({"oldPath":oldPath,"newPath":newPath})
 
                         print(oldPath)
                         print(newPath)
@@ -538,7 +539,7 @@ class MangaManager:
             ready = False
             self.mainSelf.RenameBtn.config(state="disabled")
             self.mainSelf.ChangeCover.config(state="disabled")
-            t1 = ProgressBarIn(title="Procesando", label="Por favor espera", text="Descargando archivos...")
+            t1 = ProgressBarIn(title="Processing", label="Please wait", text="Processing files")
             t2 = WaitUp(self.filesToRename_data,self.volNumber.get())  # pass the progress bar object
             t2.start()  # use start() instead of run() for threading module
             t1.startup()  # start the progress bar
@@ -566,7 +567,7 @@ class MangaManager:
             
             print(undoJson)
             w, h = root.winfo_screenwidth(), root.winfo_screenheight()
-            MainWindow.geometry("%dx%d+0+0" % (w, h))
+            MainWindow.geometry("%dx%d+0+0" % (w-30, 600))
             # MainWindow.configure
             if not undoJson["Rename"]:
                 self.instructionsLabel.set("This is the renaming log.\nThis list is empty right now")
@@ -577,8 +578,9 @@ class MangaManager:
             counter = 0
             for events in undoJson["Rename"]:
                 # print(events)
+                date_time = formatTimestamp(float(events))
                 
-                cpane = cp(eventsList, f'Expanded - {events}', f'Collapsed - {events}')
+                cpane = cp(eventsList, f'Expanded - {date_time}', f'Collapsed - {date_time}')
                 cpane.grid(row = counter, column = 0)
                 counter+=1
                 
@@ -711,7 +713,7 @@ class MangaManager:
             ready = False
             self.mainSelf.RenameBtn.config(state="disabled")
             self.mainSelf.ChangeCover.config(state="disabled")
-            t1 = ProgressBarIn(title="Procesando", label="Por favor espera", text="Descargando archivos...")
+            t1 = ProgressBarIn(title="Processing", label="Please wait", text="Processing files")
             t2 = WaitUp(self.filesToProcess,self.somthEventTimestamp)  # pass the progress bar object
             t2.start()  # use start() instead of run() for threading module
             t1.startup()  # start the progress bar
