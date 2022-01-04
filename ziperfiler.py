@@ -35,14 +35,14 @@ print(fn)
 launch_path = None
 if os.path.exists(fn):
     launch_path = fn 
-
+class CoverDoesNotExist(Exception):
+    pass
 def checkCoverExists(new_zipFilePath,tmpname,coverFileName,CoverFileFormat,mode):
     with zipfile.ZipFile(new_zipFilePath, 'r') as zin:
         with zipfile.ZipFile(tmpname, 'w') as zout:
             zout.comment = zin.comment
             for item in zin.infolist():
                 print(item.filename,coverFileName)
-                time.sleep(2)
                 if item.filename != coverFileName:
                     if item.filename.startswith("OldCover"):
                         # zout.writestr(f"OldCover{CoverFileFormat}.bak",zin.read(item.filename))
@@ -50,17 +50,92 @@ def checkCoverExists(new_zipFilePath,tmpname,coverFileName,CoverFileFormat,mode)
                     if re.findall(r"0+1\.[a-z]{3}$",item.filename) and mode:
                         zout.writestr(f"OldCover_{item.filename}.bak",zin.read(item.filename))
                         continue
-                    if re.findall(r"0+0\.[a-z]{3}$",item.filename) and mode:
+                    if re.findall(r"0+0\.[a-z]{3}$",item.filename) and not mode:
                         zout.writestr(f"OldCover_{item.filename}.bak",zin.read(item.filename))
                         continue
                     zout.writestr(item, zin.read(item.filename))
                 else:
-                    zout.writestr(f"OldCover{CoverFileFormat}.bak",zin.read(item.filename))
-def updateZip(zipFilePath, coverFilePath,coverFileName,coverFileFormat):
+                    zout.writestr(f"OldCover{item.filename}.bak",zin.read(item.filename))
+def resetCover(new_zipFilePath,tmpname,mode):
+    with zipfile.ZipFile(new_zipFilePath, 'r') as zin:
+        with zipfile.ZipFile(tmpname, 'w') as zout:
+            zout.comment = zin.comment
+            onholdCover = ""
+            rawCovername = ""
+            rawholdCover = ""
+            coverIsZero = False
+            oldCoverExists = False
+            for item in zin.infolist():
+                if item.filename.startswith("OldCover"):
+                    print("found oldCover")
+                    onholdCover = item.filename.replace("OldCover","").replace(".bak","")
+                    if re.findall(r"0+0\.[a-z]{3}$",item.filename):
+                        coverIsZero = True
+                        rawCovername = item
+                    elif re.findall(r"0+1\.[a-z]{3}$",item.filename):
+                        coverIsZero = False
+                        rawCovername = item
+                    elif onholdCover.startswith("."):
+                        rawCovername= item
+                        rawholdCover = onholdCover
+                        onholdCover = f"0000{onholdCover}"
+                        coverIsZero = "None"
+                    # zout.writestr(f"OldCover{CoverFileFormat}.bak",zin.read(item.filename))
+                    oldCoverExists = True
+                    break
+            if not oldCoverExists:
+                
+                raise CoverDoesNotExist("Old Cover not found")
+            if coverIsZero == "None":
+                for item in zin.infolist():
+                    # time.sleep(2)
+                    if item.filename.startswith("OldCover"): #and item.filename == isinstance(rawCovername,zipfile.ZipInfo):
+                        continue
+                    if re.findall(r"0+0\.[a-z]{3}$",item.filename):
+                        # zout.writestr(f"OldCover_{item.filename}.bak",zin.read(item.filename))
+                        # zout.writestr(onholdCover, zin.read(rawCovername.filename))
+                        coverIsZero = True
+                        continue
+            for item in zin.infolist():
+                # time.sleep(2)
+                if re.findall(r"0+0\.[a-z]{3}$",item.filename) and coverIsZero:
+                    zout.writestr(f"OldCover_{item.filename}.bak",zin.read(item.filename))
+                    zout.writestr(onholdCover, zin.read(rawCovername.filename))
+                    coverIsZero = True
+                if item.filename.startswith("OldCover"): #and item.filename == isinstance(rawCovername,zipfile.ZipInfo):
+                    continue
+                if re.findall(r"0+1\.[a-z]{3}$",item.filename):
+                    if onholdCover:
+                        onholdCover = f"0001{rawholdCover}"
+                    zout.writestr(f"OldCover_{item.filename}.bak",zin.read(item.filename))
+                    zout.writestr(onholdCover, zin.read(rawCovername.filename))
+                    continue
+                else:
+                    zout.writestr(item, zin.read(item.filename))
+                    # zout.writestr(f"OldCover{CoverFileFormat}.bak",zin.read(item.filename))
+
+def doResetCover(zipFilePath):
     oldZipFilePath=zipFilePath
     new_zipFilePath =  '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$",zipFilePath)[0])
 
     os.rename(zipFilePath,new_zipFilePath)
+    
+    tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipFilePath))
+    os.close(tmpfd)
+    resetCover(new_zipFilePath,tmpname,True)
+    
+    # checkCoverExists(new_zipFilePath,tmpname,new_coverFileName,coverFileFormat,True)
+
+    os.remove(new_zipFilePath)
+    os.rename(tmpname,new_zipFilePath)
+    os.rename(new_zipFilePath,oldZipFilePath)
+def updateZip(zipFilePath, coverFilePath,coverFileName,coverFileFormat):
+    oldZipFilePath=zipFilePath
+    new_zipFilePath =  '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$",zipFilePath)[0])
+    try:
+        os.rename(zipFilePath,new_zipFilePath)
+    except PermissionError as e:
+        mb.showerror("Can't access the file becuase it's being used by a different process",f"Exception:{e}")
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipFilePath))
     os.close(tmpfd)
     new_coverFileName = f"0001{coverFileFormat}"
@@ -68,18 +143,20 @@ def updateZip(zipFilePath, coverFilePath,coverFileName,coverFileFormat):
 
     os.remove(new_zipFilePath)
     os.rename(tmpname,new_zipFilePath)
-
+    
     basenameFile = os.path.basename(coverFilePath)
     with zipfile.ZipFile(new_zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
         zf.write(coverFilePath,new_coverFileName)
     os.rename(new_zipFilePath,oldZipFilePath)
-def formatTimestamp(timestamp):
-    date_time = datetime.fromtimestamp(timestamp)
-    return date_time.strftime("%Y/%m/%d %H:%M:%S")
 def appendZip(zipFilePath, coverFilePath,coverFileName,coverFileFormat):
     new_zipFilePath =  "{}.zip".format(re.findall(r'(?i)(.*)(?:\.[a-z]{3})$',zipFilePath)[0])
-    os.rename(zipFilePath,new_zipFilePath)
+    try:
+        os.rename(zipFilePath,new_zipFilePath)
+    except PermissionError as e:
+        mb.showerror("Can't access the file becuase it's being used by a different process",f"Exception:{e}")
+    
     oldZipFilePath=zipFilePath
+
     
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(new_zipFilePath))
     os.close(tmpfd)
@@ -94,6 +171,11 @@ def appendZip(zipFilePath, coverFilePath,coverFileName,coverFileFormat):
     with zipfile.ZipFile(new_zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
         zf.write(coverFilePath,new_coverFileName)
     os.rename(new_zipFilePath,oldZipFilePath)
+
+def formatTimestamp(timestamp):
+    date_time = datetime.fromtimestamp(timestamp)
+    return date_time.strftime("%Y/%m/%d %H:%M:%S")
+
 font_H0 = ("BOLD",20)   
 font_H1 = ("BOLD",18)
 font_H2 = ("BOLD",15)
@@ -151,12 +233,16 @@ class MangaManager:
             self.instructionsLabel = tkinter.StringVar()
             self.overwriteFirstFileValue = tkinter.BooleanVar()
             if done:
-                MainLabelVar.set("Manga Manager\nProcessing done!")
+                if done == "Error":
+                    MainLabelVar.set("Manga Manager\nProcessing failed!")
+                else:
+                    MainLabelVar.set("Manga Manager\nProcessing done!")
                 self.instructionsLabel.set("Overwrite existing '0001.ext' file?")
                 done=False
             else:
                 self.instructionsLabel.set("Overwrite existing '0001.ext' file?")
-            
+            helpButton = Button(root,text="HELP",command=lambda:mb.showinfo("INFO","Overwrite existing '0001.ext'\n\nIf set to YES, it will replace the file currenly named 0001.ext with the new image (cover)\n\nIf set to NO the new image (cover) will be named 0000.ext\n\nIn both situations the original name is saved in a file named OldCover.001.ext.bak\nIf this file is deleted, undoing modifications won't be possible."))
+            helpButton.grid(row=1,column=1)
             label = tkinter.Label(root, textvariable=self.instructionsLabel,font=font_H1,)
             label.grid(row=0,columnspan=2)
             self.label_status = tkinter.Label(root,textvariable=self.overwriteFirstFileLabel,font=font_H2)
@@ -166,7 +252,10 @@ class MangaManager:
             self.btn_yes.grid(row=3,column=0,sticky=tkinter.W+tkinter.E)
             self.btn_no = Button(root, text ='NO', command = lambda:self.setOverwriteLabel(False))
             self.btn_no.grid(row=3,column=1,sticky=tkinter.W+tkinter.E)
-            
+
+            self.btn_undo = Button(root, text ='UNDO', command = self.resetCover)
+            self.btn_undo.grid(row=4,sticky=tkinter.W+tkinter.E,columnspan=2)
+
             label = Label(root,text="Select CBZ files now")
             
             
@@ -181,16 +270,16 @@ class MangaManager:
                 self.overwriteFirstFileLabel.set("NO")
             self.btn_yes.destroy()
             self.btn_no.destroy()
+            self.btn_undo.destroy()
             self.instructionsLabel.set(f"Overwrite:{self.overwriteFirstFileLabel.get()}\n Now select the CBZ that you want this change applied to")
             self.btn = Button(root, text ='Open', command = self.open_file)
             self.btn.grid(row=1,columnspan=2)
             self.label_status.destroy()
             # self.instructionsLabel.set("Select the CBZ that you want this change applied to")
-            
         def clear_frame(self,frame):
             for widgets in frame.winfo_children():
                 widgets.destroy()
-        def process_renaming(self):
+        def process_setCover(self):
             print("processRenaming")
             
             class WaitUp(Thread):  # Define a new subclass of the Thread class of the Thread Module.
@@ -289,9 +378,6 @@ class MangaManager:
             self.mainSelf.ChangeCover.config(state="enabled")
             self.instructionsLabel.set("Done!")
             self.__init__(mainSelf = self.mainSelf,done=False)
-            
-
-
         def open_file(self):
             self.btn.destroy()
             print("openfile")
@@ -312,9 +398,133 @@ class MangaManager:
             # resized_img = img.resize((300,445),Image.ANTIALIAS)  
             # new_image = ImageTk.PhotoImage(resized_img)
             # canvas.create_image(20, 20, anchor=NW, image=new_image) 
-            self.process_renaming()
+            self.process_setCover()
             # root.mainloop()
-    
+
+
+        def resetCover(self):
+            
+            self.btn_yes.destroy()
+            self.btn_no.destroy()
+            self.btn_undo.destroy()
+            self.files = askopenfilenames(filetypes =[('Compressed Comic Files', '*.cbz')])
+            self.process_resetCover()
+        def process_resetCover(self):
+            global ThreadException
+            ThreadException = None
+            class WaitUp(Thread):  # Define a new subclass of the Thread class of the Thread Module.
+                def __init__(self,files):
+                    Thread.__init__(self)  # Override the __init__
+                    self.i_waited_for_this = ""
+                    self.files = files
+                def run(self):
+                    global pb_flag
+                    for cbzFile in self.files:
+                        # pathdir = os.path.basename(cbzFile)
+                        pathdir = cbzFile
+                        # print("value"+self.overwriteFirstFileValue.get())
+                        msg = 'This data did not exist in a file before being added to the ZIP file'
+
+                        try:
+                            try:
+                                try:
+                                    doResetCover(cbzFile)
+                                except CoverDoesNotExist as e:
+                                    mb.showerror("Can't undo changes. Files does not have old cover","The script never deletes the old cover instead it is be saved in a file called OldCover000.ext.bak\nFile not found: can't undo modifications.\nFile did not save correctly. Manually rename it back to .CBZ\n\nAttempting to fix file...")
+                                    pb_flag = False
+                                    global ThreadException
+                                    ThreadException = CoverDoesNotExist
+                                    oldZipFilePath=cbzFile
+                                    new_zipFilePath =  '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$",oldZipFilePath)[0])
+                                    try:
+                                        os.rename(new_zipFilePath,oldZipFilePath)
+                                        mb.showinfo("Successfully recovered file","File recovery was successfull no other actions required.")
+                                    except:
+                                        mb.showerror("Failed to recover file","Failed to recover file. You need to manually rename it with the CBZ extension.")
+                                        
+                                    raise Exception
+                                    
+                            except PermissionError as e:
+                                mb.showerror("Can't access the file because it's being used by a different process",f"Exception:{e}")
+                                continue
+                        except FileExistsError as e:
+                            mb.showwarning(f"[ERROR] File already exists",f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
+                            continue
+
+
+                    pb_flag = False
+                    self.i_waited_for_this = "it is done"  # result of the task / replace with object or variable you want to pass
+            class ProgressBarIn:
+                def __init__(self, title="", label="", text=""):
+                    self.title = title  # Build the progress bar
+                    self.label = tkinter.StringVar()
+                    self.text = text
+                    for widgets in root.winfo_children():
+                        widgets.destroy()
+                    label_progress_text.set(text)
+                    self.label_progress_text = label_progress_text
+
+                    
+
+                def startup(self):
+                    
+                    self.pb_root = root # create a window for the progress bar
+                    self.pb_label = Label(self.pb_root, textvariable=self.label)  # make label for progress bar
+                    self.pb = ttk.Progressbar(self.pb_root, length=400, mode="indeterminate")  # create progress bar
+                    global label_progress_text
+                    self.pb_text = Label(self.pb_root, textvariable=label_progress_text, anchor="w")
+                    self.pb.start()
+                    MainLabelVar.set("Manga Manager\nProcessing...")
+                    self.pb_label.grid(row=0, column=0, sticky="w")
+                    self.pb.grid(row=1, column=0, sticky="w")
+                    self.pb_text.grid(row=2, column=0, sticky="w")
+                    while pb_flag == True:  # move the progress bar until multithread reaches line 19
+                        self.pb_root.update()
+                        self.pb['value'] += 1
+                        #print(self.pb['value'])
+                        time.sleep(.1)
+
+                def stop(self):
+                    self.label.set("Done")
+                    self.pb.stop()  # stop and destroy the progress bar
+                    self.pb_label.destroy()  # destroy the label for the progress bar
+                    self.pb.destroy()
+                    # self.pb_root.destroy()
+                    self.return_msg = "back to menu"
+                    return 
+            
+            global pb_flag
+            pb_flag = True
+            global ready
+            global t1
+            global t2
+            
+            global label_progress_text
+            label_progress_text = tk.StringVar()
+                # print(item)
+            
+            ready = False
+            self.mainSelf.RenameBtn.config(state="disabled")
+            self.mainSelf.ChangeCover.config(state="disabled")
+            t1 = ProgressBarIn(title="Processing", label="Please wait", text="Processing files")
+            t2 = WaitUp(self.files)  # pass the progress bar object
+            t2.start()  # use start() instead of run() for threading module
+            t1.startup()  # start the progress bar
+            t2.join()  # wait for WaitUp to finish before proceeding
+            t1.stop()  # destroy the progress bar object
+            # self.instructionsLabel.set("Done\nThis script will append Vol.XX just before any Ch X.ext/Chapter XX.ext to the files you select")
+            time.sleep(5)
+            self.mainSelf.RenameBtn.config(state="enabled")
+            self.mainSelf.ChangeCover.config(state="enabled")
+            # .set("Done!")
+            if ThreadException:
+                MainLabelVar.set("Manga Manager\nSome error occured")
+                self.__init__(mainSelf = self.mainSelf,done="Error")
+            else:
+                MainLabelVar.set("Manga Manager\nProcessing done!")
+                self.__init__(mainSelf = self.mainSelf,done=True)
+        
+
     class AddMangasVolumes():
         def __init__(self,mainSelf,launch_path = None,done = False,):
             self.root = root
