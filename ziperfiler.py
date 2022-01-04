@@ -185,7 +185,7 @@ font_H3 = ("BOLD",12)
 MainWindow = Tk()
 MainWindow.geometry('1200x300')
 MainWindow.maxsize(height=650)
-MainWindow.configure(bg='#181A1B',padx=30,pady=30)
+MainWindow.configure(bg='#c1c1c1',padx=30,pady=30)
 
 
 MainLabelVar = StringVar()
@@ -241,7 +241,7 @@ class MangaManager:
                 done=False
             else:
                 self.instructionsLabel.set("Overwrite existing '0001.ext' file?")
-            helpButton = Button(root,text="HELP",command=lambda:mb.showinfo("INFO","Overwrite existing '0001.ext'\n\nIf set to YES, it will replace the file currenly named 0001.ext with the new image (cover)\n\nIf set to NO the new image (cover) will be named 0000.ext\n\nIn both situations the original name is saved in a file named OldCover.001.ext.bak\nIf this file is deleted, undoing modifications won't be possible."))
+            helpButton = Button(root,text="HELP",command=lambda:mb.showinfo("INFO","Overwrite existing '0001.ext'\n\nIf set to YES, it will replace the file currenly named 0001.ext with the new image (cover)\n\nIf set to NO the new image (cover) will be named 0000.ext\n\nIn both situations the original file is saved in a file named OldCover.001.ext.bak\nIf this file is deleted, undoing modifications won't be possible."))
             helpButton.grid(row=1,column=1)
             label = tkinter.Label(root, textvariable=self.instructionsLabel,font=font_H1,)
             label.grid(row=0,columnspan=2)
@@ -618,7 +618,7 @@ class MangaManager:
             for file in self.files:
                 filepath = file
                 filename = os.path.basename(filepath)
-                regexSearch = re.findall(r"(?i)(.*)(Ch[0-9]*|Chapter\s[0-9]*)(\.[a-z]{3}$)",filename)
+                regexSearch = re.findall(r"(?i)(.*)(Ch[0-9]*|Chapter\s[0-9]*|Ch\.[0-9]*|Ch\s[0-9]*)(\.[a-z]{3}$)",filename)
                 if regexSearch:
                     self.instructionsLabel.set("Please check the following is correct")
                     r = regexSearch[0]
@@ -646,21 +646,21 @@ class MangaManager:
             table.grid_propagate(True)
             table['columns'] = ('old_name', 'to', 'new_name')
             table.column("#0", width=0,stretch=NO)
-            table.column("old_name",stretch=YES,width=400)
-            table.column("to",width=30,anchor=CENTER,stretch=NO)
-            table.column("new_name",stretch=YES,width=400,anchor=E)
+            table.column("old_name",stretch=YES,width=400,anchor=W)
+            table.column("to",width=20,anchor=W,stretch=NO)
+            table.column("new_name",stretch=YES,width=425,anchor=E)
 
             table.heading("#0",text="",anchor=W)
             table.heading("old_name",text="OLD NAME",anchor=CENTER)
             table.heading("to",text="",anchor=W)
             table.heading("new_name",text="NEW NAME",anchor=CENTER)
-            table.pack(expand=True,anchor=CENTER,fill=BOTH,padx=5,pady=5)     
+            table.pack(expand=True,anchor=CENTER,fill=BOTH,padx=2,pady=5)     
             
             for chapterinfoFileName in self.filesToRename_data:
                 old_file_path = f"{chapterinfoFileName.name} {chapterinfoFileName.chapterinfo}{chapterinfoFileName.afterchapter}"
                 self.newFile_Name = f"{chapterinfoFileName.name} Vol.{self.volNumber.get()} {chapterinfoFileName.chapterinfo}{chapterinfoFileName.afterchapter}"
                 self.Item_ID_appender +=1
-                table.insert(parent='',index='end',iid=self.Item_ID_appender,text='',values=(old_file_path," -> ",self.newFile_Name))
+                table.insert(parent='',index='end',iid=self.Item_ID_appender,text='',values=("..."+old_file_path[12:]," -> ","..."+self.newFile_Name[12:]))
             table.grid(row=1)        
 
             Confirm_btn = tk.Button(FooterButton, text='YES', command=self.process_renaming)
@@ -756,8 +756,6 @@ class MangaManager:
             t2.join()  # wait for WaitUp to finish before proceeding
             t1.stop()  # destroy the progress bar object
             time.sleep(3)
-            # self.instructionsLabel.set("Done\nThis script will append Vol.XX just before any Ch X.ext/Chapter XX.ext to the files you select")
-            MainWindow.geometry('1200x300')
             MainLabelVar.set("Manga Manager\nDone")
             self.mainSelf.RenameBtn.config(state="enabled")
             self.mainSelf.ChangeCover.config(state="enabled")
@@ -778,16 +776,14 @@ class MangaManager:
             print(undoJson)
             w, h = root.winfo_screenwidth(), root.winfo_screenheight()
             MainWindow.geometry("%dx%d+0+0" % (w-30, 600))
-            # MainWindow.configure
             if not undoJson["Rename"]:
                 self.instructionsLabel.set("This is the renaming log.\nThis list is empty right now")
             else:
                 self.instructionsLabel.set("This is the renaming log. Select the one you want to revert")
         
-
             counter = 0
             for events in undoJson["Rename"]:
-                # print(events)
+
                 date_time = formatTimestamp(float(events))
                 
                 cpane = cp(eventsList, f'Expanded - {date_time}', f'Collapsed - {date_time}')
@@ -853,9 +849,6 @@ class MangaManager:
             Confirm_btn.grid(row=5,column=0,sticky=W)
             Confirm_btn_no = tk.Button(FooterButton, text='NO',command=self.__init__)
             Confirm_btn_no.grid(row=5,column=1,sticky=E)
-        
-        
-        
         def process_UndoRenaming(self):
             self.initFrames()
             class WaitUp(Thread):  # Define a new subclass of the Thread class of the Thread Module.
