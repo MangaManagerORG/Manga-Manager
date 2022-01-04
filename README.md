@@ -26,6 +26,12 @@ If either `Ch` or `Chapter` is not present in the file name, the script will asu
 The wonderful world of invented titles 03.ext -> The wonderful world of invented titles Vol.03 03.ext
 
 **Note: there is a confirmation window where you can check everything is correct.**
+### Undo changes
+Changes are saved in a json file next to the python script.<br>
+Do not manually modify this file.
+
+Once in the menu you will have to select what change you want to revert (click to expand the log list)
+It will bulk undo all changes that happened at that selected time.
 
 ## Set Cover
 This option extracts the selected files -> replaces the cover or adds a new one -> compress back the files.
@@ -40,4 +46,9 @@ If you want to keep current 0001.ext image say NO.
 
 By selecting NO it will add the image you selected as 0000.ext
 <br>Then it saves the selected image as 0000.ext
-### R
+
+### Undo changes
+Old cover is saved in the compressed file as OldCover000X.ext.bak
+
+It will rename the current cover as OldCover000X.ext.bak while the backup cover will be renamed to its original name.
+
