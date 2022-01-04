@@ -17,11 +17,16 @@ import sys
 import time
 from threading import *
 tk = tkinter
+from datetime import datetime
+import json
+from collapsiblepane import CollapsiblePane as cp
 
+print('__file__:    ', __file__)
+print('dir:    ', os.path.dirname(__file__))
 
-
-
-
+ScriptDir = os.path.dirname(__file__)
+undoJson = {}
+undoJsonFile = f"{ScriptDir}/undo.json"
 print(sys.argv)
 fn = sys.argv[1::]
 print(fn)
@@ -334,6 +339,8 @@ class MangaManager:
 
             self.btn_yes = Button(self.root, text ='OK', command = self.SelectFilesToRename)
             self.btn_yes.grid(row=2,sticky=tkinter.W+tkinter.E)
+            self.btn_undo = Button(self.root, text ='UNDO', command = self.undo_renaming)
+            self.btn_undo.grid(row=3,sticky=tkinter.W+tkinter.E)
 
             
             label = Label(self.root,text="Select CBZ files now")
@@ -341,6 +348,7 @@ class MangaManager:
         def SelectFilesToRename(self):
             self.btn_yes.destroy()
             self.sublabel.destroy()
+            self.btn_undo.destroy()
 
             self.instructionsLabel.set(f"Now select the files you want to rename")
             self.btn = Button(self.root, text ='Open', command = self.open_file)
@@ -416,7 +424,7 @@ class MangaManager:
             FooterButton.grid(row=3)
             Item_ID_appender = 1
             self.Item_ID_appender = Item_ID_appender
-            MainWindow.geometry('1000x300')
+            MainWindow.geometry('1000x600')
             s = Style()
             tableframe = tkinter.Frame(self.root,pady=20,padx=20,bg="#2a2c2d")
             tableframe.grid(row=1)
@@ -457,6 +465,12 @@ class MangaManager:
                     self.filesToRrename_data = filesToDrename_data
                     self.volNumber = volNumber
                 def run(self):
+                    
+                    now = datetime.now()
+                    date_time = now.strftime("%m/%d/%Y-%H:%M:%S")
+                    undoJson["Rename"] = {}
+                    undoJson["Rename"][date_time] = []
+                    print("date and time:",date_time)
                     for chapterinfoFileName in self.filesToRrename_data:
                         newFile_Name = f"{chapterinfoFileName.name} Vol.{self.volNumber} {chapterinfoFileName.chapterinfo}{chapterinfoFileName.afterchapter}"
                         print(chapterinfoFileName.name)
@@ -465,10 +479,15 @@ class MangaManager:
                         oldPath = chapterinfoFileName.fullpath
                         newPath = f"{os.path.dirname(chapterinfoFileName.fullpath)}\{newFile_Name}"
                         print("####\n")
+                        undoJson["Rename"][date_time].append({"oldPath":oldPath,"newPath":newPath})
+
                         print(oldPath)
                         print(newPath)
                         os.rename(oldPath,newPath)
                     #whatever wants to run here
+                    with open(undoJsonFile,"w") as f:
+                        json.dump(undoJson,f)
+                    print(undoJson)
 
                     global pb_flag
                     pb_flag = False
@@ -531,7 +550,181 @@ class MangaManager:
             MainLabelVar.set("Manga Manager\nDone")
             self.mainSelf.RenameBtn.config(state="enabled")
             self.mainSelf.ChangeCover.config(state="enabled")
-            self.__init__(done=True)
+            self.__init__(mainSelf=self.mainSelf,done=True)
+
+        def undo_renaming(self):
+            self.sublabel.destroy()
+            self.btn_yes.destroy()
+            self.btn_undo.destroy()
+            print("undo")
+            with open(undoJsonFile,"r") as f:
+                global undoJson
+                undoJson = json.load(f)
+                
+            eventsList = Frame(self.root)
+            eventsList.grid(row=1)
+            
+            print(undoJson)
+            w, h = root.winfo_screenwidth(), root.winfo_screenheight()
+            MainWindow.geometry("%dx%d+0+0" % (w, h))
+            # MainWindow.configure
+            if not undoJson["Rename"]:
+                self.instructionsLabel.set("This is the renaming log.\nThis list is empty right now")
+            else:
+                self.instructionsLabel.set("This is the renaming log. Select the one you want to revert")
+        
+
+            counter = 0
+            for events in undoJson["Rename"]:
+                # print(events)
+                
+                cpane = cp(eventsList, f'Expanded - {events}', f'Collapsed - {events}')
+                cpane.grid(row = counter, column = 0)
+                counter+=1
+                
+                # print(undoJson["Rename"][events])
+                eventFrame = tkinter.Frame(cpane.frame,highlightbackground="black",highlightthickness=0.5,pady=10)
+                eventFrame.grid(row=counter)
+                counter2 = 0
+                for event in undoJson["Rename"][events]:
+                    # print(event)
+                    # print(undoJson["Rename"][events])
+                    
+                    label_old = Label(eventFrame, text="OLD: " +event["oldPath"]).grid(row=counter2,sticky=W)
+                    counter2 +=1
+                    
+                    label_new = Label(eventFrame,text="NEW: " +event["newPath"]).grid(row=counter2,sticky=W)
+                    counter2 +=1
+                    sep = ttk.Separator(eventFrame,orient="horizontal").grid(row=counter2,sticky=E+W,padx=20)
+
+                    counter2 +=1
+                btnSelect = Button(eventFrame,text="Revert",command=lambda var=events:self.confirmUndo(var)).grid(row=counter2)
+                # counter2 +=1
+        
+        
+        def confirmUndo(self,somth):
+            self.instructionsLabel.set("Confirm you want to do these ")
+            self.initFrames()
+            HeaderFrame = self.HeaderFrame
+            HeaderFrame.grid(row=0)
+            FooterButton = self.FooterButton
+            FooterButton.grid(row=3)
+            Item_ID_appender = 1
+            self.Item_ID_appender = Item_ID_appender
+            MainWindow.geometry('1000x600')
+            s = Style()
+            tableframe = tkinter.Frame(self.root,pady=20,padx=20,bg="#2a2c2d")
+            tableframe.grid(row=1)
+            tableframe.grid_propagate(True)
+            table = ttk.Treeview(tableframe,padding=5)
+            table.grid_propagate(True)
+            table['columns'] = ('old_name', 'to', 'new_name')
+            table.column("#0", width=0,stretch=NO)
+            table.column("old_name",stretch=YES,width=400)
+            table.column("to",width=30,anchor=CENTER,stretch=NO)
+            table.column("new_name",stretch=YES,width=400,anchor=E)
+
+            table.heading("#0",text="",anchor=W)
+            table.heading("old_name",text="OLD NAME",anchor=CENTER)
+            table.heading("to",text="",anchor=W)
+            table.heading("new_name",text="NEW NAME",anchor=CENTER)
+            table.pack(expand=True,anchor=CENTER,fill=BOTH,padx=5,pady=5)     
+            self.somthEventTimestamp = somth
+            for event in undoJson["Rename"][somth]:
+                old_file_path = event["newPath"]
+                self.newFile_Name = event["oldPath"]
+                self.Item_ID_appender +=1
+                table.insert(parent='',index='end',iid=self.Item_ID_appender,text='',values=(old_file_path," -> ",self.newFile_Name))
+            table.grid(row=1)        
+            self.filesToProcess = undoJson["Rename"][somth]
+            Confirm_btn = tk.Button(FooterButton, text='YES', command=self.process_UndoRenaming)
+            Confirm_btn.grid(row=5,column=0,sticky=W)
+            Confirm_btn_no = tk.Button(FooterButton, text='NO',command=self.__init__)
+            Confirm_btn_no.grid(row=5,column=1,sticky=E)
+        
+        
+        
+        def process_UndoRenaming(self):
+            self.initFrames()
+            class WaitUp(Thread):  # Define a new subclass of the Thread class of the Thread Module.
+                def __init__(self,filesToProcess,somthEventTimestamp):
+                    Thread.__init__(self)  # Override the __init__
+                    self.i_waited_for_this = ""
+                    self.filesToProcess = filesToProcess
+                    self.somthEventTimestamp = somthEventTimestamp
+                def run(self):
+                    try:
+                        for file in self.filesToProcess:
+                            os.rename(file["newPath"],file["oldPath"])
+                        del undoJson["Rename"][self.somthEventTimestamp]
+                        with open(undoJsonFile,"w") as f:
+                            json.dump(undoJson,f)
+                    except FileNotFoundError as e:
+                        mb.showerror("File not found:",f"The file {e.filename} was not found\n\nException:{e}")
+                    
+                    global pb_flag
+                    pb_flag = False
+                    self.i_waited_for_this = "it is done"  # result of the task / replace with object or variable you want to pass
+            class ProgressBarIn:
+                def __init__(self, title="", label="", text=""):
+                    self.title = title  # Build the progress bar
+                    self.label = tkinter.StringVar()
+                    self.text = text
+                    for widgets in root.winfo_children():
+                        widgets.destroy()
+                    label_progress_text.set(text)
+                    self.label_progress_text = label_progress_text
+                def startup(self):
+                    self.pb_root = root # create a window for the progress bar
+                    self.pb_label = Label(self.pb_root, textvariable=self.label)  # make label for progress bar
+                    self.pb = ttk.Progressbar(self.pb_root, length=400, mode="indeterminate")  # create progress bar
+                    global label_progress_text
+                    self.pb_text = Label(self.pb_root, textvariable=label_progress_text, anchor="w")
+                    self.pb.start()
+                    MainLabelVar.set("Manga Manager\nProcessing...")
+                    self.pb_label.grid(row=0, column=0, sticky="w")
+                    self.pb.grid(row=1, column=0, sticky="w")
+                    self.pb_text.grid(row=2, column=0, sticky="w")
+                    while pb_flag == True:  # move the progress bar until multithread reaches line 19
+                        self.pb_root.update()
+                        self.pb['value'] += 1
+                        time.sleep(.1)
+
+                def stop(self):
+                    self.label.set("Done")
+                    self.pb.stop()  # stop and destroy the progress bar
+                    self.pb_label.destroy()  # destroy the label for the progress bar
+                    self.pb.destroy()
+                    # self.pb_root.destroy()
+                    self.return_msg = "back to menu"
+                    return 
+            
+            global pb_flag
+            pb_flag = True
+            global ready
+            global t1
+            global t2
+            
+            global label_progress_text
+            label_progress_text = tk.StringVar()
+                # print(item)
+            ready = False
+            self.mainSelf.RenameBtn.config(state="disabled")
+            self.mainSelf.ChangeCover.config(state="disabled")
+            t1 = ProgressBarIn(title="Procesando", label="Por favor espera", text="Descargando archivos...")
+            t2 = WaitUp(self.filesToProcess,self.somthEventTimestamp)  # pass the progress bar object
+            t2.start()  # use start() instead of run() for threading module
+            t1.startup()  # start the progress bar
+            t2.join()  # wait for WaitUp to finish before proceeding
+            t1.stop()  # destroy the progress bar object
+            time.sleep(3)
+            # self.instructionsLabel.set("Done\nThis script will append Vol.XX just before any Ch X.ext/Chapter XX.ext to the files you select")
+            MainWindow.geometry('1200x300')
+            MainLabelVar.set("Manga Manager\nDone")
+            self.mainSelf.RenameBtn.config(state="enabled")
+            self.mainSelf.ChangeCover.config(state="enabled")
+            self.__init__(mainSelf=self.mainSelf,done=True)
+           
 
 
-app = MangaManager()
+app = MangaManager().AddMangasVolumes.undo_renaming()
