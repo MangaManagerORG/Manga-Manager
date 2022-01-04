@@ -31,7 +31,7 @@ Changes are saved in a json file next to the python script.<br>
 Do not manually modify this file.
 
 Once in the menu you will have to select what change you want to revert (click to expand the log list)
-It will bulk undo all changes that happened at that selected time.
+This option will bulk undo all changes that happened at that selected time.
 
 ## Set Cover
 This option extracts the selected files -> replaces the cover or adds a new one -> compress back the files.
@@ -50,5 +50,5 @@ By selecting NO it will add the image you selected as 0000.ext
 ### Undo changes
 Old cover is saved in the compressed file as OldCover000X.ext.bak
 
-It will rename the current cover as OldCover000X.ext.bak while the backup cover will be renamed to its original name.
+This option will rename the current cover as OldCover000X.ext.bak while the backup cover will be renamed to its original name.
 
