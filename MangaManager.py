@@ -71,7 +71,24 @@ class cover_process_item_info:
         self.coverFilePath = cover_path
         self.coverFileName = cover_name
         self.coverFileFormat = cover_format
+@dataclass
+class ChapterFileNameData:
+    """Class to keep title data chapter and anything after chapter to join together after adding vol info Used in renaming"""
+    name: str
+    chapterinfo: str
+    afterchapter: str
+    fullpath: str
+    volume = int
+    complete_new_name:str
 
+    def __init__(self, name: str, chapterinfo: str, afterchapter: str, fullpath: str,
+                 volume: int = None, complete_new_name: str = None):
+        self.name = name
+        self.chapterinfo = chapterinfo
+        self.afterchapter = afterchapter
+        self.fullpath = fullpath
+        self.volume = volume
+        self.complete_new_name = complete_new_name
 
 
 def checkCoverExists(new_zipFilePath, tmpname, coverFileName, CoverFileFormat, mode):
@@ -298,8 +315,12 @@ class SetVolumeCover(tk.Tk):
         self.column_0_toolbox_frame.configure(height='200', relief='raised', width='200')
         self.column_0_toolbox_frame.grid(column='0', row='1')
         self.column_0_toolbox_frame.grid(row=4)
-        self.select_tool_old = "Cover Setter"
-        self.tool_coversetter()
+
+
+        # self.select_tool_old = "Cover Setter"
+        # self.tool_coversetter()
+        self.select_tool_old = "Volume Setter"
+        self.tool_volumesetter()
 
     def tool_coversetter(self):
 
@@ -330,14 +351,13 @@ class SetVolumeCover(tk.Tk):
 
             self.nextelem = next(self.licycle)
             self.prevelem = None
-            self.enableButtons()
+            self.enableButtons(self.frame_coversetter)
             try:
                 show_first_cover()
 
             except UnidentifiedImageError as e:
                 mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
                 logging.critical(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
-
 
         def show_first_cover():
             velog("Printing first image in canvas")
@@ -384,9 +404,10 @@ class SetVolumeCover(tk.Tk):
                 overwriteval= self.do_overwrite_first.get()
                 image_path = self.thiselem.name
 
+
             cbzs_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
-                                                     filetypes=(("CBZ Files", "cbz"),)
-                                                     )
+                                filetypes=(("CBZ Files", "cbz"),)
+                                )
 
             image = Image.open(image_path)
             image = image.resize((40, 60), Image.ANTIALIAS)
@@ -409,10 +430,13 @@ class SetVolumeCover(tk.Tk):
                 self.treeview1.yview_moveto(1)
                 velog(f"Added {os.path.basename(iterated_file_path)} to the processing queue")
             self.button4_proceed.config(state="normal", text="Proceed")
+
+        delog("inside tool-coversetter")
+        self.title("Cover Setter")
+        self.select_tool_old = "Cover Setter"
         self.covers_path_in_confirmation = {}
-        self.covers_path_list = None
-        s = ttk.Style()
-        s.configure('Treeview', rowheight=65, rowpady=5, rowwidth=360)
+
+
 
         self.frame_coversetter = ttk.Frame(self)
         self.frame_coversetter.rowconfigure(0, minsize=0, weight=1)
@@ -431,9 +455,9 @@ class SetVolumeCover(tk.Tk):
         self.button3_load_images = tk.Button(self.canvas_frame,text="Select covers",command=opencovers)
         self.button3_load_images.grid(column=0,row=0,pady=20)
         self.cover_image_name_label_var = tk.StringVar(value='OPEN ONE OR MORE IMAGES')
-        self.label1_coverimagetitle = ttk.Label(self.canvas_frame)
-        self.label1_coverimagetitle.configure(textvariable=self.cover_image_name_label_var)
-        self.label1_coverimagetitle.grid(column=0, row=1, sticky='n')
+        self.label_coverimagetitle = ttk.Label(self.canvas_frame)
+        self.label_coverimagetitle.configure(textvariable=self.cover_image_name_label_var)
+        self.label_coverimagetitle.grid(column=0, row=1, sticky='n')
 
         self.button1_next = tk.Button(self.canvas_frame)
         self.button1_next.configure(cursor='arrow', default='disabled', justify='center', text='Next',width=20)
@@ -484,6 +508,8 @@ class SetVolumeCover(tk.Tk):
 
         # This is the 2d column of Frame
         # Column 1 - Row 0
+        s = ttk.Style()
+        s.configure('Treeview', rowheight=65, rowpady=5, rowwidth=360)
         self.treeview1 = ttk.Treeview(self.frame_coversetter)
         self.treeview1_cols = ['column3', 'overwrite']
         self.treeview1_dcols = ['column3', 'overwrite']
@@ -517,36 +543,176 @@ class SetVolumeCover(tk.Tk):
         # except UnidentifiedImageError as e:
         #     print(f"Errrrrrror {e}")
         #     logging.critical(f"UnidentifiedImageError - Image file: {self.thiselem.name}",e)
-        self.disableButtons()
+        self.disableButtons(self.frame_coversetter)
         self.button3_load_images.config(state="normal")
         self.button5_delete_covers.config(state="normal")
 
     def tool_volumesetter(self):
+        delog("inside tool-volumesetter")
+
+        MainLabelVar = tk.StringVar()
+        self.title("Volume Setter")
+        self.select_tool_old = "Volume Setter"
         self.frame_volumesetter = ttk.Frame(self)
         self.frame_volumesetter.configure(height=500, padding=20, width=886)
         self.frame_volumesetter.rowconfigure(0, minsize=0, weight=1)
         # self.frame_volumesetter.rowconfigure(1)
         # self.frame_volumesetter.rowconfigure(2, pad=40)
 
+        self.instructionsLabel = tk.StringVar()
+        self.subinstructionsLabel = tk.StringVar()
+
+        MainLabelVar.set("Manga Manager\nProcessing done!")
+        self.instructionsLabel.set(
+            "This script will append Vol.XX just before any Ch X.ext/Chapter XX.ext to the files you select")
+        self.subinstructionsLabel.set("This naming convention must be followed for the script to work properly")
+
+        self.label = tk.Label(self.frame_volumesetter, textvariable=self.instructionsLabel, font=font_H2)
+        self.label.grid(row=0)
+        self.sublabel = tk.Label(self.frame_volumesetter, textvariable=self.subinstructionsLabel, font=font_H3)
+        self.sublabel.grid(row=1)
+        #
+        # self.btn_yes = tk.Button(self.frame_volumesetter, text='Continue' )
+        # self.btn_yes.grid(row=2, sticky=tk.W + tk.E,pady="10 0")
+        # self.btn_undo = tk.Button(self.frame_volumesetter, text='UNDO')
+        # self.btn_undo.grid(row=3, sticky=tk.W + tk.E)
+        # self.la
+        label = tk.Label(self.frame_volumesetter, text="Select CBZ files")
+        label.grid(row=2,pady="10 0")
+        covers_path_list = None
+        def open_files():
+            delog("inside openfiles")
+            print(covers_path_list)
+            self.covers_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
+                                                            filetypes=(("CBZ Files", "cbz"),)
+                                                            )
+            if not self.covers_path_list:
+                # self.tool_volumesetter()
+                label.configure(text=f"Selected 0 files.")
+            else:
+                label.configure(text=f"Selected {len(self.covers_path_list)} files")
+            self.enableButtons(self.frame_volumesetter)
+
+
+        self.button2_openfile = tk.Button(self.frame_volumesetter, text="Open", command=open_files)
+        self.button2_openfile.grid(column=0, row=3, pady="0 20")
+
+
+        def ValidateIfNum(s, S):
+            # disallow anything but numbers
+            valid = S == '' or S.isdigit()
+            if not valid:
+                self.frame_volumesetter.bell()
+                velog("input not valid")
+            return valid
+        label = tk.Label(self.frame_volumesetter, text="Input volume number to apply to the selected files")
+        label.grid(row=4, pady="5 0")
+        vldt_ifnum_cmd = (self.frame_volumesetter.register(ValidateIfNum), '%s', '%S')
+        self.input_volume_val = tk.IntVar()
+        self.spinbox1 = tk.Spinbox(self.frame_volumesetter, from_=1, to=500, validate='all', validatecommand=vldt_ifnum_cmd)
+        self.spinbox1.grid(column=0, row=5)
+
+        def preview_changes():
+
+            try:
+                velog("Preview changes: Try to clear treeview")
+                self.treeview2.delete(*self.treeview1.get_children())
+            except AttributeError:
+                delog("Can't clear treeview. -> doesnt exist yet")
+            except Exception as e:
+                delog("Can't clear treeview",exc_info=e)
+            s = ttk.Style()
+            s.configure('Treeview', rowheight=20, rowpady=5, rowwidth=365)
+            s.layout("Treeview", [
+                ('Treeview.treearea', {'sticky': 'nswe'})
+            ])
+
+            self.treeview2 = ttk.Treeview(self.frame_volumesetter, padding=5)
+            self.treeview2.grid_propagate(True)
+            self.treeview2['columns'] = ('old_name', 'to', 'new_name')
+
+            self.treeview2.column("#0", width=0, stretch=False)
+            self.treeview2.column("old_name", stretch=False, width=405, anchor=tk.W)
+            self.treeview2.column("to", width=24, anchor=tk.CENTER, stretch=False)
+            self.treeview2.column("new_name", stretch=False, width=405, anchor=tk.E)
+
+            self.treeview2.heading("#0", text="", anchor=tk.W)
+            self.treeview2.heading("old_name", text="OLD NAME", anchor=tk.CENTER)
+            self.treeview2.heading("to", text="", anchor=tk.CENTER)
+            self.treeview2.heading("new_name", text="NEW NAME", anchor=tk.CENTER)
+            # self.treeview1.pack(expand=True, anchor="center", fill=tk.BOTH, padx=2, pady=5)
+            self.treeview2.grid(column=0, row=7, pady="15 0")
+
+            def handle_click(event):
+                if self.treeview2.identify_region(event.x, event.y) == "separator":
+                    return "break"
+
+            self.treeview2.bind('<Button-1>', handle_click)
+            self.list_filestorename = []
+            counter = 0
+            volume_to_apply  = self.spinbox1.get()
+            for cbz_path in self.covers_path_list:
+                filepath = cbz_path.name
+                filename = os.path.basename(filepath)
+                regexSearch = re.findall(r"(?i)(.*)((?:Chapter|CH)(?:\.|\s)[0-9]*[.][0-9])(\.[a-z]{3})", filename)
+                if regexSearch:
+                    r = regexSearch[0]
+                    print(r)
+                    file_regex_finds:ChapterFileNameData = ChapterFileNameData(name=r[0],chapterinfo=r[1],afterchapter=r[2],fullpath=filepath,volume=volume_to_apply)
+                else:
+                    #Todo: add warning no ch/chapter detected and using last int as ch identifier
+                    regexSearch = re.findall(r"(?i)(.*\s)([0-9]+[.]*[0-9]*)(\.[a-z]{3}$)", filename)
+                    if regexSearch:
+                        r = regexSearch[0]
+                        file_regex_finds:ChapterFileNameData = ChapterFileNameData(name=r[0],chapterinfo=r[1],afterchapter=r[2],fullpath=filepath,volume=volume_to_apply)
+
+                newFile_Name = f"{file_regex_finds.name} Vol.{volume_to_apply} {file_regex_finds.chapterinfo}{file_regex_finds.afterchapter}"
+                file_regex_finds.complete_new_name = newFile_Name
+
+
+                self.list_filestorename.append(file_regex_finds)
+                self.treeview2.insert(parent='', index='end', iid=counter, text='',
+                             values=("..." + filename[-70:],
+                                     " 🠆 ",
+                                     "..." + newFile_Name[-70:]
+                                     ))
+                self.treeview2.yview_moveto(1)
+                delog(f"Inserted item in treeview -> {file_regex_finds.name}")
+                counter +=1
+            self.covers_path_list = None
+            self.button4_proceed = tk.Button(self.frame_volumesetter,text="Proceed",command=self.process)
+            self.button4_proceed.grid(column=0, row=8, pady=7)
+
+        preview_button = tk.Button(self.frame_volumesetter, text="Preview", command=preview_changes)
+        preview_button.grid(column=0, row=6)
+
+
+        self.progressbar_frame = tk.Frame(self.frame_volumesetter, width=60, height=90,background="blue")
+        self.progressbar_frame.columnconfigure(0,weight=1)
+        self.progressbar_frame.columnconfigure(1,weight=1)
+        self.progressbar_frame.grid(column=0, row=9, sticky="WE", padx=30)
+
+        self.disableButtons(self.frame_volumesetter)
+        self.button2_openfile.config(state="normal")
+
         self.frame_volumesetter.grid(row=0)
 
     def select_tool(self, selection):
-
-        if selection == "Cover Setter":
-            if not self.select_tool_old == None:
+        delog(f"Changing tool. Selected -> {selection} --|-- Old selection -> {self.select_tool_old}")
+        if selection == "Cover Setter" and not self.select_tool_old == "Cover Setter":
+            if self.select_tool_old is not None or self.select_tool_old == "Volume Setter":
                 self.frame_volumesetter.destroy()
             self.tool_coversetter()
-        elif selection == "Volume Setter":
-            if not self.select_tool_old == None:
+        elif selection == "Volume Setter" and not self.select_tool_old == "Volume Setter":
+            if self.select_tool_old is not None or self.select_tool_old == "Cover Setter":
                 self.frame_coversetter.destroy()
             self.tool_volumesetter()
-        self.select_tool_old = selection
 
 
     def process(self):
         velog("Starting processing of files.")
         self.button4_proceed.config(relief=tk.SUNKEN, text="Processing")
-        total = len(self.covers_path_in_confirmation)
+
 
         class WaitUp(Thread):  # Define a new subclass of the Thread class of the Thread Module.
             def __init__(self_waitup):
@@ -556,61 +722,70 @@ class SetVolumeCover(tk.Tk):
             def run(self_waitup):
                 processed_counter = 1
                 processed_errors = 0
+                if self.select_tool_old == "Cover Setter":
+                    total = len(self.covers_path_in_confirmation)
+                    for item in self.covers_path_in_confirmation:
+                        pathdict = self.covers_path_in_confirmation
+                        for file in self.covers_path_in_confirmation[item]:
 
-                for item in self.covers_path_in_confirmation:
-                    pathdict = self.covers_path_in_confirmation
-                    for file in self.covers_path_in_confirmation[item]:
+                            delog(f"processing: {file}")
+                            cover_path = file["imagepath"]
+                            cbz_file = file["filepath"]
+                            overwrite = file["overwrite"]
+                            cover_name = os.path.basename(cover_path)
+                            cover_format = re.findall(r"(?i)\.[a-z]{3}$", cover_path)[0]
+                            velog(f"Starting processing for file: {cover_name}")
+                            try:
+                                if overwrite == "delete":
+                                    delog("Entering delete cover function")
+                                    doDeleteCover(cbz_file)
+                                elif self.do_overwrite_first.get():
+                                    delog("Entering overwrite cover function")
+                                    data = cover_process_item_info(cbz_file, cover_path, cover_name, cover_format)
+                                    updateZip(data)
+                                else:
+                                    delog("Entering append cover function")
+                                    data = cover_process_item_info(cbz_file, cover_path, cover_name, cover_format)
+                                    appendZip(data)
 
-                        delog(f"processing: {file}")
-                        cover_path = file["imagepath"]
-                        cbz_file = file["filepath"]
-                        overwrite = file["overwrite"]
-                        cover_name = os.path.basename(cover_path)
-                        cover_format = re.findall(r"(?i)\.[a-z]{3}$", cover_path)[0]
-                        velog(f"Starting processing for file: {cover_name}")
+                                global label_progress_text
+                                label_progress_text.set(f"Processed: {processed_counter}/{total} - {processed_errors} errors")
+                                processed_counter +=1
+
+                            except FileExistsError as e:
+                                mb.showwarning(f"[ERROR] File already exists",
+                                               f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
+                                processed_errors += 1
+                                continue
+                            except PermissionError as e:
+                                mb.showerror("Can't access the file because it's being used by a different process", f"Exception:{e}")
+                                processed_errors += 1
+                                continue
+                elif self.select_tool_old =="Volume Setter":
+                    timestamp = time.time()
+                    undoJson["Rename"] = {}
+                    undoJson["Rename"][timestamp] = []
+                    # print("date and time:",date_time)
+                    for item in self.list_filestorename:
+
+                        velog(f"Renaming {item.name}")
+                        newFile_Name = item.complete_new_name
+                        oldPath = item.fullpath
+                        newPath = f"{os.path.dirname(item.fullpath)}\{newFile_Name}"
+                        # print("####\n")
+                        undoJson["Rename"][timestamp].append({"oldPath": oldPath, "newPath": newPath})
                         try:
-                            if overwrite == "delete":
-                                delog("Entering delete cover function")
-                                doDeleteCover(cbz_file)
-                            elif self.do_overwrite_first.get():
-                                delog("Entering overwrite cover function")
-                                data = cover_process_item_info(cbz_file, cover_path, cover_name, cover_format)
-                                updateZip(data)
-                            else:
-                                delog("Entering append cover function")
-                                data = cover_process_item_info(cbz_file, cover_path, cover_name, cover_format)
-                                appendZip(data)
-
-                            global label_progress_text
-                            label_progress_text.set(f"Processed: {processed_counter}/{total} - {processed_errors} errors")
-                            processed_counter +=1
-
-                        except FileExistsError as e:
-                            mb.showwarning(f"[ERROR] File already exists",
-                                           f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
-                            processed_errors += 1
-                            continue
+                            os.rename(oldPath, newPath)
                         except PermissionError as e:
-                            mb.showerror("Can't access the file because it's being used by a different process", f"Exception:{e}")
-                            processed_errors += 1
-                            continue
+                            mb.showerror("Can't access the file because it's being used by a different process",
+                                         f"Exception:{e}")
+                        velog(f"Renamed {item.name}")
+
+                else:
+                    delog("Error No tool selected")
                 # self.function(self.function_args)
-            #     timestamp = time.time()
-            #
-            #     undoJson["Rename"] = {}
-            #     undoJson["Rename"][timestamp] = []
-            #     # print("date and time:",date_time)
-            #     for chapterinfoFileName in self.filesToRrename_data:
-            #         newFile_Name = f"{chapterinfoFileName.name} Vol.{self.volNumber} {chapterinfoFileName.chapterinfo}{chapterinfoFileName.afterchapter}"
-            #         oldPath = chapterinfoFileName.fullpath
-            #         newPath = f"{os.path.dirname(chapterinfoFileName.fullpath)}\{newFile_Name}"
-            #         print("####\n")
-            #         undoJson["Rename"][timestamp].append({"oldPath": oldPath, "newPath": newPath})
-            #
-            #         print(oldPath)
-            #         print(newPath)
-            #         os.rename(oldPath, newPath)
-            #     # whatever wants to run here
+
+
             #     with open(undoJsonFile, "w") as f:
             #         json.dump(undoJson, f)
             #     print(undoJson)
@@ -636,13 +811,13 @@ class SetVolumeCover(tk.Tk):
                 self_progress.pb = ttk.Progressbar(self_progress.pb_root, length=400, mode="indeterminate")  # create progress bar
 
                 # global label_progress_text
-                self_progress.pb_text = tk.Label(self_progress.pb_root, textvariable=self_progress.label_progress_text, anchor="w")
+                self_progress.pb_text = tk.Label(self_progress.pb_root, textvariable=self_progress.label_progress_text, anchor=tk.W)
                 self_progress.pb.start()
                 velog("Started progress bar")
 
                 # self_progress.pb_label.grid(row=0, column=0, sticky=tk.W)
-                self_progress.pb.grid(row=0, column=0, sticky=tk.W+tk.E)
-                self_progress.pb_text.grid(row=1, column=0, sticky=tk.W+tk.E)
+                self_progress.pb.grid(row=0, column=0, sticky=tk.E)
+                self_progress.pb_text.grid(row=1, column=0, sticky=tk.E)
                 while pb_flag == True:  # move the progress bar until multithread reaches line 19
                     self_progress.pb_root.update()
                     self_progress.pb['value'] += 1
@@ -654,6 +829,9 @@ class SetVolumeCover(tk.Tk):
                 self_progress.pb.config(mode="determinate")
                 self_progress.pb.step(99.99)
                 # self.pb_root.destroy()
+                self_progress.pb.grid_forget()
+                self_progress.pb_text.grid_forget()
+
 
                 velog("File processed")
 
@@ -665,8 +843,14 @@ class SetVolumeCover(tk.Tk):
         pb_flag = True
         global t1
         global t2
+        if self.select_tool_old =="Cover Setter":
+            Selected_tool = "Cover"
+            FrameToProcess: tk.Frame = self.frame_coversetter
+        elif self.select_tool_old == "Volume Setter":
+            Selected_tool = "Volume"
+            FrameToProcess: tk.Frame = self.frame_volumesetter
 
-        self.disableButtons()
+        self.disableButtons(FrameToProcess)
         t1 = ProgressBarIn(title="Processing", label="Please wait", text="Processing files")
         t2 = WaitUp()
         t2.start()  # use start() instead of run() for threading module
@@ -674,14 +858,26 @@ class SetVolumeCover(tk.Tk):
         t2.join()  # wait for WaitUp to finish before proceeding
         t1.stop()  # destroy the progress bar object
         velog("Clearing queue")
-        self.treeview1.delete(*self.treeview1.get_children())
+
+        try:
+            velog("Cleanup: Try to clear treeview")
+            if Selected_tool == "Cover":
+                self.treeview1.delete(*self.treeview1.get_children())
+                self.treeview1.grid_forget()
+            elif Selected_tool == "Volume":
+                self.treeview2.delete(*self.treeview2.get_children())
+                self.treeview2.grid_forget()
+        except AttributeError:
+            delog("Can't clear treeview. -> doesnt exist yet")
+        except Exception as e:
+            delog("Can't clear treeview", exc_info=e)
         velog("All done")
 
-        self.enableButtons()
+        self.enableButtons(FrameToProcess)
         self.button4_proceed.config(relief=tk.RAISED, text="Proceed")
 
-    def enableButtons(self):
-        for w in self.frame_coversetter.winfo_children():
+    def enableButtons(self,thisframe):
+        for w in thisframe.winfo_children():
             if w.winfo_class() == "Button":
                 w.configure(state="normal")
             if w.winfo_children():
@@ -693,8 +889,8 @@ class SetVolumeCover(tk.Tk):
                             if w3.winfo_class() == "Button":
                                 # print(w.winfo_class())
                                 w3.configure(state="normal")
-    def disableButtons(self):
-        for w in self.frame_coversetter.winfo_children():
+    def disableButtons(self,thisframe):
+        for w in thisframe.winfo_children():
             if w.winfo_class() == "Button":
                 w.configure(state="disabled")
             if w.winfo_children():
@@ -705,8 +901,11 @@ class SetVolumeCover(tk.Tk):
                         for w3 in w2.winfo_children():
                             if w3.winfo_class() == "Button":
                                 w3.configure(state="disabled")
+    def askopen_cbz(self):
+        self.cbzs_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
+                                filetypes=(("CBZ Files", "cbz"),)
+                                )
 
-0
 if __name__ == "__main__":
 
     app = SetVolumeCover()
