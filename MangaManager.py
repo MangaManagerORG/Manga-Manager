@@ -43,10 +43,15 @@ logging.basicConfig(level=args.loglevel,
                     # filename='/tmp/myapp.log'
                     )
 velog = logging.info
+delog = logging.debug
 ScriptDir = os.path.dirname(__file__)
 undoJson = {}
 undoJsonFile = f"{ScriptDir}/undo.json"
-
+deleteCoverFilePath = f"{ScriptDir}/DELETE_COVER.jpg"
+font_H0 = ("BOLD", 20)
+font_H1 = ("BOLD", 18)
+font_H2 = ("BOLD", 15)
+font_H3 = ("BOLD", 12)
 
 class CoverDoesNotExist(Exception):
     pass
@@ -74,7 +79,6 @@ def checkCoverExists(new_zipFilePath, tmpname, coverFileName, CoverFileFormat, m
         with zipfile.ZipFile(tmpname, 'w') as zout:
             zout.comment = zin.comment
             for item in zin.infolist():
-                print(item.filename, coverFileName)
                 if item.filename != coverFileName:
                     if item.filename.startswith("OldCover"):
                         # zout.writestr(f"OldCover{CoverFileFormat}.bak",zin.read(item.filename))
@@ -101,7 +105,6 @@ def resetCover(new_zipFilePath, tmpname, mode):
             oldCoverExists = False
             for item in zin.infolist():
                 if item.filename.startswith("OldCover"):
-                    print("found oldCover")
                     onholdCover = item.filename.replace("OldCover", "").replace(".bak", "")
                     if re.findall(r"0+0\.[a-z]{3}$", item.filename):
                         coverIsZero = True
@@ -154,58 +157,37 @@ def deleteCover(new_zipFilePath, tmpname):
     with zipfile.ZipFile(new_zipFilePath, 'r') as zin:
         with zipfile.ZipFile(tmpname, 'w') as zout:
             zout.comment = zin.comment
-            onholdCover = ""
-            rawCovername = ""
-            rawholdCover = ""
             coverIsZero = False
-            oldCoverExists = False
             for item in zin.infolist():
                 if item.filename.startswith("OldCover"):
-                    print("found oldCover")
                     onholdCover = item.filename.replace("OldCover", "").replace(".bak", "")
                     if re.findall(r"0+0\.[a-z]{3}$", item.filename):
                         coverIsZero = True
-                        rawCovername = item
                     elif re.findall(r"0+1\.[a-z]{3}$", item.filename):
                         coverIsZero = False
-                        rawCovername = item
                     elif onholdCover.startswith("."):
-                        rawCovername = item
-                        rawholdCover = onholdCover
-                        onholdCover = f"0000{onholdCover}"
                         coverIsZero = "None"
-                    # zout.writestr(f"OldCover{CoverFileFormat}.bak",zin.read(item.filename))
-                    oldCoverExists = True
                     break
             if coverIsZero == "None":
                 for item in zin.infolist():
-                    # time.sleep(2)
-                    if item.filename.startswith(
-                            "OldCover"):  # and item.filename == isinstance(rawCovername,zipfile.ZipInfo):
+                    if item.filename.startswith("OldCover"):
                         continue
                     if re.findall(r"0+0\.[a-z]{3}$", item.filename):
-                        # zout.writestr(f"OldCover_{item.filename}.bak",zin.read(item.filename))
-                        # zout.writestr(onholdCover, zin.read(rawCovername.filename))
                         coverIsZero = True
                         continue
+
             for item in zin.infolist():
-                # time.sleep(2)
                 if re.findall(r"0+0\.[a-z]{3}$", item.filename) and coverIsZero:
                     zout.writestr(f"OldCover_{item.filename}.bak", zin.read(item.filename))
-                    # zout.writestr(onholdCover, zin.read(rawCovername.filename))
                     continue
-
                 if re.findall(r"0+1\.[a-z]{3}$", item.filename):
                     zout.writestr(f"OldCover_{item.filename}.bak", zin.read(item.filename))
-                    # zout.writestr(onholdCover, zin.read(rawCovername.filename))
                     continue
-
                 if item.filename.startswith(
                         "OldCover"):  # and item.filename == isinstance(rawCovername,zipfile.ZipInfo):
                     continue
                 else:
                     zout.writestr(item, zin.read(item.filename))
-                    # zout.writestr(f"OldCover{CoverFileFormat}.bak",zin.read(item.filename))
 
 
 def doResetCover(zipFilePath):
@@ -234,7 +216,7 @@ def updateZip(values: cover_process_item_info):
     try:
         os.rename(v.zipFilePath, new_zipFilePath)
     except PermissionError as e:
-        mb.showerror("Can't access the file becuase it's being used by a different process", f"Exception:{e}")
+        mb.showerror("Can't access the file because it's being used by a different process", f"Exception:{e}")
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(v.zipFilePath))
     os.close(tmpfd)
     new_coverFileName = f"0001{v.coverFileFormat}"
@@ -257,7 +239,7 @@ def appendZip(values: cover_process_item_info):
     try:
         os.rename(v.zipFilePath, new_zipFilePath)
     except PermissionError as e:
-        mb.showerror("Can't access the file becuase it's being used by a different process", f"Exception:{e}")
+        mb.showerror("Can't access the file because it's being used by a different process", f"Exception:{e}")
 
     oldZipFilePath = v.zipFilePath
 
@@ -278,9 +260,10 @@ def appendZip(values: cover_process_item_info):
 
 
 def doDeleteCover(zipFilePath):
+
     oldZipFilePath = zipFilePath
     new_zipFilePath = '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$", zipFilePath)[0])
-
+    delog(f"Inside doDeleteCover - .cbz will be renamed to {new_zipFilePath}")
     os.rename(zipFilePath, new_zipFilePath)
 
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipFilePath))
@@ -304,26 +287,148 @@ class SetVolumeCover(tk.Tk):
         super().__init__()
         logging.debug("Initializing UI")
         self.title('Theme Demo')
+        self.select_tool_old = None
+
+        self.column_0_toolbox_frame = ttk.Frame(self)
+        self.__tkvar = tk.StringVar(value='Select Tool')
+        __toolSelectorValues = ["Cover Setter", "Volume Setter"]
+        self.optionmenu1 = tk.OptionMenu(self.column_0_toolbox_frame, self.__tkvar, 'Select Tool', *__toolSelectorValues,
+                                         command=self.select_tool)
+        self.optionmenu1.grid(column='0', row='0', sticky='nw')
+        self.column_0_toolbox_frame.configure(height='200', relief='raised', width='200')
+        self.column_0_toolbox_frame.grid(column='0', row='1')
+        self.column_0_toolbox_frame.grid(row=4)
+        self.select_tool_old = "Cover Setter"
+        self.tool_coversetter()
+
+    def tool_coversetter(self):
+
+        def set_do_overwrite_first_label(enable):
+
+            if enable:
+                self.do_overwrite_first.set(True)
+                self.do_overwrite_first_label_value.set("Selected: Overwrite 0001.ext")
+                self.overwrite_yes_button.config(relief=tk.SUNKEN)
+                self.overwrite_no_button.config(relief=tk.RAISED)
+            else:
+                self.do_overwrite_first.set(False)
+                self.do_overwrite_first_label_value.set("Selected: Append 0001.ext")
+                self.overwrite_yes_button.config(relief=tk.RAISED)
+                self.overwrite_no_button.config(relief=tk.SUNKEN)
+
+        def opencovers():
+            """
+            Open tki nter.askopenfilename all covers that are going to be placed inside each chapter and loads iter cycle
+            """
+
+            velog("Selecting covers in opencovers")
+            self.button3_load_images.destroy()
+            covers_path_list = filedialog.askopenfiles(initialdir=launch_path,
+                                                       title="Open all covers you want to work with:"
+                                                       )
+            self.licycle = cycle(covers_path_list)
+
+            self.nextelem = next(self.licycle)
+            self.prevelem = None
+            self.enableButtons()
+            try:
+                show_first_cover()
+
+            except UnidentifiedImageError as e:
+                mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
+                logging.critical(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
+
+
+        def show_first_cover():
+            velog("Printing first image in canvas")
+            self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
+            image = Image.open(self.thiselem.name)
+            image = image.resize((300, 445), Image.ANTIALIAS)
+            self.image = ImageTk.PhotoImage(image)
+            self.canvas_image = self.canvas1_coverimage.create_image(0, 0, anchor=tk.NW, image=self.image)
+            self.cover_image_name_label_var.set(os.path.basename(self.thiselem.name))
+
+        def reset_overwrite_status():
+            if self.do_overwrite_first_label_value.get() == "Selected: None":
+                mb.showwarning(title="Select overwrite mode",
+                               message="You need to choose to append the cover to the file or overwrite 0001.ext file")
+                raise NoOverwriteSelected("No Overwrite mode Selected")
+            self.do_overwrite_first_label_value.set("Selected: None")
+            self.overwrite_yes_button.config(relief=tk.RAISED)
+            self.overwrite_no_button.config(relief=tk.RAISED)
+
+        def display_next_cover():
+            velog(f"Printing next cover in canvas - {self.nextelem}")
+            self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
+            try:
+                rawimage: Image = Image.open(self.thiselem.name)
+            except UnidentifiedImageError as e:
+                mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
+                logging.critical(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
+            image = rawimage.resize((300, 445), Image.ANTIALIAS)
+            self.image = ImageTk.PhotoImage(image)
+            # print(self.label.gettags("IMG10"))
+            self.canvas1_coverimage.itemconfig(self.canvas_image, image=self.image)
+            self.cover_image_name_label_var.set(os.path.basename(self.thiselem.name))
+
+        def add_file_to_list(delete=False):
+            velog("Adding files to processing list")
+            if delete:
+                overwriteval = "delete"
+                image_path = deleteCoverFilePath
+            else:
+                try:
+                    reset_overwrite_status()
+                except NoOverwriteSelected:
+                    return
+                overwriteval= self.do_overwrite_first.get()
+                image_path = self.thiselem.name
+
+            cbzs_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
+                                                     filetypes=(("CBZ Files", "cbz"),)
+                                                     )
+
+            image = Image.open(image_path)
+            image = image.resize((40, 60), Image.ANTIALIAS)
+            self.image_in_confirmation = ImageTk.PhotoImage(image)
+
+            self.covers_path_in_confirmation[str(self.image_in_confirmation)] = []
+            for iterated_file_path in cbzs_path_list:
+                iterated_file_path = iterated_file_path.name
+
+                tmp_dic = dict(imagepath=image_path,
+                               filepath=iterated_file_path,
+                               overwrite=overwriteval,
+                               image_not_garbage_collected=self.image_in_confirmation)
+
+                self.covers_path_in_confirmation[str(self.image_in_confirmation)].append(tmp_dic)
+                displayed_file_path = f"...{os.path.basename(iterated_file_path)[-46:]}"
+
+                self.treeview1.insert(parent='', index='end', image=self.image_in_confirmation,
+                                      values=(displayed_file_path, self.do_overwrite_first.get()))
+                self.treeview1.yview_moveto(1)
+                velog(f"Added {os.path.basename(iterated_file_path)} to the processing queue")
+            self.button4_proceed.config(state="normal", text="Proceed")
         self.covers_path_in_confirmation = {}
         self.covers_path_list = None
         s = ttk.Style()
         s.configure('Treeview', rowheight=65, rowpady=5, rowwidth=360)
 
-        self.frame1 = ttk.Frame(self)
-        self.frame1.rowconfigure(0, minsize=0, weight=1)
-        self.frame1.rowconfigure(1)
-        self.frame1.rowconfigure(2, pad=40)
+        self.frame_coversetter = ttk.Frame(self)
+        self.frame_coversetter.rowconfigure(0, minsize=0, weight=1)
+        self.frame_coversetter.rowconfigure(1)
+        self.frame_coversetter.rowconfigure(2, pad=40)
 
         # First column from top to bottom:
 
         # Column 0 - Row 0
         # Join Canvas and image name together in same grid row
-        self.canvas_frame = ttk.Frame(self.frame1)
+        self.canvas_frame = ttk.Frame(self.frame_coversetter)
         self.canvas_frame.grid(row=0, column=0)
         self.canvas1_coverimage = tk.Canvas(self.canvas_frame)
-        self.canvas1_coverimage.configure(background='red', height=442, state='normal', width=296)
+        self.canvas1_coverimage.configure(background='#878787', height=442, state='normal', width=296)
         self.canvas1_coverimage.grid(column=0, row=0, padx="10 30")
-        self.button3_load_images = tk.Button(self.canvas_frame,text="Select covers",command=self.opencovers)
+        self.button3_load_images = tk.Button(self.canvas_frame,text="Select covers",command=opencovers)
         self.button3_load_images.grid(column=0,row=0,pady=20)
         self.cover_image_name_label_var = tk.StringVar(value='OPEN ONE OR MORE IMAGES')
         self.label1_coverimagetitle = ttk.Label(self.canvas_frame)
@@ -334,7 +439,7 @@ class SetVolumeCover(tk.Tk):
         self.button1_next.configure(cursor='arrow', default='disabled', justify='center', text='Next',width=20)
         self.button1_next.grid(column=0, row=2)
         # self.button1_next.grid_propagate(0)
-        self.button1_next.configure(command=self.display_next_cover)
+        self.button1_next.configure(command=display_next_cover)
 
         # Column 0 Frame
         self.column_0_frame = tk.Frame(self.canvas_frame)
@@ -346,9 +451,9 @@ class SetVolumeCover(tk.Tk):
         self.do_overwrite_first = tk.BooleanVar()
         self.do_overwrite_first_label = tk.Label(self.column_0_frame,text="Overwrite 0001.ext or create 0000.ext file?")
         self.do_overwrite_first_label.grid(column=0, row=1, columnspan=2)
-        self.overwrite_yes_button = tk.Button(self.column_0_frame, text='YES', command=lambda: self.set_do_overwrite_first_label(True))
+        self.overwrite_yes_button = tk.Button(self.column_0_frame, text='YES', command=lambda: set_do_overwrite_first_label(True))
         self.overwrite_yes_button.grid(row=2, column=0, sticky=tk.W+tk.E)
-        self.overwrite_no_button = tk.Button(self.column_0_frame, text='NO', command=lambda: self.set_do_overwrite_first_label(False))
+        self.overwrite_no_button = tk.Button(self.column_0_frame, text='NO', command=lambda: set_do_overwrite_first_label(False))
         self.overwrite_no_button.grid(row=2, column=1, sticky=tk.E+tk.W)
 
         self.do_overwrite_first_label_value = tk.StringVar(value="Selected: None")
@@ -362,15 +467,24 @@ class SetVolumeCover(tk.Tk):
 
         self.button2_openfile = tk.Button(self.column_0_frame)
         self.button2_openfile.configure(font='TkDefaultFont', justify='center', text='Open File to Apply this cover')
-        self.button2_openfile.grid(column=0, row=4,columnspan=2, pady="15 0")
-        self.button2_openfile.configure(command=self.add_file_to_list)
+        self.button2_openfile.grid(column=0, row=4, columnspan=2, pady="15 0")
+        self.button2_openfile.configure(command=add_file_to_list)
 
-        self.column_0_frame.grid(row=3,pady=20)
+        separator = ttk.Separator(self.column_0_frame, orient="horizontal")
+        separator.grid(column=0, row=5,sticky=tk.W+tk.E, pady="7 7",columnspan=2)
+        # self.column_0_frame.grid_columnconfigure()
+        self.button5_delete_covers = tk.Button(self.column_0_frame, text="Delete covers")
+        self.button5_delete_covers.configure(command=lambda: add_file_to_list(True))
+        self.button5_delete_covers.grid(column=0, row=6, sticky=tk.W+tk.E, columnspan=2)
+
+        self.column_0_frame.grid(row=3, pady=20)
+
+
 
 
         # This is the 2d column of Frame
         # Column 1 - Row 0
-        self.treeview1 = ttk.Treeview(self.frame1)
+        self.treeview1 = ttk.Treeview(self.frame_coversetter)
         self.treeview1_cols = ['column3', 'overwrite']
         self.treeview1_dcols = ['column3', 'overwrite']
         self.treeview1.configure(columns=self.treeview1_cols, displaycolumns=self.treeview1_dcols)
@@ -382,19 +496,19 @@ class SetVolumeCover(tk.Tk):
         self.treeview1.heading('overwrite', anchor='center', text='Overwrite')
         self.treeview1.grid(column=1, row=0)
         # Column 1 - Row 1
-        self.button3_proceed = tk.Button(self.frame1)
-        self.button3_proceed.configure(text='Proceed')
-        self.button3_proceed.grid(column=1, row=1)
-        self.button3_proceed.configure(command=self.process)
+        self.button4_proceed = tk.Button(self.frame_coversetter)
+        self.button4_proceed.configure(text='Proceed')
+        self.button4_proceed.grid(column=1, row=1)
+        self.button4_proceed.configure(command=self.process)
 
         # Column 1 - Row 2
 
-        self.progressbar_frame = tk.Frame(self.frame1,background="green",width=60,height=90)
+        self.progressbar_frame = tk.Frame(self.frame_coversetter,width=60,height=90)
         self.progressbar_frame.grid(column=1, row=2, rowspan=2, sticky=tk.W+tk.E,padx=30)
 
         # End frame
-        self.frame1.configure(height='500', padding='20', width='400')
-        self.frame1.grid(column=1, row=1)
+        self.frame_coversetter.configure(height='500', padding='20', width='400')
+        self.frame_coversetter.grid(column=0, row=0)
 
         # Process first cover
         # self.opencovers()
@@ -405,113 +519,34 @@ class SetVolumeCover(tk.Tk):
         #     logging.critical(f"UnidentifiedImageError - Image file: {self.thiselem.name}",e)
         self.disableButtons()
         self.button3_load_images.config(state="normal")
-    def set_do_overwrite_first_label(self, enable):
+        self.button5_delete_covers.config(state="normal")
 
-        if enable:
-            self.do_overwrite_first.set(True)
-            self.do_overwrite_first_label_value.set("Selected: Overwrite 0001.ext")
-            self.overwrite_yes_button.config(relief=tk.SUNKEN)
-            self.overwrite_no_button.config(relief=tk.RAISED)
-        else:
-            self.do_overwrite_first.set(False)
-            self.do_overwrite_first_label_value.set("Selected: Append 0001.ext")
-            self.overwrite_yes_button.config(relief=tk.RAISED)
-            self.overwrite_no_button.config(relief=tk.SUNKEN)
+    def tool_volumesetter(self):
+        self.frame_volumesetter = ttk.Frame(self)
+        self.frame_volumesetter.configure(height=500, padding=20, width=886)
+        self.frame_volumesetter.rowconfigure(0, minsize=0, weight=1)
+        # self.frame_volumesetter.rowconfigure(1)
+        # self.frame_volumesetter.rowconfigure(2, pad=40)
 
-    def opencovers(self):
-        """
-        Open tki nter.askopenfilename all covers that are going to be placed inside each chapter and loads iter cycle
-        """
+        self.frame_volumesetter.grid(row=0)
 
-        velog("Selecting covers in opencovers")
-        self.button3_load_images.destroy()
-        covers_path_list = filedialog.askopenfiles(initialdir=launch_path,
-                                                   title="Open all covers you want to work with:")
-        self.licycle = cycle(covers_path_list)
+    def select_tool(self, selection):
 
-        self.nextelem = next(self.licycle)
-        self.prevelem = None
-        self.enableButtons()
-        try:
-            self.show_first_cover()
+        if selection == "Cover Setter":
+            if not self.select_tool_old == None:
+                self.frame_volumesetter.destroy()
+            self.tool_coversetter()
+        elif selection == "Volume Setter":
+            if not self.select_tool_old == None:
+                self.frame_coversetter.destroy()
+            self.tool_volumesetter()
+        self.select_tool_old = selection
 
-        except UnidentifiedImageError as e:
-            print(f"Errrrrrror {e}")
-            logging.critical(f"UnidentifiedImageError - Image file: {self.thiselem.name}",e)
-
-    def show_first_cover(self):
-        velog("Printing first image in canvas")
-        self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
-        image = Image.open(self.thiselem.name)
-        image = image.resize((300, 445), Image.ANTIALIAS)
-        self.image = ImageTk.PhotoImage(image)
-        self.canvas_image = self.canvas1_coverimage.create_image(0, 0, anchor=tk.NW, image=self.image)
-        self.cover_image_name_label_var.set(os.path.basename(self.thiselem.name))
-
-    def reset_overwrite_status(self):
-        if self.do_overwrite_first_label_value.get() == "Selected: None":
-            print(self.do_overwrite_first_label_value.get())
-            mb.showwarning(title="Select overwrite mode", message="You need to choose to append the cover to the file or overwrite 0001.ext file")
-            raise NoOverwriteSelected("No Overwrite mode Selected")
-        self.do_overwrite_first_label_value.set("Selected: None")
-        self.overwrite_yes_button.config(relief=tk.RAISED)
-        self.overwrite_no_button.config(relief=tk.RAISED)
-
-    def display_next_cover(self):
-        velog("Printing next cover in canvas")
-        self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
-        print(self.thiselem)
-        try:
-            rawimage: Image = Image.open(self.thiselem.name)
-        except UnidentifiedImageError as e:
-            logging.critical(f"UnidentifiedImageError - Image file: {self.thiselem.name}",e)
-            print(f"Errrrrrror {e}")
-        image = rawimage.resize((300, 445), Image.ANTIALIAS)
-        self.image = ImageTk.PhotoImage(image)
-        # print(self.label.gettags("IMG10"))
-        self.canvas1_coverimage.itemconfig(self.canvas_image, image=self.image)
-        self.cover_image_name_label_var.set(os.path.basename(self.thiselem.name))
-
-    def add_file_to_list(self):
-        velog("Adding files to processing list")
-        try:
-            self.reset_overwrite_status()
-        except NoOverwriteSelected:
-            return
-
-        covers_path_list = filedialog.askopenfiles(initialdir=launch_path,
-                                                  title="Select file to apply cover",
-                                                  filetypes=(("CBZ Files", "cbz"),
-                                                             ("All types", "*"))
-                                                  )
-
-        image = Image.open(self.thiselem.name)
-        image = image.resize((40, 60), Image.ANTIALIAS)
-        self.image_in_confirmation = ImageTk.PhotoImage(image)
-
-        self.covers_path_in_confirmation[str(self.image_in_confirmation)] = []
-        for iterated_file_path in covers_path_list:
-            iterated_file_path = iterated_file_path.name
-            tmp_dic = dict(imagepath=self.thiselem.name,
-                           filepath=iterated_file_path,
-                           overwrite=self.do_overwrite_first.get(),
-                           image_not_garbage_collected=self.image_in_confirmation)
-
-            self.covers_path_in_confirmation[str(self.image_in_confirmation)].append(tmp_dic)
-            displayed_file_path = f"...{os.path.basename(iterated_file_path)[-46:]}"
-
-            self.treeview1.insert(parent='', index='end', image=self.image_in_confirmation,
-                                  values=(displayed_file_path, self.do_overwrite_first.get()))
-            velog(f"Added {os.path.basename(iterated_file_path)} to the processing queue")
 
     def process(self):
         velog("Starting processing of files.")
-        self.button3_proceed.config(relief=tk.SUNKEN, text="Processing")
-
+        self.button4_proceed.config(relief=tk.SUNKEN, text="Processing")
         total = len(self.covers_path_in_confirmation)
-
-    # def process_and_bar(self,function,function_args,counter):
-        print("PROCESS_AND_BAR")
 
         class WaitUp(Thread):  # Define a new subclass of the Thread class of the Thread Module.
             def __init__(self_waitup):
@@ -526,20 +561,23 @@ class SetVolumeCover(tk.Tk):
                     pathdict = self.covers_path_in_confirmation
                     for file in self.covers_path_in_confirmation[item]:
 
-
-                        print(pathdict[item])
-                        print(file)
-                        print()
+                        delog(f"processing: {file}")
                         cover_path = file["imagepath"]
                         cbz_file = file["filepath"]
+                        overwrite = file["overwrite"]
                         cover_name = os.path.basename(cover_path)
                         cover_format = re.findall(r"(?i)\.[a-z]{3}$", cover_path)[0]
                         velog(f"Starting processing for file: {cover_name}")
                         try:
-                            if self.do_overwrite_first.get():
+                            if overwrite == "delete":
+                                delog("Entering delete cover function")
+                                doDeleteCover(cbz_file)
+                            elif self.do_overwrite_first.get():
+                                delog("Entering overwrite cover function")
                                 data = cover_process_item_info(cbz_file, cover_path, cover_name, cover_format)
                                 updateZip(data)
                             else:
+                                delog("Entering append cover function")
                                 data = cover_process_item_info(cbz_file, cover_path, cover_name, cover_format)
                                 appendZip(data)
 
@@ -552,7 +590,10 @@ class SetVolumeCover(tk.Tk):
                                            f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
                             processed_errors += 1
                             continue
-
+                        except PermissionError as e:
+                            mb.showerror("Can't access the file because it's being used by a different process", f"Exception:{e}")
+                            processed_errors += 1
+                            continue
                 # self.function(self.function_args)
             #     timestamp = time.time()
             #
@@ -577,7 +618,7 @@ class SetVolumeCover(tk.Tk):
                 global pb_flag
                 pb_flag = False
                 self_waitup.i_waited_for_this = "it is done"  # result of the task / replace with object or variable you want to pass
-                print("Done")
+
         class ProgressBarIn:
             def __init__(self_progress, title="", label="", text=""):
                 self_progress.title = title  # Build the progress bar
@@ -614,7 +655,7 @@ class SetVolumeCover(tk.Tk):
                 self_progress.pb.step(99.99)
                 # self.pb_root.destroy()
 
-                print("File processed")
+                velog("File processed")
 
                 # for widget in self_progress.pb_root.winfo_children():
                 #     widget.destroy()
@@ -626,63 +667,43 @@ class SetVolumeCover(tk.Tk):
         global t2
 
         self.disableButtons()
-        # t1 = ProgressBarIn(title="Processing", label="Please wait", text="Processing files")
-        #
-        # t2 = WaitUp()
-        #
-        # t2.start()  # use start() instead of run() for threading module
-        # t1.startup()  # start the progress bar
-        # t2.join()  # wait for WaitUp to finish before proceeding
-        # t1.stop()  # destroy the progress bar object
+        t1 = ProgressBarIn(title="Processing", label="Please wait", text="Processing files")
+        t2 = WaitUp()
+        t2.start()  # use start() instead of run() for threading module
+        t1.startup()  # start the progress bar
+        t2.join()  # wait for WaitUp to finish before proceeding
+        t1.stop()  # destroy the progress bar object
         velog("Clearing queue")
         self.treeview1.delete(*self.treeview1.get_children())
         velog("All done")
 
-
         self.enableButtons()
-        self.button3_proceed.config(relief=tk.RAISED, text="Proceed")
+        self.button4_proceed.config(relief=tk.RAISED, text="Proceed")
 
     def enableButtons(self):
-        for w in self.frame1.winfo_children():
+        for w in self.frame_coversetter.winfo_children():
             if w.winfo_class() == "Button":
-                print(w.winfo_name())
-
-                # print(w.winfo_class())
                 w.configure(state="normal")
             if w.winfo_children():
                 for w2 in w.winfo_children():
-                    print(w2.winfo_name())
-
                     if w2.winfo_class() == "Button":
-                        # print(w.winfo_class())
                         w2.configure(state="normal")
                     if w2.winfo_children():
                         for w3 in w2.winfo_children():
-                            print(w3.winfo_name())
-
                             if w3.winfo_class() == "Button":
                                 # print(w.winfo_class())
                                 w3.configure(state="normal")
     def disableButtons(self):
-        for w in self.frame1.winfo_children():
+        for w in self.frame_coversetter.winfo_children():
             if w.winfo_class() == "Button":
-                print(w.winfo_name())
-
-                # print(w.winfo_class())
                 w.configure(state="disabled")
             if w.winfo_children():
                 for w2 in w.winfo_children():
-                    print(w2.winfo_name())
-
                     if w2.winfo_class() == "Button":
-                        # print(w.winfo_class())
                         w2.configure(state="disabled")
                     if w2.winfo_children():
                         for w3 in w2.winfo_children():
-                            print(w3.winfo_name())
-
                             if w3.winfo_class() == "Button":
-                                # print(w.winfo_class())
                                 w3.configure(state="disabled")
 
 0
