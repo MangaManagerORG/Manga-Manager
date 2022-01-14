@@ -214,6 +214,7 @@ class SetVolumeCover(tk.Tk):
                 self.do_overwrite_first_label_value.set("Yes")
             # self.do_overwrite_first_label_value.set(f"Replace: {self.do_overwrite_first}")
             print("debugp")
+
         def opencovers():
             """
             Open tki nter.askopenfilename all covers that are going to be placed inside each chapter and loads iter cycle
@@ -408,7 +409,7 @@ class SetVolumeCover(tk.Tk):
 
         self.treeview1.heading('column3', anchor='center', text='Queue')
         self.treeview1.heading('overwrite', anchor='center', text='Overwrite')
-        self.treeview1.grid(column=1, row=0)
+        self.treeview1.grid(column=1, row=0,sticky=tk.N,pady="2 0")
         # Column 1 - Row 1
         self.button4_proceed = tk.Button(self.frame_coversetter)
         self.button4_proceed.configure(text='Proceed')
@@ -421,7 +422,7 @@ class SetVolumeCover(tk.Tk):
         self.progressbar_frame.grid(column=1, row=2, rowspan=2, sticky=tk.W+tk.E,padx=30)
 
         # End frame
-        self.frame_coversetter.configure(height='500', padding='20', width='400')
+        self.frame_coversetter.configure(height=420, padding='20', width='400')
         self.frame_coversetter.grid(column=0, row=0)
 
         # Process first cover
