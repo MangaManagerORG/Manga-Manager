@@ -91,7 +91,7 @@ class ChapterFileNameData:
         self.complete_new_name = complete_new_name
 
 
-def backup_delete_first_cover(new_zipFilePath, tmpname):
+def backup_delete_first_cover(new_zipFilePath, tmpname,overwrite=None):
     backup_isdone = False
     with zipfile.ZipFile(new_zipFilePath, 'r') as zin:
         with zipfile.ZipFile(tmpname, 'w') as zout:
@@ -100,7 +100,11 @@ def backup_delete_first_cover(new_zipFilePath, tmpname):
             for item in zin.infolist():
                 if not backup_isdone and item.filename.split("/")[0] not in folders_list:  # Checks if item is inside folder
                     # We save the current cover with different name to back it up
-                    zout.writestr(f"OldCover_{item.filename}.bak", zin.read(item.filename))
+                    filename = item.filename
+                    if item.filename.startswith("!00000") and overwrite is False: # we want to keep this file as it is increased by 1
+                        filename = item.filename.replace("!00000", "!00001")
+
+                    zout.writestr(f"OldCover_{item.filename}.bak", zin.read(filename))
                     backup_isdone = True
                     continue
                 if item.filename == old_cover_filename[0]:  # delete existing "OldCover_00.ext.bk file from the zip
@@ -116,13 +120,14 @@ def doDeleteCover(zipFilePath):
 
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipFilePath))
     os.close(tmpfd)
-    backup_delete_first_cover(new_zipFilePath, tmpname)
+    backup_delete_first_cover(new_zipFilePath, tmpname,overwrite=True) # Overwrite true because we want to backup the cover with different name
 
     # checkCoverExists(new_zipFilePath,tmpname,new_coverFileName,coverFileFormat,True)
 
     os.remove(new_zipFilePath)
     os.rename(tmpname, new_zipFilePath)
     os.rename(new_zipFilePath, oldZipFilePath)
+
 
 def updateZip(values: cover_process_item_info):
     velog("Updating file (overwriting 0001.ext)")
@@ -137,7 +142,7 @@ def updateZip(values: cover_process_item_info):
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(v.zipFilePath))
     os.close(tmpfd)
     new_coverFileName = f"!00000{v.coverFileFormat}"
-    backup_delete_first_cover(new_zipFilePath, tmpname, new_coverFileName, v.coverFileFormat, True)
+    backup_delete_first_cover(new_zipFilePath, tmpname, new_coverFileName, v.coverFileFormat, overwrite=True)
 
     os.remove(new_zipFilePath)
     os.rename(tmpname, new_zipFilePath)
@@ -147,6 +152,7 @@ def updateZip(values: cover_process_item_info):
         zf.write(v.coverFilePath, new_coverFileName)
     os.rename(new_zipFilePath, oldZipFilePath)
     velog("Finished processign of file")
+
 
 def appendZip(values: cover_process_item_info):
     velog("Append file (append 0001.ext)")
@@ -192,26 +198,22 @@ class SetVolumeCover(tk.Tk):
         self.column_0_toolbox_frame.grid(row=4)
 
 
-        # self.select_tool_old = "Cover Setter"
-        # self.tool_coversetter()
-        self.select_tool_old = "Volume Setter"
-        self.tool_volumesetter()
+        self.select_tool_old = "Cover Setter"
+        self.tool_coversetter()
+        # self.select_tool_old = "Volume Setter"
+        # self.tool_volumesetter()
 
     def tool_coversetter(self):
 
-        def set_do_overwrite_first_label(enable):
-
-            if enable:
-                self.do_overwrite_first.set(True)
-                self.do_overwrite_first_label_value.set("Selected: Overwrite 0001.ext")
-                self.overwrite_yes_button.config(relief=tk.SUNKEN)
-                self.overwrite_no_button.config(relief=tk.RAISED)
-            else:
+        def set_do_overwrite_first_label():
+            if self.do_overwrite_first.get():
                 self.do_overwrite_first.set(False)
-                self.do_overwrite_first_label_value.set("Selected: Append 0001.ext")
-                self.overwrite_yes_button.config(relief=tk.RAISED)
-                self.overwrite_no_button.config(relief=tk.SUNKEN)
-
+                self.do_overwrite_first_label_value.set("No")
+            else:
+                self.do_overwrite_first.set(True)
+                self.do_overwrite_first_label_value.set("Yes")
+            # self.do_overwrite_first_label_value.set(f"Replace: {self.do_overwrite_first}")
+            print("debugp")
         def opencovers():
             """
             Open tki nter.askopenfilename all covers that are going to be placed inside each chapter and loads iter cycle
@@ -244,13 +246,15 @@ class SetVolumeCover(tk.Tk):
             self.cover_image_name_label_var.set(os.path.basename(self.thiselem.name))
 
         def reset_overwrite_status():
-            if self.do_overwrite_first_label_value.get() == "Selected: None":
-                mb.showwarning(title="Select overwrite mode",
-                               message="You need to choose to append the cover to the file or overwrite 0001.ext file")
-                raise NoOverwriteSelected("No Overwrite mode Selected")
-            self.do_overwrite_first_label_value.set("Selected: None")
-            self.overwrite_yes_button.config(relief=tk.RAISED)
-            self.overwrite_no_button.config(relief=tk.RAISED)
+            # if self.do_overwrite_first_label_value.get() == "Selected: None":
+            #     mb.showwarning(title="Select overwrite mode",
+            #                    message="You need to choose to append the cover to the file or overwrite 0001.ext file")
+            #     raise NoOverwriteSelected("No Overwrite mode Selected")
+            self.do_overwrite_first.set(False)
+            # self.do_overwrite_first_label_value.set(f"Replace: {self.do_overwrite_first}")
+            self.do_overwrite_first_label_value.set("No")
+            # self.overwrite_yes_button.config(relief=tk.RAISED)
+            # self.overwrite_no_button.config(relief=tk.RAISED)
 
         def display_next_cover():
             velog(f"Printing next cover in canvas - {self.nextelem}")
@@ -272,10 +276,6 @@ class SetVolumeCover(tk.Tk):
                 overwriteval = "delete"
                 image_path = deleteCoverFilePath
             else:
-                try:
-                    reset_overwrite_status()
-                except NoOverwriteSelected:
-                    return
                 overwriteval= self.do_overwrite_first.get()
                 image_path = self.thiselem.name
 
@@ -299,11 +299,12 @@ class SetVolumeCover(tk.Tk):
 
                 self.covers_path_in_confirmation[str(self.image_in_confirmation)].append(tmp_dic)
                 displayed_file_path = f"...{os.path.basename(iterated_file_path)[-46:]}"
-
+                overwrite_displayedval = self.do_overwrite_first.get() if overwriteval != "delete" else True
                 self.treeview1.insert(parent='', index='end', image=self.image_in_confirmation,
-                                      values=(displayed_file_path, self.do_overwrite_first.get()))
+                                      values=(displayed_file_path, overwrite_displayedval))
                 self.treeview1.yview_moveto(1)
                 velog(f"Added {os.path.basename(iterated_file_path)} to the processing queue")
+            reset_overwrite_status()
             self.button4_proceed.config(state="normal", text="Proceed")
 
         delog("inside tool-coversetter")
@@ -347,17 +348,21 @@ class SetVolumeCover(tk.Tk):
         # self.column_0_frame.rowconfigure(2, pad=0)
 
 
-        self.do_overwrite_first = tk.BooleanVar()
-        self.do_overwrite_first_label = tk.Label(self.column_0_frame,text="Overwrite 0001.ext or create 0000.ext file?")
-        self.do_overwrite_first_label.grid(column=0, row=1, columnspan=2)
-        self.overwrite_yes_button = tk.Button(self.column_0_frame, text='YES', command=lambda: set_do_overwrite_first_label(True))
-        self.overwrite_yes_button.grid(row=2, column=0, sticky=tk.W+tk.E)
-        self.overwrite_no_button = tk.Button(self.column_0_frame, text='NO', command=lambda: set_do_overwrite_first_label(False))
-        self.overwrite_no_button.grid(row=2, column=1, sticky=tk.E+tk.W)
 
-        self.do_overwrite_first_label_value = tk.StringVar(value="Selected: None")
-        self.do_overwrite_first_label = tk.Label(self.column_0_frame, textvariable=self.do_overwrite_first_label_value)
-        self.do_overwrite_first_label.grid(column=0, row=3, columnspan=2)
+        self.do_overwrite_first = tk.BooleanVar()
+        self.do_overwrite_first.set(False)
+        self.do_overwrite_first_label = tk.Label(self.column_0_frame,text="Replace current cover?")
+        self.do_overwrite_first_label.grid(column=0, row=1, columnspan=2)
+        self.do_overwrite_first_label_value = tk.StringVar()
+        self.do_overwrite_first_label_value.set("No")
+        self.overwrite_yes_button = tk.Button(self.column_0_frame, textvariable=self.do_overwrite_first_label_value, command=set_do_overwrite_first_label)
+        self.overwrite_yes_button.grid(row=2, column=0, sticky=tk.W+tk.E,columnspan=2,pady="0 10")
+        # self.overwrite_no_button = tk.Button(self.column_0_frame, text='NO', command=lambda: set_do_overwrite_first_label(False))
+        # self.overwrite_no_button.grid(row=2, column=1, sticky=tk.E+tk.W)
+
+
+        # self.do_overwrite_first_label = tk.Label(self.column_0_frame, textvariable=self.do_overwrite_first_label_value)
+        # self.do_overwrite_first_label.grid(column=0, row=3, columnspan=2)
 
 
         #Todo
@@ -375,7 +380,15 @@ class SetVolumeCover(tk.Tk):
         self.button5_delete_covers = tk.Button(self.column_0_frame, text="Delete covers")
         self.button5_delete_covers.configure(command=lambda: add_file_to_list(True))
         self.button5_delete_covers.grid(column=0, row=6, sticky=tk.W+tk.E, columnspan=2)
+        # self.column_0_frame.grid_columnconfigure()
 
+        separator2 = ttk.Separator(self.column_0_frame, orient="horizontal")
+        separator2.grid(column=0, row=7, sticky=tk.W + tk.E, pady="20 10", columnspan=2)
+        # separator2 = ttk.Separator(self.column_0_frame, orient="horizontal")
+        # separator2.grid(column=0, row=8, sticky=tk.W + tk.E, pady="1 7", columnspan=2)
+        self.button6_reselect_covers = tk.Button(self.column_0_frame, text="Select new set of covers")
+        self.button6_reselect_covers.configure(command=opencovers)
+        self.button6_reselect_covers.grid(column=0, row=8, sticky=tk.W + tk.E, columnspan=2)
         self.column_0_frame.grid(row=3, pady=20)
 
 
