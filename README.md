@@ -3,7 +3,7 @@
 
 ## Set Cover
 
-###How to use it:
+### How to use it:
 
 Pretty straightforward process:
 
@@ -12,19 +12,20 @@ Pretty straightforward process:
 
 3. Select if you want to overwrite or not.<br>
 
-####Overwrite: YES
+#### Overwrite: YES
 
 ~~~~
 This will search for an image named 001.ext and will replace it with the new cover.
 The cover will end up named 001.ext. The already existing file will be named OldCover_001.ext.bk
 ~~~~
+
+#### Overwrite: NO
 ~~~~
-Overwrite: NO
 This will create a file named 0000.ext. 
 If there is already an image named that, it will be renamed to OldCover_0000.ext.bk 
 ~~~~
 
-###How I personally use this tool:
+#### How I personally use this tool:
 
 ~~~~
 The first thing I do is locate the cover images I am going to use. And name them after the volume they are from
@@ -46,14 +47,14 @@ I personally recommend to have a folder with all the different covers I want to 
 ~~~~
 ## Set Volume
 
-###How to use it
+### How to use it
 
 1. Run script
 2. Change the tool. Select Volume setter in the dropdown at the bottom of the window
 3. Click the button to select the files you want to apply the change to
 4. Introduce the number of the volume you want to check
 
-###How I personally use this tool:
+#### How I personally use this tool:
 
 ~~~~
 If I want to have vol.1 in 5 names I follow the instructions.
