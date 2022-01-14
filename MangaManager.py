@@ -107,8 +107,11 @@ def backup_delete_first_cover(new_zipFilePath, tmpname,overwrite=None):
                     zout.writestr(f"OldCover_{item.filename}.bak", zin.read(filename))
                     backup_isdone = True
                     continue
-                if item.filename == old_cover_filename[0]:  # delete existing "OldCover_00.ext.bk file from the zip
-                    continue
+                try:
+                    if item.filename == old_cover_filename[0]:  # delete existing "OldCover_00.ext.bk file from the zip
+                        continue
+                except IndexError:
+                    pass
                 zout.writestr(item, zin.read(item.filename)) # File is not the first or oldcover hence we keep it.
 
 def doDeleteCover(zipFilePath):
