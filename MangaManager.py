@@ -221,13 +221,19 @@ class SetVolumeCover(tk.Tk):
             """
 
             velog("Selecting covers in opencovers")
-            self.button3_load_images.destroy()
+            self.button3_load_images.grid_remove()
             covers_path_list = filedialog.askopenfiles(initialdir=launch_path,
                                                        title="Open all covers you want to work with:"
                                                        )
             self.licycle = cycle(covers_path_list)
-
-            self.nextelem = next(self.licycle)
+            try:
+                self.nextelem = next(self.licycle)
+            except StopIteration:
+                mb.showwarning("No file selected","No images were selected.")
+                self.image = None
+                self.button3_load_images.grid()
+                logging.critical("No images were selected when asked for")
+                raise
             self.prevelem = None
             self.enableButtons(self.frame_coversetter)
             try:
@@ -438,7 +444,8 @@ class SetVolumeCover(tk.Tk):
 
     def tool_volumesetter(self):
         delog("inside tool-volumesetter")
-
+        self.geometry("500x886")
+        self.resizable(0,0)
         MainLabelVar = tk.StringVar()
         self.title("Volume Setter")
         self.select_tool_old = "Volume Setter"
@@ -752,7 +759,7 @@ class SetVolumeCover(tk.Tk):
             velog("Cleanup: Try to clear treeview")
             if Selected_tool == "Cover":
                 self.treeview1.delete(*self.treeview1.get_children())
-                self.treeview1.grid_forget()
+                # self.treeview1.grid_forget()
             elif Selected_tool == "Volume":
                 self.treeview2.delete(*self.treeview2.get_children())
                 self.treeview2.grid_forget()
