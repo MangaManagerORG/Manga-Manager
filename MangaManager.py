@@ -687,7 +687,7 @@ class SetVolumeCover(tk.Tk):
         preview_button.grid(column=0, row=6)
 
 
-        self.progressbar_frame = tk.Frame(self.frame_volumesetter, width=60, height=90,background="blue")
+        self.progressbar_frame = tk.Frame(self.frame_volumesetter, width=60, height=90)
         self.progressbar_frame.columnconfigure(0,weight=1)
         self.progressbar_frame.columnconfigure(1,weight=1)
         self.progressbar_frame.grid(column=0, row=9, sticky="WE", padx=30)
