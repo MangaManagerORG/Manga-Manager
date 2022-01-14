@@ -42,6 +42,7 @@ logging.basicConfig(level=args.loglevel,
                     format='%(asctime)s %(levelname)s %(message)s'
                     # filename='/tmp/myapp.log'
                     )
+logging.getLogger('PIL').setLevel(logging.WARNING)
 velog = logging.info
 delog = logging.debug
 ScriptDir = os.path.dirname(__file__)
@@ -93,26 +94,36 @@ class ChapterFileNameData:
 
 def backup_delete_first_cover(new_zipFilePath, tmpname,overwrite=None):
     backup_isdone = False
+    def is_folder(name:str,folders_list):
+        if name.split("/")[0] + "/" in folders_list:
+            return True
+        else:
+            return False
+
+
     with zipfile.ZipFile(new_zipFilePath, 'r') as zin:
         with zipfile.ZipFile(tmpname, 'w') as zout:
-            old_cover_filename = [v for v in zin.namelist() if v.startswith("OldCover_")]  # Find "OldCover_ file
+            # old_cover_filename = [v for v in zin.namelist() if v.startswith("OldCover_")]  # Find "OldCover_ file
             folders_list = [v for v in zin.namelist() if v.endswith("/")]  # Notes all folders to not process them.
             for item in zin.infolist():
-                if not backup_isdone and item.filename.split("/")[0] not in folders_list:  # Checks if item is inside folder
+                delog(f"Iterating: " + item.filename)
+                if item.filename.startswith("OldCover_") or item.filename.startswith("ComicInfo"):  # delete existing "OldCover_00.ext.bk file from the zip
+                    continue
+                if not backup_isdone and not is_folder(item.filename,folders_list):
+                    delog(f"File is cover/first and backup not done: {item.filename}")
                     # We save the current cover with different name to back it up
-                    filename = item.filename
                     if item.filename.startswith("!00000") and overwrite is False: # we want to keep this file as it is increased by 1
-                        filename = item.filename.replace("!00000", "!00001")
-
-                    zout.writestr(f"OldCover_{item.filename}.bak", zin.read(filename))
+                        item_filename = int(item.filename.split(".")[0].replace("!",""))+1
+                    else:
+                        item_filename = item.filename
+                    zout.writestr(f"OldCover_{item_filename}.bak", zin.read(item.filename))
+                    delog("OldCover found")
                     backup_isdone = True
                     continue
-                try:
-                    if item.filename == old_cover_filename[0]:  # delete existing "OldCover_00.ext.bk file from the zip
-                        continue
-                except IndexError:
-                    pass
-                zout.writestr(item, zin.read(item.filename)) # File is not the first or oldcover hence we keep it.
+
+                delog(f"adding {item.filename} back to the new tempfile")
+                zout.writestr(item, zin.read(item.filename))  # File is not the first or oldcover hence we keep it.
+
 
 def doDeleteCover(zipFilePath):
 
@@ -144,17 +155,15 @@ def updateZip(values: cover_process_item_info):
         mb.showerror("Can't access the file because it's being used by a different process", f"Exception:{e}")
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(v.zipFilePath))
     os.close(tmpfd)
+    backup_delete_first_cover(new_zipFilePath, tmpname, overwrite=True)
     new_coverFileName = f"!00000{v.coverFileFormat}"
-    backup_delete_first_cover(new_zipFilePath, tmpname, new_coverFileName, v.coverFileFormat, overwrite=True)
 
     os.remove(new_zipFilePath)
     os.rename(tmpname, new_zipFilePath)
-
-    basenameFile = os.path.basename(v.coverFilePath)
     with zipfile.ZipFile(new_zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
         zf.write(v.coverFilePath, new_coverFileName)
-    os.rename(new_zipFilePath, oldZipFilePath)
-    velog("Finished processign of file")
+    os.rename(new_zipFilePath, v.zipFilePath)
+    velog("Finished processing of file")
 
 
 def appendZip(values: cover_process_item_info):
@@ -168,8 +177,9 @@ def appendZip(values: cover_process_item_info):
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(new_zipFilePath))
     os.close(tmpfd)
 
-    new_coverFileName = f"!00000{v.coverFileFormat}"
+    backup_delete_first_cover(new_zipFilePath, tmpname, overwrite=False)
 
+    new_coverFileName = f"!00000{v.coverFileFormat}"
     os.remove(new_zipFilePath)
     os.rename(tmpname, new_zipFilePath)
     with zipfile.ZipFile(new_zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
@@ -245,6 +255,8 @@ class SetVolumeCover(tk.Tk):
             except UnidentifiedImageError as e:
                 mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
                 logging.critical(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
+                self.button3_load_images.grid()
+
 
         def show_first_cover():
             velog("Printing first image in canvas")
@@ -309,7 +321,7 @@ class SetVolumeCover(tk.Tk):
 
                 self.covers_path_in_confirmation[str(self.image_in_confirmation)].append(tmp_dic)
                 displayed_file_path = f"...{os.path.basename(iterated_file_path)[-46:]}"
-                overwrite_displayedval = self.do_overwrite_first.get() if overwriteval != "delete" else True
+                overwrite_displayedval = self.do_overwrite_first.get() if overwriteval != "delete" else "Delete"
                 self.treeview1.insert(parent='', index='end', image=self.image_in_confirmation,
                                       values=(displayed_file_path, overwrite_displayedval))
                 self.treeview1.yview_moveto(1)
@@ -622,7 +634,9 @@ class SetVolumeCover(tk.Tk):
                 processed_counter = 1
                 processed_errors = 0
                 if self.select_tool_old == "Cover Setter":
-                    total = len(self.covers_path_in_confirmation)
+                    total = 0
+                    for v in self.covers_path_in_confirmation:
+                        total +=len(v)
                     for item in self.covers_path_in_confirmation:
                         pathdict = self.covers_path_in_confirmation
                         for file in self.covers_path_in_confirmation[item]:
@@ -638,7 +652,7 @@ class SetVolumeCover(tk.Tk):
                                 if overwrite == "delete":
                                     delog("Entering delete cover function")
                                     doDeleteCover(cbz_file)
-                                elif self.do_overwrite_first.get():
+                                elif overwrite == True:
                                     delog("Entering overwrite cover function")
                                     data = cover_process_item_info(cbz_file, cover_path, cover_name, cover_format)
                                     updateZip(data)
