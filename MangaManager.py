@@ -91,138 +91,38 @@ class ChapterFileNameData:
         self.complete_new_name = complete_new_name
 
 
-def checkCoverExists(new_zipFilePath, tmpname, coverFileName, CoverFileFormat, mode):
+def backup_delete_first_cover(new_zipFilePath, tmpname):
+    backup_isdone = False
     with zipfile.ZipFile(new_zipFilePath, 'r') as zin:
         with zipfile.ZipFile(tmpname, 'w') as zout:
-            zout.comment = zin.comment
+            old_cover_filename = [v for v in zin.namelist() if v.startswith("OldCover_")]  # Find "OldCover_ file
+            folders_list = [v for v in zin.namelist() if v.endswith("/")]  # Notes all folders to not process them.
             for item in zin.infolist():
-                if item.filename != coverFileName:
-                    if item.filename.startswith("OldCover"):
-                        # zout.writestr(f"OldCover{CoverFileFormat}.bak",zin.read(item.filename))
-                        continue
-                    if re.findall(r"0+1\.[a-z]{3}$", item.filename) and mode:
-                        zout.writestr(f"OldCover_{item.filename}.bak", zin.read(item.filename))
-                        continue
-                    if re.findall(r"0+0\.[a-z]{3}$", item.filename) and not mode:
-                        zout.writestr(f"OldCover_{item.filename}.bak", zin.read(item.filename))
-                        continue
-                    zout.writestr(item, zin.read(item.filename))
-                else:
-                    zout.writestr(f"OldCover{item.filename}.bak", zin.read(item.filename))
-
-
-def resetCover(new_zipFilePath, tmpname, mode):
-    with zipfile.ZipFile(new_zipFilePath, 'r') as zin:
-        with zipfile.ZipFile(tmpname, 'w') as zout:
-            zout.comment = zin.comment
-            onholdCover = ""
-            rawCovername = ""
-            rawholdCover = ""
-            coverIsZero = False
-            oldCoverExists = False
-            for item in zin.infolist():
-                if item.filename.startswith("OldCover"):
-                    onholdCover = item.filename.replace("OldCover", "").replace(".bak", "")
-                    if re.findall(r"0+0\.[a-z]{3}$", item.filename):
-                        coverIsZero = True
-                        rawCovername = item
-                    elif re.findall(r"0+1\.[a-z]{3}$", item.filename):
-                        coverIsZero = False
-                        rawCovername = item
-                    elif onholdCover.startswith("."):
-                        rawCovername = item
-                        rawholdCover = onholdCover
-                        onholdCover = f"0000{onholdCover}"
-                        coverIsZero = "None"
-                    # zout.writestr(f"OldCover{CoverFileFormat}.bak",zin.read(item.filename))
-                    oldCoverExists = True
-                    break
-            if not oldCoverExists:
-                raise CoverDoesNotExist("Old Cover not found")
-            if coverIsZero == "None":
-                for item in zin.infolist():
-                    # time.sleep(2)
-                    if item.filename.startswith(
-                            "OldCover"):  # and item.filename == isinstance(rawCovername,zipfile.ZipInfo):
-                        continue
-                    if re.findall(r"0+0\.[a-z]{3}$", item.filename):
-                        # zout.writestr(f"OldCover_{item.filename}.bak",zin.read(item.filename))
-                        # zout.writestr(onholdCover, zin.read(rawCovername.filename))
-                        coverIsZero = True
-                        continue
-            for item in zin.infolist():
-                # time.sleep(2)
-                if re.findall(r"0+0\.[a-z]{3}$", item.filename) and coverIsZero:
+                if not backup_isdone and item.filename.split("/")[0] not in folders_list:  # Checks if item is inside folder
+                    # We save the current cover with different name to back it up
                     zout.writestr(f"OldCover_{item.filename}.bak", zin.read(item.filename))
-                    zout.writestr(onholdCover, zin.read(rawCovername.filename))
-                    coverIsZero = True
-                if item.filename.startswith(
-                        "OldCover"):  # and item.filename == isinstance(rawCovername,zipfile.ZipInfo):
+                    backup_isdone = True
                     continue
-                if re.findall(r"0+1\.[a-z]{3}$", item.filename):
-                    if onholdCover:
-                        onholdCover = f"0001{rawholdCover}"
-                    zout.writestr(f"OldCover_{item.filename}.bak", zin.read(item.filename))
-                    zout.writestr(onholdCover, zin.read(rawCovername.filename))
+                if item.filename == old_cover_filename[0]:  # delete existing "OldCover_00.ext.bk file from the zip
                     continue
-                else:
-                    zout.writestr(item, zin.read(item.filename))
-                    # zout.writestr(f"OldCover{CoverFileFormat}.bak",zin.read(item.filename))
+                zout.writestr(item, zin.read(item.filename)) # File is not the first or oldcover hence we keep it.
 
+def doDeleteCover(zipFilePath):
 
-def deleteCover(new_zipFilePath, tmpname):
-    with zipfile.ZipFile(new_zipFilePath, 'r') as zin:
-        with zipfile.ZipFile(tmpname, 'w') as zout:
-            zout.comment = zin.comment
-            coverIsZero = False
-            for item in zin.infolist():
-                if item.filename.startswith("OldCover"):
-                    onholdCover = item.filename.replace("OldCover", "").replace(".bak", "")
-                    if re.findall(r"0+0\.[a-z]{3}$", item.filename):
-                        coverIsZero = True
-                    elif re.findall(r"0+1\.[a-z]{3}$", item.filename):
-                        coverIsZero = False
-                    elif onholdCover.startswith("."):
-                        coverIsZero = "None"
-                    break
-            if coverIsZero == "None":
-                for item in zin.infolist():
-                    if item.filename.startswith("OldCover"):
-                        continue
-                    if re.findall(r"0+0\.[a-z]{3}$", item.filename):
-                        coverIsZero = True
-                        continue
-
-            for item in zin.infolist():
-                if re.findall(r"0+0\.[a-z]{3}$", item.filename) and coverIsZero:
-                    zout.writestr(f"OldCover_{item.filename}.bak", zin.read(item.filename))
-                    continue
-                if re.findall(r"0+1\.[a-z]{3}$", item.filename):
-                    zout.writestr(f"OldCover_{item.filename}.bak", zin.read(item.filename))
-                    continue
-                if item.filename.startswith(
-                        "OldCover"):  # and item.filename == isinstance(rawCovername,zipfile.ZipInfo):
-                    continue
-                else:
-                    zout.writestr(item, zin.read(item.filename))
-
-
-def doResetCover(zipFilePath):
     oldZipFilePath = zipFilePath
     new_zipFilePath = '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$", zipFilePath)[0])
-
+    delog(f"Inside doDeleteCover - .cbz will be renamed to {new_zipFilePath}")
     os.rename(zipFilePath, new_zipFilePath)
 
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipFilePath))
     os.close(tmpfd)
-    resetCover(new_zipFilePath, tmpname, True)
+    backup_delete_first_cover(new_zipFilePath, tmpname)
 
     # checkCoverExists(new_zipFilePath,tmpname,new_coverFileName,coverFileFormat,True)
 
     os.remove(new_zipFilePath)
     os.rename(tmpname, new_zipFilePath)
     os.rename(new_zipFilePath, oldZipFilePath)
-
 
 def updateZip(values: cover_process_item_info):
     velog("Updating file (overwriting 0001.ext)")
@@ -236,8 +136,8 @@ def updateZip(values: cover_process_item_info):
         mb.showerror("Can't access the file because it's being used by a different process", f"Exception:{e}")
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(v.zipFilePath))
     os.close(tmpfd)
-    new_coverFileName = f"0001{v.coverFileFormat}"
-    checkCoverExists(new_zipFilePath, tmpname, new_coverFileName, v.coverFileFormat, True)
+    new_coverFileName = f"!00000{v.coverFileFormat}"
+    backup_delete_first_cover(new_zipFilePath, tmpname, new_coverFileName, v.coverFileFormat, True)
 
     os.remove(new_zipFilePath)
     os.rename(tmpname, new_zipFilePath)
@@ -248,7 +148,6 @@ def updateZip(values: cover_process_item_info):
     os.rename(new_zipFilePath, oldZipFilePath)
     velog("Finished processign of file")
 
-
 def appendZip(values: cover_process_item_info):
     velog("Append file (append 0001.ext)")
     v = values
@@ -257,41 +156,17 @@ def appendZip(values: cover_process_item_info):
         os.rename(v.zipFilePath, new_zipFilePath)
     except PermissionError as e:
         mb.showerror("Can't access the file because it's being used by a different process", f"Exception:{e}")
-
-    oldZipFilePath = v.zipFilePath
-
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(new_zipFilePath))
     os.close(tmpfd)
 
-    new_coverFileName = f"0000{v.coverFileFormat}"
-
-    checkCoverExists(new_zipFilePath, tmpname, new_coverFileName, v.coverFileFormat, False)
+    new_coverFileName = f"!00000{v.coverFileFormat}"
 
     os.remove(new_zipFilePath)
     os.rename(tmpname, new_zipFilePath)
-
     with zipfile.ZipFile(new_zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
         zf.write(v.coverFilePath, new_coverFileName)
-    os.rename(new_zipFilePath, oldZipFilePath)
-    velog("Finished processign of file")
-
-
-def doDeleteCover(zipFilePath):
-
-    oldZipFilePath = zipFilePath
-    new_zipFilePath = '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$", zipFilePath)[0])
-    delog(f"Inside doDeleteCover - .cbz will be renamed to {new_zipFilePath}")
-    os.rename(zipFilePath, new_zipFilePath)
-
-    tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipFilePath))
-    os.close(tmpfd)
-    deleteCover(new_zipFilePath, tmpname)
-
-    # checkCoverExists(new_zipFilePath,tmpname,new_coverFileName,coverFileFormat,True)
-
-    os.remove(new_zipFilePath)
-    os.rename(tmpname, new_zipFilePath)
-    os.rename(new_zipFilePath, oldZipFilePath)
+    os.rename(new_zipFilePath, v.zipFilePath)
+    velog("Finished processing of file")
 
 
 def formatTimestamp(timestamp):
