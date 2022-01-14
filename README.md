@@ -53,6 +53,8 @@ I personally recommend to have a folder with all the different covers I want to 
 2. Change the tool. Select Volume setter in the dropdown at the bottom of the window
 3. Click the button to select the files you want to apply the change to
 4. Introduce the number of the volume you want to check
+5. Click preview to make sure the naming is correct
+6. Click proceed will start processing the files
 
 #### How I personally use this tool:
 
