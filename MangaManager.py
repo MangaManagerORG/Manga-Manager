@@ -1,3 +1,4 @@
+import json
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox as mb
@@ -7,7 +8,6 @@ from tkinter import ttk
 import os
 import zipfile
 import tempfile
-import sys
 import re
 import time
 from datetime import datetime
@@ -99,30 +99,47 @@ def backup_delete_first_cover(new_zipFilePath, tmpname,overwrite=None):
             return True
         else:
             return False
-
-
     with zipfile.ZipFile(new_zipFilePath, 'r') as zin:
         with zipfile.ZipFile(tmpname, 'w') as zout:
             # old_cover_filename = [v for v in zin.namelist() if v.startswith("OldCover_")]  # Find "OldCover_ file
             folders_list = [v for v in zin.namelist() if v.endswith("/")]  # Notes all folders to not process them.
             for item in zin.infolist():
                 delog(f"Iterating: " + item.filename)
-                if item.filename.startswith("OldCover_") or item.filename.startswith("ComicInfo"):  # delete existing "OldCover_00.ext.bk file from the zip
-                    continue
-                if not backup_isdone and not is_folder(item.filename,folders_list):
-                    delog(f"File is cover/first and backup not done: {item.filename}")
-                    # We save the current cover with different name to back it up
-                    if item.filename.startswith("!00000") and overwrite is False: # we want to keep this file as it is increased by 1
-                        item_filename = int(item.filename.split(".")[0].replace("!",""))+1
-                    else:
-                        item_filename = item.filename
-                    zout.writestr(f"OldCover_{item_filename}.bak", zin.read(item.filename))
-                    delog("OldCover found")
-                    backup_isdone = True
+                if item.filename.startswith("OldCover_"):  # delete existing "OldCover_00.ext.bk file from the zip
                     continue
 
-                delog(f"adding {item.filename} back to the new tempfile")
-                zout.writestr(item, zin.read(item.filename))  # File is not the first or oldcover hence we keep it.
+                if is_folder(item.filename, folders_list):  # We skip any file inside directory (for now)
+                    continue
+
+                if not backup_isdone:
+                    # delog(f"File is cover/first and backup not done: {item.filename}")
+                    # We save the current cover with different name to back it up
+                    if item.filename.startswith("!00000."): # backup current first cover
+                        newname = f"OldCover_{item.filename}.bak"
+                        zout.writestr(newname, zin.read(item.filename))
+                        backup_isdone = True
+                        delog(f"Backed up customized first cover {item.filename}.")
+                        break
+
+
+
+            for item in zin.infolist():
+                if item.filename.startswith("OldCover_") or item.filename.startswith("!00000."):  # delete existing "OldCover_00.ext.bk file from the zip
+                    continue
+                if is_folder(item.filename, folders_list):  # We skip any file inside directory (for now)
+                    continue
+
+                if not backup_isdone and overwrite == True:
+                    newname = f"OldCover_{item.filename}.bak"
+                    zout.writestr(newname, zin.read(item.filename))
+                    backup_isdone = True
+                    delog("Backed up first cover.")
+                    continue
+                else:
+                    item_filename = item.filename
+                    zout.writestr(item_filename, zin.read(item.filename))
+                    delog(f"adding {item.filename} back to the new tempfile")
+                    continue
 
 
 def doDeleteCover(zipFilePath):
@@ -134,7 +151,7 @@ def doDeleteCover(zipFilePath):
 
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipFilePath))
     os.close(tmpfd)
-    backup_delete_first_cover(new_zipFilePath, tmpname,overwrite=True) # Overwrite true because we want to backup the cover with different name
+    backup_delete_first_cover(new_zipFilePath, tmpname, overwrite=True) # Overwrite true because we want to backup the cover with different name
 
     # checkCoverExists(new_zipFilePath,tmpname,new_coverFileName,coverFileFormat,True)
 
@@ -631,14 +648,21 @@ class SetVolumeCover(tk.Tk):
                 self_waitup.i_waited_for_this = ""
 
             def run(self_waitup):
+
                 processed_counter = 1
                 processed_errors = 0
                 if self.select_tool_old == "Cover Setter":
+                    timestamp = time.time()
+                    undoJson["SetCover"] = {}
+                    undoJson2 = undoJson["SetCover"][timestamp] = []
+
                     total = 0
                     for v in self.covers_path_in_confirmation:
                         total +=len(v)
+                    undoJson2 = {}
                     for item in self.covers_path_in_confirmation:
-                        pathdict = self.covers_path_in_confirmation
+                        # pathdict = self.covers_path_in_confirmation
+                        undoJson2[item] = []
                         for file in self.covers_path_in_confirmation[item]:
 
                             delog(f"processing: {file}")
@@ -674,6 +698,20 @@ class SetVolumeCover(tk.Tk):
                                 mb.showerror("Can't access the file because it's being used by a different process", f"Exception:{e}")
                                 processed_errors += 1
                                 continue
+                            except FileNotFoundError as e:
+                                mb.showerror("Can't access the file because it's being used by a different process",
+                                             f"Exception:{e}")
+                                processed_errors += 1
+                                continue
+                            except Exception as e:
+                                mb.showerror("Something went wrong","Error processing. Check logs.")
+                                logging.critical("Exception Processing",exc_info=e,)
+                            undoJson2[item].append(file)
+                    with open(undoJsonFile, "w") as f:
+                        print(undoJson)
+                        json.dump(undoJson, f)
+
+
                 elif self.select_tool_old =="Volume Setter":
                     timestamp = time.time()
                     undoJson["Rename"] = {}
@@ -703,6 +741,7 @@ class SetVolumeCover(tk.Tk):
             #         json.dump(undoJson, f)
             #     print(undoJson)
             #
+                self.covers_path_in_confirmation = {}  # clear queue
                 global pb_flag
                 pb_flag = False
                 self_waitup.i_waited_for_this = "it is done"  # result of the task / replace with object or variable you want to pass
