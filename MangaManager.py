@@ -359,7 +359,7 @@ class SetVolumeCover(tk.Tk):
         self.select_tool_old = "Cover Setter"
         self.covers_path_in_confirmation = {}
         self.undo_task_json = {}
-        self.geometry("860x910")
+        self.geometry("860x940")
 
 
         # w.winfo_reqheight()
