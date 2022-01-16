@@ -591,14 +591,6 @@ class SetVolumeCover(tk.Tk):
 
 
         def preview_changes():
-
-            # try:
-            #     velog("Preview changes: Try to clear treeview")
-            #     self.treeview2.delete(*self.treeview1.get_children())
-            # except AttributeError:
-            #     delog("Can't clear treeview. -> doesnt exist yet")
-            # except Exception as e:
-            #     delog("Can't clear treeview",exc_info=e)
             s = ttk.Style()
             s.configure('Treeview', rowheight=20, rowpady=5, rowwidth=365)
             # s.layout("Treeview", [
@@ -607,6 +599,8 @@ class SetVolumeCover(tk.Tk):
 
             self.list_filestorename = []
             counter = 0
+            if not self.covers_path_list:
+                return
             volume_to_apply  = self.spinbox1.get()
             for cbz_path in self.covers_path_list:
                 filepath = cbz_path.name
@@ -636,7 +630,8 @@ class SetVolumeCover(tk.Tk):
                 delog(f"Inserted item in treeview -> {file_regex_finds.name}")
                 counter +=1
             self.covers_path_list = None
-            self.button4_proceed.configure(state="normal")
+            if len(self.treeview2.get_children()) == 0:
+                self.button4_proceed.configure(state="normal")
 
 
         s = ttk.Style()
