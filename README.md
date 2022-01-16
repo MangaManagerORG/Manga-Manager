@@ -15,35 +15,29 @@ Pretty straightforward process:
 #### Overwrite: YES
 
 ~~~~
-This will search for an image named 001.ext and will replace it with the new cover.
-The cover will end up named 001.ext. The already existing file will be named OldCover_001.ext.bk
+This will search for the first image and will back it up as OldCover_001.ext.bk and delete it
+Then, the script will create a file named 000000.ext with the new cover
 ~~~~
 
 #### Overwrite: NO
 ~~~~
-This will create a file named 0000.ext. 
+This will create a file named 000000.ext.
 If there is already an image named that, it will be renamed to OldCover_0000.ext.bk 
 ~~~~
+
+#### To delete cover:
+I click "Delete covers" and select the files which I want to remove the images from.
+They will be added to the queue and will be marked with a recycle bin image that says DELETE.
+
 
 #### How I personally use this tool:
 
 ~~~~
 The first thing I do is locate the cover images I am going to use. And name them after the volume they are from
+
+Then i press 'Delete cover' and proceed to select all images whom i want their cover removed.
+
 After that I click the button to select the cover images I am going to use.
- 
-For this example I have 6 files. First 3 are from volume 1 and the rest belong to volume 2
-After the first cover shows up. I select if I want to overwrite or not.
-Then I select the file that I want to modify to add the cover image.
-
-It will automatically add it to the queue.
-
-I only want to have a cover in the first chapter of each volume and since all my files have covers already i'm going
-to delete them.
-
-To delete cover:
-I click "Delete covers" and select the files which I want to remove the images from.
-They will be added to the queue and will be marked with a recycle bin image that says DELETE.
-I personally recommend to have a folder with all the different covers I want to apply to a series and select all of them when asked to open cover files<br>
 ~~~~
 ## Set Volume
 
@@ -55,6 +49,12 @@ I personally recommend to have a folder with all the different covers I want to 
 4. Introduce the number of the volume you want to check
 5. Click preview to make sure the naming is correct
 6. Click proceed will start processing the files
+
+### Settings available:
+
+- **Auto increase volume number after processing:**<br>&nbsp;&nbsp;&nbsp;&nbsp;After the processing is done the script will increase volume number by one
+- **Open File selector dialog after processing:**<br>&nbsp;&nbsp;&nbsp;&nbsp;After the processing is done, the popup dialog to select next files to add volume will appear.<br>&nbsp;&nbsp;&nbsp;&nbsp;This saves time so there is no need to click the button to reselect the files.<br>&nbsp;&nbsp;&nbsp;&nbsp;Ideal when adding multiple volumes to files
+- **Automatic preview**<br>&nbsp;&nbsp;&nbsp;&nbsp;The table with the preview will be automatically populated right after selecting the files
 
 #### How I personally use this tool:
 

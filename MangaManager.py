@@ -272,7 +272,6 @@ class SetVolumeCover(tk.Tk):
                 logging.critical(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
                 self.button3_load_images.grid()
 
-
         def show_first_cover():
             velog("Printing first image in canvas")
             self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
@@ -316,7 +315,6 @@ class SetVolumeCover(tk.Tk):
                 overwriteval= self.do_overwrite_first.get()
                 image_path = self.thiselem.name
 
-
             cbzs_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
                                 filetypes=(("CBZ Files", "cbz"),)
                                 )
@@ -352,13 +350,16 @@ class SetVolumeCover(tk.Tk):
             reset_overwrite_status()
             self.button4_proceed.config(state="normal", text="Proceed")
             if overwriteval != "delete":
-                display_next_cover()
+                if self.checkbox0_settings_val.get():
+                    display_next_cover()
+                if self.checkbox1_settings_val.get() and cbzs_path_list:
+                    add_file_to_list()
         delog("inside tool-coversetter")
         self.title("Cover Setter")
         self.select_tool_old = "Cover Setter"
         self.covers_path_in_confirmation = {}
         self.undo_task_json = {}
-        self.geometry("800x900")
+        self.geometry("860x910")
 
 
         # w.winfo_reqheight()
@@ -442,8 +443,21 @@ class SetVolumeCover(tk.Tk):
         self.button6_reselect_covers.grid(column=0, row=8, sticky=tk.W + tk.E, columnspan=2)
         self.column_0_frame.grid(row=3, pady=20)
 
+        settings = tk.Frame(self.frame_coversetter, height=160, width=200)
+        settings.grid(row=4, column=0, sticky=tk.E)
 
-
+        self.checkbox0_settings_val = tk.BooleanVar()
+        self.checkbox0_settings_val.set(True)
+        checkbox0_settings = tk.Checkbutton(settings, text="Display next cover after adding a file to the queue (not delete)",
+                                            variable=self.checkbox0_settings_val)
+        checkbox0_settings.grid(row=0, sticky=tk.W)
+        self.checkbox1_settings_val = tk.BooleanVar()
+        checkbox1_settings = tk.Checkbutton(settings,text="Open File selector dialog after adding to queue (default replace: no)",variable=self.checkbox1_settings_val)
+        checkbox1_settings.grid(row=1, sticky=tk.W)
+        # self.checkbox2_settings_val = tk.BooleanVar()
+        # checkbox2_settings = tk.Checkbutton(settings, text="Automatic preview",
+        #                                     variable=self.checkbox2_settings_val)
+        # checkbox2_settings.grid(row=2, sticky=tk.W)
 
         # This is the 2d column of Frame
         # Column 1 - Row 0
@@ -504,15 +518,16 @@ class SetVolumeCover(tk.Tk):
         settings.grid(row=3,column=0,rowspan=4,sticky=tk.E)
 
         self.checkbox0_settings_val = tk.BooleanVar()
-        checkbox0_settings = tk.Checkbutton(settings, text="Auto increase volume number after processing",
-                                            variable=self.checkbox0_settings_val)
+        self.checkbox0_settings_val.set(True)
+        checkbox0_settings = tk.Checkbutton(settings, text="Auto increase volume number after processing",variable=self.checkbox0_settings_val)
         checkbox0_settings.grid(row=0, sticky=tk.W)
+
         self.checkbox1_settings_val = tk.BooleanVar()
         checkbox1_settings = tk.Checkbutton(settings,text="Open File selector dialog after processing",variable=self.checkbox1_settings_val)
         checkbox1_settings.grid(row=1,sticky=tk.W)
+
         self.checkbox2_settings_val = tk.BooleanVar()
-        checkbox2_settings = tk.Checkbutton(settings, text="Automatic preview",
-                                            variable=self.checkbox2_settings_val)
+        checkbox2_settings = tk.Checkbutton(settings, text="Automatic preview",variable=self.checkbox2_settings_val)
         checkbox2_settings.grid(row=2,sticky=tk.W)
 
 
