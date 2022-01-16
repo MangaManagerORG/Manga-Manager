@@ -249,7 +249,9 @@ class SetVolumeCover(tk.Tk):
             """
 
             velog("Selecting covers in opencovers")
-            self.button3_load_images.grid_remove()
+
+
+            self.button3_load_images.configure(text="Loading...",state="disabled")
             covers_path_list = filedialog.askopenfiles(initialdir=launch_path,
                                                        title="Open all covers you want to work with:"
                                                        )
@@ -257,19 +259,24 @@ class SetVolumeCover(tk.Tk):
             try:
                 self.nextelem = next(self.licycle)
             except StopIteration:
+                # self.button3_load_images.configure(text="Select covers")
                 mb.showwarning("No file selected","No images were selected.")
                 self.image = None
+                self.button3_load_images.configure(text="Select covers",state="normal")
                 self.button3_load_images.grid()
                 logging.critical("No images were selected when asked for")
                 raise
             self.prevelem = None
             self.enableButtons(self.frame_coversetter)
             try:
+                self.button3_load_images.grid_remove()
+
                 show_first_cover()
 
             except UnidentifiedImageError as e:
                 mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
                 logging.critical(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
+                self.button3_load_images.configure(text="Select covers", state="normal")
                 self.button3_load_images.grid()
 
         def show_first_cover():
@@ -382,6 +389,7 @@ class SetVolumeCover(tk.Tk):
         self.canvas1_coverimage.grid(column=0, row=0, padx="10 30")
         self.button3_load_images = tk.Button(self.canvas_frame,text="Select covers",command=opencovers)
         self.button3_load_images.grid(column=0,row=0,pady=20)
+
         self.cover_image_name_label_var = tk.StringVar(value='OPEN ONE OR MORE IMAGES')
         self.label_coverimagetitle = ttk.Label(self.canvas_frame)
         self.label_coverimagetitle.configure(textvariable=self.cover_image_name_label_var)
