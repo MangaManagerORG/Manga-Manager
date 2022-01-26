@@ -1,4 +1,4 @@
-import json
+
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox as mb
@@ -104,7 +104,7 @@ def backup_delete_first_cover(new_zipFilePath, tmpname,overwrite=None):
             # old_cover_filename = [v for v in zin.namelist() if v.startswith("OldCover_")]  # Find "OldCover_ file
             folders_list = [v for v in zin.namelist() if v.endswith("/")]  # Notes all folders to not process them.
             for item in zin.infolist():
-                delog(f"Iterating: " + item.filename)
+                delog(f"[Backup-Delete] Iterating: " + item.filename)
                 if item.filename.startswith("OldCover_"):  # delete existing "OldCover_00.ext.bk file from the zip
                     continue
 
@@ -114,17 +114,19 @@ def backup_delete_first_cover(new_zipFilePath, tmpname,overwrite=None):
                 if not backup_isdone:
                     # delog(f"File is cover/first and backup not done: {item.filename}")
                     # We save the current cover with different name to back it up
-                    if item.filename.startswith("000000000000."): # backup current first cover
+                    r = r"(?i)^0*\.[a-z]{3}$"
+                    if item.filename.startswith("000000000000.") or re.match(r, item.filename): # backup current first cover
                         newname = f"OldCover_{item.filename}.bak"
                         # zout.writestr(newname, zin.read(item.filename))
                         backup_isdone = True
-                        delog(f"Backed up customized first cover {item.filename}.")
+                        delog(f"[Backup-Delete] Backed up customized first cover {item.filename}.")
                         break
 
 
 
             for item in zin.infolist():
-                if item.filename.startswith("OldCover_") or item.filename.startswith("000000000000."):  # delete existing "OldCover_00.ext.bk file from the zip
+                r = r"(?i)^0*\.[a-z]{3}$"
+                if item.filename.startswith("OldCover_") or item.filename.startswith("000000000000.") or re.match(r, item.filename):  # delete existing "OldCover_00.ext.bk file from the zip
                     continue
                 if is_folder(item.filename, folders_list):  # We skip any file inside directory (for now)
                     continue
@@ -133,14 +135,74 @@ def backup_delete_first_cover(new_zipFilePath, tmpname,overwrite=None):
                     # newname = f"OldCover_{item.filename}.bak"
                     # zout.writestr(newname, zin.read(item.filename))
                     backup_isdone = True
-                    delog("Backed up first cover.")
+                    delog("[Backup-Delete] Backed up first cover.")
                     continue
                 else:
                     item_filename = item.filename
                     zout.writestr(item_filename, zin.read(item.filename))
-                    delog(f"adding {item.filename} back to the new tempfile")
+                    delog(f"[Backup-Delete] Adding {item.filename} back to the new tempfile")
+                    continue
+def backup_delete_comicinfo(new_zipFilePath, tmpname):
+    backup_isdone = False
+    def is_folder(name:str,folders_list):
+        if name.split("/")[0] + "/" in folders_list:
+            return True
+        else:
+            return False
+    with zipfile.ZipFile(new_zipFilePath, 'r') as zin:
+        with zipfile.ZipFile(tmpname, 'w') as zout:
+            # old_cover_filename = [v for v in zin.namelist() if v.startswith("OldCover_")]  # Find "OldCover_ file
+            folders_list = [v for v in zin.namelist() if v.endswith("/")]  # Notes all folders to not process them.
+            for item in zin.infolist():
+                delog(f"[ComicInfoRemover][Processing][doRemoveComicinfo][Backup-Delete]Iterating: " + item.filename)
+                if item.filename == "ComicInfo.xml":  # delete existing "OldCover_00.ext.bk file from the zip
                     continue
 
+                if is_folder(item.filename, folders_list):  # We skip any file inside directory (for now)
+                    continue
+
+                if not backup_isdone:
+                    # delog(f"File is cover/first and backup not done: {item.filename}")
+                    # We save the current cover with different name to back it up
+                    r = r"(?i)comicinfo.xml"
+                    if re.match(r, item.filename): # backup current first cover
+                        newname = f"OldComInf_{item.filename}.bak"
+                        zout.writestr(newname, zin.read(item.filename))
+                        backup_isdone = True
+                        delog(f"[ComicInfoRemover][Processing][doRemoveComicinfo][Backup-Delete] Backed up old ComicInfo {item.filename}.")
+                        break
+
+
+
+            for item in zin.infolist():
+                r = r"(?i)^comicinfo.xml$"
+                if re.match(r, item.filename):  # ignore old comicinfo already in file with new name
+                    delog(f"[ComicInfoRemover][Processing][doRemoveComicinfo][Backup-Delete] Deleting" + item.filename)
+                    continue
+                if is_folder(item.filename, folders_list):  # We skip any file inside directory (for now)
+                    zout.writestr(item.filename, zin.read(item.filename))
+
+                    continue
+                else:
+                    item_filename = item.filename
+                    zout.writestr(item_filename, zin.read(item.filename))
+                    delog(f"[ComicInfoRemover][Processing][doRemoveComicinfo][Backup-Delete] Adding {item.filename} back to the new tempfile")
+                    continue
+
+def doRemoveComicinfo(zipFilePath):
+    oldZipFilePath = zipFilePath
+    new_zipFilePath = '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$", zipFilePath)[0])
+    delog(f"[ComicInfoRemover][Processing][doRemoveComicinfo] -  {new_zipFilePath}")
+    os.rename(zipFilePath, new_zipFilePath)
+    tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipFilePath))
+    os.close(tmpfd)
+    backup_delete_comicinfo(new_zipFilePath, tmpname)  # Overwrite true because we want to backup the cover with different name
+
+    # checkCoverExists(new_zipFilePath,tmpname,new_coverFileName,coverFileFormat,True)
+
+    os.remove(new_zipFilePath)
+    os.rename(tmpname, new_zipFilePath)
+    os.rename(new_zipFilePath, oldZipFilePath)
 
 def doDeleteCover(zipFilePath):
 
@@ -160,7 +222,7 @@ def doDeleteCover(zipFilePath):
     os.rename(new_zipFilePath, oldZipFilePath)
 
 
-def updateZip(values: cover_process_item_info):
+def doUpdateZip(values: cover_process_item_info):
     velog("Updating file (overwriting 0001.ext)")
     v = values
 
@@ -183,7 +245,7 @@ def updateZip(values: cover_process_item_info):
     velog("Finished processing of file")
 
 
-def appendZip(values: cover_process_item_info):
+def doAppendZip(values: cover_process_item_info):
     velog("Append file (append 0001.ext)")
     v = values
     new_zipFilePath = "{}.zip".format(re.findall(r'(?i)(.*)(?:\.[a-z]{3})$', v.zipFilePath)[0])
@@ -219,7 +281,7 @@ class SetVolumeCover(tk.Tk):
 
         self.column_0_toolbox_frame = tk.Frame(self)
         self.__tkvar = tk.StringVar(value='Select Tool')
-        __toolSelectorValues = ["Cover Setter", "Volume Setter"]
+        __toolSelectorValues = ["Cover Setter", "Volume Setter","ComicInfo Remover" ]
         self.optionmenu1 = tk.OptionMenu(self.column_0_toolbox_frame, self.__tkvar, 'Select Tool', *__toolSelectorValues,
                                          command=self.select_tool)
         self.optionmenu1.grid(column='0', row='0', sticky='nw')
@@ -619,12 +681,12 @@ class SetVolumeCover(tk.Tk):
                     file_regex_finds:ChapterFileNameData = ChapterFileNameData(name=r[0],chapterinfo=r[1],afterchapter=r[2],fullpath=filepath,volume=volume_to_apply)
                 else:
                     #Todo: add warning no ch/chapter detected and using last int as ch identifier
-                    regexSearch = re.findall(r"(?i)(.*\s)([0-9]+[.]*[0-9]*)(\.[a-z]{3}$)", filename)
+                    regexSearch = re.findall(r"(?i)(.*\s)([0-9]+[.]*[0-9]*)(\.[a-z]{3}$)", filename)#TODO: this regex must be improved yo cover more test cases
                     if regexSearch:
                         r = regexSearch[0]
                         file_regex_finds:ChapterFileNameData = ChapterFileNameData(name=r[0], chapterinfo=r[1], afterchapter=r[2],fullpath=filepath,volume=volume_to_apply)
 
-                newFile_Name = f"{file_regex_finds.name} Vol.{volume_to_apply} {file_regex_finds.chapterinfo}{file_regex_finds.afterchapter}"
+                newFile_Name = f"{file_regex_finds.name} Vol.{volume_to_apply} {file_regex_finds.chapterinfo}{file_regex_finds.afterchapter}".replace("  "," ")
                 file_regex_finds.complete_new_name = newFile_Name
 
 
@@ -638,7 +700,8 @@ class SetVolumeCover(tk.Tk):
                 delog(f"Inserted item in treeview -> {file_regex_finds.name}")
                 counter +=1
             self.covers_path_list = None
-            if len(self.treeview2.get_children()) == 0:
+            print(self.treeview2.get_children())
+            if len(self.treeview2.get_children()) != 0:
                 self.button4_proceed.configure(state="normal")
 
 
@@ -691,16 +754,77 @@ class SetVolumeCover(tk.Tk):
 
         self.frame_volumesetter.grid(row=0,sticky="WSNE")
 
+    def tool_comicInfoRemover(self):
+        delog("[ComicInfoRemover] Inside tool-ComicInfoRemover")
+        self.geometry("885x670")
+        # self.resizable(0,0)
+        MainLabelVar = tk.StringVar()
+        self.title("ComicInfoRemover")
+        self.select_tool_old = "ComicInfo Remover"
+        self.frame_comicinfo_remover = tk.Frame(self)
+        self.frame_comicinfo_remover.configure(height=350, width=885, padx=25)
+        self.frame_comicinfo_remover.rowconfigure(7, minsize=0, weight=0)
+        self.frame_comicinfo_remover.columnconfigure(0, minsize=0, weight=1)
+        self.progressbar_frame = tk.Frame(self.frame_comicinfo_remover, width=60, height=60)
+        self.progressbar_frame.grid(column=0, row=5, rowspan=2, sticky=tk.W + tk.E, padx=30)
+        # self.frame_volumesetter.rowconfigure(1)
+        # self.frame_volumesetter.rowconfigure(2, pad=40)
+        def open_files():
+            delog("[ComicInfoRemover] inside openfiles")
+            self.covers_path_list = []
+
+            for file in filedialog.askopenfiles(initialdir=launch_path, title="Select file to delete ComicInfo.xml",
+                                                            filetypes=(("CBZ Files", "cbz"),)
+                                                            ):
+                self.covers_path_list.append(file.name)
+            # if not self.covers_path_list:
+            #     # self.tool_volumesetter()
+            #     # self.label_volume_selected_files.set(f"Selected 0 files.")
+            # else:
+                # self.label_volume_selected_files.set(f"Selected {len(self.covers_path_list)} files")
+            self.enableButtons(self.frame_comicinfo_remover)
+            self.button4_proceed.configure(state="normal")
+            # if self.checkbox2_settings_val.get():
+            #     pass
+
+        self.button2_openfile = tk.Button(self.frame_comicinfo_remover, text="Open", command=open_files, width=15)
+        self.button2_openfile.grid(column=0, row=3, pady="5 10", columnspan=2)
+
+        def pre_process():
+            self.process()
+            # if self.checkbox1_settings_val.get():
+            #     open_files()
+        self.button4_proceed = tk.Button(self.frame_comicinfo_remover, text="Proceed", command=pre_process, width=15)
+        self.button4_proceed.configure(state="disabled")
+        self.button4_proceed.grid(column=0, row=4, pady=7)
+
+        self.frame_comicinfo_remover.grid(row=0, sticky="WSNE")
+
     def select_tool(self, selection):
         delog(f"Changing tool. Selected -> {selection} --|-- Old selection -> {self.select_tool_old}")
         if selection == "Cover Setter" and not self.select_tool_old == "Cover Setter":
-            if self.select_tool_old is not None or self.select_tool_old == "Volume Setter":
-                self.frame_volumesetter.destroy()
+            if self.select_tool_old is not None:
+                if self.select_tool_old == "Volume Setter":
+                    self.frame_volumesetter.destroy()
+                if self.select_tool_old == "ComicInfo Remover":
+                    self.frame_volumesetter.destroy()
             self.tool_coversetter()
+
         elif selection == "Volume Setter" and not self.select_tool_old == "Volume Setter":
-            if self.select_tool_old is not None or self.select_tool_old == "Cover Setter":
-                self.frame_coversetter.destroy()
+            if self.select_tool_old is not None:
+                if self.select_tool_old == "Cover Setter":
+                    self.frame_coversetter.destroy()
+                if self.select_tool_old == "ComicInfo Remover":
+                    self.frame_coversetter.destroy()
             self.tool_volumesetter()
+
+        elif selection == "ComicInfo Remover" and not self.select_tool_old == "ComicInfo Remover":
+            if self.select_tool_old is not None:
+                if self.select_tool_old == "Cover Setter":
+                    self.frame_coversetter.destroy()
+                if self.select_tool_old == "Volume Setter":
+                    self.frame_volumesetter.destroy()
+            self.tool_comicInfoRemover()
 
 
     def process(self):
@@ -742,11 +866,11 @@ class SetVolumeCover(tk.Tk):
                                 elif overwrite == True:
                                     delog("Entering overwrite cover function")
                                     data = cover_process_item_info(cbz_file, cover_path, cover_name, cover_format)
-                                    updateZip(data)
+                                    doUpdateZip(data)
                                 else:
                                     delog("Entering append cover function")
                                     data = cover_process_item_info(cbz_file, cover_path, cover_name, cover_format)
-                                    appendZip(data)
+                                    doAppendZip(data)
 
                                 global label_progress_text
                                 label_progress_text.set(f"Processed: {processed_counter}/{total} - {processed_errors} errors")
@@ -768,11 +892,10 @@ class SetVolumeCover(tk.Tk):
                                 continue
                             except Exception as e:
                                 mb.showerror("Something went wrong","Error processing. Check logs.")
-                                logging.critical("Exception Processing")
+                                logging.critical("Exception Processing",e)
                     # with open(undoJsonFile, "w") as f:
                     #     print(undoJson)
                     #     json.dump(undoJson, f)
-
 
                 elif self.select_tool_old =="Volume Setter":
                     timestamp = time.time()
@@ -794,6 +917,45 @@ class SetVolumeCover(tk.Tk):
                                          f"Exception:{e}")
                         velog(f"Renamed {item.name}")
 
+                elif self.select_tool_old == "ComicInfo Remover":
+                    total = len(self.covers_path_list)
+                    timestamp = time.time()
+                    undoJson["ComicInfoRemover"] = {}
+                    undoJson["ComicInfoRemover"][timestamp] = []
+                    # print("date and time:",date_time)
+                    for cbz_path in self.covers_path_list:
+                        filepath = cbz_path
+                        filename = os.path.basename(filepath)
+                        try:
+                            delog(f"[ComicInfoRemover][Processing] About to process file {filename}")
+                            doRemoveComicinfo(filepath)
+
+
+                            label_progress_text.set(
+                                f"Processed: {processed_counter}/{total} - {processed_errors} errors")
+                            processed_counter += 1
+
+                        except FileExistsError as e:
+                            mb.showwarning(f"[ERROR] File already exists",
+                                           f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
+                            processed_errors += 1
+                            continue
+                        except PermissionError as e:
+                            mb.showerror("Can't access the file because it's being used by a different process",
+                                         f"Exception:{e}")
+                            processed_errors += 1
+                            continue
+                        except FileNotFoundError as e:
+                            mb.showerror("Can't access the file because it's being used by a different process",
+                                         f"Exception:{e}")
+                            processed_errors += 1
+                            continue
+                        except Exception as e:
+                            processed_errors += 1
+                            mb.showerror("Something went wrong", "Error processing. Check logs.")
+                            logging.critical("Exception Processing",e)
+
+
                 else:
                     delog("Error No tool selected")
                 # self.function(self.function_args)
@@ -803,6 +965,7 @@ class SetVolumeCover(tk.Tk):
             #         json.dump(undoJson, f)
             #     print(undoJson)
             #
+                delog("Just before exiting progress_bar loop")
                 self.covers_path_in_confirmation = {}  # clear queue
                 self.undo_task_json = {}
                 global pb_flag
@@ -868,7 +1031,13 @@ class SetVolumeCover(tk.Tk):
             FrameToProcess: tk.Frame = self.frame_volumesetter
             if self.checkbox0_settings_val.get():
                 self.input_volume_val.set(self.input_volume_val.get() + 1)
-
+        elif self.select_tool_old == "ComicInfo Remover":
+            # self.spinbox1.
+            Selected_tool = "ComInfRem"
+            # self.label_volume_selected_files.set("Select CBZ files")
+            FrameToProcess: tk.Frame = self.frame_comicinfo_remover
+            # if self.checkbox0_settings_val.get():
+            #     self.input_volume_val.set(self.input_volume_val.get() + 1)
         self.disableButtons(FrameToProcess)
         t1 = ProgressBarIn(title="Processing", label="Please wait", text="Processing files")
         t2 = WaitUp()
