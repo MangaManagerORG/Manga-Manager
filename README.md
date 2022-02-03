@@ -1,3 +1,4 @@
+# Works with Python 3.7+
 
 # Manga-Manager
 
