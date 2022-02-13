@@ -50,10 +50,8 @@ class CoverManagerApp:
         self.covers_path_in_confirmation = {}
 
     def start_ui(self):
-
-
         # build ui
-        delog("inside tool-coversetter")
+        delog("[CoverManager] Starting UI")
 
         self.master.title("Cover Setter")
         self.master.geometry("860x940")
@@ -165,7 +163,7 @@ class CoverManagerApp:
         self.button5_delete_covers.config(state="normal")
 
         # Main widget
-
+        delog("[CoverManager] UI initialised")
     def run(self):
         self.master.mainloop()
 
@@ -186,14 +184,14 @@ class CoverManagerApp:
         """
 
         def show_first_cover(cls):
-            velog("Printing first image in canvas")
+            delog("Printing first image in canvas")
             cls.thiselem, cls.nextelem = cls.nextelem, next(cls.licycle)
             image = Image.open(cls.thiselem.name)
             image = image.resize((300, 445), Image.ANTIALIAS)
             cls.image = ImageTk.PhotoImage(image)
             cls.canvas_image = cls.canvas1_coverimage.create_image(0, 0, anchor=tk.NW, image=cls.image)
             cls.label_coverimagetitle.configure(text=os.path.basename(cls.thiselem.name))
-        velog("Selecting covers in opencovers")
+        delog("[CoverManager][Open Covers] Selecting covers")
 
         self.button3_load_images.configure(text="Loading...", state="disabled")
         covers_path_list = filedialog.askopenfiles(initialdir=launch_path,
@@ -208,7 +206,7 @@ class CoverManagerApp:
             self.image = None
             self.button3_load_images.configure(text="Select covers", state="normal")
             self.button3_load_images.grid()
-            logging.error("No images were selected when asked for")
+            logging.error("[CoverManager][Open Covers] No images were selected when asked for")
             raise
         self.prevelem = None
         self.enableButtons(self.frame_coversetter)
@@ -219,19 +217,19 @@ class CoverManagerApp:
 
         except UnidentifiedImageError as e:
             mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
-            logging.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
+            logging.error(f"[CoverManager][Open Covers] UnidentifiedImageError - Image file: {self.thiselem.name}")
             self.button3_load_images.configure(text="Select covers", state="normal")
             self.button3_load_images.grid()
 
     # Works
     def display_next_cover(self):
-        velog(f"Printing next cover in canvas - {self.nextelem}")
+        velog(f"[CoverManager][Display Next Cover] Printing next cover in canvas - {self.nextelem}")
         self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
         try:
             rawimage: Image = Image.open(self.thiselem.name)
         except UnidentifiedImageError as e:
             mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
-            logging.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
+            logging.error(f"[CoverManager][Display Next Cover] UnidentifiedImageError - Image file: {self.thiselem.name}")
         image = rawimage.resize((300, 445), Image.ANTIALIAS)
         self.image = ImageTk.PhotoImage(image)
         # delog(self.label.gettags("IMG10"))
@@ -239,7 +237,7 @@ class CoverManagerApp:
         self.label_coverimagetitle.configure(text=os.path.basename(self.thiselem.name))
 
     def add_file_to_list(self, delete=False):
-        velog("Adding files to processing list")
+        delog("[CoverManager] Adding files to processing list")
         option_delete = False
         option_overwrite = False
         if delete:
@@ -273,7 +271,7 @@ class CoverManagerApp:
 
 
             self.covers_path_in_confirmation[str(self.image_in_confirmation)].append(tmp_info)
-            velog(f"Added {os.path.basename(iterated_file_path)} to the processing queue")
+            velog(f"[CoverManager] Added to the processing queue -> {os.path.basename(iterated_file_path)} ")
 
             # Adding file is done. Just adding visual feedback in UI
             displayed_file_path = f"...{os.path.basename(iterated_file_path)[-46:]}"
@@ -294,7 +292,7 @@ class CoverManagerApp:
                 self.add_file_to_list()
 
     def process(self):
-        velog("Starting processing of files.")
+        delog("[CoverManager] Starting processing of files.")
         self.button4_proceed.config(relief=tk.SUNKEN, text="Processing")
 
         class WaitUp(Thread):  # Define a new subclass of the Thread class of the Thread Module.
@@ -315,7 +313,7 @@ class CoverManagerApp:
                 for item in self.covers_path_in_confirmation:
                     # pathdict = self.covers_path_in_confirmation
                     for file in self.covers_path_in_confirmation[item]:
-                        velog(f"Starting processing for file: {item}")
+                        velog(f"[CoverManager] Starting processing for file: {item}")
                         try:
                             SetCover(file)
                         #     if overwrite == "delete":
@@ -380,7 +378,7 @@ class CoverManagerApp:
                 self_progress.pb_text = tk.Label(self_progress.pb_root, textvariable=self_progress.label_progress_text,
                                                  anchor=tk.W)
                 self_progress.pb.start()
-                velog("Started progress bar")
+                delog("[CoverManager] Started progress bar")
 
                 # self_progress.pb_label.grid(row=0, column=0, sticky=tk.W)
                 self_progress.pb.grid(row=0, column=0, sticky=tk.E)
@@ -399,7 +397,7 @@ class CoverManagerApp:
                 self_progress.pb.grid_forget()
                 self_progress.pb_text.grid_forget()
 
-                velog("File processed")
+                delog("[CoverManager] File processed")
 
                 # for widget in self_progress.pb_root.winfo_children():
                 #     widget.destroy()
@@ -418,17 +416,17 @@ class CoverManagerApp:
         t1.startup()  # start the progress bar
         t2.join()  # wait for WaitUp to finish before proceeding
         t1.stop()  # destroy the progress bar object
-        velog("Clearing queue")
+        delog("[CoverManager] Clearing queue")
 
         try:
-            velog("Cleanup: Try to clear treeview")
+            delog("[CoverManager] Cleanup: Try to clear treeview")
             self.treeview1.delete(*self.treeview1.get_children())
             # self.treeview1.grid_forget()
         except AttributeError:
             delog("Can't clear treeview. -> doesnt exist yet")
         except Exception as e:
             delog("Can't clear treeview", exc_info=e)
-        velog("All done")
+        delog("[CoverManager] All done")
 
         self.enableButtons(FrameToProcess)
         self.button4_proceed.config(relief=tk.RAISED, text="Proceed")
@@ -437,7 +435,16 @@ class CoverManagerApp:
     def clearqueue(self):
         self.covers_path_in_confirmation = {}  # clear queue
         self.undo_task_json = {}
-        logging.debug("Cleared queue")
+        try:
+            delog(" Try to clear treeview")
+            self.treeview1.delete(*self.treeview1.get_children())
+            # self.treeview1.grid_forget()
+        except AttributeError:
+            delog("Can't clear treeview. -> doesnt exist yet")
+        except Exception as e:
+            logging.error("Can't clear treeview", exc_info=e)
+        
+        logging.info("Cleared queue")
         pass
 
 
