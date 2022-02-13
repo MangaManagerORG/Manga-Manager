@@ -1,14 +1,12 @@
 import zipfile
-import logging
-from MangaTaggerLib import ComicInfo
-from lxml.etree import XMLSyntaxError
-from MangaTaggerLib.models import LoadedComicInfo
 import os
 import tempfile
-import re
 import logging
 import io
-from MangaTaggerLib.errors import NoMetadataFileFound
+
+from .models import *
+from .errors import NoMetadataFileFound
+from . import ComicInfo
 
 
 def is_folder(name: str, folders_list):

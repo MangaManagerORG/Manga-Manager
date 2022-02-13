@@ -1,0 +1,6 @@
+{
+  "test python.py": true,
+  "tests.py": true,
+  "tests.py::CoversCbzControllerTester::test_count_leftover_files": true,
+  "tests.py::LeftOverFilesCount::test_zcount_leftover_files": true
+}

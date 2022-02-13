@@ -1,11 +1,12 @@
 import zipfile
 import os
 import re
-from CoverManagerLib.models import cover_process_item_info
 import logging
 import tempfile
-from CoverManagerLib import errors
-import time, datetime
+
+from .models import cover_process_item_info
+from . import errors
+
 
 class SetCover:
     def __init__(self, process_values: cover_process_item_info):

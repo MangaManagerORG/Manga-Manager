@@ -1,10 +1,9 @@
 import unittest
-from models import *
-from MangaTaggerLib.MangaTagger import MangataggerApp
-from MangaTaggerLib.cbz_handler import *
 import random
 import tkinter as tk
 
+from .MangaTagger import MangataggerApp
+from .cbz_handler import *
 
 comicinfo_23 = """
 <ComicInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

@@ -8,10 +8,10 @@ from lxml.etree import XMLSyntaxError
 import logging
 import argparse
 import os
-from MangaTaggerLib.models import LoadedComicInfo
-from MangaTaggerLib.cbz_handler import ReadComicInfo
-from MangaTaggerLib.cbz_handler import WriteComicInfo
-from MangaTaggerLib.errors import *
+
+from .models import LoadedComicInfo
+from .cbz_handler import ReadComicInfo, WriteComicInfo
+from .errors import *
 # logging.getLogger('PIL').setLevel(logging.WARNING)
 
 launch_path =""

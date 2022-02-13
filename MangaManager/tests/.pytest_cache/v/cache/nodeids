@@ -1,0 +1,10 @@
+[
+  "tests.py::CoversCbzControllerTester::test_append",
+  "tests.py::CoversCbzControllerTester::test_count_leftover_files",
+  "tests.py::CoversCbzControllerTester::test_delete",
+  "tests.py::CoversCbzControllerTester::test_overwrite",
+  "tests.py::CoversCbzControllerTester::test_zcount_leftover_files",
+  "tests.py::LeftOverFilesCount::test_zcount_leftover_files",
+  "tests.py::TaggerCbzControllerTester::test_replace_file",
+  "tests.py::TaggerCbzControllerTester::test_zcount_leftover_files"
+]

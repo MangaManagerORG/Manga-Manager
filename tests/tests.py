@@ -2,9 +2,16 @@
 import unittest
 import tkinter as tk
 import random
+import zipfile
+import os
 
+# Manga Tagger
+from MangaManager.MangaTaggerLib.MangaTagger import MangataggerApp
+from MangaManager.MangaTaggerLib.cbz_handler import *
 
-
+# Cover Manager
+from MangaManager.CoverManagerLib.cbz_handler import SetCover
+from MangaManager.CoverManagerLib.models import cover_process_item_info
 
 comicinfo_23 = """
 <ComicInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -59,9 +66,8 @@ test_path = path_23
 test_path = test_path
 sample_cover = sample_cover
 
-# Manga Tagger
-from MangaTaggerLib.MangaTagger import MangataggerApp
-from MangaTaggerLib.cbz_handler import *
+
+
 initial_dir_count = 0
 
 class TaggerCbzControllerTester(unittest.TestCase):
@@ -99,8 +105,6 @@ class TaggerCbzControllerTester(unittest.TestCase):
         self.assertEqual(initial_dir_count, final_dir_count)
 
 
-from CoverManagerLib.cbz_handler import SetCover
-from CoverManagerLib.models import cover_process_item_info
 
 initial_dir_count = 0
 

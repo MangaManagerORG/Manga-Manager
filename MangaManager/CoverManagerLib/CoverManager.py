@@ -7,12 +7,12 @@ from itertools import cycle
 from tkinter import ttk
 import os
 import sys
-
 import time
 from threading import Thread
 import logging
-from CoverManagerLib.models import *
-from CoverManagerLib.cbz_handler import SetCover
+
+from .models import *
+from .cbz_handler import SetCover
 
 
 launch_path =""

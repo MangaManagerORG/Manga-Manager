@@ -13,7 +13,7 @@ def main():
     while not selected_tool:
         selection = input("Select Number >")
         try:
-            selection = int(selection)-1
+            selection = int(selection)
         except:
             print("Wrong input. Select the number of the tool")
         selected_tool = True
@@ -23,7 +23,7 @@ def main():
     if selection == 3:
         print("Not implemented yet")
 
-    app = tools[selection](root)
+    app = tools[selection-1](root)
     app.start_ui()
     app.run()
 
