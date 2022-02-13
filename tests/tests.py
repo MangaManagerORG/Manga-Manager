@@ -99,8 +99,8 @@ class TaggerCbzControllerTester(unittest.TestCase):
         self.assertEqual(initial_dir_count, final_dir_count)
 
 
-from SetCoverLib.cbz_handler import SetCover
-from SetCoverLib.models import cover_process_item_info
+from CoverManagerLib.cbz_handler import SetCover
+from CoverManagerLib.models import cover_process_item_info
 
 initial_dir_count = 0
 
