@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from . import ComicInfo
+from MangaManager.MangaTaggerLib import ComicInfo
 
 
 @dataclass()

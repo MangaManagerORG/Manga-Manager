@@ -10,9 +10,9 @@ import logging
 import argparse
 import os
 
-from .models import LoadedComicInfo
-from .cbz_handler import ReadComicInfo, WriteComicInfo
-from .errors import *
+from MangaManager.MangaTaggerLib.models import LoadedComicInfo
+from MangaManager.MangaTaggerLib.cbz_handler import ReadComicInfo, WriteComicInfo
+from MangaManager.MangaTaggerLib.errors import *
 # logging.getLogger('PIL').setLevel(logging.WARNING)
 
 launch_path =""

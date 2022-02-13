@@ -4,8 +4,8 @@ import re
 import logging
 import tempfile
 
-from .models import cover_process_item_info
-from . import errors
+from MangaManager.CoverManagerLib.models import cover_process_item_info
+from MangaManager.CoverManagerLib import errors
 
 
 class SetCover:

@@ -4,9 +4,9 @@ import tempfile
 import logging
 import io
 
-from .models import *
-from .errors import NoMetadataFileFound
-from .import ComicInfo
+from MangaManager.MangaTaggerLib.models import *
+from MangaManager.MangaTaggerLib.errors import NoMetadataFileFound
+from MangaManager.MangaTaggerLib import ComicInfo
 
 
 def is_folder(name: str, folders_list):
