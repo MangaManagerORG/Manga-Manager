@@ -1,10 +1,10 @@
 import zipfile
 import os
 import re
-from SetCoverLib.models import cover_process_item_info
+from CoverManagerLib.models import cover_process_item_info
 import logging
 import tempfile
-from SetCoverLib import errors
+from CoverManagerLib import errors
 import time, datetime
 
 class SetCover:

@@ -11,8 +11,8 @@ import sys
 import time
 from threading import Thread
 import logging
-from SetCoverLib.models import *
-from SetCoverLib.cbz_handler import SetCover
+from CoverManagerLib.models import *
+from CoverManagerLib.cbz_handler import SetCover
 
 
 launch_path =""

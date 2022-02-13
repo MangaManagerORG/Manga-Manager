@@ -1,7 +1,7 @@
 import unittest
 import zipfile
-from SetCoverLib.models import *
-from SetCoverLib.cbz_handler import *
+from CoverManagerLib.models import *
+from CoverManagerLib.cbz_handler import *
 
 
 class CbzControllerTester(unittest.TestCase):
