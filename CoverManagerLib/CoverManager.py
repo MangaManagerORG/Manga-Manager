@@ -8,15 +8,8 @@ from tkinter import ttk
 import os
 import sys
 
-import SetCoverLib.models
-from models import cover_process_item_info
-import zipfile
-import tempfile
-import re
 import time
-from datetime import datetime
 from threading import Thread
-from dataclasses import dataclass
 import logging
 from SetCoverLib.models import *
 from SetCoverLib.cbz_handler import SetCover
