@@ -6,7 +6,7 @@ import io
 
 from .models import *
 from .errors import NoMetadataFileFound
-from . import ComicInfo
+from .import ComicInfo
 
 
 def is_folder(name: str, folders_list):

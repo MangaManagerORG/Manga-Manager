@@ -12,9 +12,7 @@ import time
 from threading import Thread
 import logging
 
-from .models import *
-from .cbz_handler import SetCover
-
+from models import cover_process_item_info
 
 launch_path =""
 logging.basicConfig(level=logging.DEBUG,
@@ -147,11 +145,15 @@ class CoverManagerApp:
         self.button4_proceed.grid(column=1, row=1)
         self.button4_proceed.configure(command=self.process)
 
+        self.button_07_clearqueue = tk.Button(self.frame_coversetter)
+        self.button_07_clearqueue.configure(text='Clear')
+        self.button_07_clearqueue.grid(column=1, row=2)
+        self.button_07_clearqueue.configure(command=self.clearqueue)
 
         # Column 1 - Row 2
 
         self.progressbar_frame = tk.Frame(self.frame_coversetter,width=60,height=60)
-        self.progressbar_frame.grid(column=1, row=2, rowspan=2, sticky=tk.W+tk.E,padx=30)
+        self.progressbar_frame.grid(column=1, row=3, rowspan=2, sticky=tk.W+tk.E,padx=30)
 
         # End frame
         self.frame_coversetter.configure(height=420, padding='20', width='400')
@@ -431,6 +433,15 @@ class CoverManagerApp:
         self.button4_proceed.config(relief=tk.RAISED, text="Proceed")
         # TODO: Add clear queue button
 
+    def clearqueue(self):
+        self.covers_path_in_confirmation = {}  # clear queue
+        self.undo_task_json = {}
+        logging.debug("Cleared queue")
+        pass
+
+
+
+
     def enableButtons(self, thisframe):
         for w in thisframe.winfo_children():
             if w.winfo_class() == "Button":
@@ -460,6 +471,7 @@ class CoverManagerApp:
 
 
 if __name__ == "__main__":
+
     root = tk.Tk()
     app = CoverManagerApp(root)
     app.start_ui()

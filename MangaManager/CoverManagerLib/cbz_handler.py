@@ -192,7 +192,7 @@ class SetCover:
         if oldCover_name:
             new_coverFileName = oldCover_name[0].replace("OldCover_", "").replace(".bak", "")
         else:
-            print(filenames_list[0])
+            # print(filenames_list[0])
             new_coverFileName = "00000cover.txt"
         logging.debug(f"[SetCover][Overwrite] Cover path:{values.coverFilePath} - File path:{values.zipFilePath}")
         with zipfile.ZipFile(values.zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
