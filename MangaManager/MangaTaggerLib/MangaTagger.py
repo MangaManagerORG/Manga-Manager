@@ -473,7 +473,7 @@ class MangataggerApp():
 
         def open_files():
             covers_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
-                                                       filetypes=(("CBZ Files", "cbz"),)
+                                                       filetypes=(("CBZ Files", ".cbz"),)
                                                        )
             
             for file in covers_path_list:
