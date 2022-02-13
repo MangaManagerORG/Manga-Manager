@@ -246,7 +246,7 @@ class CoverManagerApp:
             image_path = self.thiselem.name
 
         cbzs_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
-                                                 filetypes=(("CBZ Files", "cbz"),)
+                                                 filetypes=(("CBZ Files", ".cbz"),)
                                                  )
 
         image = Image.open(image_path)
