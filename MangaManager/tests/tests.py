@@ -4,7 +4,7 @@ import tkinter as tk
 import random
 import zipfile
 import os
-
+import re
 # Manga Tagger
 from MangaManager.MangaTaggerLib.MangaTagger import MangataggerApp
 from MangaManager.MangaTaggerLib.cbz_handler import *
@@ -12,6 +12,10 @@ from MangaManager.MangaTaggerLib.cbz_handler import *
 # Cover Manager
 from MangaManager.CoverManagerLib.cbz_handler import SetCover
 from MangaManager.CoverManagerLib.models import cover_process_item_info
+
+# Volume Manager
+from MangaManager.VolumeManager.VolumeManager import VolumeManagerApp
+from MangaManager.VolumeManager.models import ChapterFileNameData
 
 comicinfo_23 = """
 <ComicInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -65,6 +69,10 @@ sample_cover = r"F:\Anime_Series_Pelis\MANGA\tmp\SAMPLE_COVER.jpg"
 test_path = path_23
 test_path = test_path
 sample_cover = sample_cover
+
+
+original_cleanup_var1 = ""
+final_cleanup_var1 = ""
 
 
 
@@ -185,6 +193,95 @@ class CoversCbzControllerTester(unittest.TestCase):
         final_dir_count = len(os.listdir(os.path.dirname(test_path)))
         print(f"Asserting {initial_dir_count} vs {final_dir_count}, delta 1")
         self.assertEqual(initial_dir_count,final_dir_count)
+
+
+class VolumeManagerTester(unittest.TestCase):
+
+    def test_rename(self):
+        def get_newFilename(files:list[str],volumeNumber)-> str:
+            for cbz_path in files:
+                filepath = cbz_path
+                filename = os.path.basename(filepath)
+                regexSearch = re.findall(r"(?i)(.*)((?:Chapter|CH)(?:\.|\s)[0-9]+[.]*[0-9]*)(\.[a-z]{3})", filename)
+                if regexSearch:
+                    r = regexSearch[0]
+                    file_regex_finds: ChapterFileNameData = ChapterFileNameData(name=r[0], chapterinfo=r[1],
+                                                                                afterchapter=r[2], fullpath=filepath,
+                                                                                volume=volumeNumber)
+                else:
+                    # Todo: add warning no ch/chapter detected and using last int as ch identifier
+                    regexSearch = re.findall(r"(?i)(.*\s)([0-9]+[.]*[0-9]*)(\.[a-z]{3}$)",
+                                             filename)  # TODO: this regex must be improved yo cover more test cases
+                    if regexSearch:
+                        r = regexSearch[0]
+                        file_regex_finds: ChapterFileNameData = ChapterFileNameData(name=r[0], chapterinfo=r[1],
+                                                                                    afterchapter=r[2],
+                                                                                    fullpath=filepath,
+                                                                                    volume=volumeNumber)
+                new_file_path = os.path.dirname(filepath)
+                newFile_Name = f"{new_file_path}/{file_regex_finds.name} Vol.{volumeNumber} {file_regex_finds.chapterinfo}{file_regex_finds.afterchapter}".replace(
+                    "  ", " ")
+                return newFile_Name
+
+
+        #  Prepare and save original values to later assert
+        global original_cleanup_var1
+        original_cleanup_var1 = test_path
+        global initial_dir_count
+        global final_dir_count
+        initial_dir_count = len(os.listdir(os.path.dirname(test_path)))
+
+        random_vol_number = random.randint(1,500)
+        test_path_dir = os.path.dirname(test_path)
+
+        new_fileName_toAssert = get_newFilename([test_path],random_vol_number)
+        aseert_name = os.path.basename(new_fileName_toAssert)
+        global final_cleanup_var1
+        final_cleanup_var1 = new_fileName_toAssert
+
+
+        with zipfile.ZipFile(test_path, 'r') as zin:
+            initial_dir_count = len(zin.namelist())
+
+
+        #  Proceed with testing
+        root = tk.Tk()
+        app = VolumeManagerApp(root)
+        app.cli_set_volume(random_vol_number)
+        app.cli_select_files([test_path])
+        app.checkbutton_4_settings_val.set(True)  # Enables saving to comicinfo
+        app.process()
+
+
+
+
+
+        app = ReadComicInfo(new_fileName_toAssert).to_ComicInfo()
+
+
+        with zipfile.ZipFile(new_fileName_toAssert, 'r') as zin:
+            final_dir_count = len(zin.namelist())
+        items_in_test_path_dir = os.listdir(test_path_dir)
+        try:
+            print("Aserting if new name exists in directory")
+            self.assertTrue(aseert_name in items_in_test_path_dir)
+            print("Aserting if new volume numer in comicinfo is saved")
+            self.assertEqual(random_vol_number, app.get_Volume())
+        except AssertionError as e:
+            self.cleanup_test()
+            return
+        self.cleanup_test()
+
+    def z_test_zcount_leftover_files(self):
+        final_dir_count = len(os.listdir(os.path.dirname(test_path)))
+        print(f"Asserting {initial_dir_count} vs {final_dir_count}, delta 1")
+        self.assertEqual(initial_dir_count,final_dir_count)
+
+    def cleanup_test(self):
+       # Cleanup
+        # Rename file to original name
+        os.rename(final_cleanup_var1, original_cleanup_var1)
+
 
 if __name__ == '__main__':
     unittest.main()

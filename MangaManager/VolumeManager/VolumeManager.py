@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox as mb
-from threading import Thread
+
 import logging
 import os
 import sys
@@ -11,7 +11,6 @@ import time
 from lxml.etree import XMLSyntaxError
 from typing.io import IO
 
-import MangaManager.MangaTaggerLib.errors
 from MangaManager.VolumeManager.errors import NoFilesSelected
 from MangaManager.VolumeManager.models import ChapterFileNameData, ProgressBarData
 
@@ -32,148 +31,150 @@ ScriptDir = os.path.dirname(__file__)
 
 
 class VolumeManagerApp:
-    def __init__(self, master: tk.Tk):
-        self.master = master
-        self.checkbutton_1_settings_val = tk.BooleanVar(value=False)  # Auto increase volume number
-        self.checkbutton_2_settings_val = tk.BooleanVar(value=False)  # Open FIle Selector dialog after processing
-        self.checkbutton_3_settings_val = tk.BooleanVar(value=True)  # Automatic preview
-        self.checkbutton_4_settings_val = tk.BooleanVar(value=True)  # Adds volume info to ComicInfo
-        self.label_4_selected_files_val = tk.StringVar(value='')
-        self.spinbox_1_volume_number_val = tk.IntVar(value=1)
+    def __init__(self, master: tk.Tk=None):
+        self._master = master
+        self._checkbutton_1_settings_val = tk.BooleanVar(value=True)  # Auto increase volume number
+        self._checkbutton_2_settings_val = tk.BooleanVar(value=False)  # Open FIle Selector dialog after processing
+        self._checkbutton_3_settings_val = tk.BooleanVar(value=False)  # Automatic preview
+        self.checkbutton_4_settings_val = tk.BooleanVar(value=False)  # Adds volume info to ComicInfo
+        self._label_4_selected_files_val = tk.StringVar(value='')
+        self._spinbox_1_volume_number_val = tk.IntVar(value=1)
+        self._initialized_UI = False
 
     def start_ui(self):
 
-        self.frame_1_title = tk.Frame(self.master, container='false')
+        self._frame_1_title = tk.Frame(self._master, container='false')
         # Must keep :
-        self._validate_spinbox = (self.frame_1_title.register(self._ValidateIfNum), '%s', '%S')  # Validates spinbox
+        self._validate_spinbox = (self._frame_1_title.register(self._ValidateIfNum), '%s', '%S')  # Validates spinbox
 
         # build ui
 
-        self.settings = tk.Frame(self.frame_1_title, container='false')
-        self.label_2_settings = ttk.Label(self.settings)
-        self.label_2_settings.configure(anchor='center', font='TkMenuFont', text='Settings')
-        self.label_2_settings.grid(column='0', row='0', sticky='ew')
-        self.settings.columnconfigure('0', weight='1')
-        self.checkbutton_1_settings = tk.Checkbutton(self.settings)
-        self.checkbutton_1_settings.configure(text='Auto increase volume number after processing',
-                                              variable=self.checkbutton_1_settings_val)
-        self.checkbutton_1_settings.grid(column='0', row='1', sticky='w')
-        self.checkbutton_2_settings = tk.Checkbutton(self.settings)
-        self.checkbutton_2_settings.configure(text='Open File selector dialog after processing',
-                                              variable=self.checkbutton_2_settings_val)
-        self.checkbutton_2_settings.grid(column='0', row='2', sticky='w')
-        self.checkbutton_3_settings = tk.Checkbutton(self.settings)
-        self.checkbutton_3_settings.configure(text='Automatic preview', variable=self.checkbutton_3_settings_val)
-        self.checkbutton_3_settings.grid(column='0', row='3', sticky='w')
-        self.checkbutton_4_settings = tk.Checkbutton(self.settings)
-        self.checkbutton_4_settings.configure(text='Add volume number to ComicInfo if it exists',
-                                              variable=self.checkbutton_4_settings_val)
-        self.checkbutton_4_settings.grid(column='0', row='4', sticky='w')
-        self.settings.configure(height='160', highlightbackground='black', highlightcolor='black',
-                                highlightthickness='01')
-        self.settings.configure(width='200')
-        self.settings.grid(column='0', padx='0 70', pady='10 0', row='3', rowspan='4', sticky='e')
-        self.frame_1_title.rowconfigure('3', weight='0')
-        self.frame_1_title.columnconfigure('0', pad='15', weight='1')
-        self.label_1 = tk.Label(self.frame_1_title)
-        self.label_1.configure(font='{Title} 20 {bold}', text='Volume Manager')
-        self.label_1.grid(column='0', row='0')
-        self.label_2_instructions = tk.Label(self.frame_1_title)
-        self.label_2_instructions.configure(font='{subheader} 12 {}',
-                                            text='This script will append Vol.XX just before any Ch X.ext / Chapter XX.ext')
-        self.label_2_instructions.grid(column='0', row='1')
-        self.label_3_subinstructions = tk.Label(self.frame_1_title)
-        self.label_3_subinstructions.configure(
+        self._settings = tk.Frame(self._frame_1_title, container='false')
+        self._label_2_settings = ttk.Label(self._settings)
+        self._label_2_settings.configure(anchor='center', font='TkMenuFont', text='Settings')
+        self._label_2_settings.grid(column='0', row='0', sticky='ew')
+        self._settings.columnconfigure('0', weight='1')
+        self._checkbutton_1_settings = tk.Checkbutton(self._settings)
+        self._checkbutton_1_settings.configure(text='Auto increase volume number after processing',
+                                               variable=self._checkbutton_1_settings_val)
+        self._checkbutton_1_settings.grid(column='0', row='1', sticky='w')
+        self._checkbutton_2_settings = tk.Checkbutton(self._settings)
+        self._checkbutton_2_settings.configure(text='Open File selector dialog after processing',
+                                               variable=self._checkbutton_2_settings_val)
+        self._checkbutton_2_settings.grid(column='0', row='2', sticky='w')
+        self._checkbutton_3_settings = tk.Checkbutton(self._settings)
+        self._checkbutton_3_settings.configure(text='Automatic preview', variable=self._checkbutton_3_settings_val)
+        self._checkbutton_3_settings.grid(column='0', row='3', sticky='w')
+        self._checkbutton_4_settings = tk.Checkbutton(self._settings)
+        self._checkbutton_4_settings.configure(text='Add volume number to ComicInfo if it exists',
+                                               variable=self.checkbutton_4_settings_val)
+        self._checkbutton_4_settings.grid(column='0', row='4', sticky='w')
+        self._settings.configure(height='160', highlightbackground='black', highlightcolor='black',
+                                 highlightthickness='01')
+        self._settings.configure(width='200')
+        self._settings.grid(column='0', padx='0 70', pady='10 0', row='3', rowspan='4', sticky='e')
+        self._frame_1_title.rowconfigure('3', weight='0')
+        self._frame_1_title.columnconfigure('0', pad='15', weight='1')
+        self._label_1 = tk.Label(self._frame_1_title)
+        self._label_1.configure(font='{Title} 20 {bold}', text='Volume Manager')
+        self._label_1.grid(column='0', row='0')
+        self._label_2_instructions = tk.Label(self._frame_1_title)
+        self._label_2_instructions.configure(font='{subheader} 12 {}',
+                                             text='This script will append Vol.XX just before any Ch X.ext / Chapter XX.ext')
+        self._label_2_instructions.grid(column='0', row='1')
+        self._label_3_subinstructions = tk.Label(self._frame_1_title)
+        self._label_3_subinstructions.configure(
             text='This naming convention must be followed for the script to work properly')
-        self.label_3_subinstructions.grid(column='0', row='2')
-        self.label_4_selected_files = tk.Label(self.frame_1_title)
-        self.label_4_selected_files.configure(textvariable=self.label_4_selected_files_val)
-        self.label_4_selected_files.grid(column='0', row='3')
-        self.button_1_openfiles = tk.Button(self.frame_1_title)
-        self.button_1_openfiles.configure(text='Open', width='15')
-        self.button_1_openfiles.grid(column='0', row='4')
-        self.button_1_openfiles.configure(command=self._open_files)
-        self.label_5_volume_number_input = tk.Label(self.frame_1_title)
-        self.label_5_volume_number_input.configure(text='Volume number to apply to the selected files')
-        self.label_5_volume_number_input.grid(column='0', row='5')
-        self.spinbox_1_volume_number = tk.Spinbox(self.frame_1_title)
-        self.spinbox_1_volume_number.configure(from_='1', state='normal', textvariable=self.spinbox_1_volume_number_val,
-                                               to='500')
-        self.spinbox_1_volume_number.configure(validate='all')
-        self.spinbox_1_volume_number.grid(column='0', row='6')
-        self.spinbox_1_volume_number.configure(validatecommand=self._validate_spinbox)
-        self.button_2_preview = tk.Button(self.frame_1_title)
-        self.button_2_preview.configure(text='Preview')
-        self.button_2_preview.grid(column='0', row='7')
-        self.frame_1_title.rowconfigure('7', pad='20')
-        self.button_2_preview.configure(command=self._preview_changes)
-        self.treeview_1 = ttk.Treeview(self.frame_1_title)
-        self.treeview_1_cols = ['old_name', 'to', 'new_name']
-        self.treeview_1_dcols = ['old_name', 'to', 'new_name']
-        self.treeview_1.configure(columns=self.treeview_1_cols, displaycolumns=self.treeview_1_dcols)
-        self.treeview_1.column('#0', anchor='w', stretch='true', width='0', minwidth='0')
-        self.treeview_1.column('old_name', anchor='center', stretch='false', width='525', minwidth='20')
-        self.treeview_1.column('to', anchor='center', stretch='false', width='26', minwidth='26')
-        self.treeview_1.column('new_name', anchor='center', stretch='true', width='525', minwidth='20')
-        self.treeview_1.heading('#0', anchor='w', text='column_1')
-        self.treeview_1.heading('old_name', anchor='center', text='OLD NAME')
-        self.treeview_1.heading('to', anchor='center', text='to')
-        self.treeview_1.heading('new_name', anchor='center', text='NEW NAME')
-        self.treeview_1.grid(column='0', row='8')
-        self.treeview_1.grid_propagate(0)
-        self.frame_1_title.rowconfigure('8', pad='25')
-        self.treeview_1.bind('<Button-1>', self._handle_click, add='')
-        self.frame_2_finalButtons = tk.Frame(self.frame_1_title)
-        self.button_4_clearqueue = tk.Button(self.frame_2_finalButtons)
-        self.button_4_clearqueue.configure(font='{Custom} 11 {bold}', text='Clear Queue', width='15')
-        self.button_4_clearqueue.grid(column='1', row='0')
-        self.button_4_clearqueue.configure(command=self._clear_queue)
-        self.button_3_proceed = tk.Button(self.frame_2_finalButtons)
-        self.button_3_proceed.configure(font='{Custom} 11 {bold}', text='Proceed', width='15')
-        self.button_3_proceed.grid(column='0', row='0')
-        self.frame_2_finalButtons.columnconfigure('0', pad='15', weight='1')
-        self.button_3_proceed.configure(command=self._pre_process)
-        self.frame_2_finalButtons.configure(height='200', width='200')
-        self.frame_2_finalButtons.grid(column='0', row='9')
-        self.frame_1_title.rowconfigure('9', pad='30')
-        self.frame_1_progressbar = ttk.Frame(self.frame_1_title)
+        self._label_3_subinstructions.grid(column='0', row='2')
+        self._label_4_selected_files = tk.Label(self._frame_1_title)
+        self._label_4_selected_files.configure(textvariable=self._label_4_selected_files_val)
+        self._label_4_selected_files.grid(column='0', row='3')
+        self._button_1_openfiles = tk.Button(self._frame_1_title)
+        self._button_1_openfiles.configure(text='Open', width='15')
+        self._button_1_openfiles.grid(column='0', row='4')
+        self._button_1_openfiles.configure(command=self._open_files)
+        self._label_5_volume_number_input = tk.Label(self._frame_1_title)
+        self._label_5_volume_number_input.configure(text='Volume number to apply to the selected files')
+        self._label_5_volume_number_input.grid(column='0', row='5')
+        self._spinbox_1_volume_number = tk.Spinbox(self._frame_1_title)
+        self._spinbox_1_volume_number.configure(from_='1', state='normal',
+                                                textvariable=self._spinbox_1_volume_number_val, to='500')
+        self._spinbox_1_volume_number.configure(validate='all')
+        self._spinbox_1_volume_number.grid(column='0', row='6')
+        self._spinbox_1_volume_number.configure(validatecommand=self._validate_spinbox)
+        self._button_2_preview = tk.Button(self._frame_1_title)
+        self._button_2_preview.configure(text='Preview')
+        self._button_2_preview.grid(column='0', row='7')
+        self._frame_1_title.rowconfigure('7', pad='20')
+        self._button_2_preview.configure(command=self._preview_changes)
+        self._treeview_1 = ttk.Treeview(self._frame_1_title)
+        self._treeview_1_cols = ['old_name', 'to', 'new_name']
+        self._treeview_1_dcols = ['old_name', 'to', 'new_name']
+        self._treeview_1.configure(columns=self._treeview_1_cols, displaycolumns=self._treeview_1_dcols)
+        self._treeview_1.column('#0', anchor='w', stretch='true', width='0', minwidth='0')
+        self._treeview_1.column('old_name', anchor='center', stretch='false', width='525', minwidth='20')
+        self._treeview_1.column('to', anchor='center', stretch='false', width='26', minwidth='26')
+        self._treeview_1.column('new_name', anchor='center', stretch='true', width='525', minwidth='20')
+        self._treeview_1.heading('#0', anchor='w', text='column_1')
+        self._treeview_1.heading('old_name', anchor='center', text='OLD NAME')
+        self._treeview_1.heading('to', anchor='center', text='to')
+        self._treeview_1.heading('new_name', anchor='center', text='NEW NAME')
+        self._treeview_1.grid(column='0', row='8')
+        self._treeview_1.grid_propagate(0)
+        self._frame_1_title.rowconfigure('8', pad='25')
+        self._treeview_1.bind('<Button-1>', self._handle_click, add='')
+        self._frame_2_finalButtons = tk.Frame(self._frame_1_title)
+        self._button_4_clearqueue = tk.Button(self._frame_2_finalButtons)
+        self._button_4_clearqueue.configure(font='{Custom} 11 {bold}', text='Clear Queue', width='15')
+        self._button_4_clearqueue.grid(column='1', row='0')
+        self._button_4_clearqueue.configure(command=self._clear_queue)
+        self._button_3_proceed = tk.Button(self._frame_2_finalButtons)
+        self._button_3_proceed.configure(font='{Custom} 11 {bold}', text='Proceed', width='15')
+        self._button_3_proceed.grid(column='0', row='0')
+        self._frame_2_finalButtons.columnconfigure('0', pad='15', weight='1')
+        self._button_3_proceed.configure(command=self._pre_process)
+        self._frame_2_finalButtons.configure(height='200', width='200')
+        self._frame_2_finalButtons.grid(column='0', row='9')
+        self._frame_1_title.rowconfigure('9', pad='30')
+        self.frame_1_progressbar = ttk.Frame(self._frame_1_title)
         self.frame_1_progressbar.configure(height='200', width='200')
         self.frame_1_progressbar.grid(column='0', row='10')
-        self.frame_1_title.rowconfigure('10', pad='10')
-        self.frame_1_title.configure(height='800', highlightbackground='red', highlightcolor='red', pady='20')
-        self.frame_1_title.configure(width='1150')
-        self.frame_1_title.grid(column='0', padx='25', pady='25', row='1', sticky='ew')
-        self.frame_1_title.grid_propagate(0)
+        self._frame_1_title.rowconfigure('10', pad='10')
+        self._frame_1_title.configure(height='800', highlightbackground='red', highlightcolor='red', pady='20')
+        self._frame_1_title.configure(width='1150')
+        self._frame_1_title.grid(column='0', padx='25', pady='25', row='1', sticky='ew')
+        self._frame_1_title.grid_propagate(0)
 
 
 
-        self.master.rowconfigure('1', weight='0')
-        self.master.columnconfigure('0', pad='25', weight='1')
+        self._master.rowconfigure('1', weight='0')
+        self._master.columnconfigure('0', pad='25', weight='1')
 
         # Main widget
-        self.mainwindow = self.frame_1_title
+        self.mainwindow = self._frame_1_title
 
         # External config for widgets
         # disable some buttons by default
-        self.button_1_openfiles.configure(state="normal")
-        self.button_2_preview.configure(state="disabled")
-        self.button_3_proceed.configure(state="disabled")
-        self.button_4_clearqueue.configure(state="disabled")
-        self.treeview_1.tag_configure('monospace', font=('courier',10))
+        self._button_1_openfiles.configure(state="normal")
+        self._button_2_preview.configure(state="disabled")
+        self._button_3_proceed.configure(state="disabled")
+        self._button_4_clearqueue.configure(state="disabled")
+        self._treeview_1.tag_configure('monospace', font=('courier',10))
+        self._initialized_UI = True
     def run(self):
-        self.master.mainloop()
+        self._master.mainloop()
 
     # UI Controllers
     def _ValidateIfNum(self, s, S):  # Spinbox validator
         # disallow anything but numbers
         valid = S == '' or S.isdigit()
         if not valid:
-            self.frame_1_title.bell()
+            self._frame_1_title.bell()
             # logging.info("[VolumeManager] input not valid")
         return valid
 
     def _handle_click(self, event):
-        if self.treeview_1.identify_region(event.x, event.y) == "separator":
+        if self._treeview_1.identify_region(event.x, event.y) == "separator":
             return "break"
 
     def _open_files(self):
@@ -184,21 +185,21 @@ class VolumeManagerApp:
                                                            )
         if not self.cbz_files_path_list:
             # self.tool_volumesetter()
-            self.label_4_selected_files_val.set(f"Selected 0 files.")
+            self._label_4_selected_files_val.set(f"Selected 0 files.")
         else:
-            self.label_4_selected_files_val.set(f"Selected {len(self.cbz_files_path_list)} files")
+            self._label_4_selected_files_val.set(f"Selected {len(self.cbz_files_path_list)} files")
         # self.enableButtons(self.frame_volumesetter)
 
-        self.button_1_openfiles.configure(state="normal")
-        self.button_2_preview.configure(state="normal")
-        self.button_3_proceed.configure(state="normal")
-        self.button_4_clearqueue.configure(state="normal")
+        self._button_1_openfiles.configure(state="normal")
+        self._button_2_preview.configure(state="normal")
+        self._button_3_proceed.configure(state="normal")
+        self._button_4_clearqueue.configure(state="normal")
 
         # self.button_1_openfiles.configure(state="disabled")
         # self.button_2_preview.configure(state="disabled")
         # self.button_3_proceed.configure(state="disabled")
 
-        if self.checkbutton_3_settings_val.get():
+        if self._checkbutton_3_settings_val.get():
             self._preview_changes()
 
     def _preview_changes(self):
@@ -208,17 +209,20 @@ class VolumeManagerApp:
         # s.layout("Treeview", [
         #     ('Treeview.treearea', {'sticky': 'nswe'})
         # ])
-        self.list_filestorename = list[ChapterFileNameData]()
+        self._list_filestorename = list[ChapterFileNameData]()
         counter = 0
         if not self.cbz_files_path_list:
             raise NoFilesSelected
+        if self._initialized_UI:
+            self._clear_queue()
 
-        self._clear_queue()
-
-        volume_to_apply = self.spinbox_1_volume_number_val.get()
+        volume_to_apply = self._spinbox_1_volume_number_val.get()
 
         for cbz_path in self.cbz_files_path_list:
-            filepath = cbz_path.name
+            if isinstance(cbz_path,IO):
+                filepath = cbz_path.name
+            else:
+                filepath = cbz_path
             filename = os.path.basename(filepath)
             regexSearch = re.findall(r"(?i)(.*)((?:Chapter|CH)(?:\.|\s)[0-9]+[.]*[0-9]*)(\.[a-z]{3})", filename)
             if regexSearch:
@@ -241,97 +245,106 @@ class VolumeManagerApp:
             file_regex_finds.complete_new_path = newFile_Name
 
 
-            self.list_filestorename.append(file_regex_finds)
-            self.treeview_1.insert(parent='', index='end', iid=counter, text='', tags='monospace',
-                                   values=("..." + filepath[-60:],
-                                           "🠆",
-                                           "..." + newFile_Name[-60:]
-                                           ))
-                                   # values=("..." + filepath[-68:],
-                                   #         "  🠆",
-                                   #         "..." + newFile_Name[-67:]
-                                   #         ))
-            self.treeview_1.yview_moveto(1)
+            self._list_filestorename.append(file_regex_finds)
+
+            if self._initialized_UI:
+                self._treeview_1.insert(parent='', index='end', iid=counter, text='', tags='monospace',
+                                       values=("..." + filepath[-60:],
+                                               "🠆",
+                                               "..." + newFile_Name[-60:]
+                                               ))
+                                       # values=("..." + filepath[-68:],
+                                       #         "  🠆",
+                                       #         "..." + newFile_Name[-67:]
+                                       #         ))
+                self._treeview_1.yview_moveto(1)
             logging.debug(f"[VolumeManager] Inserted item in treeview -> {file_regex_finds.name}")
             counter += 1
         # self.cbz_files_path_list = None
-        logging.debug(self.treeview_1.get_children())
-        if len(self.treeview_1.get_children()) != 0:
-            self.button_3_proceed.configure(state="normal",relief=tk.RAISED)
-        self.button_4_clearqueue.config(state="normal", relief=tk.RAISED)
+        if self._initialized_UI:
+            logging.debug(self._treeview_1.get_children())
+            if len(self._treeview_1.get_children()) != 0:
+                self._button_3_proceed.configure(state="normal",relief=tk.RAISED)
+            self._button_4_clearqueue.config(state="normal", relief=tk.RAISED)
 
     def _clear_queue(self):
-        self.button_1_openfiles.configure(state="normal")
-        self.button_2_preview.configure(state="normal")
-        self.button_3_proceed.config(state="disabled", text="Proceed", relief=tk.RAISED)
-        self.button_4_clearqueue.config(state="disabled", relief=tk.RAISED)
+        self._button_1_openfiles.configure(state="normal")
+        self._button_2_preview.configure(state="normal")
+        self._button_3_proceed.config(state="disabled", text="Proceed", relief=tk.RAISED)
+        self._button_4_clearqueue.config(state="disabled", relief=tk.RAISED)
         try:
             logging.debug("Try to clear treeview")
-            self.treeview_1.delete(*self.treeview_1.get_children())
+            self._treeview_1.delete(*self.treeview_1.get_children())
 
         except AttributeError:
             logging.debug("Can't clear treeview. -> doesnt exist yet")
         except Exception as e:
             logging.error("Can't clear treeview", exc_info=e)
-        self.list_filestorename = list[ChapterFileNameData]()
+        self._list_filestorename = list[ChapterFileNameData]()
 
 
     def _pre_process(self):
         self.cbz_files_path_list = tuple[IO]()
-        self.button_1_openfiles.configure(state="disabled")
-        self.button_2_preview.configure(state="disabled")
-        self.button_3_proceed.config(state="disabled", relief=tk.SUNKEN, text="Processing")
+        self._button_1_openfiles.configure(state="disabled")
+        self._button_2_preview.configure(state="disabled")
+        self._button_3_proceed.config(state="disabled", relief=tk.SUNKEN, text="Processing")
         self.process()
 
-        self.treeview_1.delete(*self.treeview_1.get_children())
+        self._treeview_1.delete(*self.treeview_1.get_children())
         self._clear_queue()
-        self.button_1_openfiles.configure(state="normal")
-        self.button_2_preview.configure(state="disabled")
-        self.button_3_proceed.config(state="disabled", text="Proceed", relief=tk.RAISED)
+        self._button_1_openfiles.configure(state="normal")
+        self._button_2_preview.configure(state="disabled")
+        self._button_3_proceed.config(state="disabled", text="Proceed", relief=tk.RAISED)
 
-        if self.checkbutton_1_settings_val.get():
+        if self._checkbutton_1_settings_val.get():
             self._open_files()
-
+    
+    def cli_select_files(self,files: list[str]):
+        self.cbz_files_path_list = files
+        self._preview_changes()
+    def cli_set_volume(self,volumeNumber: int):
+        self._spinbox_1_volume_number_val.set(volumeNumber)
     def process(self):
 
-        total_times_count = len(self.list_filestorename)
+        total_times_count = len(self._list_filestorename)
         processed_counter = 0
         processed_errors = 0
-        pb_root = self.frame_1_progressbar
+        if self._initialized_UI:
+            pb_root = self.frame_1_progressbar
 
-        style = ttk.Style(pb_root)
-        style.layout('text.Horizontal.TProgressbar',
-                     [
-                         ('Horizontal.Progressbar.trough',
-                          {
-                              'children': [
-                                  ('Horizontal.Progressbar.pbar',
-                                   {
-                                       'side': 'left',
-                                       'sticky': 'ns'
-                                   }
-                                   )
-                              ],
-                              'sticky': 'nswe'
-                          }
-                          ),
-                         ('Horizontal.Progressbar.label',
-                          {
-                              'sticky': 'nswe'
-                          }
-                          )
-                     ]
-                     )
-        pb = ttk.Progressbar(pb_root, length=400, style='text.Horizontal.TProgressbar',
-                             mode="determinate")  # create progress bar
-        style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
-        label_progress_text = tk.StringVar()
-        pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
-        logging.info("[VolumeManager] Initialized progress bar")
-        pb.grid(row=0, column=0, sticky=tk.E)
-        pb_text.grid(row=1, column=0, sticky=tk.E)
+            style = ttk.Style(pb_root)
+            style.layout('text.Horizontal.TProgressbar',
+                         [
+                             ('Horizontal.Progressbar.trough',
+                              {
+                                  'children': [
+                                      ('Horizontal.Progressbar.pbar',
+                                       {
+                                           'side': 'left',
+                                           'sticky': 'ns'
+                                       }
+                                       )
+                                  ],
+                                  'sticky': 'nswe'
+                              }
+                              ),
+                             ('Horizontal.Progressbar.label',
+                              {
+                                  'sticky': 'nswe'
+                              }
+                              )
+                         ]
+                         )
+            pb = ttk.Progressbar(pb_root, length=400, style='text.Horizontal.TProgressbar',
+                                 mode="determinate")  # create progress bar
+            style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
+            label_progress_text = tk.StringVar()
+            pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
+            logging.info("[VolumeManager] Initialized progress bar")
+            pb.grid(row=0, column=0, sticky=tk.E)
+            pb_text.grid(row=1, column=0, sticky=tk.E)
 
-        for item in self.list_filestorename:
+        for item in self._list_filestorename:
             logging.info(f"[VolumeManager] Renaming {item.complete_new_path}")
             oldPath = item.fullpath
             try:
@@ -340,24 +353,26 @@ class VolumeManagerApp:
                 logging.info(f"[VolumeManager] Renamed {item.name}")
 
             except PermissionError as e:
-                mb.showerror("Can't access the file because it's being used by a different process")
+                if self._initialized_UI:
+                    mb.showerror("Can't access the file because it's being used by a different process")
                 logging.error("Can't access the file because it's being used by a different process")
                 processed_errors += 1
             except FileNotFoundError as e:
-                mb.showerror("Can't access the file because it's was not found")
+                if self._initialized_UI:
+                    mb.showerror("Can't access the file because it's was not found")
                 logging.error("Can't access the file because it's being used by a different process")
                 processed_errors += 1
             except Exception as e:
                 processed_errors += 1
                 logging.error("Unhandled exception", exc_info=e)
-
-            pb_root.update()
-            percentage = ((processed_counter + processed_errors) / total_times_count) * 100
-            style.configure('text.Horizontal.TProgressbar',
-                            text='{:g} %'.format(round(percentage, 2)))  # update label
-            pb['value'] = percentage
-            label_progress_text.set(
-            f"Renamed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors")
+            if self._initialized_UI:
+                pb_root.update()
+                percentage = ((processed_counter + processed_errors) / total_times_count) * 100
+                style.configure('text.Horizontal.TProgressbar',
+                                text='{:g} %'.format(round(percentage, 2)))  # update label
+                pb['value'] = percentage
+                label_progress_text.set(
+                f"Renamed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors")
 
 
         if self.checkbutton_4_settings_val.get():
@@ -365,19 +380,20 @@ class VolumeManagerApp:
             logging.info("[VolumeManager] Save to ComicInfo is enabled. Starting process")
             processed_counter = 0
             processed_errors = 0
-            label_progress_text.set(
-                f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
-                f"{processed_errors} errors")
+            if self._initialized_UI:
+                label_progress_text.set(
+                    f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
+                    f"{processed_errors} errors")
 
-            pb_root.update()
-            percentage = ((processed_counter + processed_errors) / total_times_count) * 100
-            style.configure('text.Horizontal.TProgressbar',
-                            text='{:g} %'.format(round(percentage, 2)))  # update label
-            pb['value'] = percentage
+                pb_root.update()
+                percentage = ((processed_counter + processed_errors) / total_times_count) * 100
+                style.configure('text.Horizontal.TProgressbar',
+                                text='{:g} %'.format(round(percentage, 2)))  # update label
+                pb['value'] = percentage
 
             from MangaManager.MangaTaggerLib.MangaTagger import MangataggerApp
 
-            for item in self.list_filestorename:
+            for item in self._list_filestorename:
 
                 try:
                     cominfo_app = MangataggerApp()
@@ -388,22 +404,23 @@ class VolumeManagerApp:
                     processed_counter += 1
                 except XMLSyntaxError:
                     logging.error("Failed to load ComicInfo.xml file for file ->"+item.complete_new_path)
-                    processed_errors+=1
+                    processed_errors += 1
                 except Exception as e:
                     logging.error("Uncaught exception for file ->" + item.complete_new_path, exc_info=e)
                     processed_errors += 1
-                pb_root.update()
-                percentage = ((processed_counter + processed_errors) / total_times_count) * 100
-                style.configure('text.Horizontal.TProgressbar',
-                                text='{:g} %'.format(round(percentage, 2)))  # update label
-                pb['value'] = percentage
-                label_progress_text.set(
-                    f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
-                    f"{processed_errors} errors")
+                if self._initialized_UI:
+                    pb_root.update()
+                    percentage = ((processed_counter + processed_errors) / total_times_count) * 100
+                    style.configure('text.Horizontal.TProgressbar',
+                                    text='{:g} %'.format(round(percentage, 2)))  # update label
+                    pb['value'] = percentage
+                    label_progress_text.set(
+                        f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
+                        f"{processed_errors} errors")
                 # TODO: add unit tests
                 # progress_data.progress_percentage = percentage
 
-            time.sleep(0.1)
+
 
 
 if __name__ == "__main__":

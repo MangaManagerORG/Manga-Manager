@@ -1,1 +1,7 @@
-{}
+{
+  "tests.py::CoversCbzControllerTester": true,
+  "tests.py::TaggerCbzControllerTester": true,
+  "tests.py::VolumeManagerTester": true,
+  "tests.py::VolumeManagerTester::test_Cleanup": true,
+  "tests.py::VolumeManagerTester::test_cleanup_test": true
+}

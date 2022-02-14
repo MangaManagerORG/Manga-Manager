@@ -42,7 +42,7 @@
           <property type="row" id="3" name="weight">0</property>
         </layout>
         <child>
-          <object class="ttk.Label" id="label_2_settings">
+          <object class="ttk.Label" id="_label_2_settings">
             <property name="anchor">center</property>
             <property name="font">TkMenuFont</property>
             <property name="text" translatable="yes">Settings</property>
@@ -56,7 +56,7 @@
           </object>
         </child>
         <child>
-          <object class="tk.Checkbutton" id="checkbutton_1_settings">
+          <object class="tk.Checkbutton" id="_checkbutton_1_settings">
             <property name="text" translatable="yes">Auto increase volume number after processing</property>
             <property name="variable">boolean:checkbutton_1_settings_val</property>
             <layout manager="grid">
@@ -69,7 +69,7 @@
           </object>
         </child>
         <child>
-          <object class="tk.Checkbutton" id="checkbutton_2_settings">
+          <object class="tk.Checkbutton" id="_checkbutton_2_settings">
             <property name="text" translatable="yes">Open File selector dialog after processing</property>
             <property name="variable">boolean:checkbutton_2_settings_val</property>
             <layout manager="grid">
@@ -82,7 +82,7 @@
           </object>
         </child>
         <child>
-          <object class="tk.Checkbutton" id="checkbutton_3_settings">
+          <object class="tk.Checkbutton" id="_checkbutton_3_settings">
             <property name="text" translatable="yes">Automatic preview</property>
             <property name="variable">boolean:checkbutton_3_settings_val</property>
             <layout manager="grid">
@@ -95,9 +95,9 @@
           </object>
         </child>
         <child>
-          <object class="tk.Checkbutton" id="checkbutton_4_settings">
+          <object class="tk.Checkbutton" id="_checkbutton_4_settings">
             <property name="text" translatable="yes">Add volume number to ComicInfo if it exists</property>
-            <property name="variable">boolean:checkbutton_4_settings</property>
+            <property name="variable">boolean:checkbutton_4_settings_val</property>
             <layout manager="grid">
               <property name="column">0</property>
               <property name="propagate">True</property>
@@ -187,10 +187,10 @@
       </object>
     </child>
     <child>
-      <object class="tk.Spinbox" id="spinbox_1_volume_number">
+      <object class="tk.Spinbox" id="_spinbox_1_volume_number">
         <property name="from_">1</property>
         <property name="state">normal</property>
-        <property name="textvariable">int:spinbox_1_volume_number_val</property>
+        <property name="textvariable">int:_spinbox_1_volume_number_val</property>
         <property name="to">500</property>
         <property name="validate">all</property>
         <property name="validatecommand" type="command" cbtype="entry_validate" args="">_validate_spinbox</property>

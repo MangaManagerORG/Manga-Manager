@@ -546,7 +546,7 @@ class MangataggerApp():
                 comicinfo = ReadComicInfo(cbz_path).to_ComicInfo(False)
             except NoMetadataFileFound as e:
                 logging.error(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}")
-                mb.showerror(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}.\
+                mb.showerror(f"Metadata file 'Co    micInfo.xml' not found inside {cbz_path}.\
                 One will be created when saving changes to file")
                 comicinfo = ComicInfo
             except XMLSyntaxError as e:
