@@ -164,11 +164,11 @@ class CoverManagerApp:
 
         # Main widget
         delog("[CoverManager] UI initialised")
+
     def run(self):
         self.master.mainloop()
 
-    #UI Controller
-
+    # UI Controllers
     def set_do_overwrite_first_label(self):
         if self.do_overwrite_first.get():
             self.do_overwrite_first.set(False)
@@ -177,7 +177,6 @@ class CoverManagerApp:
             self.do_overwrite_first.set(True)
             self.overwrite_yes_button.configure(text="Yes")
 
-    # Works
     def opencovers(self):
         """
         Open tki nter.askopenfilename all covers that are going to be placed inside each chapter and loads iter cycle
@@ -221,7 +220,6 @@ class CoverManagerApp:
             self.button3_load_images.configure(text="Select covers", state="normal")
             self.button3_load_images.grid()
 
-    # Works
     def display_next_cover(self):
         velog(f"[CoverManager][Display Next Cover] Printing next cover in canvas - {self.nextelem}")
         self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
@@ -446,9 +444,6 @@ class CoverManagerApp:
         
         logging.info("Cleared queue")
         pass
-
-
-
 
     def enableButtons(self, thisframe):
         for w in thisframe.winfo_children():

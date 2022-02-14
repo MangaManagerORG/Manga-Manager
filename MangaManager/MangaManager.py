@@ -3,8 +3,9 @@ import tkinter as tk
 
 from MangaTaggerLib.MangaTagger import MangataggerApp
 from CoverManagerLib.CoverManager import CoverManagerApp
+from VolumeManager.VolumeManager import VolumeManagerApp
 # Todo: Add cover setter
-tools = [CoverManagerApp, MangataggerApp]
+tools = [CoverManagerApp, MangataggerApp, VolumeManagerApp]
 def main():
     selected_tool = False
     print("Select Tool")
@@ -21,8 +22,8 @@ def main():
     print(selection)
 
     root = tk.Tk()
-    if selection == 3:
-        print("Not implemented yet")
+    # if selection == 3:
+    #     print("Not implemented yet")
 
     app = tools[selection-1](root)
     app.start_ui()
