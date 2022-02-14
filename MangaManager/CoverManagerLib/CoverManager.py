@@ -28,9 +28,6 @@ logging.getLogger('PIL').setLevel(logging.WARNING)
 ScriptDir = os.path.dirname(__file__)
 
 
-# Todo: delete
-undoJson = {}
-undoJsonFile = f"{ScriptDir}/undo.json"
 
 font_H0 = ("BOLD", 20)
 font_H1 = ("BOLD", 18)
@@ -299,32 +296,14 @@ class CoverManagerApp:
                 self_waitup.i_waited_for_this = ""
 
             def run(self_waitup):
-                undoJsonFile_modify = undoJsonFile
-                # with open(undoJsonFile, "w") as f:
-                #     json.dump(self.undo_task_json, f)
                 processed_counter = 1
                 processed_errors = 0
-                timestamp = time.time()
                 total = len(self.treeview1.get_children())
-                # for v in self.covers_path_in_confirmation:
-                #     total +=len(v)
                 for item in self.covers_path_in_confirmation:
-                    # pathdict = self.covers_path_in_confirmation
                     for file in self.covers_path_in_confirmation[item]:
                         velog(f"[CoverManager] Starting processing for file: {item}")
                         try:
                             SetCover(file)
-                        #     if overwrite == "delete":
-                        #         delog("Entering delete cover function")
-                        #         cbz_han(cbz_file)
-                        #     elif overwrite == True:
-                        #         delog("Entering overwrite cover function")
-                        #         data = cover_process_item_info(cbz_file, cover_path, cover_name, cover_format)
-                        #         doUpdateZip(data)
-                        #     else:
-                        #         delog("Entering append cover function")
-                        #         data = cover_process_item_info(cbz_file, cover_path, cover_name, cover_format)
-                        #         doAppendZip(data)
 
                             global label_progress_text
                             label_progress_text.set(
@@ -352,7 +331,6 @@ class CoverManagerApp:
 
                 delog("Just before exiting progress_bar loop")
                 self.covers_path_in_confirmation = {}  # clear queue
-                self.undo_task_json = {}
                 global pb_flag
                 pb_flag = False
                 self_waitup.i_waited_for_this = "it is done"  # result of the task / replace with object or variable you want to pass
@@ -367,18 +345,13 @@ class CoverManagerApp:
 
             def startup(self_progress):
                 self_progress.pb_root = self.progressbar_frame  # create a window for the progress bar
-                # self_progress.pb_root.configure(padx=30)
-                # self_progress.pb_label = tk.Label(self_progress.pb_root, textvariable=self_progress.label)  # make label for progress bar
                 self_progress.pb = ttk.Progressbar(self_progress.pb_root, length=400,
                                                    mode="indeterminate")  # create progress bar
-
-                # global label_progress_text
                 self_progress.pb_text = tk.Label(self_progress.pb_root, textvariable=self_progress.label_progress_text,
                                                  anchor=tk.W)
                 self_progress.pb.start()
                 delog("[CoverManager] Started progress bar")
 
-                # self_progress.pb_label.grid(row=0, column=0, sticky=tk.W)
                 self_progress.pb.grid(row=0, column=0, sticky=tk.E)
                 self_progress.pb_text.grid(row=1, column=0, sticky=tk.E)
                 while pb_flag == True:  # move the progress bar until multithread reaches line 19
@@ -396,9 +369,6 @@ class CoverManagerApp:
                 self_progress.pb_text.grid_forget()
 
                 delog("[CoverManager] File processed")
-
-                # for widget in self_progress.pb_root.winfo_children():
-                #     widget.destroy()
                 return
 
         global pb_flag
@@ -428,11 +398,9 @@ class CoverManagerApp:
 
         self.enableButtons(FrameToProcess)
         self.button4_proceed.config(relief=tk.RAISED, text="Proceed")
-        # TODO: Add clear queue button
 
     def clearqueue(self):
         self.covers_path_in_confirmation = {}  # clear queue
-        self.undo_task_json = {}
         try:
             delog(" Try to clear treeview")
             self.treeview1.delete(*self.treeview1.get_children())

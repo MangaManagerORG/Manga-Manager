@@ -209,7 +209,6 @@ class VolumeManagerTester(unittest.TestCase):
                                                                                 afterchapter=r[2], fullpath=filepath,
                                                                                 volume=volumeNumber)
                 else:
-                    # Todo: add warning no ch/chapter detected and using last int as ch identifier
                     regexSearch = re.findall(r"(?i)(.*\s)([0-9]+[.]*[0-9]*)(\.[a-z]{3}$)",
                                              filename)  # TODO: this regex must be improved yo cover more test cases
                     if regexSearch:

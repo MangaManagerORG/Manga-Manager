@@ -116,8 +116,6 @@ class MangataggerApp():
         def makeEditable(event: tk.Event = None):
             # <Double-Button-1>
             if event.widget.cget('state') == "disabled":
-                # if isinstance(event.widget, tk.Entry):
-                # if isinstance(event.widget, tk.Spinbox):
                 if str(event.widget) in (".!frame.!frame.!spinbox4",".!frame.!frame.!spinbox3"):
                     answer = mb.askyesno("Warning!","Warning: This change will be applied to all files.\
                     Only one file should be selected to change this value.Continue?")
@@ -624,10 +622,10 @@ class MangataggerApp():
 
             if cls.widgets_obj:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
                 widgets_var_zip = zip(cls.widgets_var, comicinfo_attrib_get, comicinfo_attrib_set, cls.widgets_obj)
-                initialized_UI = True
+                cls._initialized_UI = True
             else:
                 widgets_var_zip = zip(cls.widgets_var, comicinfo_attrib_get, comicinfo_attrib_set)
-                initialized_UI = False
+                cls._initialized_UI = False
 
             # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
             cls.processed_chapter = False
@@ -657,7 +655,7 @@ class MangataggerApp():
                             widgetvar.set(-1)
                     else:
                         logging.warning(f"Unrecognised type \n{widgetvar=}\n{widgetvar}")
-                    if initialized_UI:  # For the items that are different, highlight in orane if ui is initialized
+                    if cls._initialized_UI:  # For the items that are different, highlight in orane if ui is initialized
                         widgetobj = widgets_var_tuple[3]  # This is the actual widget, not the variable
                         logging.debug("[MangaTagger] ++#############++")
                         delog(comicinfo_atr_get)
@@ -766,10 +764,10 @@ class MangataggerApp():
 
             if cls.widgets_obj:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
                 widgets_var_zip = zip(cls.widgets_var, comicinfo_attrib_get, comicinfo_attrib_set, cls.widgets_obj)
-                initialized_UI = True
+                cls._initialized_UI = True
             else:
                 widgets_var_zip = zip(cls.widgets_var, comicinfo_attrib_get, comicinfo_attrib_set)
-                initialized_UI = False
+                cls._initialized_UI = False
 
             # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
             for widgets_var_tuple in widgets_var_zip:

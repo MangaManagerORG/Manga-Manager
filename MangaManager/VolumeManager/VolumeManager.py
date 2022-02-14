@@ -26,10 +26,6 @@ delog = logging.debug
 logging.getLogger('PIL').setLevel(logging.WARNING)
 ScriptDir = os.path.dirname(__file__)
 
-
-# Todo: delete
-
-
 class VolumeManagerApp:
     def __init__(self, master: tk.Tk=None):
         self._master = master
@@ -195,10 +191,6 @@ class VolumeManagerApp:
         self._button_3_proceed.configure(state="normal")
         self._button_4_clearqueue.configure(state="normal")
 
-        # self.button_1_openfiles.configure(state="disabled")
-        # self.button_2_preview.configure(state="disabled")
-        # self.button_3_proceed.configure(state="disabled")
-
         if self._checkbutton_3_settings_val.get():
             self._preview_changes()
 
@@ -206,9 +198,6 @@ class VolumeManagerApp:
 
         s = ttk.Style()
         s.configure('Treeview', rowheight=20, rowpady=5, rowwidth=365)
-        # s.layout("Treeview", [
-        #     ('Treeview.treearea', {'sticky': 'nswe'})
-        # ])
         self._list_filestorename = list[ChapterFileNameData]()
         counter = 0
         if not self.cbz_files_path_list:
@@ -244,7 +233,6 @@ class VolumeManagerApp:
                 "  ", " ")
             file_regex_finds.complete_new_path = newFile_Name
 
-
             self._list_filestorename.append(file_regex_finds)
 
             if self._initialized_UI:
@@ -253,10 +241,6 @@ class VolumeManagerApp:
                                                "🠆",
                                                "..." + newFile_Name[-60:]
                                                ))
-                                       # values=("..." + filepath[-68:],
-                                       #         "  🠆",
-                                       #         "..." + newFile_Name[-67:]
-                                       #         ))
                 self._treeview_1.yview_moveto(1)
             logging.debug(f"[VolumeManager] Inserted item in treeview -> {file_regex_finds.name}")
             counter += 1
@@ -417,8 +401,6 @@ class VolumeManagerApp:
                     label_progress_text.set(
                         f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
                         f"{processed_errors} errors")
-                # TODO: add unit tests
-                # progress_data.progress_percentage = percentage
 
 
 
