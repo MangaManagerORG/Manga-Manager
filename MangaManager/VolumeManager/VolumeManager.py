@@ -8,9 +8,10 @@ import os
 import sys
 import re
 import time
-
+from lxml.etree import XMLSyntaxError
 from typing.io import IO
 
+import MangaManager.MangaTaggerLib.errors
 from MangaManager.VolumeManager.errors import NoFilesSelected
 from MangaManager.VolumeManager.models import ChapterFileNameData, ProgressBarData
 
@@ -36,6 +37,7 @@ class VolumeManagerApp:
         self.checkbutton_1_settings_val = tk.BooleanVar(value=False)  # Auto increase volume number
         self.checkbutton_2_settings_val = tk.BooleanVar(value=False)  # Open FIle Selector dialog after processing
         self.checkbutton_3_settings_val = tk.BooleanVar(value=True)  # Automatic preview
+        self.checkbutton_4_settings_val = tk.BooleanVar(value=True)  # Adds volume info to ComicInfo
         self.label_4_selected_files_val = tk.StringVar(value='')
         self.spinbox_1_volume_number_val = tk.IntVar(value=1)
 
@@ -63,6 +65,10 @@ class VolumeManagerApp:
         self.checkbutton_3_settings = tk.Checkbutton(self.settings)
         self.checkbutton_3_settings.configure(text='Automatic preview', variable=self.checkbutton_3_settings_val)
         self.checkbutton_3_settings.grid(column='0', row='3', sticky='w')
+        self.checkbutton_4_settings = tk.Checkbutton(self.settings)
+        self.checkbutton_4_settings.configure(text='Add volume number to ComicInfo if it exists',
+                                              variable=self.checkbutton_4_settings_val)
+        self.checkbutton_4_settings.grid(column='0', row='4', sticky='w')
         self.settings.configure(height='160', highlightbackground='black', highlightcolor='black',
                                 highlightthickness='01')
         self.settings.configure(width='200')
@@ -107,7 +113,7 @@ class VolumeManagerApp:
         self.treeview_1.configure(columns=self.treeview_1_cols, displaycolumns=self.treeview_1_dcols)
         self.treeview_1.column('#0', anchor='w', stretch='true', width='0', minwidth='0')
         self.treeview_1.column('old_name', anchor='center', stretch='false', width='525', minwidth='20')
-        self.treeview_1.column('to', anchor='center', stretch='false', width='26', minwidth='23')
+        self.treeview_1.column('to', anchor='center', stretch='false', width='26', minwidth='26')
         self.treeview_1.column('new_name', anchor='center', stretch='true', width='525', minwidth='20')
         self.treeview_1.heading('#0', anchor='w', text='column_1')
         self.treeview_1.heading('old_name', anchor='center', text='OLD NAME')
@@ -120,8 +126,8 @@ class VolumeManagerApp:
         self.frame_2_finalButtons = tk.Frame(self.frame_1_title)
         self.button_4_clearqueue = tk.Button(self.frame_2_finalButtons)
         self.button_4_clearqueue.configure(font='{Custom} 11 {bold}', text='Clear Queue', width='15')
-        self.button_4_clearqueue.configure(command=self._clear_queue)
         self.button_4_clearqueue.grid(column='1', row='0')
+        self.button_4_clearqueue.configure(command=self._clear_queue)
         self.button_3_proceed = tk.Button(self.frame_2_finalButtons)
         self.button_3_proceed.configure(font='{Custom} 11 {bold}', text='Proceed', width='15')
         self.button_3_proceed.grid(column='0', row='0')
@@ -163,7 +169,7 @@ class VolumeManagerApp:
         valid = S == '' or S.isdigit()
         if not valid:
             self.frame_1_title.bell()
-            # velog("input not valid")
+            # logging.info("[VolumeManager] input not valid")
         return valid
 
     def _handle_click(self, event):
@@ -172,7 +178,7 @@ class VolumeManagerApp:
 
     def _open_files(self):
 
-        delog("inside openfiles")
+        logging.debug("inside openfiles")
         self.cbz_files_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
                                                            filetypes=(("CBZ Files", ".cbz"),)
                                                            )
@@ -246,10 +252,10 @@ class VolumeManagerApp:
                                    #         "..." + newFile_Name[-67:]
                                    #         ))
             self.treeview_1.yview_moveto(1)
-            delog(f"Inserted item in treeview -> {file_regex_finds.name}")
+            logging.debug(f"[VolumeManager] Inserted item in treeview -> {file_regex_finds.name}")
             counter += 1
         # self.cbz_files_path_list = None
-        delog(self.treeview_1.get_children())
+        logging.debug(self.treeview_1.get_children())
         if len(self.treeview_1.get_children()) != 0:
             self.button_3_proceed.configure(state="normal",relief=tk.RAISED)
         self.button_4_clearqueue.config(state="normal", relief=tk.RAISED)
@@ -260,11 +266,11 @@ class VolumeManagerApp:
         self.button_3_proceed.config(state="disabled", text="Proceed", relief=tk.RAISED)
         self.button_4_clearqueue.config(state="disabled", relief=tk.RAISED)
         try:
-            delog("Try to clear treeview")
+            logging.debug("Try to clear treeview")
             self.treeview_1.delete(*self.treeview_1.get_children())
 
         except AttributeError:
-            delog("Can't clear treeview. -> doesnt exist yet")
+            logging.debug("Can't clear treeview. -> doesnt exist yet")
         except Exception as e:
             logging.error("Can't clear treeview", exc_info=e)
         self.list_filestorename = list[ChapterFileNameData]()
@@ -321,17 +327,17 @@ class VolumeManagerApp:
         style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
         label_progress_text = tk.StringVar()
         pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
-        velog("Initialized progress bar")
+        logging.info("[VolumeManager] Initialized progress bar")
         pb.grid(row=0, column=0, sticky=tk.E)
         pb_text.grid(row=1, column=0, sticky=tk.E)
 
         for item in self.list_filestorename:
-            velog(f"Renaming {item.complete_new_path}")
+            logging.info(f"[VolumeManager] Renaming {item.complete_new_path}")
             oldPath = item.fullpath
             try:
                 os.rename(oldPath, item.complete_new_path)
                 processed_counter += 1
-                velog(f"Renamed {item.name}")
+                logging.info(f"[VolumeManager] Renamed {item.name}")
 
             except PermissionError as e:
                 mb.showerror("Can't access the file because it's being used by a different process")
@@ -345,14 +351,58 @@ class VolumeManagerApp:
                 processed_errors += 1
                 logging.error("Unhandled exception", exc_info=e)
 
-            label_progress_text.set(
-                f"Processed: {(processed_counter + processed_errors)}/{total_times_count} - {processed_errors} errors")
-            # progress_data.progress_percentage = percentage
             pb_root.update()
             percentage = ((processed_counter + processed_errors) / total_times_count) * 100
             style.configure('text.Horizontal.TProgressbar',
                             text='{:g} %'.format(round(percentage, 2)))  # update label
             pb['value'] = percentage
+            label_progress_text.set(
+            f"Renamed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors")
+
+
+        if self.checkbutton_4_settings_val.get():
+            # Process ComicInfo
+            logging.info("[VolumeManager] Save to ComicInfo is enabled. Starting process")
+            processed_counter = 0
+            processed_errors = 0
+            label_progress_text.set(
+                f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
+                f"{processed_errors} errors")
+
+            pb_root.update()
+            percentage = ((processed_counter + processed_errors) / total_times_count) * 100
+            style.configure('text.Horizontal.TProgressbar',
+                            text='{:g} %'.format(round(percentage, 2)))  # update label
+            pb['value'] = percentage
+
+            from MangaManager.MangaTaggerLib.MangaTagger import MangataggerApp
+
+            for item in self.list_filestorename:
+
+                try:
+                    cominfo_app = MangataggerApp()
+                    cominfo_app.create_loadedComicInfo_list([item.complete_new_path])
+                    cominfo_app.spinbox_3_volume_var.set(item.volume)
+                    cominfo_app.parseUI_toComicInfo()
+                    cominfo_app.saveComicInfo()
+                    processed_counter += 1
+                except XMLSyntaxError:
+                    logging.error("Failed to load ComicInfo.xml file for file ->"+item.complete_new_path)
+                    processed_errors+=1
+                except Exception as e:
+                    logging.error("Uncaught exception for file ->" + item.complete_new_path, exc_info=e)
+                    processed_errors += 1
+                pb_root.update()
+                percentage = ((processed_counter + processed_errors) / total_times_count) * 100
+                style.configure('text.Horizontal.TProgressbar',
+                                text='{:g} %'.format(round(percentage, 2)))  # update label
+                pb['value'] = percentage
+                label_progress_text.set(
+                    f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
+                    f"{processed_errors} errors")
+                # TODO: add unit tests
+                # progress_data.progress_percentage = percentage
+
             time.sleep(0.1)
 
 
