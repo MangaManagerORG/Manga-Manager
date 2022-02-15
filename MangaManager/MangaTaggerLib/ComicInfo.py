@@ -61,15 +61,15 @@ def parsexml_(infile, parser=None, **kwargs):
     doc = etree_.parse(infile, parser=parser, **kwargs)
     return doc
 
-def parsexmlstring_(instring, parser=None, **kwargs):
+def parsexmlstring_(instring, parser=None, doRecover=False, **kwargs):
     if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
         #   we ignore comments.
         try:
-            parser = etree_.ETCompatXMLParser()
+            parser = etree_.ETCompatXMLParser(recover=doRecover)
         except AttributeError:
             # fallback to xml.etree
-            parser = etree_.XMLParser()
+            parser = etree_.XMLParser(recover=doRecover)
     element = etree_.fromstring(instring, parser=parser, **kwargs)
     return element
 
@@ -2294,7 +2294,7 @@ def parseEtree(inFileName, silence=False, print_warnings=True,
     return rootObj, rootElement, mapping, reverse_node_mapping
 
 
-def parseString(inString, silence=False, print_warnings=True):
+def parseString(inString, silence=False, print_warnings=True,doRecover=False):
     '''Parse a string, create the object tree, and export it.
 
     Arguments:
@@ -2304,7 +2304,7 @@ def parseString(inString, silence=False, print_warnings=True):
     Returns -- The root object in the tree.
     '''
     parser = None
-    rootNode= parsexmlstring_(inString, parser)
+    rootNode= parsexmlstring_(inString, parser,doRecover)
     gds_collector = GdsCollector_()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:

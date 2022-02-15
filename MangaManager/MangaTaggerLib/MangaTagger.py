@@ -634,20 +634,26 @@ class MangataggerApp():
                 widgetvar = widgets_var_tuple[0]
                 comicinfo_atr_get = widgets_var_tuple[1]()
                 # comicinfo_atr_set = widgets_var_tuple[2]
+
+                # field is empty. Skipping
                 if widgetvar.get() != comicinfo_atr_get and widgetvar.get() in (-1, 0, ""):
+                    #  If field is chapter skip them.
+                    #  We don't want to mess up chapter overwriting the same value to all files
                     if str(widgetvar) == "chapter" and not cls.processed_chapter:
                         continue
                     else:
                         cls.processed_chapter = True
-
-                    logging.debug("[MangaTagger] Read to variable :"+str(comicinfo_atr_get))
-                    logging.debug("[MangaTagger] widget var ="+str(widgetvar))
                     widgetvar.set(comicinfo_atr_get)
-
+                    logging.debug(
+                        f"[MangaTagger] Loaded new value for tag '{widgetvar}'")
+                # Conflict. UI and ComicInfo not the same.
                 elif widgetvar.get() != comicinfo_atr_get:
+
+                    # Empty variable since they don't match.
+                    # This way when saving, original value will be kept.
+                    # If user edits in the ui, warning will appear: The field in all selected files will be the same
                     if isinstance(widgetvar, tk.StringVar):
                         widgetvar.set("")
-
                     elif isinstance(widgetvar, tk.IntVar):
                         if str(widgetvar) == "pageCount":
                             widgetvar.set(0)
@@ -663,8 +669,12 @@ class MangataggerApp():
                         logging.debug("[MangaTagger] __#############__")
                         widgetobj.configure(highlightbackground='orange', highlightcolor="orange",
                                             highlightthickness='3')
+                    logging.debug(
+                        f"[MangaTagger] Conflict betwen comicinfo and UI for tag '{widgetvar}'. Content does not match.")
                 else:
-                    logging.debug("[MangaTagger] Content in comicinfo and UI is the same, skipping")
+                    logging.debug(
+                        f"[MangaTagger] Content in comicinfo and UI for tag '{widgetvar}' is the same, skipping")
+
             return loadedInfo
         if not self.selected_filenames:
             if cli_selected_files:

@@ -3,6 +3,7 @@ import os
 import tempfile
 import logging
 import io
+from lxml.etree import XMLSyntaxError
 
 from MangaManager.MangaTaggerLib.models import *
 from MangaManager.MangaTaggerLib.errors import NoMetadataFileFound
@@ -41,7 +42,13 @@ class ReadComicInfo:
         If ComicInfo not present returns none
         """
         print_xml = False if print_xml else True
-        comicinfo = ComicInfo.parseString(self.xmlString,silence=print_xml)
+        try:
+            comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml)
+        except XMLSyntaxError as e:
+            logging.error(f"Failed to parse XML:\n{e}\nAttempting recovery...", exc_info=False)
+            comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml,doRecover = True)
+
+
         logging.debug("returning comicinfo")
         return comicinfo
 
