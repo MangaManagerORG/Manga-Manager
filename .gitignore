@@ -9,3 +9,8 @@ undo.json
 /.idea/vcs.xml
 /ZIPPER_2_COVER_SETTER_UI.ui
 /junk_stuff/
+/MangaManager/CoverManagerLib/.pytest_cache/
+/MangaManager/MangaTaggerLib/.pytest_cache/
+/MangaManager/tests/.pytest_cache/
+/.pytest_cache/
+
