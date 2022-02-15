@@ -45,7 +45,7 @@ class ReadComicInfo:
         try:
             comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml)
         except XMLSyntaxError as e:
-            logging.error(f"Failed to parse XML:\n{e}\nAttempting recovery...", exc_info=False)
+            logging.error(f"Failed to parse XML:\n{e}\nAttempting recovery...", exc_info=True)
             comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml,doRecover = True)
 
 
