@@ -544,12 +544,12 @@ class MangataggerApp():
                 comicinfo = ReadComicInfo(cbz_path).to_ComicInfo(False)
             except NoMetadataFileFound as e:
                 logging.error(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}")
-                mb.showerror(f"Metadata file 'Co    micInfo.xml' not found inside {cbz_path}.\
+                mb.showerror("Error reading ComicInfo", f"ComicInfo.xml was not found inside: {cbz_path}.\
                 One will be created when saving changes to file")
-                comicinfo = ComicInfo
+                comicinfo = ComicInfo.ComicInfo()
             except XMLSyntaxError as e:
                 logging.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
-                mb.showerror("Error loading file", f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e))
+                mb.showerror("Error reading ComicInfo", "Error loading file", f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e))
                 raise e
             loadedInfo = LoadedComicInfo(cbz_path, comicinfo, comicinfo)
             logging.debug("[MangaTagger] comicinfo was read and a LoadedComicInfo was created")
