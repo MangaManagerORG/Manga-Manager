@@ -12,8 +12,8 @@ import time
 from threading import Thread
 import logging
 
-from MangaManager.CoverManagerLib.cbz_handler import SetCover
-from MangaManager.CoverManagerLib.models import cover_process_item_info
+from .cbz_handler import SetCover
+from .models import cover_process_item_info
 
 launch_path =""
 logging.basicConfig(level=logging.DEBUG,

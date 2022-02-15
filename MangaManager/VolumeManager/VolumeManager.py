@@ -11,8 +11,8 @@ import time
 from lxml.etree import XMLSyntaxError
 from typing.io import IO
 
-from MangaManager.VolumeManager.errors import NoFilesSelected
-from MangaManager.VolumeManager.models import ChapterFileNameData, ProgressBarData
+from .errors import NoFilesSelected
+from .models import ChapterFileNameData, ProgressBarData
 
 launch_path = ""
 logging.basicConfig(level=logging.DEBUG,
