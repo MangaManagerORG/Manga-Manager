@@ -15,6 +15,13 @@ from .cbz_handler import ReadComicInfo, WriteComicInfo
 from .errors import *
 # logging.getLogger('PIL').setLevel(logging.WARNING)
 
+# TODO:
+#   - Add info message if nothing is loaded into UI because comicinfo not exist and one will be created
+#   - Add successfully loaded window/message somewhere
+
+
+
+
 launch_path =""
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s',
@@ -38,14 +45,14 @@ class MangataggerApp():
         self.spinbox_2_month_var = tk.IntVar(value=-1, name='month')
         self.spinbox_3_volume_var = tk.IntVar(value=-1, name='volume')
 
-        self.spinbox_4_chapter_var = tk.StringVar(value='', name='chapter')
+        self.spinbox_4_chapter_var = tk.StringVar(value='', name='Number')
         self.label_14_langIso_var = tk.StringVar(value='Language ISO', name='langIso')
         self.entry_10_langIso_var = tk.StringVar(value='', name='langIso')
         # self.spinbox_5_pageCount_var = tk.IntVar(value='', name='pageCount')
         self.spinbox_5_pageCount_var = tk.IntVar(value=0, name='pageCount')
         self.entry_15_format_var = tk.StringVar(value='', name='format')
-        self.entry_18_blackWhite_var = tk.StringVar(value='', name='blackWhite')
-        self.entry_19_manga_var = tk.StringVar(value='', name='manga')
+        self.entry_18_blackWhite_var = tk.StringVar(value='Unknown', name='blackWhite')
+        self.entry_19_manga_var = tk.StringVar(value='Unknown', name='manga')
         self.entry_1_seriesName_var = tk.StringVar(value='', name='seriesName')
         self.entry_2_title_var = tk.StringVar(value='', name='title')
         self.entry_3_writer_var= tk.StringVar(value='', name='writer')
@@ -115,9 +122,10 @@ class MangataggerApp():
 
         def makeEditable(event: tk.Event = None):
             # <Double-Button-1>
+            # TODO: Add a better error message to explain that any changes will be overwritten
             if event.widget.cget('state') == "disabled":
                 if str(event.widget) in (".!frame.!frame.!spinbox4",".!frame.!frame.!spinbox3"):
-                    answer = mb.askyesno("Warning!","Warning: This change will be applied to all files.\
+                    answer = mb.askyesno("Warning!","Warning: This change will be overwritten to all files.\
                     Only one file should be selected to change this value.Continue?")
                     if answer:
                         event.widget.configure(state="normal", highlightbackground="#00bfff", highlightcolor="#00bfff",
@@ -544,7 +552,7 @@ class MangataggerApp():
                 comicinfo = ReadComicInfo(cbz_path).to_ComicInfo(False)
             except NoMetadataFileFound as e:
                 logging.error(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}")
-                mb.showerror("Error reading ComicInfo", f"ComicInfo.xml was not found inside: {cbz_path}.\
+                mb.showerror("Error reading ComicInfo", f"ComicInfo.xml was not found inside: {cbz_path}.\n\
                 One will be created when saving changes to file")
                 comicinfo = ComicInfo.ComicInfo()
             except XMLSyntaxError as e:
