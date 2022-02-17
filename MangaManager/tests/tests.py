@@ -6,7 +6,7 @@ import zipfile
 import os
 import re
 # Manga Tagger
-from MangaManager.MangaTaggerLib.MangaTagger import MangataggerApp
+from MangaManager.MangaTaggerLib import MangaTagger
 from MangaManager.MangaTaggerLib.cbz_handler import *
 
 # Cover Manager
@@ -14,7 +14,7 @@ from MangaManager.CoverManagerLib.cbz_handler import SetCover
 from MangaManager.CoverManagerLib.models import cover_process_item_info
 
 # Volume Manager
-from MangaManager.VolumeManager.VolumeManager import VolumeManagerApp
+from MangaManager.VolumeManager import VolumeManager
 from MangaManager.VolumeManager.models import ChapterFileNameData
 
 comicinfo_23 = """
@@ -91,7 +91,7 @@ class TaggerCbzControllerTester(unittest.TestCase):
         xml_preprocess = opened_cbz.to_ComicInfo()
         opened_cbz = 0 # reset so file gets closed
         random_int = random.random()
-        app = MangataggerApp(root)
+        app =  MangaTagger.App(root)
 
         app.create_loadedComicInfo_list(test_files)
         app.entry_2_title_var.set(f"This_title_var_is modified_{random_int}")
@@ -245,7 +245,7 @@ class VolumeManagerTester(unittest.TestCase):
 
         #  Proceed with testing
         root = tk.Tk()
-        app = VolumeManagerApp(root)
+        app = VolumeManager.App(root)
         app.cli_set_volume(random_vol_number)
         app.cli_select_files([test_path])
         app.checkbutton_4_settings_val.set(True)  # Enables saving to comicinfo

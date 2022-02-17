@@ -15,19 +15,18 @@ from .errors import NoFilesSelected
 from .models import ChapterFileNameData, ProgressBarData
 
 launch_path = ""
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)s %(message)s',
-                    handlers=[logging.StreamHandler(sys.stdout)]
-                    # filename='/tmp/myapp.log'
-                    )
+def loggerCall():
+    logger = logging.getLogger(__name__)
+    logger.debug('MangaTagger: DEBUG LOGGING MODE : ')
+    logger.info('MangaTagger: INFO LOG')
+    return
 
-velog = logging.info
-delog = logging.debug
-logging.getLogger('PIL').setLevel(logging.WARNING)
+
 ScriptDir = os.path.dirname(__file__)
 
-class VolumeManagerApp:
-    def __init__(self, master: tk.Tk=None):
+
+class App:
+    def __init__(self, master: tk.Tk = None):
         self._master = master
         self._checkbutton_1_settings_val = tk.BooleanVar(value=True)  # Auto increase volume number
         self._checkbutton_2_settings_val = tk.BooleanVar(value=False)  # Open FIle Selector dialog after processing
@@ -375,12 +374,12 @@ class VolumeManagerApp:
                                 text='{:g} %'.format(round(percentage, 2)))  # update label
                 pb['value'] = percentage
 
-            from MangaManager.MangaTaggerLib.MangaTagger import MangataggerApp
+            from MangaManager.MangaTaggerLib.MangaTagger import App
 
             for item in self._list_filestorename:
 
                 try:
-                    cominfo_app = MangataggerApp()
+                    cominfo_app = App()
                     cominfo_app.create_loadedComicInfo_list([item.complete_new_path])
                     cominfo_app.spinbox_3_volume_var.set(item.volume)
                     cominfo_app.parseUI_toComicInfo()
@@ -402,11 +401,3 @@ class VolumeManagerApp:
                         f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
                         f"{processed_errors} errors")
 
-
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = VolumeManagerApp(root)
-    app.start_ui()
-    app.run()

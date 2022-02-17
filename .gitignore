@@ -12,5 +12,7 @@ undo.json
 /MangaManager/CoverManagerLib/.pytest_cache/
 /MangaManager/MangaTaggerLib/.pytest_cache/
 /MangaManager/tests/.pytest_cache/
+/MangaManager/tests/Sample CBZ Chapter 23.cbz
+/MangaManager/tests/Sample CBZ Chapter 24.cbz
 /.pytest_cache/
 

@@ -6,8 +6,6 @@ from tkinter import filedialog
 from tkinter import messagebox as mb
 import tkinter.ttk as ttk
 from lxml.etree import XMLSyntaxError
-import logging
-import argparse
 import os
 from . import ComicInfo
 from .models import LoadedComicInfo
@@ -20,14 +18,18 @@ from .errors import *
 #   - Add successfully loaded window/message somewhere
 
 
+import logging
+from logging.handlers import RotatingFileHandler
 
+
+def loggerCall():
+    logger = logging.getLogger(__name__)
+    logger.debug('MangaTagger: DEBUG LOGGING MODE : ')
+    logger.info('MangaTagger: INFO LOG')
+    return
 
 launch_path =""
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)s %(message)s',
-                    handlers=[logging.StreamHandler(sys.stdout)]
-                    # filename='/tmp/myapp.log'
-                    )
+
 
 velog = logging.info
 delog = logging.debug
@@ -35,9 +37,8 @@ delog = logging.debug
 
 ScriptDir = os.path.dirname(__file__)
 PROJECT_PATH = pathlib.Path(__file__).parent
-PROJECT_UI = PROJECT_PATH / "MangaTagger.ui"
 
-class MangataggerApp():
+class App():
 
     def __init__(self,master=None):
         self.master = master
@@ -560,7 +561,7 @@ class MangataggerApp():
                 mb.showerror("Error reading ComicInfo", "Error loading file", f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e))
                 raise e
             loadedInfo = LoadedComicInfo(cbz_path, comicinfo, comicinfo)
-            logging.debug("[MangaTagger] comicinfo was read and a LoadedComicInfo was created")
+            logging.debug("comicinfo was read and a LoadedComicInfo was created")
             #
             # """
             # Loads LoadedComicInfo.comicInfoObj into StringVar, so it can be modified in the UI.
@@ -653,7 +654,7 @@ class MangataggerApp():
                         cls.processed_chapter = True
                     widgetvar.set(comicinfo_atr_get)
                     logging.debug(
-                        f"[MangaTagger] Loaded new value for tag '{widgetvar}'")
+                        f"Loaded new value for tag '{widgetvar}'")
                 # Conflict. UI and ComicInfo not the same.
                 elif widgetvar.get() != comicinfo_atr_get:
 
@@ -671,17 +672,17 @@ class MangataggerApp():
                         logging.warning(f"Unrecognised type \n{widgetvar=}\n{widgetvar}")
                     if cls._initialized_UI:  # For the items that are different, highlight in orane if ui is initialized
                         widgetobj = widgets_var_tuple[3]  # This is the actual widget, not the variable
-                        logging.debug("[MangaTagger] ++#############++")
+                        logging.debug("++#############++")
                         delog(comicinfo_atr_get)
                         delog(widgetvar.get())
-                        logging.debug("[MangaTagger] __#############__")
+                        logging.debug("__#############__")
                         widgetobj.configure(highlightbackground='orange', highlightcolor="orange",
                                             highlightthickness='3')
                     logging.debug(
-                        f"[MangaTagger] Conflict betwen comicinfo and UI for tag '{widgetvar}'. Content does not match.")
+                        f"Conflict betwen comicinfo and UI for tag '{widgetvar}'. Content does not match.")
                 else:
                     logging.debug(
-                        f"[MangaTagger] Content in comicinfo and UI for tag '{widgetvar}' is the same, skipping")
+                        f"Content in comicinfo and UI for tag '{widgetvar}' is the same, skipping")
 
             return loadedInfo
         if not self.selected_filenames:
@@ -700,7 +701,7 @@ class MangataggerApp():
             else:
                 raise Exception("No files selected")
         else:
-            logging.debug("[MangaTagger] Selected files UI:" + "".join(self.selected_filenames))
+            logging.debug("Selected files UI:" + "".join(self.selected_filenames))
             for file_path in self.selected_filenames:
                 loaded_ComIinf = load_comicinfo_xml(self,file_path)
                 if loaded_ComIinf:
@@ -719,7 +720,7 @@ class MangataggerApp():
             Returns a LoadedComicInfo with the modified ComicInfo from the modified StringVars
 
             """
-            logging.debug(f"[MangaTagger] parsing UI to file: '{loadedInfo.path}'")
+            logging.debug(f"parsing UI to file: '{loadedInfo.path}'")
 
             comicinfo_attrib_get = [
                 loadedInfo.comicInfoObj.get_Series,
@@ -810,28 +811,4 @@ class MangataggerApp():
     def do_save_UI(self):
         self.parseUI_toComicInfo()
         self.saveComicInfo()
-def run_debug_test():
-    velog("Running debug test mode.")
-    path_23 = r"I:\Mi unidad\Programacion\Python\ASCRIPT_MANGA_ZIPPER\tests\Sample CBZ Chapter 23.cbz"
-    path_24 = r"I:\Mi unidad\Programacion\Python\ASCRIPT_MANGA_ZIPPER\tests\Sample CBZ Chapter 24.cbz"
 
-    root = tk.Tk()
-    test_files = [path_23,path_24]
-    app = MangataggerApp()
-    app.create_loadedComicInfo_list(test_files)
-
-    app.spinbox_1_year_var.set(9870)
-
-    app.parseUI_toComicInfo()
-
-
-
-def main():
-    velog("Running main")
-    root = tk.Tk()
-
-    app = MangataggerApp(root)
-    app.start_ui()
-    app.run()
-if __name__ == '__main__':
-    main()
