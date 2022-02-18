@@ -143,12 +143,14 @@ class App():
 
         self._frame_4_leftColumn = tk.Frame(self._frame1)
         self._frame_2 = tk.Frame(self._frame_4_leftColumn)
-
+        self._frame_2.rowconfigure("all",pad="5",weight=1)
+        self._frame_2.columnconfigure("all",pad="5",weight=1)
         self._label_1_year = tk.Label(self._frame_2)
         self._label_1_year.configure(text='Year')
         self._label_1_year.grid(column=0, row='0')
 
-        self._spinbox_1_year = tk.Spinbox(self._frame_2, from_=1800, to=99999, validate='all', validatecommand=vldt_ifnum_cmd)
+        self._spinbox_1_year = tk.Spinbox(self._frame_2, from_=1800, to=99999,
+                                          validate='all', validatecommand=vldt_ifnum_cmd)
         self._spinbox_1_year.configure(justify='center', state='readonly', textvariable=self.spinbox_1_year_var)
         self._spinbox_1_year.grid(column=0, row='1')
         self._spinbox_1_year.bind('<Button-1>', makeFocused, add='+')
@@ -421,7 +423,7 @@ class App():
         self._entry_14_imprint.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_14_imprint.bind('<Return>', makeReadOnly, add='+')
         self._label_23_characters = tk.Label(self._frame_3_people)
-        self._label_23_characters.configure(text='label_6')
+        self._label_23_characters.configure(text='Characters')
         self._label_23_characters.grid(column='0', row='19')
         self._entry_16_characters = tk.Entry(self._frame_3_people)
         self._entry_16_characters.configure(state='readonly', textvariable=self.entry_16_characters_var)
@@ -479,17 +481,17 @@ class App():
 
 
         self._frame_1.rowconfigure("all",pad="5",weight=1)
-        self._frame_1.columnconfigure("all",weight=1)
+        self._frame_1.columnconfigure("all", weight=1)
 
         self._frame_1.grid(column='1', ipadx='10', ipady='10', padx='20', pady='20', row='0', sticky='nsew')
-        self._frame_4_leftColumn.rowconfigure("all",weight=1, pad=20)
-        self._frame_4_leftColumn.columnconfigure("all",weight=1,pad=20)
-        self._frame_4_leftColumn.grid(row=0,column=0,sticky="NSEW",rowspan=2)
+        self._frame_4_leftColumn.rowconfigure("all",weight=1, pad="20")
+        self._frame_4_leftColumn.columnconfigure("all", weight=1,pad="20")
+        self._frame_4_leftColumn.grid(row=0,column=0, sticky="NSEW", rowspan=3)
 
-        self._frame_2.grid(column=0, ipadx='10', ipady='10', padx='10', pady='20', row='0')
+        self._frame_2.grid(column=0, ipadx='10', ipady='10', padx='10', pady='20', row=0)
         self._frame_3.configure(height='200', width='200')
         self._frame_3.grid(column=1, ipadx='10', ipady='10', padx='20', pady='10', row=1, sticky='ew')
-        self._frame_3_people.grid(column=0, ipadx='10', ipady='10', padx='10', row=1, sticky='ew',rowspan=2)
+        self._frame_3_people.grid(column=0, ipadx='10', ipady='10', padx='10', row=1, sticky='ew', rowspan=2)
 
 
         # MAIN FRAME
