@@ -16,11 +16,7 @@ from .cbz_handler import SetCover
 from .models import cover_process_item_info
 
 
-def loggerCall():
-    logger = logging.getLogger(__name__)
-    logger.debug('MangaTagger: DEBUG LOGGING MODE : ')
-    logger.info('MangaTagger: INFO LOG')
-    return
+logger = logging.getLogger(__name__)
 
 ScriptDir = os.path.dirname(__file__)
 launch_path = ""
@@ -38,7 +34,7 @@ class App:
 
     def start_ui(self):
         # build ui
-        logging.debug("Starting UI")
+        logger.debug("Starting UI")
 
         self.master.title("Cover Setter")
         self.master.geometry("860x940")
@@ -150,7 +146,7 @@ class App:
         self.button5_delete_covers.config(state="normal")
 
         # Main widget
-        logging.debug("UI initialised")
+        logger.debug("UI initialised")
 
     def run(self):
         self.master.mainloop()
@@ -170,14 +166,14 @@ class App:
         """
 
         def show_first_cover(cls):
-            logging.debug("Printing first image in canvas")
+            logger.debug("Printing first image in canvas")
             cls.thiselem, cls.nextelem = cls.nextelem, next(cls.licycle)
             image = Image.open(cls.thiselem.name)
             image = image.resize((300, 445), Image.ANTIALIAS)
             cls.image = ImageTk.PhotoImage(image)
             cls.canvas_image = cls.canvas1_coverimage.create_image(0, 0, anchor=tk.NW, image=cls.image)
             cls.label_coverimagetitle.configure(text=os.path.basename(cls.thiselem.name))
-        logging.debug("Selecting covers")
+        logger.debug("Selecting covers")
 
         self.button3_load_images.configure(text="Loading...", state="disabled")
         covers_path_list = filedialog.askopenfiles(initialdir=launch_path,
@@ -192,7 +188,7 @@ class App:
             self.image = None
             self.button3_load_images.configure(text="Select covers", state="normal")
             self.button3_load_images.grid()
-            logging.error("No images were selected when asked for")
+            logger.error("No images were selected when asked for")
             raise
         self.prevelem = None
         self.enableButtons(self.frame_coversetter)
@@ -203,26 +199,26 @@ class App:
 
         except UnidentifiedImageError as e:
             mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
-            logging.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
+            logger.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
             self.button3_load_images.configure(text="Select covers", state="normal")
             self.button3_load_images.grid()
 
     def display_next_cover(self):
-        logging.info(f"Printing next cover in canvas - {self.nextelem}")
+        logger.info(f"Printing next cover in canvas - {self.nextelem}")
         self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
         try:
             rawimage: Image = Image.open(self.thiselem.name)
         except UnidentifiedImageError as e:
             mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
-            logging.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
+            logger.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
         image = rawimage.resize((300, 445), Image.ANTIALIAS)
         self.image = ImageTk.PhotoImage(image)
-        # logging.debug(self.label.gettags("IMG10"))
+        # logger.debug(self.label.gettags("IMG10"))
         self.canvas1_coverimage.itemconfig(self.canvas_image, image=self.image)
         self.label_coverimagetitle.configure(text=os.path.basename(self.thiselem.name))
 
     def add_file_to_list(self, delete=False):
-        logging.debug("Adding files to processing list")
+        logger.debug("Adding files to processing list")
         option_delete = False
         option_overwrite = False
         if delete:
@@ -256,7 +252,7 @@ class App:
 
 
             self.covers_path_in_confirmation[str(self.image_in_confirmation)].append(tmp_info)
-            logging.info(f"Added to the processing queue -> {os.path.basename(iterated_file_path)} ")
+            logger.info(f"Added to the processing queue -> {os.path.basename(iterated_file_path)} ")
 
             # Adding file is done. Just adding visual feedback in UI
             displayed_file_path = f"...{os.path.basename(iterated_file_path)[-46:]}"
@@ -277,7 +273,7 @@ class App:
                 self.add_file_to_list()
 
     def process(self):
-        logging.debug("Starting processing of files.")
+        logger.debug("Starting processing of files.")
         self.button4_proceed.config(relief=tk.SUNKEN, text="Processing")
 
         class WaitUp(Thread):  # Define a new subclass of the Thread class of the Thread Module.
@@ -291,7 +287,7 @@ class App:
                 total = len(self.treeview1.get_children())
                 for item in self.covers_path_in_confirmation:
                     for file in self.covers_path_in_confirmation[item]:
-                        logging.info(f"Starting processing for file: {item}")
+                        logger.info(f"Starting processing for file: {item}")
                         try:
                             SetCover(file)
 
@@ -317,9 +313,9 @@ class App:
                             continue
                         except Exception as e:
                             mb.showerror("Something went wrong", "Error processing. Check logs.")
-                            logging.critical("Exception Processing", e)
+                            logger.critical("Exception Processing", e)
 
-                logging.debug("Just before exiting progress_bar loop")
+                logger.debug("Just before exiting progress_bar loop")
                 self.covers_path_in_confirmation = {}  # clear queue
                 global pb_flag
                 pb_flag = False
@@ -340,7 +336,7 @@ class App:
                 self_progress.pb_text = tk.Label(self_progress.pb_root, textvariable=self_progress.label_progress_text,
                                                  anchor=tk.W)
                 self_progress.pb.start()
-                logging.debug("Started progress bar")
+                logger.debug("Started progress bar")
 
                 self_progress.pb.grid(row=0, column=0, sticky=tk.E)
                 self_progress.pb_text.grid(row=1, column=0, sticky=tk.E)
@@ -358,7 +354,7 @@ class App:
                 self_progress.pb.grid_forget()
                 self_progress.pb_text.grid_forget()
 
-                logging.debug("File processed")
+                logger.debug("File processed")
                 return
 
         global pb_flag
@@ -374,17 +370,17 @@ class App:
         t1.startup()  # start the progress bar
         t2.join()  # wait for WaitUp to finish before proceeding
         t1.stop()  # destroy the progress bar object
-        logging.debug("Clearing queue")
+        logger.debug("Clearing queue")
 
         try:
-            logging.debug("Cleanup: Try to clear treeview")
+            logger.debug("Cleanup: Try to clear treeview")
             self.treeview1.delete(*self.treeview1.get_children())
             # self.treeview1.grid_forget()
         except AttributeError:
-            logging.debug("Can't clear treeview. -> doesnt exist yet")
+            logger.debug("Can't clear treeview. -> doesnt exist yet")
         except Exception as e:
-            logging.debug("Can't clear treeview", exc_info=e)
-        logging.debug("All done")
+            logger.debug("Can't clear treeview", exc_info=e)
+        logger.debug("All done")
 
         self.enableButtons(FrameToProcess)
         self.button4_proceed.config(relief=tk.RAISED, text="Proceed")
@@ -392,15 +388,15 @@ class App:
     def clearqueue(self):
         self.covers_path_in_confirmation = {}  # clear queue
         try:
-            logging.debug(" Try to clear treeview")
+            logger.debug(" Try to clear treeview")
             self.treeview1.delete(*self.treeview1.get_children())
             # self.treeview1.grid_forget()
         except AttributeError:
-            logging.debug("Can't clear treeview. -> doesnt exist yet")
+            logger.debug("Can't clear treeview. -> doesnt exist yet")
         except Exception as e:
-            logging.error("Can't clear treeview", exc_info=e)
+            logger.error("Can't clear treeview", exc_info=e)
         
-        logging.info("Cleared queue")
+        logger.info("Cleared queue")
         pass
 
     def enableButtons(self, thisframe):
@@ -414,7 +410,7 @@ class App:
                     if w2.winfo_children():
                         for w3 in w2.winfo_children():
                             if w3.winfo_class() == "Button":
-                                # logging.debug(w.winfo_class())
+                                # logger.debug(w.winfo_class())
                                 w3.configure(state="normal")
 
     def disableButtons(self, thisframe):

@@ -15,12 +15,8 @@ from .errors import NoFilesSelected
 from .models import ChapterFileNameData, ProgressBarData
 
 launch_path = ""
-def loggerCall():
-    logger = logging.getLogger(__name__)
-    logger.debug('MangaTagger: DEBUG LOGGING MODE : ')
-    logger.info('MangaTagger: INFO LOG')
-    return
 
+logger=logging.getLogger(__name__)
 
 ScriptDir = os.path.dirname(__file__)
 
@@ -165,7 +161,7 @@ class App:
         valid = S == '' or S.isdigit()
         if not valid:
             self._frame_1_title.bell()
-            # logging.info("[VolumeManager] input not valid")
+            # logger.info("[VolumeManager] input not valid")
         return valid
 
     def _handle_click(self, event):
@@ -174,7 +170,7 @@ class App:
 
     def _open_files(self):
 
-        logging.debug("inside openfiles")
+        logger.debug("inside openfiles")
         self.cbz_files_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
                                                            filetypes=(("CBZ Files", ".cbz"),)
                                                            )
@@ -241,11 +237,11 @@ class App:
                                                "..." + newFile_Name[-60:]
                                                ))
                 self._treeview_1.yview_moveto(1)
-            logging.debug(f"[VolumeManager] Inserted item in treeview -> {file_regex_finds.name}")
+            logger.debug(f"[VolumeManager] Inserted item in treeview -> {file_regex_finds.name}")
             counter += 1
         # self.cbz_files_path_list = None
         if self._initialized_UI:
-            logging.debug(self._treeview_1.get_children())
+            logger.debug(self._treeview_1.get_children())
             if len(self._treeview_1.get_children()) != 0:
                 self._button_3_proceed.configure(state="normal",relief=tk.RAISED)
             self._button_4_clearqueue.config(state="normal", relief=tk.RAISED)
@@ -256,13 +252,13 @@ class App:
         self._button_3_proceed.config(state="disabled", text="Proceed", relief=tk.RAISED)
         self._button_4_clearqueue.config(state="disabled", relief=tk.RAISED)
         try:
-            logging.debug("Try to clear treeview")
+            logger.debug("Try to clear treeview")
             self._treeview_1.delete(*self.treeview_1.get_children())
 
         except AttributeError:
-            logging.debug("Can't clear treeview. -> doesnt exist yet")
+            logger.debug("Can't clear treeview. -> doesnt exist yet")
         except Exception as e:
-            logging.error("Can't clear treeview", exc_info=e)
+            logger.error("Can't clear treeview", exc_info=e)
         self._list_filestorename = list[ChapterFileNameData]()
 
 
@@ -323,31 +319,31 @@ class App:
             style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
             label_progress_text = tk.StringVar()
             pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
-            logging.info("[VolumeManager] Initialized progress bar")
+            logger.info("[VolumeManager] Initialized progress bar")
             pb.grid(row=0, column=0, sticky=tk.E)
             pb_text.grid(row=1, column=0, sticky=tk.E)
 
         for item in self._list_filestorename:
-            logging.info(f"[VolumeManager] Renaming {item.complete_new_path}")
+            logger.info(f"[VolumeManager] Renaming {item.complete_new_path}")
             oldPath = item.fullpath
             try:
                 os.rename(oldPath, item.complete_new_path)
                 processed_counter += 1
-                logging.info(f"[VolumeManager] Renamed {item.name}")
+                logger.info(f"[VolumeManager] Renamed {item.name}")
 
             except PermissionError as e:
                 if self._initialized_UI:
                     mb.showerror("Can't access the file because it's being used by a different process")
-                logging.error("Can't access the file because it's being used by a different process")
+                logger.error("Can't access the file because it's being used by a different process")
                 processed_errors += 1
             except FileNotFoundError as e:
                 if self._initialized_UI:
                     mb.showerror("Can't access the file because it's was not found")
-                logging.error("Can't access the file because it's being used by a different process")
+                logger.error("Can't access the file because it's being used by a different process")
                 processed_errors += 1
             except Exception as e:
                 processed_errors += 1
-                logging.error("Unhandled exception", exc_info=e)
+                logger.error("Unhandled exception", exc_info=e)
             if self._initialized_UI:
                 pb_root.update()
                 percentage = ((processed_counter + processed_errors) / total_times_count) * 100
@@ -360,7 +356,7 @@ class App:
 
         if self.checkbutton_4_settings_val.get():
             # Process ComicInfo
-            logging.info("[VolumeManager] Save to ComicInfo is enabled. Starting process")
+            logger.info("[VolumeManager] Save to ComicInfo is enabled. Starting process")
             processed_counter = 0
             processed_errors = 0
             if self._initialized_UI:
@@ -386,10 +382,10 @@ class App:
                     cominfo_app.saveComicInfo()
                     processed_counter += 1
                 except XMLSyntaxError:
-                    logging.error("Failed to load ComicInfo.xml file for file ->"+item.complete_new_path)
+                    logger.error("Failed to load ComicInfo.xml file for file ->"+item.complete_new_path)
                     processed_errors += 1
                 except Exception as e:
-                    logging.error("Uncaught exception for file ->" + item.complete_new_path, exc_info=e)
+                    logger.error("Uncaught exception for file ->" + item.complete_new_path, exc_info=e)
                     processed_errors += 1
                 if self._initialized_UI:
                     pb_root.update()

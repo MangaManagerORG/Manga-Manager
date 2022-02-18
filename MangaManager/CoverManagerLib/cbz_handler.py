@@ -7,7 +7,7 @@ import tempfile
 from .models import cover_process_item_info
 from . import errors
 
-
+logger = logging.getLogger(__name__)
 class SetCover:
     def __init__(self, process_values: cover_process_item_info):
         self.values = process_values
@@ -18,19 +18,19 @@ class SetCover:
         tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(v.zipFilePath))
         os.close(tmpfd)
         self.temp_file = tmpname
-        logging.info("[SetCover] Proceeding to backup")
+        logger.info("[SetCover] Proceeding to backup")
         self._backup_cover()
 
         if v.coverDelete:
-            logging.info("[SetCover] Proceeding to delete cover")
+            logger.info("[SetCover] Proceeding to delete cover")
             self._delete()
             return
         if v.coverOverwrite:
-            logging.info("[SetCover] Proceeding to overwrite cover")
+            logger.info("[SetCover] Proceeding to overwrite cover")
             self._overwrite()
             return
         else:
-            logging.info("[SetCover] Proceeding to append cover")
+            logger.info("[SetCover] Proceeding to append cover")
             self._append()
             return
 
@@ -69,7 +69,7 @@ class SetCover:
                 # for item in zin.infolist():
                 cover_matches = [v for v in zin.namelist() if v.startswith("00000.") or re.match(r, v) or re.match(r"(?i)cover",v)]
                 if cover_matches:
-                    logging.info("[SetCover][Backup]Found 0000 file")
+                    logger.info("[SetCover][Backup]Found 0000 file")
                     cover_is_000 = True
                 backup_isdone = False
                 for item in zin.infolist():
@@ -89,7 +89,7 @@ class SetCover:
                                 continue
                             # File is marked as possible cover but cover is backed up. This is not cover, adding to file
                             zout.writestr(item.filename, zin.read(item.filename))
-                            logging.debug(f"[SetCover][Backup] Adding {item.filename} to the new tempfile")
+                            logger.debug(f"[SetCover][Backup] Adding {item.filename} to the new tempfile")
                             continue
 
                         # If there exists 0*.ext.
@@ -97,7 +97,7 @@ class SetCover:
                             # This file name matches r"0*.ext"
                             newname = f"OldCover_{item.filename}.bak"
                             zout.writestr(newname, zin.read(item.filename))
-                            logging.debug(f"[SetCover][Backup] Adding backup '{item.filename}' to the new tempfile")
+                            logger.debug(f"[SetCover][Backup] Adding backup '{item.filename}' to the new tempfile")
                             backup_isdone = True
                             processed_files.append(item.filename)
                             continue
@@ -106,7 +106,7 @@ class SetCover:
                     if re.match(r"(?i)^0*1\.[a-z]{3}$", item.filename) and (self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
                         newname = f"OldCover_{item.filename}.bak"
                         zout.writestr(newname, zin.read(item.filename))
-                        logging.info(f"[SetCover][Backup][Overwrite/Delete] Adding backup '{item.filename}' to the new tempfile")
+                        logger.info(f"[SetCover][Backup][Overwrite/Delete] Adding backup '{item.filename}' to the new tempfile")
                         backup_isdone = True
                         processed_files.append(item.filename)
                         continue
@@ -114,7 +114,7 @@ class SetCover:
                     elif re.match(r"(?i)^0*2\.[a-z]{3}$", item.filename) and (self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
                         newname = f"OldCover_{item.filename}.bak"
                         zout.writestr(newname, zin.read(item.filename))
-                        logging.info(f"[SetCover][Backup][Overwrite/Delete] Adding backup '{item.filename}' to the new tempfile")
+                        logger.info(f"[SetCover][Backup][Overwrite/Delete] Adding backup '{item.filename}' to the new tempfile")
                         backup_isdone = True
                         processed_files.append(item.filename)
                         continue
@@ -123,7 +123,7 @@ class SetCover:
                     # File is not flagged as potential cover
                     item_filename = item.filename
                     zout.writestr(item_filename, zin.read(item.filename))
-                    logging.debug(f"[SetCover][Backup] Adding {item.filename} back to the new tempfile")
+                    logger.debug(f"[SetCover][Backup] Adding {item.filename} back to the new tempfile")
                     continue
 
 
@@ -146,27 +146,27 @@ class SetCover:
                     #     newname = f"OldCover_{item.filename}.bak"
                     #     zout.writestr(newname, zin.read(item.filename))
                     #     backup_isdone = True
-                    #     logging.info(f"[Backup] Backed up first image as cover: {item.filename}")
+                    #     logger.info(f"[Backup] Backed up first image as cover: {item.filename}")
                     #     continue
                     # else:
                     #     item_filename = item.filename
                     #     zout.writestr(item_filename, zin.read(item.filename))
-                    #     logging.info(f"[Backup] Adding {item.filename} back to the new tempfile")
+                    #     logger.info(f"[Backup] Adding {item.filename} back to the new tempfile")
                     #     continue
         try:
             os.remove(self.values.zipFilePath)
             os.rename(tmpname, self.values.zipFilePath)
         except PermissionError as e:
-            logging.error("[SetCover][Backup] Permission error. Clearing temp files...", exc_info=e)
+            logger.error("[SetCover][Backup] Permission error. Clearing temp files...", exc_info=e)
             os.remove(tmpname)
             raise e
 
-        logging.info("[SetCover][Backup] Finished backup")
+        logger.info("[SetCover][Backup] Finished backup")
 
     def _delete(self):
         # Dummy method to read code better.
         # Cover gets backed earlier up so file is not named the same. Hence, it's deleted
-        logging.info("[SetCover][Delete] Finished deleting")
+        logger.info("[SetCover][Delete] Finished deleting")
 
 
     def _append(self):
@@ -174,11 +174,11 @@ class SetCover:
         if not values.coverFilePath or not os.path.exists(values.coverFilePath):
             raise errors.NoCoverFile(values.coverFilePath)
 
-        logging.debug(f"[SetCover][Append] Cover path:{values.coverFilePath} - File path:{values.zipFilePath}")
+        logger.debug(f"[SetCover][Append] Cover path:{values.coverFilePath} - File path:{values.zipFilePath}")
         new_coverFileName = f"00000.{values.coverFileFormat}"
         with zipfile.ZipFile(values.zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
             zf.write(values.coverFilePath, new_coverFileName)
-        logging.info("[SetCover][append] Finished appending")
+        logger.info("[SetCover][append] Finished appending")
     def _overwrite(self):
         values = self.values
         if not values.coverFilePath or not os.path.exists(values.coverFilePath):
@@ -194,11 +194,11 @@ class SetCover:
         else:
             # print(filenames_list[0])
             new_coverFileName = "00000cover.txt"
-        logging.debug(f"[SetCover][Overwrite] Cover path:{values.coverFilePath} - File path:{values.zipFilePath}")
+        logger.debug(f"[SetCover][Overwrite] Cover path:{values.coverFilePath} - File path:{values.zipFilePath}")
         with zipfile.ZipFile(values.zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
             # zf.writestr("debug.txt",f"{filenames_list}\n\n\n{oldCover_name}")
             zf.write(values.coverFilePath, new_coverFileName)
-        logging.info("[SetCover][Overwrite] Finished overwriting")
+        logger.info("[SetCover][Overwrite] Finished overwriting")
 
 
 
@@ -345,7 +345,7 @@ class SetCover:
 #         with zipfile.ZipFile(new_zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
 #             zf.write(v.coverFilePath, new_coverFileName)
 #         os.rename(new_zipFilePath, v.zipFilePath)
-#         logging.info("Finished processing of file")
+#         logger.info("Finished processing of file")
 #
 #
 #     def doAppendZip(values: cover_process_item_info):

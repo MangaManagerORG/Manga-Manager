@@ -9,7 +9,7 @@ from .models import *
 from .errors import NoMetadataFileFound
 from . import ComicInfo
 
-
+logger = logging.getLogger(__name__)
 def is_folder(name: str, folders_list):
     if name.split("/")[0] + "/" in folders_list:
         return True
@@ -34,7 +34,7 @@ class ReadComicInfo:
                     raise NoMetadataFileFound(cbz_path)
         else:
             self.xmlString = comicinfo_xml
-        logging.debug("ReadComicInfo: Reading XML done")
+        logger.debug("ReadComicInfo: Reading XML done")
 
     def to_ComicInfo(self, print_xml: bool=False) -> ComicInfo:
         """
@@ -45,11 +45,11 @@ class ReadComicInfo:
         try:
             comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml)
         except XMLSyntaxError as e:
-            logging.error(f"Failed to parse XML:\n{e}\nAttempting recovery...", exc_info=True)
+            logger.error(f"Failed to parse XML:\n{e}\nAttempting recovery...", exc_info=True)
             comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml,doRecover = True)
 
 
-        logging.debug("returning comicinfo")
+        logger.debug("returning comicinfo")
         return comicinfo
 
 
@@ -64,7 +64,7 @@ class WriteComicInfo:
         _oldZipFilePath = self._zipFilePath
 
         # new_zipFilePath = '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$", _zipFilePath)[0])
-        logging.debug(f"[MangaTagger][Saving to file] -  {self._zipFilePath}")
+        logger.debug(f"[MangaTagger][Saving to file] -  {self._zipFilePath}")
         # os.rename(_zipFilePath, new_zipFilePath)
         export_io = io.StringIO()
         loadedComicInfo.comicInfoObj.export(export_io, 0)
@@ -87,7 +87,7 @@ class WriteComicInfo:
         with zipfile.ZipFile(self._zipFilePath, 'r') as zin:
             with zipfile.ZipFile(tmpname, 'w') as zout:
                 for item in zin.infolist():
-                    logging.debug(f"[MangaTagger][Saving to file] Iterating: {item.filename}")
+                    logger.debug(f"[MangaTagger][Saving to file] Iterating: {item.filename}")
                     if item.filename == "ComicInfo.xml":
                         zout.writestr(f"Old_{item.filename}.bak", zin.read(item.filename))
                     elif item.filename == "Old_ComicInfo.xml.bak":
@@ -95,16 +95,16 @@ class WriteComicInfo:
                         continue
                     else:
                         zout.writestr(item.filename, zin.read(item.filename))
-                        logging.debug(f"[MangaTagger][Saving to file] Adding {item.filename} back to the new tempfile")
+                        logger.debug(f"[MangaTagger][Saving to file] Adding {item.filename} back to the new tempfile")
                 # We finally append our new ComicInfo file
                 zout.writestr("ComicInfo.xml", self._export_io)
-                logging.debug(f"[MangaTagger][Saving to file] Adding new {item.filename} to the new tempfile")
-        logging.debug("Saved to file successful")
+                logger.debug(f"[MangaTagger][Saving to file] Adding new {item.filename} to the new tempfile")
+        logger.debug("Saved to file successful")
         try:
             os.remove(self._zipFilePath)
             os.rename(tmpname, self._zipFilePath)
         except PermissionError as e:
-            logging.error("Permission error. Clearing temp files...", exc_info=e)
+            logger.error("Permission error. Clearing temp files...", exc_info=e)
             os.remove(tmpname)
             raise e
         # os.rename(new_zipFilePath, _oldZipFilePath)

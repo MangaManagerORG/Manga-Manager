@@ -1017,6 +1017,9 @@ class AgeRating(str, Enum):
     TEEN='Teen'
     X_18='X18+'
 
+    @classmethod
+    def list(cls):
+        return list(map(lambda c: c.value, cls))
 
 class ComicPageType(str, Enum):
     FRONT_COVER='FrontCover'

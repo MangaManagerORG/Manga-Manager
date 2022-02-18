@@ -55,7 +55,7 @@ args = parser.parse_args()
 
 
 # <Logger>
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 logging.getLogger('PIL').setLevel(logging.WARNING)
 formatter = logging.Formatter()
 logging.basicConfig(level=logging.DEBUG,
@@ -93,7 +93,7 @@ def main():
     #     print("Not implemented yet")
 
     selApp = tools[selection-1]
-    selApp.loggerCall()
+    # logger = selApp.loggerCall()
     app = selApp.App(root)
     app.start_ui()
     app.run()

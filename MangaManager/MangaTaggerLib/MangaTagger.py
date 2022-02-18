@@ -11,7 +11,7 @@ from . import ComicInfo
 from .models import LoadedComicInfo
 from .cbz_handler import ReadComicInfo, WriteComicInfo
 from .errors import *
-# logging.getLogger('PIL').setLevel(logging.WARNING)
+# logging.getLogger('PIL').setLevel(logger.WARNING)
 
 # TODO:
 #   - Add info message if nothing is loaded into UI because comicinfo not exist and one will be created
@@ -19,35 +19,25 @@ from .errors import *
 
 
 import logging
-from logging.handlers import RotatingFileHandler
 
-
-def loggerCall():
-    logger = logging.getLogger(__name__)
-    logger.debug('MangaTagger: DEBUG LOGGING MODE : ')
-    logger.info('MangaTagger: INFO LOG')
-    return
-
-launch_path =""
-
-
-velog = logging.info
-delog = logging.debug
+launch_path = ""
 
 
 ScriptDir = os.path.dirname(__file__)
 PROJECT_PATH = pathlib.Path(__file__).parent
+logger=logging.getLogger(__name__)
+
 
 class App():
 
-    def __init__(self,master=None):
+    def __init__(self, master: tk.Tk = None ):
         self.master = master
+        # self.master.eval('tk::PlaceWindow . center')
         self.spinbox_1_year_var = tk.IntVar(value=-1,name="year")
         self.spinbox_2_month_var = tk.IntVar(value=-1, name='month')
         self.spinbox_3_volume_var = tk.IntVar(value=-1, name='volume')
 
         self.spinbox_4_chapter_var = tk.StringVar(value='', name='Number')
-        self.label_14_langIso_var = tk.StringVar(value='Language ISO', name='langIso')
         self.entry_10_langIso_var = tk.StringVar(value='', name='langIso')
         # self.spinbox_5_pageCount_var = tk.IntVar(value='', name='pageCount')
         self.spinbox_5_pageCount_var = tk.IntVar(value=0, name='pageCount')
@@ -72,6 +62,7 @@ class App():
         self.entry_16_tags_var = tk.StringVar(value='', name='tags')
         self.entry_17_web_var = tk.StringVar(value='', name='web')
         self.entry_20_scanInfo_var = tk.StringVar(value='', name='scanInfo')
+        self.optionmenu_1_ageRating_var = tk.StringVar(value='Unknown')
         self.widgets_var = [
             self.entry_1_seriesName_var,
             self.entry_2_title_var,
@@ -104,8 +95,10 @@ class App():
         self.widgets_obj = []
         self.selected_filenames = []
         self.loadedComicInfo_list = list[LoadedComicInfo]()
+
     def start_ui(self):
         master = self.master
+
         def makeReadOnly(event: tk.Event = None):
             # <Return>
             if event.widget.cget('state') == "disabled":
@@ -141,22 +134,23 @@ class App():
             # disallow anything but numbers
             valid = S == '' or S.isdigit()
             if not valid:
-                self.frame_volumesetter.bell()
-                velog("input not valid")
+                self._frame1.bell()
+                # logger.info("input not valid")
             return valid
         vldt_ifnum_cmd = (self.master.register(ValidateIfNum), '%s', '%S')
-
-
         self._edit_warning = False  # We send warning that changing chapter or volume will be set to all files selected
-        self._frame1 = ttk.Frame(master)
-        self._frame_2 = tk.Frame(self._frame1)
+        self._frame1 = tk.Frame(master)
+
+        self._frame_4_leftColumn = tk.Frame(self._frame1)
+        self._frame_2 = tk.Frame(self._frame_4_leftColumn)
+
         self._label_1_year = tk.Label(self._frame_2)
         self._label_1_year.configure(text='Year')
-        self._label_1_year.grid(column='1', row='0')
+        self._label_1_year.grid(column=0, row='0')
 
         self._spinbox_1_year = tk.Spinbox(self._frame_2, from_=1800, to=99999, validate='all', validatecommand=vldt_ifnum_cmd)
         self._spinbox_1_year.configure(justify='center', state='readonly', textvariable=self.spinbox_1_year_var)
-        self._spinbox_1_year.grid(column='1', row='1')
+        self._spinbox_1_year.grid(column=0, row='1')
         self._spinbox_1_year.bind('<Button-1>', makeFocused, add='+')
         self._spinbox_1_year.bind('<Button-1>', makeFocused, add='+')
         self._spinbox_1_year.bind('<Double-Button-1>', makeEditable, add='+')
@@ -166,109 +160,106 @@ class App():
         self._spinbox_1_year.bind('<Return>', makeReadOnly, add='+')
         self._label_2_month = tk.Label(self._frame_2)
         self._label_2_month.configure(text='Month')
-        self._label_2_month.grid(column='1', row='2')
+        self._label_2_month.grid(column=0, row='2')
         self._spinbox_2_month = tk.Spinbox(self._frame_2, from_=1, to=12, validate='all', validatecommand=vldt_ifnum_cmd)
         self._spinbox_2_month.configure(justify='center', state='readonly', textvariable=self.spinbox_2_month_var)
-        self._spinbox_2_month.grid(column='1', row='3')
+        self._spinbox_2_month.grid(column=0, row='3')
         self._spinbox_2_month.bind('<Button-1>', makeFocused, add='+')
         self._spinbox_2_month.bind('<Double-Button-1>', makeEditable, add='+')
         self._spinbox_2_month.bind('<FocusOut>', onFocusOut, add='+')
         self._spinbox_2_month.bind('<Return>', makeReadOnly, add='+')
         self._label_3_volume = tk.Label(self._frame_2)
         self._label_3_volume.configure(text='Volume')
-        self._label_3_volume.grid(column='1', row='4')
+        self._label_3_volume.grid(column=0, row='4')
         self._spinbox_3_volume = tk.Spinbox(self._frame_2, validate='all', validatecommand=vldt_ifnum_cmd)
         self._spinbox_3_volume.configure(buttondownrelief='flat', buttonuprelief='flat', font='TkDefaultFont',
                                          justify='center')
         self._spinbox_3_volume.configure(state='readonly', textvariable=self.spinbox_3_volume_var)
-        self._spinbox_3_volume.grid(column='1', row='5')
+        self._spinbox_3_volume.grid(column=0, row='5')
         self._spinbox_3_volume.bind('<Button-1>', makeFocused, add='+')
         self._spinbox_3_volume.bind('<Double-Button-1>', makeEditable, add='+')
         self._spinbox_3_volume.bind('<FocusOut>', onFocusOut, add='+')
         self._spinbox_3_volume.bind('<Return>', makeReadOnly, add='+')
         self._label_4_chapter = tk.Label(self._frame_2)
         self._label_4_chapter.configure(anchor='n', text='Chapter')
-        self._label_4_chapter.grid(column='1', row='6')
+        self._label_4_chapter.grid(column=0, row='6')
         self._spinbox_4_chapter = tk.Spinbox(self._frame_2, validate='all', validatecommand=vldt_ifnum_cmd)
         self._spinbox_4_chapter.configure(buttonuprelief='flat', cursor='arrow', justify='center', state='readonly')
         self._spinbox_4_chapter.configure(textvariable=self.spinbox_4_chapter_var)
-        self._spinbox_4_chapter.grid(column='1', row='7')
+        self._spinbox_4_chapter.grid(column=0, row='7')
         self._spinbox_4_chapter.bind('<Button-1>', makeFocused, add='+')
         self._spinbox_4_chapter.bind('<Double-Button-1>', makeEditable, add='+')
         self._spinbox_4_chapter.bind('<FocusOut>', onFocusOut, add='+')
         self._spinbox_4_chapter.bind('<Return>', makeReadOnly, add='+')
         self._label_14_langIso = tk.Label(self._frame_2)
-        self._label_14_langIso.configure(text='Language ISO', textvariable=self.label_14_langIso_var)
-        self._label_14_langIso.grid(column='1', row='8')
+        self._label_14_langIso.configure(text='Language ISO')
+        self._label_14_langIso.grid(column='1', row=0)
         self._label_14_langIso.bind('<Button-1>', makeFocused, add='+')
         self._label_14_langIso.bind('<Double-Button-1>', makeEditable, add='+')
         self._label_14_langIso.bind('<FocusOut>', onFocusOut, add='+')
         self._label_14_langIso.bind('<Return>', makeReadOnly, add='+')
         self._entry_10_langIso = tk.Entry(self._frame_2)
         self._entry_10_langIso.configure(justify='center', state='readonly', textvariable=self.entry_10_langIso_var)
-        self._entry_10_langIso.grid(column='1', row='9')
+        self._entry_10_langIso.grid(column='1', row=1)
         self._entry_10_langIso.bind('<Button-1>', makeFocused, add='+')
         self._entry_10_langIso.bind('<Double-Button-1>', makeEditable, add='+')
         self._entry_10_langIso.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_10_langIso.bind('<Return>', makeReadOnly, add='+')
         self._label_21_pagecount = tk.Label(self._frame_2)
         self._label_21_pagecount.configure(text='Page Count')
-        self._label_21_pagecount.grid(column='1', row='10')
+        self._label_21_pagecount.grid(column='1', row=2)
         self._spinbox_5_pageCount = tk.Spinbox(self._frame_2, validate='all', validatecommand=vldt_ifnum_cmd)
 
         self._spinbox_5_pageCount.configure(justify='center', state='readonly',
                                             textvariable=self.spinbox_5_pageCount_var)
-        self._spinbox_5_pageCount.grid(column='1', row='11')
+        self._spinbox_5_pageCount.grid(column='1', row=3)
         self._spinbox_5_pageCount.bind('<Button-1>', makeFocused, add='+')
         self._spinbox_5_pageCount.bind('<Double-Button-1>', makeEditable, add='+')
         self._spinbox_5_pageCount.bind('<FocusOut>', onFocusOut, add='+')
         self._spinbox_5_pageCount.bind('<Return>', makeReadOnly, add='+')
         self._label_22_format = tk.Label(self._frame_2)
         self._label_22_format.configure(text='Format')
-        self._label_22_format.grid(column='1', row='12')
+        self._label_22_format.grid(column='1', row=4)
         self._entry_15_format = tk.Entry(self._frame_2)
         self._entry_15_format.configure(justify='center', state='readonly', textvariable=self.entry_15_format_var)
-        self._entry_15_format.grid(column='1', row='13')
+        self._entry_15_format.grid(column='1', row=5)
         self._entry_15_format.bind('<Button-1>', makeFocused, add='+')
         self._entry_15_format.bind('<Double-Button-1>', makeEditable, add='+')
         self._entry_15_format.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_15_format.bind('<Return>', makeReadOnly, add='+')
         self._label_25_blackWhite = tk.Label(self._frame_2)
         self._label_25_blackWhite.configure(text='Black and White')
-        self._label_25_blackWhite.grid(column='1', row='14')
+        self._label_25_blackWhite.grid(column='1', row=6)
         self._entry_18_blackWhite = tk.Entry(self._frame_2)
         self._entry_18_blackWhite.configure(state='readonly', textvariable=self.entry_18_blackWhite_var)
-        self._entry_18_blackWhite.grid(column='1', row='15')
+        self._entry_18_blackWhite.grid(column='1', row=7)
         self._entry_18_blackWhite.bind('<Button-1>', makeFocused, add='+')
         self._entry_18_blackWhite.bind('<Double-Button-1>', makeEditable, add='+')
         self._entry_18_blackWhite.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_18_blackWhite.bind('<Return>', makeReadOnly, add='+')
         self._label_26_manga = tk.Label(self._frame_2)
         self._label_26_manga.configure(text='Manga')
-        self._label_26_manga.grid(column='1', row='16')
+        self._label_26_manga.grid(column='1', row=8)
         self._entry_19_manga = tk.Entry(self._frame_2)
-        self._entry_19_manga.configure(textvariable=self.entry_19_manga_var)
-        self._entry_19_manga.grid(column='1', row='17')
+        self._entry_19_manga.configure(textvariable=self.entry_19_manga_var,state="readonly")
+        self._entry_19_manga.grid(column='1', row=9)
         self._entry_19_manga.bind('<Button-1>', makeFocused, add='+')
         self._entry_19_manga.bind('<Double-Button-1>', makeEditable, add='+')
         self._entry_19_manga.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_19_manga.bind('<Return>', makeReadOnly, add='+')
-        self._canvas_1 = tk.Canvas(self._frame_2)
-        self._canvas_1.grid(column='0', row='0', rowspan='20')
-        self._frame_2.configure(height='200', width='200')
-        self._frame_2.grid(column='0', ipadx='10', ipady='10', padx='10', pady='20', row='0')
-        self._frame1.columnconfigure('0', pad='0', weight='1')
+        # self._canvas_1 = tk.Canvas(self._frame_2)
+        # self._canvas_1.grid(column='0', row='0', rowspan='20')
+        # self._frame_2.configure(height='200', width='200')
+
+        self._frame1.columnconfigure('0', pad='0', weight='0')
         self._frame_1 = tk.Frame(self._frame1)
         self._label_5_serieName = tk.Label(self._frame_1)
         self._label_5_serieName.configure(text='Series Name')
         self._label_5_serieName.grid(column='0', row='0')
-        self._frame_1.rowconfigure('0', weight='1')
-        self._frame_1.columnconfigure('0', weight='1')
         self._entry_1_seriesName = tk.Entry(self._frame_1)
         self._entry_1_seriesName.configure(justify='left', state='readonly', takefocus=False,
                                            textvariable=self.entry_1_seriesName_var)
-        self._entry_1_seriesName.grid(pady='10', row='1', sticky='ew')
-        self._frame_1.rowconfigure('1', weight='1')
+        self._entry_1_seriesName.grid(row='1', sticky='ew')
         self._entry_1_seriesName.bind('<Button-1>', makeFocused, add='+')
         self._entry_1_seriesName.bind('<Double-Button-1>', makeEditable, add='+')
         self._entry_1_seriesName.bind('<FocusOut>', onFocusOut, add='+')
@@ -276,10 +267,9 @@ class App():
         self._label_6_title = tk.Label(self._frame_1)
         self._label_6_title.configure(text='Title')
         self._label_6_title.grid(column='0', row='2')
-        self._frame_1.rowconfigure('2', weight='1')
         self._entry_2_title = tk.Entry(self._frame_1)
         self._entry_2_title.configure(font='TkDefaultFont', state='readonly', textvariable=self.entry_2_title_var)
-        self._entry_2_title.grid(pady='10', row='3', sticky='ew')
+        self._entry_2_title.grid(row='3', sticky='ew')
         self._entry_2_title.bind('<Button-1>', makeFocused, add='+')
         self._entry_2_title.bind('<Double-Button-1>', makeEditable, add='+')
         self._entry_2_title.bind('<Enter>', makeReadOnly, add='+')
@@ -290,7 +280,7 @@ class App():
         self._label_7_summary.grid(column='0', row='4')
         self._text_1_summary = tk.Text(self._frame_1)
         self._text_1_summary.configure(cursor='arrow', height='2', state='disabled', width='50')
-        self._text_1_summary.grid(pady='10', row='5')
+        self._text_1_summary.grid(row='5')
         self._label_5_StoryArc = tk.Label(self._frame_1)
         self._label_5_StoryArc.configure(text='Story Arc')
         self._label_5_StoryArc.grid(column='0', row='6')
@@ -304,11 +294,23 @@ class App():
         self._entry_6_storyArc.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_6_storyArc.bind('<Return>', makeReadOnly, add='+')
         self._entry_6_storyArc.bind('<Return>', makeReadOnly, add='+')
-        self.__tkvar = tk.StringVar(value='Unknown')
+
         __values = []
         # Todo: Fix Age rating
-        self._optionmenu_1 = tk.OptionMenu(self._frame_1, self.__tkvar, 'Unknown', *__values, command=None)
-        self._optionmenu_1.grid(column='0', row='10')
+        # self._optionmenu_1 = tk.OptionMenu(self._frame_1, self.__tkvar, 'Unknown', *__values, command=None)
+        # def command_test(event):
+        #     print("Selected:" + event)
+        #     print("variable_name" + self.__tkvar.get())
+        self._inline_AgeRating = tk.Frame(self._frame_1)
+        self._inline_AgeRating.grid(row=10,column=0)
+        self._label_27_AgeRating = tk.Label(self._inline_AgeRating)
+        self._label_27_AgeRating.configure(text='Age Rating:')
+        self._label_27_AgeRating.grid(column=0, row=0)
+        self._optionmenu_1 = ttk.OptionMenu(self._inline_AgeRating, self.optionmenu_1_ageRating_var,
+                                           *ComicInfo.AgeRating.list(),
+                                          command=None)
+        self._optionmenu_1.configure(width=15)
+        self._optionmenu_1.grid(column=1, row=0)
         self._label_6_SeriesGroup = tk.Label(self._frame_1)
         self._label_6_SeriesGroup.configure(text='Series Grop')
         self._label_6_SeriesGroup.grid(column='0', row='8')
@@ -320,9 +322,10 @@ class App():
         self._entry_7_SeriesGroup.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_7_SeriesGroup.bind('<Return>', makeReadOnly, add='+')
         self._frame_1.configure(height='200', width='200')
-        self._frame_1.grid(column='1', ipadx='10', ipady='10', padx='20', pady='20', row='0', sticky='nsew')
+
         self._frame1.columnconfigure('1', pad='400', weight='1')
-        self._frame_3_people = tk.Frame(self._frame1)
+        self._frame_3_people = tk.Frame(self._frame_4_leftColumn)
+
         self._label_8_people = tk.Label(self._frame_3_people)
         self._label_8_people.configure(cursor='arrow', font='TkDefaultFont', text='People')
         self._label_8_people.grid(column='0', row='0')
@@ -428,7 +431,7 @@ class App():
         self._entry_16_characters.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_16_characters.bind('<Return>', makeReadOnly, add='+')
         self._frame_3_people.configure(height='200', width='200')
-        self._frame_3_people.grid(column='0', ipadx='10', ipady='10', padx='10', row='1', sticky='ew')
+
         self._frame1.rowconfigure('1', pad='0')
         self._frame_3 = tk.Frame(self._frame1)
         self._label_18_genres = tk.Label(self._frame_3)
@@ -473,31 +476,41 @@ class App():
         self._entry_20_scanInfo.bind('<Double-Button-1>', makeEditable, add='+')
         self._entry_20_scanInfo.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_20_scanInfo.bind('<Return>', makeReadOnly, add='+')
+
+
+        self._frame_1.rowconfigure("all",pad="5",weight=1)
+        self._frame_1.columnconfigure("all",weight=1)
+
+        self._frame_1.grid(column='1', ipadx='10', ipady='10', padx='20', pady='20', row='0', sticky='nsew')
+        self._frame_4_leftColumn.rowconfigure("all",weight=1, pad=20)
+        self._frame_4_leftColumn.columnconfigure("all",weight=1,pad=20)
+        self._frame_4_leftColumn.grid(row=0,column=0,sticky="NSEW",rowspan=2)
+
+        self._frame_2.grid(column=0, ipadx='10', ipady='10', padx='10', pady='20', row='0')
         self._frame_3.configure(height='200', width='200')
-        self._frame_3.grid(column='1', ipadx='10', ipady='10', padx='20', pady='10', row='1', sticky='ew')
-        self._frame1.configure(height='800', padding='20', width='1080')
-        self._frame1.grid(column='0', row='0')
+        self._frame_3.grid(column=1, ipadx='10', ipady='10', padx='20', pady='10', row=1, sticky='ew')
+        self._frame_3_people.grid(column=0, ipadx='10', ipady='10', padx='10', row=1, sticky='ew',rowspan=2)
+
+
+        # MAIN FRAME
+        self._frame1.configure(height='800', width='1080')
+        self._frame1.pack(expand=tk.YES,fill=tk.BOTH)
+        # column=0, row=0,sticky="nesw")
         master.rowconfigure('0', minsize='0')
         master.columnconfigure('0', minsize='0', uniform='None')
 
-        def open_files():
-            covers_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
-                                                       filetypes=(("CBZ Files", ".cbz"),)
-                                                       )
-            
-            for file in covers_path_list:
-                self.selected_filenames.append(file.name)
-
-        self.button2_openfile = tk.Button(self._frame1, text="Open", command=open_files, width=15)
-        self.button2_openfile.grid(column=1, row=2, pady="5 10", columnspan=2)
-
-        self.button3_read = tk.Button(self._frame1, text="Read", command=self.create_loadedComicInfo_list, width=15)
-        self.button3_read.grid(column=1, row=3, pady="5 10", columnspan=2)
-        self.button4_save = tk.Button(self._frame1, text="Save", command=self.do_save_UI, width=15)
-        self.button4_save.grid(column=1, row=4, pady="5 10", columnspan=2)
+        # File Controller - Read,Save
+        self._files_controller = tk.Frame(self._frame1)
+        self.button2_openfile = tk.Button(self._files_controller, text="Open", command=self._open_files, width=15)
+        self.button2_openfile.grid(column=0, row=0)
+        # self.button3_read = tk.Button(self._files_controller, text="Read",
+        # command=self.create_loadedComicInfo_list, width=15)
+        # self.button3_read.grid(column=1, row=3, pady="5 10", columnspan=2)
+        self.button4_save = tk.Button(self._files_controller, text="Save", command=self.do_save_UI, width=15)
+        self.button4_save.grid(column=1, row=0)
         # self.__tkvar.set('Age Rating')
-        # self._optionmenu_1 = tk.OptionMenu(self._frame_1, self.__tkvar, "Unknown", *ComicInfo.AgeRating.list(),
-        #                                   command=None)
+
+        self._files_controller.grid(row=2, column=1)
         # Main widget
         self.mainwindow = self._frame1
 
@@ -531,9 +544,24 @@ class App():
             self._entry_15_genres
         ]
 
+        # self._frame1.configure(bg="blue")
+        # self._frame_2.configure(bg="red")
+        # self._frame_3.configure(bg="yellow")
+        # self._frame_3_people.configure(bg="purple")
+        # self._frame_1.configure(bg="green")
+
+
 
     def run(self):
         self.mainwindow.mainloop()
+
+    def _open_files(self):
+        covers_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
+                                                   filetypes=(("CBZ Files", ".cbz"),)
+                                                   )
+        for file in covers_path_list:
+            self.selected_filenames.append(file.name)
+        self.create_loadedComicInfo_list()
 
     def create_loadedComicInfo_list(self, cli_selected_files: list[str] = None):
         self.conflicts={}
@@ -548,20 +576,21 @@ class App():
             :param string cbz_path: the path to the zip-like file
             :return: LoadedComicInfo: LoadedComicInfo
             """
-            velog(f"loading file: '{cbz_path}'")
+            logger.info(f"loading file: '{cbz_path}'")
             try:
                 comicinfo = ReadComicInfo(cbz_path).to_ComicInfo(False)
             except NoMetadataFileFound as e:
-                logging.error(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}")
+                logger.error(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}")
                 mb.showerror("Error reading ComicInfo", f"ComicInfo.xml was not found inside: {cbz_path}.\n\
                 One will be created when saving changes to file")
                 comicinfo = ComicInfo.ComicInfo()
             except XMLSyntaxError as e:
-                logging.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
-                mb.showerror("Error reading ComicInfo", "Error loading file", f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e))
+                logger.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
+                mb.showerror("Error reading ComicInfo", "Error loading file."
+                                                        f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e))
                 raise e
             loadedInfo = LoadedComicInfo(cbz_path, comicinfo, comicinfo)
-            logging.debug("comicinfo was read and a LoadedComicInfo was created")
+            logger.debug("comicinfo was read and a LoadedComicInfo was created")
             #
             # """
             # Loads LoadedComicInfo.comicInfoObj into StringVar, so it can be modified in the UI.
@@ -653,7 +682,7 @@ class App():
                     else:
                         cls.processed_chapter = True
                     widgetvar.set(comicinfo_atr_get)
-                    logging.debug(
+                    logger.debug(
                         f"Loaded new value for tag '{widgetvar}'")
                 # Conflict. UI and ComicInfo not the same.
                 elif widgetvar.get() != comicinfo_atr_get:
@@ -669,19 +698,19 @@ class App():
                         else:
                             widgetvar.set(-1)
                     else:
-                        logging.warning(f"Unrecognised type \n{widgetvar=}\n{widgetvar}")
+                        logger.warning(f"Unrecognised type \n{widgetvar=}\n{widgetvar}")
                     if cls._initialized_UI:  # For the items that are different, highlight in orane if ui is initialized
                         widgetobj = widgets_var_tuple[3]  # This is the actual widget, not the variable
-                        logging.debug("++#############++")
-                        delog(comicinfo_atr_get)
-                        delog(widgetvar.get())
-                        logging.debug("__#############__")
+                        logger.debug("++#############++")
+                        logger.debug(comicinfo_atr_get)
+                        logger.debug(widgetvar.get())
+                        logger.debug("__#############__")
                         widgetobj.configure(highlightbackground='orange', highlightcolor="orange",
                                             highlightthickness='3')
-                    logging.debug(
+                    logger.debug(
                         f"Conflict betwen comicinfo and UI for tag '{widgetvar}'. Content does not match.")
                 else:
-                    logging.debug(
+                    logger.debug(
                         f"Content in comicinfo and UI for tag '{widgetvar}' is the same, skipping")
 
             return loadedInfo
@@ -701,7 +730,7 @@ class App():
             else:
                 raise Exception("No files selected")
         else:
-            logging.debug("Selected files UI:" + "".join(self.selected_filenames))
+            logger.debug("Selected files UI:" + "".join(self.selected_filenames))
             for file_path in self.selected_filenames:
                 loaded_ComIinf = load_comicinfo_xml(self,file_path)
                 if loaded_ComIinf:
@@ -720,7 +749,7 @@ class App():
             Returns a LoadedComicInfo with the modified ComicInfo from the modified StringVars
 
             """
-            logging.debug(f"parsing UI to file: '{loadedInfo.path}'")
+            logger.debug(f"parsing UI to file: '{loadedInfo.path}'")
 
             comicinfo_attrib_get = [
                 loadedInfo.comicInfoObj.get_Series,
@@ -811,4 +840,3 @@ class App():
     def do_save_UI(self):
         self.parseUI_toComicInfo()
         self.saveComicInfo()
-
