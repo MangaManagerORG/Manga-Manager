@@ -5,6 +5,7 @@ import logging
 import io
 from lxml.etree import XMLSyntaxError
 
+import errors
 from .models import *
 from .errors import NoMetadataFileFound
 from . import ComicInfo
@@ -19,11 +20,12 @@ def is_folder(name: str, folders_list):
 
 class ReadComicInfo:
     def __init__(self, cbz_path: str, comicinfo_xml: str = None):
+        self.cbz_path = cbz_path
         self.xmlString = ""
         self.total_files = 0
         comicinfo_xml_exists = False
         if not comicinfo_xml:
-            with zipfile.ZipFile(cbz_path, 'r') as zin:
+            with zipfile.ZipFile(self.cbz_path, 'r') as zin:
                 self.total_files = len(zin.infolist())
                 for file in zin.infolist():
                     if file.filename == "ComicInfo.xml":
@@ -31,7 +33,7 @@ class ReadComicInfo:
                         with zin.open(file) as infile:
                             self.xmlString = infile.read()
                 if not comicinfo_xml_exists:
-                    raise NoMetadataFileFound(cbz_path)
+                    raise NoMetadataFileFound(self.cbz_path)
         else:
             self.xmlString = comicinfo_xml
         logger.debug("ReadComicInfo: Reading XML done")
@@ -45,9 +47,12 @@ class ReadComicInfo:
         try:
             comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml)
         except XMLSyntaxError as e:
-            logger.error(f"Failed to parse XML:\n{e}\nAttempting recovery...", exc_info=True)
-            comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml,doRecover = True)
-
+            try:
+                logger.error(f"Failed to parse XML:\n{e}\nAttempting recovery...", exc_info=False)
+                comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml,doRecover=True)
+            except Exception as e:
+                logger.error(f"Failed to parse XML:\n{e}\nRecovery attempt failed", exc_info=False)
+                raise errors.CorruptedComicInfo(self.cbz_path)
 
         logger.debug("returning comicinfo")
         return comicinfo

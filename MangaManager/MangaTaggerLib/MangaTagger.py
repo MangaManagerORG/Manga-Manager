@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 import pathlib
-import sys
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox as mb
-import tkinter.ttk as ttk
 from lxml.etree import XMLSyntaxError
 import os
+
 from . import ComicInfo
 from .models import LoadedComicInfo
 from .cbz_handler import ReadComicInfo, WriteComicInfo
@@ -27,8 +26,8 @@ PROJECT_PATH = pathlib.Path(__file__).parent
 logger = logging.getLogger(__name__)
 
 
-class App():
-
+# noinspection PyTypeChecker
+class App:
     def __init__(self, master: tk.Tk = None):
         self.master = master
         # self.master.eval('tk::PlaceWindow . center')
@@ -61,7 +60,7 @@ class App():
         self.entry_16_tags_var = tk.StringVar(value='', name='tags')
         self.entry_17_web_var = tk.StringVar(value='', name='web')
         self.entry_20_scanInfo_var = tk.StringVar(value='', name='scanInfo')
-        self.optionmenu_1_ageRating_var = tk.StringVar(value='Unknown')
+        self.optionmenu_1_ageRating_var = tk.StringVar(value='Unknown', name='ageRating')
         self.widgets_var = [
             self.entry_1_seriesName_var,
             self.entry_2_title_var,
@@ -129,7 +128,7 @@ class App():
                 event.widget.configure(state="normal", highlightbackground="#00bfff", highlightcolor="#00bfff",
                                        highlightthickness='2')
 
-        def ValidateIfNum(s, S):
+        def ValidateIfNum(s,S):
             # disallow anything but numbers
             valid = S == '' or S.isdigit()
             if not valid:
@@ -242,10 +241,10 @@ class App():
         self._label_25_blackWhite = tk.Label(self._inline_BlackWhite)
         self._label_25_blackWhite.configure(text='Black and White:')
         self._label_25_blackWhite.grid(column=0, row=0)
-        self._optionmenu_2_blackWhite = ttk.OptionMenu(self._inline_BlackWhite, self.optionmenu_2_blackWhite_var, "",
-                                                       *ComicInfo.YesNo.list(), command=None)
+        self._optionmenu_2_blackWhite = tk.OptionMenu(self._inline_BlackWhite, self.optionmenu_2_blackWhite_var,
+                                                      *ComicInfo.YesNo.list(), command=None)
         self._optionmenu_2_blackWhite.configure(width=16)
-        self._optionmenu_2_blackWhite.grid(row=1, column=0)
+        self._optionmenu_2_blackWhite.grid(row=1, column=0, sticky=tk.E+tk.W)
 
         # self._entry_18_blackWhite = tk.Entry(self._frame_2)
         # self._entry_18_blackWhite.configure(state='readonly', textvariable=self.entry_18_blackWhite_var)
@@ -260,11 +259,10 @@ class App():
         self._label_26_manga = tk.Label(self._inline_manga)
         self._label_26_manga.configure(text='Manga:')
         self._label_26_manga.grid(column=0, row=0)
-        self._optionmenu_3_manga = ttk.OptionMenu(self._inline_manga, self.optionmenu_3_manga_var, "",
-                                                   *ComicInfo.Manga.list(), command=None,)
+        self._optionmenu_3_manga = tk.OptionMenu(self._inline_manga, self.optionmenu_3_manga_var,
+                                                 *ComicInfo.Manga.list(), command=None, )
         self._optionmenu_3_manga.configure(width=16)
-        self._optionmenu_3_manga.grid(row=1, column=0)
-
+        self._optionmenu_3_manga.grid(row=1, column=0,sticky=tk.E+tk.W)
 
         # self._label_26_manga = tk.Label(self._frame_2)
         # self._label_26_manga.configure(text='Manga')
@@ -336,9 +334,9 @@ class App():
         self._label_27_AgeRating = tk.Label(self._inline_AgeRating)
         self._label_27_AgeRating.configure(text='Age Rating:')
         self._label_27_AgeRating.grid(column=0, row=0)
-        self._optionmenu_1 = ttk.OptionMenu(self._inline_AgeRating, self.optionmenu_1_ageRating_var,
-                                            *ComicInfo.AgeRating.list(),
-                                            command=None)
+        self._optionmenu_1 = tk.OptionMenu(self._inline_AgeRating, self.optionmenu_1_ageRating_var,
+                                           *ComicInfo.AgeRating.list(),
+                                           command=None)
         self._optionmenu_1.configure(width=15)
         self._optionmenu_1.grid(column=1, row=0)
         self._label_6_SeriesGroup = tk.Label(self._frame_1)
@@ -521,6 +519,12 @@ class App():
         self._frame_3_people.grid(column=0, ipadx='10', ipady='10', padx='10', row=1, sticky='ew', rowspan=2)
 
         # MAIN FRAME
+        self._frame_5_statusInfo = tk.Frame(self._frame1)
+        self._label_28_statusinfo = tk.Label(self._frame_5_statusInfo, text="")
+        self._label_28_statusinfo.grid(row=0, sticky=tk.E)
+
+        self._frame_5_statusInfo.grid(row=60)
+
         self._frame1.configure(height='800', width='1080')
         self._frame1.pack(expand=tk.YES, fill=tk.BOTH)
         # column=0, row=0,sticky="nesw")
@@ -583,12 +587,14 @@ class App():
         self.mainwindow.mainloop()
 
     def _open_files(self):
+        self.selected_filenames = list[str]()
         covers_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
                                                    filetypes=(("CBZ Files", ".cbz"),)
                                                    )
         for file in covers_path_list:
             self.selected_filenames.append(file.name)
         self.create_loadedComicInfo_list()
+        self._label_28_statusinfo.configure(text="Successfuly loaded")
 
     def create_loadedComicInfo_list(self, cli_selected_files: list[str] = None):
         self.conflicts = {}
@@ -596,7 +602,7 @@ class App():
         def load_comicinfo_xml(cls, cbz_path) -> LoadedComicInfo:
             """
             Accepts a path string
-            Returns a LoadedComicInfo with the ComicInfo class generated from the data contained inside ComicInfo.xml file
+            Returns a LoadedComicInfo with the ComicInfo class generated from the data contained inside ComicInfo file
             which is taken from the zip-like file type
 
             :param cls: parent self
@@ -605,8 +611,9 @@ class App():
             """
             logger.info(f"loading file: '{cbz_path}'")
             try:
+                raise CorruptedComicInfo(cbz_path)
                 comicinfo = ReadComicInfo(cbz_path).to_ComicInfo(False)
-            except NoMetadataFileFound as e:
+            except NoMetadataFileFound:
                 logger.error(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}")
                 mb.showerror("Error reading ComicInfo", f"ComicInfo.xml was not found inside: {cbz_path}.\n\
                 One will be created when saving changes to file")
@@ -616,6 +623,16 @@ class App():
                 mb.showerror("Error reading ComicInfo", "Error loading file."
                                                         f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e))
                 raise e
+            except CorruptedComicInfo:
+                answer = mb.askyesno("Failed to load metadata", f"Failed to load metadata from file:\n{cbz_path}\n\n"
+                                                                "ComicInfo.xml file was found but seems corrupted.\n"
+                                                                "A fix was attempted but it failed.\n\n"
+                                                                "Continue loading?")
+                if answer:
+                    return
+                else:
+                    raise CancelComicInfoLoad
+
             loadedInfo = LoadedComicInfo(cbz_path, comicinfo, comicinfo)
             logger.debug("comicinfo was read and a LoadedComicInfo was created")
             #
@@ -701,7 +718,7 @@ class App():
                 # comicinfo_atr_set = widgets_var_tuple[2]
 
                 # field is empty. Skipping
-                if widgetvar.get() != comicinfo_atr_get and widgetvar.get() in (-1, 0, ""):
+                if widgetvar.get() != comicinfo_atr_get and widgetvar.get() in (-1, 0, "", "Unknown"):
                     #  If field is chapter skip them.
                     #  We don't want to mess up chapter overwriting the same value to all files
                     if str(widgetvar) == "chapter" and not cls.processed_chapter:
@@ -722,10 +739,14 @@ class App():
                     elif isinstance(widgetvar, tk.IntVar):
                         if str(widgetvar) == "pageCount":
                             widgetvar.set(0)
+                        elif str(widgetvar) == "blackWhite" or str(widgetvar) == "manga" or str(
+                                widgetvar) == "ageRating":
+                            widgetvar.set("Unknown")
                         else:
                             widgetvar.set(-1)
                     else:
-                        logger.warning(f"Unrecognised type \n{widgetvar=}\n{widgetvar}")
+                        logger.warning(f"Unrecognised type \n{str(widgetvar)}\n{widgetvar}")
+
                     if cls._initialized_UI:  # For the items that are different, highlight in orane if ui is initialized
                         widgetobj = widgets_var_tuple[3]  # This is the actual widget, not the variable
                         logger.debug("++#############++")
@@ -742,30 +763,34 @@ class App():
 
             return loadedInfo
 
-        if not self.selected_filenames:
-            if cli_selected_files:
-                for file in cli_selected_files:
-                    try:
-                        loaded_ComIinf = load_comicinfo_xml(self, file)
-                    except XMLSyntaxError:
-                        # This is logged. Exception is raised again so it excepts on CLI mode
-                        continue
+        try:
+            if not self.selected_filenames:
+                if cli_selected_files:
+                    for file in cli_selected_files:
+                        try:
+                            loaded_ComIinf = load_comicinfo_xml(self, file)
+                        except XMLSyntaxError:
+                            # This is already logged. Exception is raised again so it excepts on CLI mode
+                            continue
+                        if loaded_ComIinf:
+                            self.loadedComicInfo_list.append(loaded_ComIinf)
+                        else:
+                            continue
+                    # self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
+                else:
+                    raise Exception("No files selected")
+            else:
+                logger.debug("Selected files UI:" + "".join(self.selected_filenames))
+                for file_path in self.selected_filenames:
+                    loaded_ComIinf = load_comicinfo_xml(self, file_path)
+
                     if loaded_ComIinf:
                         self.loadedComicInfo_list.append(loaded_ComIinf)
                     else:
                         continue
-                # self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
-            else:
-                raise Exception("No files selected")
-        else:
-            logger.debug("Selected files UI:" + "".join(self.selected_filenames))
-            for file_path in self.selected_filenames:
-                loaded_ComIinf = load_comicinfo_xml(self, file_path)
-                if loaded_ComIinf:
-                    self.loadedComicInfo_list.append(loaded_ComIinf)
-                else:
-                    continue
-                # self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
+                    # self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
+        except CancelComicInfoLoad:
+            self.loadedComicInfo_list = []
 
     def parseUI_toComicInfo(self):
         """
@@ -861,7 +886,7 @@ class App():
         for comicObj in self.loadedComicInfo_list:
             modified_loadedComicInfo = parse_UI_toComicInfo(self, comicObj)
             modified_loadedComicInfo_list.append(modified_loadedComicInfo)
-        self.loadedComicInfo_list = modified_loadedComicInfo_list
+            self.loadedComicInfo_list = modified_loadedComicInfo_list
 
     def saveComicInfo(self):
         for loadedComicObj in self.loadedComicInfo_list:
