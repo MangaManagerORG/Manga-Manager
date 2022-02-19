@@ -1033,6 +1033,9 @@ class ComicPageType(str, Enum):
     BACK_COVER='BackCover'
     OTHER='Other'
     DELETED='Deleted'
+    @classmethod
+    def list(cls):
+        return list(map(lambda c: c.value, cls))
 
 
 class Manga(str, Enum):
@@ -1040,13 +1043,17 @@ class Manga(str, Enum):
     NO='No'
     YES='Yes'
     YES_AND_RIGHT_TO_LEFT='YesAndRightToLeft'
-
+    @classmethod
+    def list(cls):
+        return list(map(lambda c: c.value, cls))
 
 class YesNo(str, Enum):
     UNKNOWN='Unknown'
     NO='No'
     YES='Yes'
-
+    @classmethod
+    def list(cls):
+        return list(map(lambda c: c.value, cls))
 
 class ComicInfo(GeneratedsSuper):
     __hash__ = GeneratedsSuper.__hash__
@@ -1636,8 +1643,10 @@ class ComicInfo(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
         return self
+
     def _buildAttributes(self, node, attrs, already_processed):
         pass
+
     def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
         if nodeName_ == 'Title':
             value_ = child_.text
