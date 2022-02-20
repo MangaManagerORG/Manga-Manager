@@ -5,7 +5,6 @@ import logging
 import io
 from lxml.etree import XMLSyntaxError
 
-#import errors
 from .models import *
 from .errors import *
 from . import ComicInfo
