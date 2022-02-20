@@ -33,72 +33,74 @@ class App:
     def __init__(self, master: tk.Tk = None):
         self.master = master
         # self.master.eval('tk::PlaceWindow . center')
-        self.spinbox_1_year_var = tk.IntVar(value=-1, name="year")
-        self.spinbox_2_month_var = tk.IntVar(value=-1, name='month')
-        self.spinbox_3_volume_var = tk.IntVar(value=-1, name='volume')
+        self.initialize_StringVars()
+    def initialize_StringVars(self):
+            self.spinbox_1_year_var = tk.IntVar(value=-1, name="year")
+            self.spinbox_2_month_var = tk.IntVar(value=-1, name='month')
+            self.spinbox_3_volume_var = tk.IntVar(value=-1, name='volume')
 
-        self.spinbox_4_chapter_var = tk.StringVar(value='', name='Number')
-        self.entry_10_langIso_var = tk.StringVar(value='', name='langIso')
-        # self.spinbox_5_pageCount_var = tk.IntVar(value='', name='pageCount')
-        self.spinbox_5_pageCount_var = tk.IntVar(value=0, name='pageCount')
-        self.entry_15_format_var = tk.StringVar(value='', name='format')
-        self.optionmenu_2_blackWhite_var = tk.StringVar(value=ComicInfo.YesNo.list()[0], name='blackWhite')
-        self.optionmenu_3_manga_var = tk.StringVar(value=ComicInfo.Manga.list()[0], name='manga')
-        self.entry_1_seriesName_var = tk.StringVar(value='', name='seriesName')
-        self.entry_2_title_var = tk.StringVar(value='', name='title')
-        self.entry_3_writer_var = tk.StringVar(value='', name='writer')
-        self.entry_6_storyArc_var = tk.StringVar(value='', name='storyArc')
-        self.entry_7_SeriesGroup_var = tk.StringVar(value='', name='SeriesGroup')
-        self.entry_4_penciller_var = tk.StringVar(value='', name='penciller')
-        self.entry_5_inker_var = tk.StringVar(value='', name='inker')
-        self.entry_8_colorist_var = tk.StringVar(value='', name='colorist')
-        self.entry_9_letterer_var = tk.StringVar(value='', name='letterer')
-        self.entry_11_coverArtist_var = tk.StringVar(value='', name='coverArtist')
-        self.entry_12_editor_var = tk.StringVar(value='', name='editor')
-        self.entry_13_publisher_var = tk.StringVar(value='', name='publisher')
-        self.entry_14_imprint_var = tk.StringVar(value='', name='imprint')
-        self.entry_16_characters_var = tk.StringVar(value='', name='characters')
-        self.entry_15_genres_var = tk.StringVar(value='', name='genres')
-        self.entry_16_tags_var = tk.StringVar(value='', name='tags')
-        self.entry_17_web_var = tk.StringVar(value='', name='web')
-        self.entry_20_scanInfo_var = tk.StringVar(value='', name='scanInfo')
-        self.optionmenu_1_ageRating_var = tk.StringVar(value='Unknown', name='ageRating')
-        self.input_1_summary_obj = models.LongText(name="summary")
+            self.spinbox_4_chapter_var = tk.StringVar(value='', name='Number')
+            self.entry_10_langIso_var = tk.StringVar(value='', name='langIso')
+            # self.spinbox_5_pageCount_var = tk.IntVar(value='', name='pageCount')
+            self.spinbox_5_pageCount_var = tk.IntVar(value=0, name='pageCount')
+            self.entry_15_format_var = tk.StringVar(value='', name='format')
+            self.optionmenu_2_blackWhite_var = tk.StringVar(value=ComicInfo.YesNo.list()[0], name='blackWhite')
+            self.optionmenu_3_manga_var = tk.StringVar(value=ComicInfo.Manga.list()[0], name='manga')
+            self.entry_1_seriesName_var = tk.StringVar(value='', name='seriesName')
+            self.entry_2_title_var = tk.StringVar(value='', name='title')
+            self.entry_3_writer_var = tk.StringVar(value='', name='writer')
+            self.entry_6_storyArc_var = tk.StringVar(value='', name='storyArc')
+            self.entry_7_SeriesGroup_var = tk.StringVar(value='', name='SeriesGroup')
+            self.entry_4_penciller_var = tk.StringVar(value='', name='penciller')
+            self.entry_5_inker_var = tk.StringVar(value='', name='inker')
+            self.entry_8_colorist_var = tk.StringVar(value='', name='colorist')
+            self.entry_9_letterer_var = tk.StringVar(value='', name='letterer')
+            self.entry_11_coverArtist_var = tk.StringVar(value='', name='coverArtist')
+            self.entry_12_editor_var = tk.StringVar(value='', name='editor')
+            self.entry_13_publisher_var = tk.StringVar(value='', name='publisher')
+            self.entry_14_imprint_var = tk.StringVar(value='', name='imprint')
+            self.entry_16_characters_var = tk.StringVar(value='', name='characters')
+            self.entry_15_genres_var = tk.StringVar(value='', name='genres')
+            self.entry_16_tags_var = tk.StringVar(value='', name='tags')
+            self.entry_17_web_var = tk.StringVar(value='', name='web')
+            self.entry_20_scanInfo_var = tk.StringVar(value='', name='scanInfo')
+            self.optionmenu_1_ageRating_var = tk.StringVar(value='Unknown', name='ageRating')
+            self.input_1_summary_obj = models.LongText(name="summary")
 
-        self.widgets_var = [
-            self.entry_1_seriesName_var,
-            self.entry_2_title_var,
-            self.entry_3_writer_var,
-            self.entry_4_penciller_var,
-            self.entry_5_inker_var,
-            self.entry_6_storyArc_var,
-            self.entry_7_SeriesGroup_var,
-            self.entry_8_colorist_var,
-            self.entry_9_letterer_var,
-            self.entry_10_langIso_var,
-            self.entry_11_coverArtist_var,
-            self.entry_12_editor_var,
-            self.entry_13_publisher_var,
-            self.entry_14_imprint_var,
-            self.entry_15_format_var,
-            self.entry_16_characters_var,
-            self.entry_17_web_var,
-            self.optionmenu_2_blackWhite_var,
-            self.optionmenu_3_manga_var,
-            self.entry_20_scanInfo_var,
-            self.spinbox_1_year_var,
-            self.spinbox_2_month_var,
-            self.spinbox_3_volume_var,
-            self.spinbox_4_chapter_var,
-            self.spinbox_5_pageCount_var,
-            self.entry_16_tags_var,
-            self.entry_15_genres_var,
-            self.input_1_summary_obj
-        ]
-        self.widgets_obj = []
-        self.selected_filenames = []
-        self.loadedComicInfo_list = list[LoadedComicInfo]()
-        self._initialized_UI = False
+            self.widgets_var = [
+                self.entry_1_seriesName_var,
+                self.entry_2_title_var,
+                self.entry_3_writer_var,
+                self.entry_4_penciller_var,
+                self.entry_5_inker_var,
+                self.entry_6_storyArc_var,
+                self.entry_7_SeriesGroup_var,
+                self.entry_8_colorist_var,
+                self.entry_9_letterer_var,
+                self.entry_10_langIso_var,
+                self.entry_11_coverArtist_var,
+                self.entry_12_editor_var,
+                self.entry_13_publisher_var,
+                self.entry_14_imprint_var,
+                self.entry_15_format_var,
+                self.entry_16_characters_var,
+                self.entry_17_web_var,
+                self.optionmenu_2_blackWhite_var,
+                self.optionmenu_3_manga_var,
+                self.entry_20_scanInfo_var,
+                self.spinbox_1_year_var,
+                self.spinbox_2_month_var,
+                self.spinbox_3_volume_var,
+                self.spinbox_4_chapter_var,
+                self.spinbox_5_pageCount_var,
+                self.entry_16_tags_var,
+                self.entry_15_genres_var,
+                self.input_1_summary_obj
+            ]
+            self.widgets_obj = []
+            self.selected_filenames = []
+            self.loadedComicInfo_list = list[LoadedComicInfo]()
+            self._initialized_UI = False
 
     def start_ui(self):
         master = self.master
@@ -567,6 +569,7 @@ class App:
         self.mainwindow.mainloop()
 
     def _open_files(self):
+        self.initialize_StringVars()
         self.selected_filenames = list[str]()
         covers_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
                                                    filetypes=(("CBZ Files", ".cbz"),)
