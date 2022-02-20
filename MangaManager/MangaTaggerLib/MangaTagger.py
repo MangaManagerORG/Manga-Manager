@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import pathlib
+import threading
 import tkinter as tk
 import tkinter.scrolledtext
+from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox as mb
 from lxml.etree import XMLSyntaxError
@@ -71,7 +73,10 @@ class App:
             self.entry_20_scanInfo_var = tk.StringVar(value='', name='scanInfo')
             self.optionmenu_1_ageRating_var = tk.StringVar(value='Unknown', name='ageRating')
             self.input_1_summary_obj = models.LongText(name="summary")
-
+            try:
+                self.input_1_summary_obj.linked_text_field = self._text_1_summary
+            except:
+                pass
             self.widgets_var = [
                 self.entry_1_seriesName_var,
                 self.entry_2_title_var,
@@ -298,7 +303,7 @@ class App:
         self._label_7_summary.configure(text='Summary')
         self._label_7_summary.grid(column='0', row='4')
         self._text_1_summary = tkinter.scrolledtext.ScrolledText(self._frame_1, wrap=tk.WORD)
-        self._text_1_summary.configure(cursor='arrow', height='2', state='normal', width='50')
+        self._text_1_summary.configure(cursor='arrow', height='4', state='normal', width='50')
         self.input_1_summary_obj.linked_text_field = self._text_1_summary
         self._text_1_summary.grid(row='5',sticky=tk.E+tk.W)
         self._label_5_StoryArc = tk.Label(self._frame_1)
@@ -505,11 +510,11 @@ class App:
         self._frame_3_people.grid(column=0, ipadx='10', ipady='10', padx='10', row=1, sticky='ew', rowspan=2)
 
         # MAIN FRAME
-        self._frame_5_statusInfo = tk.Frame(self._frame1)
-        self._label_28_statusinfo = tk.Label(self._frame_5_statusInfo, text="")
-        self._label_28_statusinfo.grid(row=0, sticky=tk.E)
+        # self._frame_5_statusInfo = tk.Frame(self._frame1,bg="grey")
+        self._label_28_statusinfo = tk.Label(self._frame1, text="", anchor="e", bg="lightgrey")
+        self._label_28_statusinfo.grid(row=5,column=1, sticky=tk.E)
 
-        self._frame_5_statusInfo.grid(row=60)
+        # self._frame_5_statusInfo.grid(row=4, column=1, sticky=tk.W)
 
         self._frame1.configure(height='800', width='1080')
         self._frame1.pack(expand=tk.YES, fill=tk.BOTH)
@@ -529,7 +534,7 @@ class App:
         self.button4_save = tk.Button(self._files_controller, text="Remove ComicInfo.xml", command=self.deleteComicInfo, width=20)
         self.button4_save.grid(column=3, row=0)
         # self.__tkvar.set('Age Rating')
-
+        self._files_controller.configure(pady=5)
         self._files_controller.grid(row=2, column=1)
         # Main widget
         self.mainwindow = self._frame1
@@ -575,6 +580,11 @@ class App:
     def _reset_highlightedUI(self):
         for widget in self.highlighted_changes:
             widget.configure(highlightcolor="#FFF", highlightbackground="#FFF", highlightthickness="0")
+        self._label_28_statusinfo.configure(text="")
+        try:
+            self.input_1_summary_obj.linked_text_field = self._text_1_summary
+        except:
+            pass
     def run(self):
         self.mainwindow.mainloop()
 
@@ -900,8 +910,83 @@ class App:
             self.loadedComicInfo_list = modified_loadedComicInfo_list
 
     def saveComicInfo(self):
+        total_times_count = len(self.loadedComicInfo_list)
+        processed_counter = 0
+        processed_errors = 0
+        self.frame_1_progressbar = tk.Frame(self._files_controller)
+        self.frame_1_progressbar.grid(row=1, columnspan=4)
+        # TBH I'd like to rework how this processing bar works. - Promidius
+        if self._initialized_UI:
+            pb_root = self.frame_1_progressbar
+
+            style = ttk.Style(pb_root)
+            style.layout('text.Horizontal.TProgressbar',
+                         [
+                             ('Horizontal.Progressbar.trough',
+                              {
+                                  'children': [
+                                      ('Horizontal.Progressbar.pbar',
+                                       {
+                                           'side': 'left',
+                                           'sticky': 'ns'
+                                       }
+                                       )
+                                  ],
+                                  'sticky': 'nswe'
+                              }
+                              ),
+                             ('Horizontal.Progressbar.label',
+                              {
+                                  'sticky': 'nswe'
+                              }
+                              )
+                         ]
+                         )
+            pb = ttk.Progressbar(pb_root, length=400, style='text.Horizontal.TProgressbar',
+                                 mode="determinate")  # create progress bar
+            style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
+            label_progress_text = tk.StringVar()
+            pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
+            logger.info("Initialized progress bar")
+            pb.grid(row=0, column=0, sticky=tk.E+tk.W)
+            pb_text.grid(row=1, column=0, sticky=tk.E)
+
         for loadedComicObj in self.loadedComicInfo_list:
-            WriteComicInfo(loadedComicObj).to_file()
+                print("Started thread")
+
+                logger.info(f"[Processing] Starting processing to save data to file {loadedComicObj.path}")
+                try:
+                    WriteComicInfo(loadedComicObj).to_file()
+                    label_progress_text.set(
+                        f"Processed: {processed_counter}/{total_times_count} - {processed_errors} errors")
+                    processed_counter+=1
+                except FileExistsError as e:
+                    mb.showwarning(f"[ERROR] File already exists",
+                                   f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
+                    processed_errors += 1
+                    continue
+                except PermissionError as e:
+                    mb.showerror("[ERROR] Permission Error", "Can't access the file because it's being used by a different process\n\n"
+                                 f"Exception:\n{e}")
+                    processed_errors += 1
+                    continue
+                except FileNotFoundError as e:
+                    mb.showerror("[ERROR] File Not Found","Can't access the file because it's being used by a different process\n\n"
+                                 f"Exception:\n{e}")
+                    processed_errors += 1
+                    continue
+                except Exception as e:
+                    mb.showerror("Something went wrong", "Error processing. Check logs.")
+                    logger.critical("Exception Processing", e)
+                if self._initialized_UI:
+                    pb_root.update()
+                    percentage = ((processed_counter + processed_errors) / total_times_count) * 100
+                    style.configure('text.Horizontal.TProgressbar',
+                                    text='{:g} %'.format(round(percentage, 2)))  # update label
+                    pb['value'] = percentage
+                    label_progress_text.set(
+                    f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors")
+
     def deleteComicInfo(self):
         """
         Deletes all ComicInfo.xml from the selected files
