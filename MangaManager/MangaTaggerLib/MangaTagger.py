@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import pathlib
 import tkinter as tk
+import tkinter.scrolledtext
 from tkinter import filedialog
 from tkinter import messagebox as mb
 from lxml.etree import XMLSyntaxError
 import os
 
+from . import models
 from . import ComicInfo
 from .models import LoadedComicInfo
 from .cbz_handler import ReadComicInfo, WriteComicInfo
@@ -61,6 +63,9 @@ class App:
         self.entry_17_web_var = tk.StringVar(value='', name='web')
         self.entry_20_scanInfo_var = tk.StringVar(value='', name='scanInfo')
         self.optionmenu_1_ageRating_var = tk.StringVar(value='Unknown', name='ageRating')
+        self.input_1_summary_obj = models.LongText(name="summary")
+
+
         self.widgets_var = [
             self.entry_1_seriesName_var,
             self.entry_2_title_var,
@@ -88,11 +93,13 @@ class App:
             self.spinbox_4_chapter_var,
             self.spinbox_5_pageCount_var,
             self.entry_16_tags_var,
-            self.entry_15_genres_var
+            self.entry_15_genres_var,
+            self.input_1_summary_obj
         ]
         self.widgets_obj = []
         self.selected_filenames = []
         self.loadedComicInfo_list = list[LoadedComicInfo]()
+
 
     def start_ui(self):
         master = self.master
@@ -186,7 +193,7 @@ class App:
         self._label_4_chapter.configure(anchor='n', text='Chapter')
         self._label_4_chapter.grid(column=0, row='6')
         self._spinbox_4_chapter = tk.Spinbox(self._frame_2, validate='all', validatecommand=vldt_ifnum_cmd)
-        self._spinbox_4_chapter.configure(buttonuprelief='flat', cursor='arrow', justify='center', state='readonly')
+        self._spinbox_4_chapter.configure(relief='flat', cursor='arrow', justify='center', state='disabled')
         self._spinbox_4_chapter.configure(textvariable=self.spinbox_4_chapter_var)
         self._spinbox_4_chapter.grid(column=0, row='7')
         self._spinbox_4_chapter.bind('<Button-1>', makeFocused, add='+')
@@ -306,10 +313,10 @@ class App:
         self._label_7_summary = tk.Label(self._frame_1)
         self._label_7_summary.configure(text='Summary')
         self._label_7_summary.grid(column='0', row='4')
-        self._text_1_summary = tk.Text(self._frame_1)
-        self._text_1_summary.configure(cursor='arrow', height='2', state='disabled', width='50')
-        self._text_1_summary.grid(row='5')
-
+        self._text_1_summary = tkinter.scrolledtext.ScrolledText(self._frame_1,wrap=tk.WORD)
+        self._text_1_summary.configure(cursor='arrow', height='2', state='normal', width='50')
+        self.input_1_summary_obj.linked_text_field = self._text_1_summary
+        self._text_1_summary.grid(row='5',sticky=tk.E+tk.W)
         self._label_5_StoryArc = tk.Label(self._frame_1)
         self._label_5_StoryArc.configure(text='Story Arc')
         self._label_5_StoryArc.grid(column='0', row='6')
@@ -573,7 +580,8 @@ class App:
             self._spinbox_4_chapter,
             self._spinbox_5_pageCount,
             self._entry_16_tags,
-            self._entry_15_genres
+            self._entry_15_genres,
+            self.input_1_summary_obj.linked_text_field
 
         ]
 
@@ -611,7 +619,7 @@ class App:
             """
             logger.info(f"loading file: '{cbz_path}'")
             try:
-                raise CorruptedComicInfo(cbz_path)
+                # raise CorruptedComicInfo(cbz_path)
                 comicinfo = ReadComicInfo(cbz_path).to_ComicInfo(False)
             except NoMetadataFileFound:
                 logger.error(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}")
@@ -670,7 +678,8 @@ class App:
                 loadedInfo.comicInfoObj.get_Number,
                 loadedInfo.comicInfoObj.get_PageCount,
                 loadedInfo.comicInfoObj.get_Tags,
-                loadedInfo.comicInfoObj.get_Genre
+                loadedInfo.comicInfoObj.get_Genre,
+                loadedInfo.comicInfoObj.get_Summary
             ]
             comicinfo_attrib_set = [
                 loadedInfo.comicInfoObj.set_Series,
@@ -699,7 +708,8 @@ class App:
                 loadedInfo.comicInfoObj.set_Number,
                 loadedInfo.comicInfoObj.set_PageCount,
                 loadedInfo.comicInfoObj.set_Tags,
-                loadedInfo.comicInfoObj.set_Genre
+                loadedInfo.comicInfoObj.set_Genre,
+                loadedInfo.comicInfoObj.set_Summary
             ]
 
             if cls.widgets_obj:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
@@ -710,7 +720,7 @@ class App:
                 cls._initialized_UI = False
 
             # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
-            cls.processed_chapter = False
+            cls.conflict_chapter = False
             for widgets_var_tuple in widgets_var_zip:
 
                 widgetvar = widgets_var_tuple[0]
@@ -718,19 +728,23 @@ class App:
                 # comicinfo_atr_set = widgets_var_tuple[2]
 
                 # field is empty. Skipping
-                if widgetvar.get() != comicinfo_atr_get and widgetvar.get() in (-1, 0, "", "Unknown"):
+                if widgetvar.get() != comicinfo_atr_get and widgetvar.get() in (-1, 0, "", "Unknown", None):
                     #  If field is chapter skip them.
                     #  We don't want to mess up chapter overwriting the same value to all files
-                    if str(widgetvar) == "chapter" and not cls.processed_chapter:
+                    if str(widgetvar) == "Number" and cls.conflict_chapter:
+                        if self.spinbox_4_chapter_var.get() != widgetvar.get():
+                            cls.conflict_chapter = True
+                            self.spinbox_4_chapter_var.set("")
+
                         continue
-                    else:
-                        cls.processed_chapter = True
                     widgetvar.set(comicinfo_atr_get)
                     logger.debug(
                         f"Loaded new value for tag '{widgetvar}'")
                 # Conflict. UI and ComicInfo not the same.
                 elif widgetvar.get() != comicinfo_atr_get:
-
+                    if str(widgetvar) == "Number" and cls.conflict_chapter:
+                        logger.debug("Skipping chapter field due to conflict")
+                        continue
                     # Empty variable since they don't match.
                     # This way when saving, original value will be kept.
                     # If user edits in the ui, warning will appear: The field in all selected files will be the same
@@ -744,6 +758,9 @@ class App:
                             widgetvar.set("Unknown")
                         else:
                             widgetvar.set(-1)
+                    elif isinstance(widgetvar,models.LongText):
+                        widgetvar.set("")
+
                     else:
                         logger.warning(f"Unrecognised type \n{str(widgetvar)}\n{widgetvar}")
 
@@ -755,6 +772,9 @@ class App:
                         logger.debug("__#############__")
                         widgetobj.configure(highlightbackground='orange', highlightcolor="orange",
                                             highlightthickness='3')
+
+                    if str(widgetvar) == "Number" and cls.conflict_chapter:
+                        cls.conflict_chapter = True
                     logger.debug(
                         f"Conflict betwen comicinfo and UI for tag '{widgetvar}'. Content does not match.")
                 else:
@@ -832,7 +852,9 @@ class App:
                 loadedInfo.comicInfoObj.get_Number,
                 loadedInfo.comicInfoObj.get_PageCount,
                 loadedInfo.comicInfoObj.get_Tags,
-                loadedInfo.comicInfoObj.get_Genre
+                loadedInfo.comicInfoObj.get_Genre,
+                loadedInfo.comicInfoObj.get_Summary
+
             ]
             comicinfo_attrib_set = [
                 loadedInfo.comicInfoObj.set_Series,
@@ -861,7 +883,8 @@ class App:
                 loadedInfo.comicInfoObj.set_Number,
                 loadedInfo.comicInfoObj.set_PageCount,
                 loadedInfo.comicInfoObj.set_Tags,
-                loadedInfo.comicInfoObj.set_Genre
+                loadedInfo.comicInfoObj.set_Genre,
+                loadedInfo.comicInfoObj.set_Summary
             ]
 
             if cls.widgets_obj:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
