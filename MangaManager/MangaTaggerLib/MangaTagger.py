@@ -98,6 +98,7 @@ class App:
         self.widgets_obj = []
         self.selected_filenames = []
         self.loadedComicInfo_list = list[LoadedComicInfo]()
+        self._initialized_UI = False
 
     def start_ui(self):
         master = self.master
@@ -515,6 +516,8 @@ class App:
         # self.button3_read.grid(column=1, row=3, pady="5 10", columnspan=2)
         self.button4_save = tk.Button(self._files_controller, text="Save", command=self.do_save_UI, width=15)
         self.button4_save.grid(column=1, row=0)
+        self.button4_save = tk.Button(self._files_controller, text="Remove ComicInfo.xml", command=self.deleteComicInfo, width=20)
+        self.button4_save.grid(column=3, row=0)
         # self.__tkvar.set('Age Rating')
 
         self._files_controller.grid(row=2, column=1)
@@ -558,6 +561,7 @@ class App:
         # self._frame_3.configure(bg="yellow")
         # self._frame_3_people.configure(bg="purple")
         # self._frame_1.configure(bg="green")
+        self._initialized_UI = True
 
     def run(self):
         self.mainwindow.mainloop()
@@ -882,7 +886,23 @@ class App:
     def saveComicInfo(self):
         for loadedComicObj in self.loadedComicInfo_list:
             WriteComicInfo(loadedComicObj).to_file()
-
+    def deleteComicInfo(self):
+        """
+        Deletes all ComicInfo.xml from the selected files
+        """
+        if self._initialized_UI:
+           answer = mb.askokcancel("Warning","This will remove 'ComicInfo.xml' file from the selected files")
+           if answer:
+                for loadedComicObj in self.loadedComicInfo_list:
+                    print("Procesding delete")
+                    WriteComicInfo(loadedComicObj).delete()
+        else:
+            for loadedComicObj in self.loadedComicInfo_list:
+                print("Procesding delete")
+                WriteComicInfo(loadedComicObj).delete()
     def do_save_UI(self):
         self.parseUI_toComicInfo()
         self.saveComicInfo()
+
+
+

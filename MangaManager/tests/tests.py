@@ -6,6 +6,7 @@ import zipfile
 import os
 import re
 # Manga Tagger
+import ComicInfo
 from MangaManager.MangaTaggerLib import MangaTagger
 from MangaManager.MangaTaggerLib.cbz_handler import *
 
@@ -127,9 +128,38 @@ class TaggerCbzControllerTester(unittest.TestCase):
         print(f"Asserting second file {number_files_preprocess_2} vs {number_files_postprocess}, delta 1")
         self.assertAlmostEqual(number_files_preprocess_2, number_files_postprocess, delta=1)
 
+
+
         print(f"Asserting Chapter number. (they can't match) '{first_file_chapter}' vs '{second_file_chapter}'")
         if not (first_file_chapter and second_file_chapter == ""):
             self.assertNotEqual(first_file_chapter, second_file_chapter)
+
+    def test_deleteAndRecover(self):
+        test_files = [path_23, path_24]
+        opened_cbz = ReadComicInfo(path_23)
+        number_files_preprocess_1 = opened_cbz.total_files
+        opened_cbz = 0  # reset so file gets closed
+
+        random_int = random.random()
+
+        root = tk.Tk()
+        app = MangaTagger.App(root)
+        app.create_loadedComicInfo_list([path_23])
+        app.deleteComicInfo()
+        opened_cbz = ReadComicInfo(path_23)
+        number_files_postprocess = opened_cbz.total_files
+        xml_postprocess = opened_cbz.to_ComicInfo()
+        second_file_chapter = xml_postprocess.get_Number()
+        # self.assertAlmostEqual(number_files_preprocess, number_files_postprocess)
+        print(f"Asserting second file {number_files_preprocess_1} vs {number_files_postprocess}, delta 0")
+        self.assertEqual(number_files_preprocess_1, number_files_postprocess)
+
+        opened_cbz = WriteComicInfo(LoadedComicInfo(path_23,ComicInfo)).restore()
+
+        opened_cbz = ReadComicInfo(path_23)
+        number_files_postprocess = opened_cbz.total_files
+        print(f"File is recovered {number_files_preprocess_1} vs {number_files_postprocess}+1, delta 0")
+        self.assertEqual(number_files_preprocess_1, number_files_postprocess+1)
 
     def test_zcount_leftover_files(self):
         final_dir_count = len(os.listdir(os.path.dirname(test_path)))
