@@ -78,43 +78,67 @@ final_cleanup_var1 = ""
 
 initial_dir_count = 0
 
+
 class TaggerCbzControllerTester(unittest.TestCase):
     def test_replace_file(self):
-        """the number of files readed in the output cbz must be the same as in the input (check needed to not end up with empty unreadable files"""
+        """The number of files readed in the output cbz must be the same as in the input (check needed to not end up with empty unreadable files"""
         global initial_dir_count
         initial_dir_count = len(os.listdir(os.path.dirname(test_path)))
-
+        first_file_chapter = ""
+        second_file_chapter = ""
         root = tk.Tk()
         test_files = [path_23, path_24]
         opened_cbz = ReadComicInfo(path_23)
-        number_files_preprocess = opened_cbz.total_files
-        xml_preprocess = opened_cbz.to_ComicInfo()
+        number_files_preprocess_1 = opened_cbz.total_files
+        opened_cbz = 0 # reset so file gets closed
+        opened_cbz = ReadComicInfo(path_24)
+        number_files_preprocess_2 = opened_cbz.total_files
         opened_cbz = 0 # reset so file gets closed
         random_int = random.random()
-        app =  MangaTagger.App(root)
+        app = MangaTagger.App(root)
 
         app.create_loadedComicInfo_list(test_files)
+
         app.entry_2_title_var.set(f"This_title_var_is modified_{random_int}")
+
+        app.input_1_summary_obj.set(f"This is the summary_{random_int}")
+
+        # Chapter number must be kept when handling multiple files they can't be the same.
+
 
         app.parseUI_toComicInfo()
         app.saveComicInfo()  # This writes file
 
         opened_cbz = ReadComicInfo(path_23)
         number_files_postprocess = opened_cbz.total_files
-        xml_preprocess = opened_cbz.to_ComicInfo()
+        xml_postprocess = opened_cbz.to_ComicInfo()
+        if not first_file_chapter:
+            first_file_chapter = xml_postprocess.get_Number()
+
         # self.assertAlmostEqual(number_files_preprocess, number_files_postprocess)
-        print(f"Asserting {number_files_preprocess} vs {number_files_postprocess}, delta 1")
-        self.assertAlmostEqual(number_files_preprocess, number_files_postprocess, delta=1)
+        print(f"Asserting first file {number_files_preprocess_1} vs {number_files_postprocess}, delta 1")
+        self.assertAlmostEqual(number_files_preprocess_1, number_files_postprocess, delta=1)
+
+        opened_cbz = ReadComicInfo(path_24)
+        number_files_postprocess = opened_cbz.total_files
+        xml_postprocess = opened_cbz.to_ComicInfo()
+        second_file_chapter = xml_postprocess.get_Number()
+        # self.assertAlmostEqual(number_files_preprocess, number_files_postprocess)
+        print(f"Asserting second file {number_files_preprocess_2} vs {number_files_postprocess}, delta 1")
+        self.assertAlmostEqual(number_files_preprocess_2, number_files_postprocess, delta=1)
+
+        print(f"Asserting Chapter number. (they can't match) '{first_file_chapter}' vs '{second_file_chapter}'")
+        if not (first_file_chapter and second_file_chapter == ""):
+            self.assertNotEqual(first_file_chapter, second_file_chapter)
 
     def test_zcount_leftover_files(self):
-
         final_dir_count = len(os.listdir(os.path.dirname(test_path)))
         print(f"Asserting {initial_dir_count} vs {final_dir_count}, delta 1")
         self.assertEqual(initial_dir_count, final_dir_count)
 
 
-
 initial_dir_count = 0
+
 
 class CoversCbzControllerTester(unittest.TestCase):
     def test_append(self):
@@ -193,6 +217,9 @@ class CoversCbzControllerTester(unittest.TestCase):
         final_dir_count = len(os.listdir(os.path.dirname(test_path)))
         print(f"Asserting {initial_dir_count} vs {final_dir_count}, delta 1")
         self.assertEqual(initial_dir_count,final_dir_count)
+
+
+initial_dir_count = 0
 
 
 class VolumeManagerTester(unittest.TestCase):

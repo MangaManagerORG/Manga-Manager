@@ -65,7 +65,6 @@ class App:
         self.optionmenu_1_ageRating_var = tk.StringVar(value='Unknown', name='ageRating')
         self.input_1_summary_obj = models.LongText(name="summary")
 
-
         self.widgets_var = [
             self.entry_1_seriesName_var,
             self.entry_2_title_var,
@@ -99,7 +98,6 @@ class App:
         self.widgets_obj = []
         self.selected_filenames = []
         self.loadedComicInfo_list = list[LoadedComicInfo]()
-
 
     def start_ui(self):
         master = self.master
@@ -135,7 +133,8 @@ class App:
                 event.widget.configure(state="normal", highlightbackground="#00bfff", highlightcolor="#00bfff",
                                        highlightthickness='2')
 
-        def ValidateIfNum(s,S):
+        def ValidateIfNum(s, S):
+            dummy = s
             # disallow anything but numbers
             valid = S == '' or S.isdigit()
             if not valid:
@@ -193,7 +192,7 @@ class App:
         self._label_4_chapter.configure(anchor='n', text='Chapter')
         self._label_4_chapter.grid(column=0, row='6')
         self._spinbox_4_chapter = tk.Spinbox(self._frame_2, validate='all', validatecommand=vldt_ifnum_cmd)
-        self._spinbox_4_chapter.configure(relief='flat', cursor='arrow', justify='center', state='disabled')
+        self._spinbox_4_chapter.configure(buttonuprelief='flat', cursor='arrow', justify='center', state='disabled')
         self._spinbox_4_chapter.configure(textvariable=self.spinbox_4_chapter_var)
         self._spinbox_4_chapter.grid(column=0, row='7')
         self._spinbox_4_chapter.bind('<Button-1>', makeFocused, add='+')
@@ -239,9 +238,6 @@ class App:
         self._entry_15_format.bind('<Double-Button-1>', makeEditable, add='+')
         self._entry_15_format.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_15_format.bind('<Return>', makeReadOnly, add='+')
-        # self._label_25_blackWhite = tk.Label(self._frame_2)
-        # self._label_25_blackWhite.configure(text='Black and White')
-        # self._label_25_blackWhite.grid(column='1', row=6)
 
         self._inline_BlackWhite = tk.Frame(self._frame_2)
         self._inline_BlackWhite.grid(row=10, column=0)
@@ -253,14 +249,6 @@ class App:
         self._optionmenu_2_blackWhite.configure(width=16)
         self._optionmenu_2_blackWhite.grid(row=1, column=0, sticky=tk.E+tk.W)
 
-        # self._entry_18_blackWhite = tk.Entry(self._frame_2)
-        # self._entry_18_blackWhite.configure(state='readonly', textvariable=self.entry_18_blackWhite_var)
-        # self._entry_18_blackWhite.grid(column='1', row=7)
-        # self._entry_18_blackWhite.bind('<Button-1>', makeFocused, add='+')
-        # self._entry_18_blackWhite.bind('<Double-Button-1>', makeEditable, add='+')
-        # self._entry_18_blackWhite.bind('<FocusOut>', onFocusOut, add='+')
-        # self._entry_18_blackWhite.bind('<Return>', makeReadOnly, add='+')
-
         self._inline_manga = tk.Frame(self._frame_2)
         self._inline_manga.grid(row=10, column=1)
         self._label_26_manga = tk.Label(self._inline_manga)
@@ -269,22 +257,7 @@ class App:
         self._optionmenu_3_manga = tk.OptionMenu(self._inline_manga, self.optionmenu_3_manga_var,
                                                  *ComicInfo.Manga.list(), command=None, )
         self._optionmenu_3_manga.configure(width=16)
-        self._optionmenu_3_manga.grid(row=1, column=0,sticky=tk.E+tk.W)
-
-        # self._label_26_manga = tk.Label(self._frame_2)
-        # self._label_26_manga.configure(text='Manga')
-        # self._label_26_manga.grid(column='1', row=8)
-
-        # self._entry_19_manga = tk.Entry(self._frame_2)
-        # self._entry_19_manga.configure(textvariable=self.entry_19_manga_var, state="readonly")
-        # self._entry_19_manga.grid(column='1', row=9)
-        # self._entry_19_manga.bind('<Button-1>', makeFocused, add='+')
-        # self._entry_19_manga.bind('<Double-Button-1>', makeEditable, add='+')
-        # self._entry_19_manga.bind('<FocusOut>', onFocusOut, add='+')
-        # self._entry_19_manga.bind('<Return>', makeReadOnly, add='+')
-        # self._canvas_1 = tk.Canvas(self._frame_2)
-        # self._canvas_1.grid(column='0', row='0', rowspan='20')
-        # self._frame_2.configure(height='200', width='200')
+        self._optionmenu_3_manga.grid(row=1, column=0, sticky=tk.E+tk.W)
 
         self._frame1.columnconfigure('0', pad='0', weight='0')
         self._frame_1 = tk.Frame(self._frame1)
@@ -313,7 +286,7 @@ class App:
         self._label_7_summary = tk.Label(self._frame_1)
         self._label_7_summary.configure(text='Summary')
         self._label_7_summary.grid(column='0', row='4')
-        self._text_1_summary = tkinter.scrolledtext.ScrolledText(self._frame_1,wrap=tk.WORD)
+        self._text_1_summary = tkinter.scrolledtext.ScrolledText(self._frame_1, wrap=tk.WORD)
         self._text_1_summary.configure(cursor='arrow', height='2', state='normal', width='50')
         self.input_1_summary_obj.linked_text_field = self._text_1_summary
         self._text_1_summary.grid(row='5',sticky=tk.E+tk.W)
@@ -331,11 +304,6 @@ class App:
         self._entry_6_storyArc.bind('<Return>', makeReadOnly, add='+')
         self._entry_6_storyArc.bind('<Return>', makeReadOnly, add='+')
 
-        __values = []
-        # self._optionmenu_1 = tk.OptionMenu(self._frame_1, self.__tkvar, 'Unknown', *__values, command=None)
-        # def command_test(event):
-        #     print("Selected:" + event)
-        #     print("variable_name" + self.__tkvar.get())
         self._inline_AgeRating = tk.Frame(self._frame_1)
         self._inline_AgeRating.grid(row=10, column=0)
         self._label_27_AgeRating = tk.Label(self._inline_AgeRating)
@@ -758,7 +726,7 @@ class App:
                             widgetvar.set("Unknown")
                         else:
                             widgetvar.set(-1)
-                    elif isinstance(widgetvar,models.LongText):
+                    elif isinstance(widgetvar, models.LongText):
                         widgetvar.set("")
 
                     else:
@@ -900,7 +868,7 @@ class App:
                 comicinfo_atr_get = widgets_var_tuple[1]
                 comicinfo_atr_set = widgets_var_tuple[2]
 
-                if widgetvar.get() != comicinfo_atr_get() and widgetvar.get() not in (-1, 0, ""):
+                if widgetvar.get() != comicinfo_atr_get() and widgetvar.get() not in (-1, 0, "", "Unknown", None):
                     comicinfo_atr_set(widgetvar.get())
             return loadedInfo
 
