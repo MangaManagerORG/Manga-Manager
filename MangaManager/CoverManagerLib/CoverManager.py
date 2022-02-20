@@ -31,6 +31,7 @@ class App:
         self.checkbox0_settings_val = tk.BooleanVar()
         self.checkbox1_settings_val = tk.BooleanVar()
         self.covers_path_in_confirmation = {}
+        self._initialized_UI = False
 
     def start_ui(self):
         # build ui
@@ -144,7 +145,7 @@ class App:
         self.disableButtons(self.frame_coversetter)
         self.button3_load_images.config(state="normal")
         self.button5_delete_covers.config(state="normal")
-
+        self._initialized_UI = True
         # Main widget
         logger.debug("UI initialised")
 
@@ -275,101 +276,88 @@ class App:
     def process(self):
         logger.debug("Starting processing of files.")
         self.button4_proceed.config(relief=tk.SUNKEN, text="Processing")
+        total = len(self.treeview1.get_children())
+        # TBH I'd like to rework how this processing bar works. - Promidius
+        label_progress_text = tk.StringVar()
+        if self._initialized_UI:
+            pb_root = self.progressbar_frame
 
-        class WaitUp(Thread):  # Define a new subclass of the Thread class of the Thread Module.
-            def __init__(self_waitup):
-                Thread.__init__(self_waitup)  # Override the __init__
-                self_waitup.i_waited_for_this = ""
+            style = ttk.Style(pb_root)
+            style.layout('text.Horizontal.TProgressbar',
+                         [
+                             ('Horizontal.Progressbar.trough',
+                              {
+                                  'children': [
+                                      ('Horizontal.Progressbar.pbar',
+                                       {
+                                           'side': 'left',
+                                           'sticky': 'ns'
+                                       }
+                                       )
+                                  ],
+                                  'sticky': 'nswe'
+                              }
+                              ),
+                             ('Horizontal.Progressbar.label',
+                              {
+                                  'sticky': 'nswe'
+                              }
+                              )
+                         ]
+                         )
+            pb = ttk.Progressbar(pb_root, length=400, style='text.Horizontal.TProgressbar',
+                                 mode="determinate")  # create progress bar
+            style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
 
-            def run(self_waitup):
-                processed_counter = 1
-                processed_errors = 0
-                total = len(self.treeview1.get_children())
-                for item in self.covers_path_in_confirmation:
-                    for file in self.covers_path_in_confirmation[item]:
-                        logger.info(f"Starting processing for file: {item}")
-                        try:
-                            SetCover(file)
+            pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
+            logger.info("Initialized progress bar")
+            pb.grid(row=0, column=0, sticky=tk.E + tk.W)
+            pb_text.grid(row=1, column=0, sticky=tk.E)
 
-                            global label_progress_text
-                            label_progress_text.set(
-                                f"Processed: {processed_counter}/{total} - {processed_errors} errors")
-                            processed_counter += 1
+        processed_counter = 0
+        processed_errors = 0
 
-                        except FileExistsError as e:
-                            mb.showwarning(f"[ERROR] File already exists",
-                                           f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
-                            processed_errors += 1
-                            continue
-                        except PermissionError as e:
-                            mb.showerror("Can't access the file because it's being used by a different process",
-                                         f"Exception:{e}")
-                            processed_errors += 1
-                            continue
-                        except FileNotFoundError as e:
-                            mb.showerror("Can't access the file because it's being used by a different process",
-                                         f"Exception:{e}")
-                            processed_errors += 1
-                            continue
-                        except Exception as e:
-                            mb.showerror("Something went wrong", "Error processing. Check logs.")
-                            logger.critical("Exception Processing", e)
+        for item in self.covers_path_in_confirmation:
+            for file in self.covers_path_in_confirmation[item]:
+                logger.info(f"Starting processing for file: {item}")
+                try:
+                    SetCover(file)
 
-                logger.debug("Just before exiting progress_bar loop")
-                self.covers_path_in_confirmation = {}  # clear queue
-                global pb_flag
-                pb_flag = False
-                self_waitup.i_waited_for_this = "it is done"  # result of the task / replace with object or variable you want to pass
 
-        class ProgressBarIn:
-            def __init__(self_progress, title="", label="", text=""):
-                self_progress.title = title  # Build the progress bar
-                self_progress.text = text
-                global label_progress_text
-                label_progress_text = tk.StringVar()
-                self_progress.label_progress_text = label_progress_text
+                    label_progress_text.set(
+                        f"Processed: {processed_counter}/{total} - {processed_errors} errors")
+                    processed_counter += 1
 
-            def startup(self_progress):
-                self_progress.pb_root = self.progressbar_frame  # create a window for the progress bar
-                self_progress.pb = ttk.Progressbar(self_progress.pb_root, length=400,
-                                                   mode="indeterminate")  # create progress bar
-                self_progress.pb_text = tk.Label(self_progress.pb_root, textvariable=self_progress.label_progress_text,
-                                                 anchor=tk.W)
-                self_progress.pb.start()
-                logger.debug("Started progress bar")
+                except FileExistsError as e:
+                    mb.showwarning(f"[ERROR] File already exists",
+                                   f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
+                    processed_errors += 1
+                    continue
+                except PermissionError as e:
+                    mb.showerror("Can't access the file because it's being used by a different process",
+                                 f"Exception:{e}")
+                    processed_errors += 1
+                    continue
+                except FileNotFoundError as e:
+                    mb.showerror("Can't access the file because it's being used by a different process",
+                                 f"Exception:{e}")
+                    processed_errors += 1
+                    continue
+                except Exception as e:
+                    mb.showerror("Something went wrong", "Error processing. Check logs.")
+                    logger.critical("Exception Processing", e)
+                if self._initialized_UI:
+                    pb_root.update()
+                    percentage = ((processed_counter + processed_errors) / total) * 100
+                    style.configure('text.Horizontal.TProgressbar',
+                                    text='{:g} %'.format(round(percentage, 2)))  # update label
+                    pb['value'] = percentage
+                    label_progress_text.set(
+                    f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors")
+        self.covers_path_in_confirmation = {}  # clear queue
 
-                self_progress.pb.grid(row=0, column=0, sticky=tk.E)
-                self_progress.pb_text.grid(row=1, column=0, sticky=tk.E)
-                while pb_flag == True:  # move the progress bar until multithread reaches line 19
-                    self_progress.pb_root.update()
-                    self_progress.pb['value'] += 1
-                    time.sleep(.1)
+        self.disableButtons(self.master)
 
-            def stop(self_progress):
-                # self_progress.label_progress_text.set("Done")
-                self_progress.pb.stop()  # stop and destroy the progress bar
-                self_progress.pb.config(mode="determinate")
-                self_progress.pb.step(99.99)
-                # self.pb_root.destroy()
-                self_progress.pb.grid_forget()
-                self_progress.pb_text.grid_forget()
-
-                logger.debug("File processed")
-                return
-
-        global pb_flag
-        pb_flag = True
-        global t1
-        global t2
-        FrameToProcess: tk.Frame = self.frame_coversetter
-
-        self.disableButtons(FrameToProcess)
-        t1 = ProgressBarIn(title="Processing", label="Please wait", text="Processing files")
-        t2 = WaitUp()
-        t2.start()  # use start() instead of run() for threading module
-        t1.startup()  # start the progress bar
-        t2.join()  # wait for WaitUp to finish before proceeding
-        t1.stop()  # destroy the progress bar object
         logger.debug("Clearing queue")
 
         try:
@@ -382,7 +370,7 @@ class App:
             logger.debug("Can't clear treeview", exc_info=e)
         logger.debug("All done")
 
-        self.enableButtons(FrameToProcess)
+        self.enableButtons(self.frame_coversetter)
         self.button4_proceed.config(relief=tk.RAISED, text="Proceed")
 
     def clearqueue(self):
