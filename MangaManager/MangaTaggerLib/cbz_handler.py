@@ -5,9 +5,9 @@ import logging
 import io
 from lxml.etree import XMLSyntaxError
 
-import errors
+
 from .models import *
-from .errors import NoMetadataFileFound
+from .errors import NoMetadataFileFound, CorruptedComicInfo
 from . import ComicInfo
 
 logger = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ class ReadComicInfo:
                 comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml,doRecover=True)
             except Exception as e:
                 logger.error(f"Failed to parse XML:\n{e}\nRecovery attempt failed", exc_info=False)
-                raise errors.CorruptedComicInfo(self.cbz_path)
+                raise CorruptedComicInfo(self.cbz_path)
 
         logger.debug("returning comicinfo")
         return comicinfo
