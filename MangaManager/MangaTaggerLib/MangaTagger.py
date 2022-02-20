@@ -34,7 +34,12 @@ class App:
         self.master = master
         # self.master.eval('tk::PlaceWindow . center')
         self.initialize_StringVars()
+        self.highlighted_changes = []
+        self._initialized_UI = False
+        self.widgets_obj = []
     def initialize_StringVars(self):
+            self.highlighted_changes = []
+            self.conflict_chapter = False
             self.spinbox_1_year_var = tk.IntVar(value=-1, name="year")
             self.spinbox_2_month_var = tk.IntVar(value=-1, name='month')
             self.spinbox_3_volume_var = tk.IntVar(value=-1, name='volume')
@@ -97,10 +102,10 @@ class App:
                 self.entry_15_genres_var,
                 self.input_1_summary_obj
             ]
-            self.widgets_obj = []
+
             self.selected_filenames = []
             self.loadedComicInfo_list = list[LoadedComicInfo]()
-            self._initialized_UI = False
+
 
     def start_ui(self):
         master = self.master
@@ -130,11 +135,13 @@ class App:
                     if answer:
                         event.widget.configure(state="normal", highlightbackground="#00bfff", highlightcolor="#00bfff",
                                                highlightthickness='2')
+                        self.highlighted_changes.append(event.widget)
                     else:
                         return
             else:
                 event.widget.configure(state="normal", highlightbackground="#00bfff", highlightcolor="#00bfff",
                                        highlightthickness='2')
+                self.highlighted_changes.append(event.widget)
 
         def ValidateIfNum(s, S):
             dummy = s
@@ -145,6 +152,7 @@ class App:
                 # logger.info("input not valid")
             return valid
 
+        self._initialized_UI = True
         vldt_ifnum_cmd = (self.master.register(ValidateIfNum), '%s', '%S')
         self._edit_warning = False  # We send warning that changing chapter or volume will be set to all files selected
         self._frame1 = tk.Frame(master)
@@ -563,13 +571,17 @@ class App:
         # self._frame_3.configure(bg="yellow")
         # self._frame_3_people.configure(bg="purple")
         # self._frame_1.configure(bg="green")
-        self._initialized_UI = True
 
+    def _reset_highlightedUI(self):
+        for widget in self.highlighted_changes:
+            widget.configure(highlightcolor="#FFF", highlightbackground="#FFF", highlightthickness="0")
     def run(self):
         self.mainwindow.mainloop()
 
     def _open_files(self):
+        self._reset_highlightedUI()
         self.initialize_StringVars()
+
         self.selected_filenames = list[str]()
         covers_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
                                                    filetypes=(("CBZ Files", ".cbz"),)
@@ -703,7 +715,7 @@ class App:
                 # comicinfo_atr_set = widgets_var_tuple[2]
 
                 # field is empty. Skipping
-                if widgetvar.get() != comicinfo_atr_get and widgetvar.get() in (-1, 0, "", "Unknown", None):
+                if (widgetvar.get() != comicinfo_atr_get) and widgetvar.get() in (-1, 0, "", "Unknown", None):
                     #  If field is chapter skip them.
                     #  We don't want to mess up chapter overwriting the same value to all files
                     if str(widgetvar) == "Number" and cls.conflict_chapter:
@@ -747,6 +759,7 @@ class App:
                         logger.debug("__#############__")
                         widgetobj.configure(highlightbackground='orange', highlightcolor="orange",
                                             highlightthickness='3')
+                        cls.highlighted_changes.append(widgetobj)
 
                     if str(widgetvar) == "Number" and cls.conflict_chapter:
                         cls.conflict_chapter = True
