@@ -2,6 +2,7 @@
 import tkinter as tk
 import argparse
 import logging
+from logging.handlers import RotatingFileHandler
 import sys
 import os
 from MangaTaggerLib import MangaTagger
@@ -58,9 +59,11 @@ args = parser.parse_args()
 logger = logging.getLogger()
 logging.getLogger('PIL').setLevel(logging.WARNING)
 formatter = logging.Formatter()
+rotating_file_handler = RotatingFileHandler("logs/MangaManager.log", maxBytes=20725760,
+                                             backupCount=2)
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    handlers=[logging.StreamHandler(sys.stdout)]
+                    handlers=[logging.StreamHandler(sys.stdout), rotating_file_handler]
                     # filename='/tmp/myapp.log'
                     )
 logger.debug('DEBUG LEVEL - MAIN MODULE')
