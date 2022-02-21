@@ -140,7 +140,7 @@ class App:
 
         # End frame
         self.frame_coversetter.configure(height=420, padding='20', width='400')
-        self.frame_coversetter.grid(column=0, row=0)
+        self.frame_coversetter.pack(expand=tk.YES, fill=tk.BOTH)
 
         self.disableButtons(self.frame_coversetter)
         self.button3_load_images.config(state="normal")

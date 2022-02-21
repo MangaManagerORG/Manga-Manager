@@ -39,74 +39,75 @@ class App:
         self.highlighted_changes = []
         self._initialized_UI = False
         self.widgets_obj = []
-    def initialize_StringVars(self):
-            self.highlighted_changes = []
-            self.conflict_chapter = False
-            self.spinbox_1_year_var = tk.IntVar(value=-1, name="year")
-            self.spinbox_2_month_var = tk.IntVar(value=-1, name='month')
-            self.spinbox_3_volume_var = tk.IntVar(value=-1, name='volume')
 
-            self.spinbox_4_chapter_var = tk.StringVar(value='', name='Number')
-            self.entry_10_langIso_var = tk.StringVar(value='', name='langIso')
-            # self.spinbox_5_pageCount_var = tk.IntVar(value='', name='pageCount')
-            self.spinbox_5_pageCount_var = tk.IntVar(value=0, name='pageCount')
-            self.entry_15_format_var = tk.StringVar(value='', name='format')
-            self.optionmenu_2_blackWhite_var = tk.StringVar(value=ComicInfo.YesNo.list()[0], name='blackWhite')
-            self.optionmenu_3_manga_var = tk.StringVar(value=ComicInfo.Manga.list()[0], name='manga')
-            self.entry_1_seriesName_var = tk.StringVar(value='', name='seriesName')
-            self.entry_2_title_var = tk.StringVar(value='', name='title')
-            self.entry_3_writer_var = tk.StringVar(value='', name='writer')
-            self.entry_6_storyArc_var = tk.StringVar(value='', name='storyArc')
-            self.entry_7_SeriesGroup_var = tk.StringVar(value='', name='SeriesGroup')
-            self.entry_4_penciller_var = tk.StringVar(value='', name='penciller')
-            self.entry_5_inker_var = tk.StringVar(value='', name='inker')
-            self.entry_8_colorist_var = tk.StringVar(value='', name='colorist')
-            self.entry_9_letterer_var = tk.StringVar(value='', name='letterer')
-            self.entry_11_coverArtist_var = tk.StringVar(value='', name='coverArtist')
-            self.entry_12_editor_var = tk.StringVar(value='', name='editor')
-            self.entry_13_publisher_var = tk.StringVar(value='', name='publisher')
-            self.entry_14_imprint_var = tk.StringVar(value='', name='imprint')
-            self.entry_16_characters_var = tk.StringVar(value='', name='characters')
-            self.entry_15_genres_var = tk.StringVar(value='', name='genres')
-            self.entry_16_tags_var = tk.StringVar(value='', name='tags')
-            self.entry_17_web_var = tk.StringVar(value='', name='web')
-            self.entry_20_scanInfo_var = tk.StringVar(value='', name='scanInfo')
-            self.optionmenu_1_ageRating_var = tk.StringVar(value='Unknown', name='ageRating')
-            self.input_1_summary_obj = models.LongText(name="summary")
-            try:
-                self.input_1_summary_obj.linked_text_field = self._text_1_summary
-            except:
-                pass
-            self.widgets_var = [
-                self.entry_1_seriesName_var,
-                self.entry_2_title_var,
-                self.entry_3_writer_var,
-                self.entry_4_penciller_var,
-                self.entry_5_inker_var,
-                self.entry_6_storyArc_var,
-                self.entry_7_SeriesGroup_var,
-                self.entry_8_colorist_var,
-                self.entry_9_letterer_var,
-                self.entry_10_langIso_var,
-                self.entry_11_coverArtist_var,
-                self.entry_12_editor_var,
-                self.entry_13_publisher_var,
-                self.entry_14_imprint_var,
-                self.entry_15_format_var,
-                self.entry_16_characters_var,
-                self.entry_17_web_var,
-                self.optionmenu_2_blackWhite_var,
-                self.optionmenu_3_manga_var,
-                self.entry_20_scanInfo_var,
-                self.spinbox_1_year_var,
-                self.spinbox_2_month_var,
-                self.spinbox_3_volume_var,
-                self.spinbox_4_chapter_var,
-                self.spinbox_5_pageCount_var,
-                self.entry_16_tags_var,
-                self.entry_15_genres_var,
-                self.input_1_summary_obj
-            ]
+    def initialize_StringVars(self):
+        self.highlighted_changes = []
+        self.conflict_chapter = False
+        self.spinbox_1_year_var = tk.IntVar(value=-1, name="year")
+        self.spinbox_2_month_var = tk.IntVar(value=-1, name='month')
+        self.spinbox_3_volume_var = tk.IntVar(value=-1, name='volume')
+
+        self.spinbox_4_chapter_var = tk.StringVar(value='', name='Number')
+        self.entry_10_langIso_var = tk.StringVar(value='', name='langIso')
+        # self.spinbox_5_pageCount_var = tk.IntVar(value='', name='pageCount')
+        self.spinbox_5_pageCount_var = tk.IntVar(value=0, name='pageCount')
+        self.entry_15_format_var = tk.StringVar(value='', name='format')
+        self.optionmenu_2_blackWhite_var = tk.StringVar(value=ComicInfo.YesNo.list()[0], name='blackWhite')
+        self.optionmenu_3_manga_var = tk.StringVar(value=ComicInfo.Manga.list()[0], name='manga')
+        self.entry_1_seriesName_var = tk.StringVar(value='', name='seriesName')
+        self.entry_2_title_var = tk.StringVar(value='', name='title')
+        self.entry_3_writer_var = tk.StringVar(value='', name='writer')
+        self.entry_6_storyArc_var = tk.StringVar(value='', name='storyArc')
+        self.entry_7_SeriesGroup_var = tk.StringVar(value='', name='SeriesGroup')
+        self.entry_4_penciller_var = tk.StringVar(value='', name='penciller')
+        self.entry_5_inker_var = tk.StringVar(value='', name='inker')
+        self.entry_8_colorist_var = tk.StringVar(value='', name='colorist')
+        self.entry_9_letterer_var = tk.StringVar(value='', name='letterer')
+        self.entry_11_coverArtist_var = tk.StringVar(value='', name='coverArtist')
+        self.entry_12_editor_var = tk.StringVar(value='', name='editor')
+        self.entry_13_publisher_var = tk.StringVar(value='', name='publisher')
+        self.entry_14_imprint_var = tk.StringVar(value='', name='imprint')
+        self.entry_16_characters_var = tk.StringVar(value='', name='characters')
+        self.entry_15_genres_var = tk.StringVar(value='', name='genres')
+        self.entry_16_tags_var = tk.StringVar(value='', name='tags')
+        self.entry_17_web_var = tk.StringVar(value='', name='web')
+        self.entry_20_scanInfo_var = tk.StringVar(value='', name='scanInfo')
+        self.optionmenu_1_ageRating_var = tk.StringVar(value='Unknown', name='ageRating')
+        self.input_1_summary_obj = models.LongText(name="summary")
+        try:
+            self.input_1_summary_obj.linked_text_field = self._text_1_summary
+        except:
+            pass
+        self.widgets_var = [
+            self.entry_1_seriesName_var,
+            self.entry_2_title_var,
+            self.entry_3_writer_var,
+            self.entry_4_penciller_var,
+            self.entry_5_inker_var,
+            self.entry_6_storyArc_var,
+            self.entry_7_SeriesGroup_var,
+            self.entry_8_colorist_var,
+            self.entry_9_letterer_var,
+            self.entry_10_langIso_var,
+            self.entry_11_coverArtist_var,
+            self.entry_12_editor_var,
+            self.entry_13_publisher_var,
+            self.entry_14_imprint_var,
+            self.entry_15_format_var,
+            self.entry_16_characters_var,
+            self.entry_17_web_var,
+            self.optionmenu_2_blackWhite_var,
+            self.optionmenu_3_manga_var,
+            self.entry_20_scanInfo_var,
+            self.spinbox_1_year_var,
+            self.spinbox_2_month_var,
+            self.spinbox_3_volume_var,
+            self.spinbox_4_chapter_var,
+            self.spinbox_5_pageCount_var,
+            self.entry_16_tags_var,
+            self.entry_15_genres_var,
+            self.input_1_summary_obj
+        ]
 
             self.selected_filenames = []
             self.loadedComicInfo_list = list[LoadedComicInfo]()
@@ -263,7 +264,7 @@ class App:
         self._optionmenu_2_blackWhite = tk.OptionMenu(self._inline_BlackWhite, self.optionmenu_2_blackWhite_var,
                                                       *ComicInfo.YesNo.list(), command=None)
         self._optionmenu_2_blackWhite.configure(width=16)
-        self._optionmenu_2_blackWhite.grid(row=1, column=0, sticky=tk.E+tk.W)
+        self._optionmenu_2_blackWhite.grid(row=1, column=0, sticky=tk.E + tk.W)
 
         self._inline_manga = tk.Frame(self._frame_2)
         self._inline_manga.grid(row=10, column=1)
@@ -273,7 +274,7 @@ class App:
         self._optionmenu_3_manga = tk.OptionMenu(self._inline_manga, self.optionmenu_3_manga_var,
                                                  *ComicInfo.Manga.list(), command=None, )
         self._optionmenu_3_manga.configure(width=16)
-        self._optionmenu_3_manga.grid(row=1, column=0, sticky=tk.E+tk.W)
+        self._optionmenu_3_manga.grid(row=1, column=0, sticky=tk.E + tk.W)
 
         self._frame1.columnconfigure('0', pad='0', weight='0')
         self._frame_1 = tk.Frame(self._frame1)
@@ -305,7 +306,7 @@ class App:
         self._text_1_summary = tkinter.scrolledtext.ScrolledText(self._frame_1, wrap=tk.WORD)
         self._text_1_summary.configure(cursor='arrow', height='4', state='normal', width='50')
         self.input_1_summary_obj.linked_text_field = self._text_1_summary
-        self._text_1_summary.grid(row='5',sticky=tk.E+tk.W)
+        self._text_1_summary.grid(row='5', sticky=tk.E + tk.W)
         self._label_5_StoryArc = tk.Label(self._frame_1)
         self._label_5_StoryArc.configure(text='Story Arc')
         self._label_5_StoryArc.grid(column='0', row='6')
@@ -512,7 +513,7 @@ class App:
         # MAIN FRAME
         # self._frame_5_statusInfo = tk.Frame(self._frame1,bg="grey")
         self._label_28_statusinfo = tk.Label(self._frame1, text="", anchor="e", bg="lightgrey")
-        self._label_28_statusinfo.grid(row=5,column=1, sticky=tk.E)
+        self._label_28_statusinfo.grid(row=5, column=1, sticky=tk.E)
 
         # self._frame_5_statusInfo.grid(row=4, column=1, sticky=tk.W)
 
@@ -531,7 +532,8 @@ class App:
         # self.button3_read.grid(column=1, row=3, pady="5 10", columnspan=2)
         self.button4_save = tk.Button(self._files_controller, text="Save", command=self.do_save_UI, width=15)
         self.button4_save.grid(column=1, row=0)
-        self.button4_save = tk.Button(self._files_controller, text="Remove ComicInfo.xml", command=self.deleteComicInfo, width=20)
+        self.button4_save = tk.Button(self._files_controller, text="Remove ComicInfo.xml", command=self.deleteComicInfo,
+                                      width=20)
         self.button4_save.grid(column=3, row=0)
         # self.__tkvar.set('Age Rating')
         self._files_controller.configure(pady=5)
@@ -585,6 +587,7 @@ class App:
             self.input_1_summary_obj.linked_text_field = self._text_1_summary
         except:
             pass
+
     def run(self):
         self.mainwindow.mainloop()
 
@@ -913,10 +916,11 @@ class App:
         total_times_count = len(self.loadedComicInfo_list)
         processed_counter = 0
         processed_errors = 0
-        self.frame_1_progressbar = tk.Frame(self._files_controller)
-        self.frame_1_progressbar.grid(row=1, columnspan=4)
-        # TBH I'd like to rework how this processing bar works. - Promidius
+
         if self._initialized_UI:
+            self.frame_1_progressbar = tk.Frame(self._files_controller)
+            self.frame_1_progressbar.grid(row=1, columnspan=4)
+            # TBH I'd like to rework how this processing bar works. - Promidius
             pb_root = self.frame_1_progressbar
 
             style = ttk.Style(pb_root)
@@ -948,43 +952,63 @@ class App:
             label_progress_text = tk.StringVar()
             pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
             logger.info("Initialized progress bar")
-            pb.grid(row=0, column=0, sticky=tk.E+tk.W)
+            pb.grid(row=0, column=0, sticky=tk.E + tk.W)
             pb_text.grid(row=1, column=0, sticky=tk.E)
 
         for loadedComicObj in self.loadedComicInfo_list:
-                print("Started thread")
+            print("Started thread")
 
-                logger.info(f"[Processing] Starting processing to save data to file {loadedComicObj.path}")
-                try:
-                    WriteComicInfo(loadedComicObj).to_file()
+            logger.info(f"[Processing] Starting processing to save data to file {loadedComicObj.path}")
+            # The following Try/Catch looks awful
+            # TODO: redo this in a better way
+            try:
+                WriteComicInfo(loadedComicObj).to_file()
+                if self._initialized_UI:
                     label_progress_text.set(
                         f"Processed: {processed_counter}/{total_times_count} - {processed_errors} errors")
-                    processed_counter+=1
-                except FileExistsError as e:
+                processed_counter += 1
+            except FileExistsError as e:
+                if self._initialized_UI:
                     mb.showwarning(f"[ERROR] File already exists",
                                    f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
-                    processed_errors += 1
-                    continue
-                except PermissionError as e:
-                    mb.showerror("[ERROR] Permission Error", "Can't access the file because it's being used by a different process\n\n"
-                                 f"Exception:\n{e}")
-                    processed_errors += 1
-                    continue
-                except FileNotFoundError as e:
-                    mb.showerror("[ERROR] File Not Found","Can't access the file because it's being used by a different process\n\n"
-                                 f"Exception:\n{e}")
-                    processed_errors += 1
-                    continue
-                except Exception as e:
-                    mb.showerror("Something went wrong", "Error processing. Check logs.")
-                    logger.critical("Exception Processing", e)
+
+                logger.error("[ERROR] File already exists",
+                             f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
+                processed_errors += 1
+                continue
+            except PermissionError as e:
                 if self._initialized_UI:
-                    pb_root.update()
-                    percentage = ((processed_counter + processed_errors) / total_times_count) * 100
-                    style.configure('text.Horizontal.TProgressbar',
-                                    text='{:g} %'.format(round(percentage, 2)))  # update label
-                    pb['value'] = percentage
-                    label_progress_text.set(
+                    mb.showerror("[ERROR] Permission Error",
+                                 "Can't access the file because it's being used by a different process\n\n"
+                                 f"Exception:\n{e}")
+
+                logger.error("[ERROR] Permission Error",
+                             "Can't access the file because it's being used by a different process\n\n"
+                             f"Exception:\n{e}")
+                processed_errors += 1
+                continue
+            except FileNotFoundError as e:
+                if self._initialized_UI:
+                    mb.showerror("[ERROR] File Not Found",
+                                 "Can't access the file because it's being used by a different process\n\n"
+                                 f"Exception:\n{e}")
+
+                logger.error("[ERROR] File Not Found",
+                             "Can't access the file because it's being used by a different process\n\n"
+                             f"Exception:\n{e}")
+                processed_errors += 1
+                continue
+            except Exception as e:
+                if self._initialized_UI:
+                    mb.showerror("Something went wrong", "Error processing. Check logs.")
+                logger.critical("Exception Processing", e)
+            if self._initialized_UI:
+                pb_root.update()
+                percentage = ((processed_counter + processed_errors) / total_times_count) * 100
+                style.configure('text.Horizontal.TProgressbar',
+                                text='{:g} %'.format(round(percentage, 2)))  # update label
+                pb['value'] = percentage
+                label_progress_text.set(
                     f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors")
 
     def deleteComicInfo(self):
@@ -992,8 +1016,8 @@ class App:
         Deletes all ComicInfo.xml from the selected files
         """
         if self._initialized_UI:
-           answer = mb.askokcancel("Warning","This will remove 'ComicInfo.xml' file from the selected files")
-           if answer:
+            answer = mb.askokcancel("Warning", "This will remove 'ComicInfo.xml' file from the selected files")
+            if answer:
                 for loadedComicObj in self.loadedComicInfo_list:
                     print("Procesding delete")
                     WriteComicInfo(loadedComicObj).delete()
@@ -1001,9 +1025,7 @@ class App:
             for loadedComicObj in self.loadedComicInfo_list:
                 print("Procesding delete")
                 WriteComicInfo(loadedComicObj).delete()
+
     def do_save_UI(self):
         self.parseUI_toComicInfo()
         self.saveComicInfo()
-
-
-

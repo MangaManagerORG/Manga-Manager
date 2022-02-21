@@ -155,7 +155,6 @@ class TaggerCbzControllerTester(unittest.TestCase):
         self.assertEqual(number_files_preprocess_1, number_files_postprocess)
 
         opened_cbz = WriteComicInfo(LoadedComicInfo(path_23,ComicInfo)).restore()
-
         opened_cbz = ReadComicInfo(path_23)
         number_files_postprocess = opened_cbz.total_files
         print(f"File is recovered {number_files_preprocess_1} vs {number_files_postprocess}+1, delta 0")
