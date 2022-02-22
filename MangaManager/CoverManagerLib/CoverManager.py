@@ -1,29 +1,28 @@
 #!/usr/bin/env python3
+import logging
+import os
 import tkinter
 import tkinter as tk
+from itertools import cycle
 from tkinter import filedialog
 from tkinter import messagebox as mb
-from PIL import ImageTk, Image, UnidentifiedImageError
-from itertools import cycle
 from tkinter import ttk
-import os
-import sys
-import time
-from threading import Thread
-import logging
+
+from PIL import ImageTk, Image, UnidentifiedImageError
 
 from .cbz_handler import SetCover
 from .models import cover_process_item_info
-
 
 logger = logging.getLogger(__name__)
 
 ScriptDir = os.path.dirname(__file__)
 launch_path = ""
 
+
 class App:
     def __init__(self,master:tkinter.Tk):
         self.deleteCoverFilePath = f"{ScriptDir}/DELETE_COVER.jpg"
+        self.recoverCoverFilePath = f"{ScriptDir}/RECOVER_COVER.jpg"
         self.master = master
 
 
@@ -123,20 +122,27 @@ class App:
         self.treeview1.heading('overwrite', anchor='center', text='Overwrite')
         self.treeview1.grid(column=1, row=0, sticky=tk.N, pady="2 0")
         # Column 1 - Row 1
-        self.button4_proceed = tk.Button(self.frame_coversetter)
+        self.inline_proceed_recover_controls = tk.Frame(self.frame_coversetter)
+        self.inline_proceed_recover_controls.grid(row=1, column=1)
+        self.button4_proceed = tk.Button(self.inline_proceed_recover_controls)
         self.button4_proceed.configure(text='Proceed')
-        self.button4_proceed.grid(column=1, row=1)
+        self.button4_proceed.grid(column=0, row=0, columnspan=2)
         self.button4_proceed.configure(command=self.process)
 
-        self.button_07_clearqueue = tk.Button(self.frame_coversetter)
-        self.button_07_clearqueue.configure(text='Clear')
-        self.button_07_clearqueue.grid(column=1, row=2)
-        self.button_07_clearqueue.configure(command=self.clearqueue)
+        self.button_8_recover = tk.Button(self.inline_proceed_recover_controls)
+        self.button_8_recover.configure(text="Recover covers")
+        self.button_8_recover.grid(row=1, column=0)
+        self.button_8_recover.configure(command=self.recover)
+
+        self.button_7_clearqueue = tk.Button(self.inline_proceed_recover_controls)
+        self.button_7_clearqueue.configure(text='Clear')
+        self.button_7_clearqueue.grid(column=1, row=1)
+        self.button_7_clearqueue.configure(command=self.clearqueue)
 
         # Column 1 - Row 2
 
-        self.progressbar_frame = tk.Frame(self.frame_coversetter,width=60,height=60)
-        self.progressbar_frame.grid(column=1, row=3, rowspan=2, sticky=tk.W+tk.E,padx=30)
+        self.progressbar_frame = tk.Frame(self.frame_coversetter, width=60, height=60)
+        self.progressbar_frame.grid(column=1, row=3, rowspan=2, sticky=tk.W + tk.E, padx=30)
 
         # End frame
         self.frame_coversetter.configure(height=420, padding='20', width='400')
@@ -145,6 +151,7 @@ class App:
         self.disableButtons(self.frame_coversetter)
         self.button3_load_images.config(state="normal")
         self.button5_delete_covers.config(state="normal")
+        self.button_8_recover.config(state="normal")
         self._initialized_UI = True
         # Main widget
         logger.debug("UI initialised")
@@ -218,18 +225,28 @@ class App:
         self.canvas1_coverimage.itemconfig(self.canvas_image, image=self.image)
         self.label_coverimagetitle.configure(text=os.path.basename(self.thiselem.name))
 
-    def add_file_to_list(self, delete=False):
+    def add_file_to_list(self, delete=False, recover=False):
         logger.debug("Adding files to processing list")
         option_delete = False
         option_overwrite = False
+        option_recover = False
+        title = ""
         if delete:
             option_delete = True
             image_path = self.deleteCoverFilePath
+            title = "Select files to delete cover"
+        elif recover:
+            option_recover = True
+            image_path = self.recoverCoverFilePath
+            title = "Select files to recover cover"
         else:
             option_overwrite = self.do_overwrite_first.get()
             image_path = self.thiselem.name
-
-        cbzs_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
+            if option_overwrite:
+                title = "Select files to overwrite cover"
+            else:
+                title = "Select file to apply cover"
+        cbzs_path_list = filedialog.askopenfiles(initialdir=launch_path, title=title,
                                                  filetypes=(("CBZ Files", ".cbz"),)
                                                  )
 
@@ -247,6 +264,7 @@ class App:
                 cover_name=os.path.basename(image_path),
                 cover_format=image_path[-3:],
                 coverDelete=option_delete,
+                coverRecover=option_recover,
                 coverOverwrite=option_overwrite
             )
             tmp_info.imageObject = self.image_in_confirmation
@@ -262,12 +280,12 @@ class App:
                                   values=(displayed_file_path, overwrite_displayedval))
             self.treeview1.yview_moveto(1)
 
-
+        cbzs_path_list = tuple
         self.do_overwrite_first.set(False)
         self.overwrite_yes_button.configure(text="No")
-
+        self.button_7_clearqueue.config(state="normal")
         self.button4_proceed.config(state="normal", text="Proceed")
-        if not delete:
+        if not delete and not recover:
             if self.checkbox0_settings_val.get():
                 self.display_next_cover()
             if self.checkbox1_settings_val.get() and cbzs_path_list:
@@ -383,9 +401,12 @@ class App:
             logger.debug("Can't clear treeview. -> doesnt exist yet")
         except Exception as e:
             logger.error("Can't clear treeview", exc_info=e)
-        
+
         logger.info("Cleared queue")
         pass
+
+    def recover(self):
+        self.add_file_to_list(recover=True)
 
     def enableButtons(self, thisframe):
         for w in thisframe.winfo_children():

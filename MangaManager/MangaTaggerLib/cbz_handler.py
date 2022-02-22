@@ -1,16 +1,16 @@
-import zipfile
+import io
 import os
 import tempfile
-import logging
-import io
+import zipfile
+
 from lxml.etree import XMLSyntaxError
 
-
-from .models import *
 from .errors import NoMetadataFileFound, CorruptedComicInfo
-from . import ComicInfo
+from .models import *
 
 logger = logging.getLogger(__name__)
+
+
 def is_folder(name: str, folders_list):
     if name.split("/")[0] + "/" in folders_list:
         return True
@@ -19,9 +19,10 @@ def is_folder(name: str, folders_list):
 
 
 class ReadComicInfo:
-    def __init__(self, cbz_path: str, comicinfo_xml: str = None):
+    def __init__(self, cbz_path: str, comicinfo_xml: str = None, ignore_empty_metadata=False):
         self.cbz_path = cbz_path
         self.xmlString = ""
+        self.ignore_empty_metadata = ignore_empty_metadata
         self.total_files = 0
         comicinfo_xml_exists = False
         if not comicinfo_xml:
@@ -32,7 +33,7 @@ class ReadComicInfo:
                         comicinfo_xml_exists = True
                         with zin.open(file) as infile:
                             self.xmlString = infile.read()
-                if not comicinfo_xml_exists:
+                if not comicinfo_xml_exists and not ignore_empty_metadata:
                     raise NoMetadataFileFound(self.cbz_path)
         else:
             self.xmlString = comicinfo_xml
@@ -43,13 +44,16 @@ class ReadComicInfo:
         Reads a cbz o zip file and returns the a ComicInfo class from the ComicInfo.xml file.
         If ComicInfo not present returns none
         """
+        if self.ignore_empty_metadata:
+            logger.debug("returning comicinfo")
+            return ComicInfo.ComicInfo()
         print_xml = False if print_xml else True
         try:
             comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml)
         except XMLSyntaxError as e:
             try:
                 logger.error(f"Failed to parse XML:\n{e}\nAttempting recovery...", exc_info=False)
-                comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml,doRecover=True)
+                comicinfo = ComicInfo.parseString(self.xmlString, silence=print_xml, doRecover=True)
             except Exception as e:
                 logger.error(f"Failed to parse XML:\n{e}\nRecovery attempt failed", exc_info=False)
                 raise CorruptedComicInfo(self.cbz_path)
@@ -69,7 +73,7 @@ class WriteComicInfo:
         _oldZipFilePath = self._zipFilePath
 
         # new_zipFilePath = '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$", _zipFilePath)[0])
-        logger.debug(f"[Write file] -  {self._zipFilePath}")
+        logger.debug(f"[WriteComicInfo] -  {self._zipFilePath}")
         # os.rename(_zipFilePath, new_zipFilePath)
         export_io = io.StringIO()
         try:
@@ -128,7 +132,8 @@ class WriteComicInfo:
         return self._export_io
 
     def delete(self):
-        logger.debug("File backed up with diferent name hence removed")
+        self._backup()
+        logger.debug("[Delete] File backed up with a different name, hence removed")
 
     def restore(self):
         """

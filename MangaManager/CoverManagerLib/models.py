@@ -10,9 +10,11 @@ class cover_process_item_info:
     coverFileFormat: str
     coverOverwrite: bool
     coverDelete: bool
+    coverRecover: bool
     imageObject: PhotoImage
 
-    def __init__(self, cbz_file, cover_path=None, cover_name=None, cover_format=None, coverOverwrite=False, coverDelete=False):
+    def __init__(self, cbz_file, cover_path=None, cover_name=None, cover_format=None, coverOverwrite=False,
+                 coverDelete=False, coverRecover=False):
         # self.function = function
         self.zipFilePath = cbz_file
         self.coverFilePath = cover_path
@@ -20,3 +22,4 @@ class cover_process_item_info:
         self.coverFileFormat = cover_format
         self.coverOverwrite = coverOverwrite
         self.coverDelete = coverDelete
+        self.coverRecover = coverRecover

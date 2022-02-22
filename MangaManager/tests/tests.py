@@ -1,19 +1,15 @@
 # common
-import unittest
-import tkinter as tk
 import random
-import zipfile
-import os
 import re
-# Manga Tagger
-import ComicInfo
-from MangaManager.MangaTaggerLib import MangaTagger
-from MangaManager.MangaTaggerLib.cbz_handler import *
+import tkinter as tk
+import unittest
 
 # Cover Manager
 from MangaManager.CoverManagerLib.cbz_handler import SetCover
 from MangaManager.CoverManagerLib.models import cover_process_item_info
-
+# Manga Tagger
+from MangaManager.MangaTaggerLib import MangaTagger
+from MangaManager.MangaTaggerLib.cbz_handler import *
 # Volume Manager
 from MangaManager.VolumeManager import VolumeManager
 from MangaManager.VolumeManager.models import ChapterFileNameData
@@ -89,12 +85,12 @@ class TaggerCbzControllerTester(unittest.TestCase):
         second_file_chapter = ""
         root = tk.Tk()
         test_files = [path_23, path_24]
-        opened_cbz = ReadComicInfo(path_23)
+        opened_cbz = ReadComicInfo(path_23, ignore_empty_metadata=True)
         number_files_preprocess_1 = opened_cbz.total_files
-        opened_cbz = 0 # reset so file gets closed
-        opened_cbz = ReadComicInfo(path_24)
+        opened_cbz = 0  # reset so file gets closed
+        opened_cbz = ReadComicInfo(path_24, ignore_empty_metadata=True)
         number_files_preprocess_2 = opened_cbz.total_files
-        opened_cbz = 0 # reset so file gets closed
+        opened_cbz = 0  # reset so file gets closed
         random_int = random.random()
         app = MangaTagger.App(root)
 
@@ -136,7 +132,7 @@ class TaggerCbzControllerTester(unittest.TestCase):
 
     def test_deleteAndRecover(self):
         test_files = [path_23, path_24]
-        opened_cbz = ReadComicInfo(path_23)
+        opened_cbz = ReadComicInfo(path_23, ignore_empty_metadata=True)
         number_files_preprocess_1 = opened_cbz.total_files
         opened_cbz = 0  # reset so file gets closed
 
@@ -146,19 +142,21 @@ class TaggerCbzControllerTester(unittest.TestCase):
         app = MangaTagger.App(root)
         app.create_loadedComicInfo_list([path_23])
         app.deleteComicInfo()
-        opened_cbz = ReadComicInfo(path_23)
+
+        opened_cbz = ReadComicInfo(path_23, ignore_empty_metadata=True)
+
         number_files_postprocess = opened_cbz.total_files
         xml_postprocess = opened_cbz.to_ComicInfo()
         second_file_chapter = xml_postprocess.get_Number()
-        # self.assertAlmostEqual(number_files_preprocess, number_files_postprocess)
-        print(f"Asserting second file {number_files_preprocess_1} vs {number_files_postprocess}, delta 0")
-        self.assertEqual(number_files_preprocess_1, number_files_postprocess)
+        # Add one more so it asserts that one file was deleted
+        print(f"Asserting second file {number_files_preprocess_1} vs {number_files_postprocess}+1, delta 0")
+        self.assertEqual(number_files_preprocess_1, number_files_postprocess + 1)
 
-        opened_cbz = WriteComicInfo(LoadedComicInfo(path_23,ComicInfo)).restore()
-        opened_cbz = ReadComicInfo(path_23)
+        opened_cbz = WriteComicInfo(LoadedComicInfo(path_23, ComicInfo)).restore()
+        opened_cbz = ReadComicInfo(path_23, ignore_empty_metadata=True)
         number_files_postprocess = opened_cbz.total_files
         print(f"File is recovered {number_files_preprocess_1} vs {number_files_postprocess}+1, delta 0")
-        self.assertEqual(number_files_preprocess_1, number_files_postprocess+1)
+        self.assertEqual(number_files_preprocess_1, number_files_postprocess + 1)
 
     def test_zcount_leftover_files(self):
         final_dir_count = len(os.listdir(os.path.dirname(test_path)))

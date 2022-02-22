@@ -1,27 +1,25 @@
 #!/usr/bin/env python3
+import logging
+import os
 import pathlib
-import threading
 import tkinter as tk
 import tkinter.scrolledtext
-from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox as mb
-from lxml.etree import XMLSyntaxError
-import os
+from tkinter import ttk
 
-from . import models
+from lxml.etree import XMLSyntaxError
+
 from . import ComicInfo
-from .models import LoadedComicInfo
+from . import models
 from .cbz_handler import ReadComicInfo, WriteComicInfo
 from .errors import *
-# logging.getLogger('PIL').setLevel(logger.WARNING)
+from .models import LoadedComicInfo
 
+# logging.getLogger('PIL').setLevel(logger.WARNING)
 # TODO:
 #   - Add info message if nothing is loaded into UI because comicinfo not exist and one will be created
 #   - Add successfully loaded window/message somewhere
-
-
-import logging
 
 launch_path = ""
 
@@ -109,8 +107,8 @@ class App:
             self.input_1_summary_obj
         ]
 
-            self.selected_filenames = []
-            self.loadedComicInfo_list = list[LoadedComicInfo]()
+        self.selected_filenames = []
+        self.loadedComicInfo_list = list[LoadedComicInfo]()
 
 
     def start_ui(self):
@@ -606,7 +604,7 @@ class App:
 
     def create_loadedComicInfo_list(self, cli_selected_files: list[str] = None):
         self.conflicts = {}
-
+        self.warning_metadataNotFound = False
         def load_comicinfo_xml(cls, cbz_path) -> LoadedComicInfo:
             """
             Accepts a path string
@@ -622,25 +620,35 @@ class App:
                 # raise CorruptedComicInfo(cbz_path)
                 comicinfo = ReadComicInfo(cbz_path).to_ComicInfo(False)
             except NoMetadataFileFound:
-                logger.error(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}")
-                mb.showerror("Error reading ComicInfo", f"ComicInfo.xml was not found inside: {cbz_path}.\n\
-                One will be created when saving changes to file")
+                logger.warning(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}\n"
+                               f"One will be created when saving changes to file.\n"
+                               f"This applies to all future errors")
+                if not cls.warning_metadataNotFound:
+                    mb.warning("Error reading ComicInfo",
+                               f"ComicInfo.xml was not found inside: {cbz_path}\n"
+                               f"One will be created when saving changes to file.\n"
+                               f"This applies to all future errors")
+                    cls.warning_metadataNotFound = True
                 comicinfo = ComicInfo.ComicInfo()
             except XMLSyntaxError as e:
                 logger.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
                 mb.showerror("Error reading ComicInfo", "Error loading file."
                                                         f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e))
                 raise e
-            except CorruptedComicInfo:
-                answer = mb.askyesno("Failed to load metadata", f"Failed to load metadata from file:\n{cbz_path}\n\n"
-                                                                "ComicInfo.xml file was found but seems corrupted.\n"
-                                                                "A fix was attempted but it failed.\n\n"
-                                                                "Continue loading?")
-                if answer:
-                    return
-                else:
-                    raise CancelComicInfoLoad
 
+            except CorruptedComicInfo as e:
+                logger.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
+                if self._initialized_UI:
+                    answer = mb.askyesno("Failed to load metadata",
+                                         f"Failed to load metadata from file:\n{cbz_path}\n\n"
+                                         "ComicInfo.xml file was found but seems corrupted.\n"
+                                         "A fix was attempted but it failed.\n\n"
+                                         "Continue loading?")
+                    if answer:
+                        return
+                    else:
+                        raise CancelComicInfoLoad
+                raise CorruptedComicInfo
             loadedInfo = LoadedComicInfo(cbz_path, comicinfo, comicinfo)
             logger.debug("comicinfo was read and a LoadedComicInfo was created")
             #
@@ -791,6 +799,9 @@ class App:
                         try:
                             loaded_ComIinf = load_comicinfo_xml(self, file)
                         except XMLSyntaxError:
+                            # This is already logged. Exception is raised again so it excepts on CLI mode
+                            continue
+                        except CorruptedComicInfo:
                             # This is already logged. Exception is raised again so it excepts on CLI mode
                             continue
                         if loaded_ComIinf:
@@ -1019,11 +1030,11 @@ class App:
             answer = mb.askokcancel("Warning", "This will remove 'ComicInfo.xml' file from the selected files")
             if answer:
                 for loadedComicObj in self.loadedComicInfo_list:
-                    print("Procesding delete")
+                    logger.info("Processing delete")
                     WriteComicInfo(loadedComicObj).delete()
         else:
             for loadedComicObj in self.loadedComicInfo_list:
-                print("Procesding delete")
+                logger.info("Processing delete")
                 WriteComicInfo(loadedComicObj).delete()
 
     def do_save_UI(self):
