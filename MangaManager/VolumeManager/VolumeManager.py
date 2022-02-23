@@ -196,10 +196,12 @@ class App:
 
     def _on_checkbutton_4_val_change(self, *args):
         if self.checkbutton_4_settings_val.get():
-            self.checkbutton_4_5_settings.configure(state="normal")
+            if self._initialized_UI:
+                self.checkbutton_4_5_settings.configure(state="normal")
         else:
             self.checkbutton_4_5_settings_val.set(False)
-            self.checkbutton_4_5_settings.configure(state="disabled")
+            if self._initialized_UI:
+                self.checkbutton_4_5_settings.configure(state="disabled")
 
     # def _on_checkbutton_4_5_val_change(self, *args):
 
@@ -428,7 +430,7 @@ class App:
                                 text='{:g} %'.format(round(percentage, 2)))  # update label
                 pb['value'] = percentage
 
-            from MangaTaggerLib.MangaTagger import App as taggerApp
+            from MetadataManagerLib.MetadataManager import App as taggerApp
 
             for item in self._list_filestorename:
 

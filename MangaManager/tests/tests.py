@@ -8,8 +8,8 @@ import unittest
 from MangaManager.CoverManagerLib.cbz_handler import SetCover
 from MangaManager.CoverManagerLib.models import cover_process_item_info
 # Manga Tagger
-from MangaManager.MangaTaggerLib import MangaTagger
-from MangaManager.MangaTaggerLib.cbz_handler import *
+from MangaManager.MetadataManagerLib import MetadataManager
+from MangaManager.MetadataManagerLib.cbz_handler import *
 # Volume Manager
 from MangaManager.VolumeManager import VolumeManager
 from MangaManager.VolumeManager.models import ChapterFileNameData
@@ -92,7 +92,7 @@ class TaggerCbzControllerTester(unittest.TestCase):
         number_files_preprocess_2 = opened_cbz.total_files
         opened_cbz = 0  # reset so file gets closed
         random_int = random.random()
-        app = MangaTagger.App(root)
+        app = MetadataManager.App(root)
 
         app.create_loadedComicInfo_list(test_files)
 
@@ -139,7 +139,7 @@ class TaggerCbzControllerTester(unittest.TestCase):
         random_int = random.random()
 
         root = tk.Tk()
-        app = MangaTagger.App(root)
+        app = MetadataManager.App(root)
         app.create_loadedComicInfo_list([path_23])
         app.deleteComicInfo()
 

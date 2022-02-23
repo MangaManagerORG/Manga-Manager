@@ -1,9 +1,11 @@
-
-from dataclasses import dataclass
-from . import ComicInfo
-from tkinter import Text, INSERT
 import logging
+from dataclasses import dataclass
+from tkinter import Text, INSERT
+
+from . import ComicInfo
+
 logger = logging.getLogger(__name__)
+
 
 @dataclass()
 class LoadedComicInfo:

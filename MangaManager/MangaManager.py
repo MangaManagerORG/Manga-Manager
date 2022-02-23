@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-import tkinter as tk
 import argparse
 import logging
-from logging.handlers import RotatingFileHandler
-import sys
 import os
-from MangaTaggerLib import MangaTagger
+import sys
+import tkinter as tk
+from logging.handlers import RotatingFileHandler
+
 from CoverManagerLib import CoverManager
+from MetadataManagerLib import MetadataManager
 from VolumeManager import VolumeManager
+
 # <Arguments parser>
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -70,7 +72,7 @@ logger.debug('DEBUG LEVEL - MAIN MODULE')
 logger.info('INFO LEVEL - MAIN MODULE')
 # </Logger>
 
-tools = [CoverManager, MangaTagger, VolumeManager]
+tools = [CoverManager, MetadataManager, VolumeManager]
 
 def main():
     selected_tool = False
@@ -88,7 +90,6 @@ def main():
             selected_tool = True
     else:
         selection = args.default_selected_tool
-
     print(selection)
 
     root = tk.Tk()
