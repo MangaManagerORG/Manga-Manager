@@ -2,6 +2,7 @@
 import logging
 import os
 import pathlib
+import re
 import tkinter as tk
 import tkinter.scrolledtext
 from tkinter import filedialog
@@ -41,10 +42,11 @@ class App:
     def initialize_StringVars(self):
         self.highlighted_changes = []
         self.conflict_chapter = False
-        self.spinbox_1_year_var = tk.IntVar(value=-1, name="year")
-        self.spinbox_2_month_var = tk.IntVar(value=-1, name='month')
-        self.spinbox_3_volume_var = tk.IntVar(value=-1, name='volume')
-
+        self.spinbox_1_year_var = tk.IntVar(value=(-1), name="year")
+        self.spinbox_2_month_var = tk.IntVar(value=(-1), name='month')
+        self.spinbox_3_volume_var = tk.IntVar(value=(-1), name='volume')
+        self.spinbox_3_volume_var_prev = tk.IntVar(value=(-1), name='volume_prev')
+        self.spinbox_3_volume_var.trace(mode='w', callback=self.validateIntVar)
         self.spinbox_4_chapter_var = tk.StringVar(value='', name='Number')
         self.entry_10_langIso_var = tk.StringVar(value='', name='langIso')
         # self.spinbox_5_pageCount_var = tk.IntVar(value='', name='pageCount')
@@ -110,6 +112,25 @@ class App:
         self.selected_filenames = []
         self.loadedComicInfo_list = list[LoadedComicInfo]()
 
+    def validateIntVar(self, *args):
+        try:
+            # if self.spinbox_3_volume_var.get() < -1 or
+            if not isinstance(self.spinbox_3_volume_var.get(), int):
+                self.mainwindow.bell()
+                self.spinbox_3_volume_var.set(-1)
+            else:
+                self.spinbox_3_volume_var_prev.set(self.spinbox_3_volume_var.get())
+        except tk.TclError as e:
+            if str(e) == 'expected floating-point number but got ""' or str(
+                    e) == 'expected floating-point number but got "-"':
+                return
+            elif re.match(r"-[0-9]*", str(e)):
+                return
+            self.mainwindow.bell()
+            if self.spinbox_3_volume_var_prev.get() != (-1):
+                self.spinbox_3_volume_var.set(self.spinbox_3_volume_var_prev.get())
+                return
+            self.spinbox_3_volume_var.set(-1)
 
     def start_ui(self):
         master = self.master
@@ -194,9 +215,8 @@ class App:
         self._label_3_volume = tk.Label(self._frame_2)
         self._label_3_volume.configure(text='Volume')
         self._label_3_volume.grid(column=0, row='4')
-        self._spinbox_3_volume = tk.Spinbox(self._frame_2, validate='all', validatecommand=vldt_ifnum_cmd)
-        self._spinbox_3_volume.configure(buttondownrelief='flat', buttonuprelief='flat', font='TkDefaultFont',
-                                         justify='center')
+        self._spinbox_3_volume = tk.Entry(self._frame_2, validate='all')
+        self._spinbox_3_volume.configure(justify='center')
         self._spinbox_3_volume.configure(state='readonly', textvariable=self.spinbox_3_volume_var)
         self._spinbox_3_volume.grid(column=0, row='5')
         self._spinbox_3_volume.bind('<Button-1>', makeFocused, add='+')
@@ -689,6 +709,7 @@ class App:
                 loadedInfo.comicInfoObj.get_Genre,
                 loadedInfo.comicInfoObj.get_Summary
             ]
+
             comicinfo_attrib_set = [
                 loadedInfo.comicInfoObj.set_Series,
                 loadedInfo.comicInfoObj.set_Title,
@@ -785,10 +806,10 @@ class App:
                     if str(widgetvar) == "Number" and cls.conflict_chapter:
                         cls.conflict_chapter = True
                     logger.debug(
-                        f"Conflict betwen comicinfo and UI for tag '{widgetvar}'. Content does not match.")
+                        f"Conflict betwen comicinfo and UI for tag '{str(widgetvar)}'. Content does not match.")
                 else:
                     logger.debug(
-                        f"Content in comicinfo and UI for tag '{widgetvar}' is the same, skipping")
+                        f"Content in comicinfo and UI for tag '{str(widgetvar)}' is the same, skipping")
 
             return loadedInfo
 
@@ -824,12 +845,12 @@ class App:
         except CancelComicInfoLoad:
             self.loadedComicInfo_list = []
 
-    def parseUI_toComicInfo(self):
+    def parseUI_toComicInfo(self, forceVolume=False):
         """
         Modifies every ComicInfo loaded with values from the UI
         """
 
-        def parse_UI_toComicInfo(cls, loadedInfo: LoadedComicInfo) -> LoadedComicInfo:
+        def parse_UI_toComicInfo(cls, loadedInfo: LoadedComicInfo, doForceVolume) -> LoadedComicInfo:
             """
             Accepts a path string
             Returns a LoadedComicInfo with the modified ComicInfo from the modified StringVars
@@ -914,12 +935,16 @@ class App:
 
                 if widgetvar.get() != comicinfo_atr_get() and widgetvar.get() not in (-1, 0, "", "Unknown", None):
                     comicinfo_atr_set(widgetvar.get())
+                else:
+                    if str(widgetvar) == "volume" and doForceVolume:
+                        comicinfo_atr_set(-1)
+
             return loadedInfo
 
         modified_loadedComicInfo_list = []
         # modified_loadedComicInfo_XML_list = list[str]()
         for comicObj in self.loadedComicInfo_list:
-            modified_loadedComicInfo = parse_UI_toComicInfo(self, comicObj)
+            modified_loadedComicInfo = parse_UI_toComicInfo(self, comicObj, doForceVolume=forceVolume)
             modified_loadedComicInfo_list.append(modified_loadedComicInfo)
             self.loadedComicInfo_list = modified_loadedComicInfo_list
 
@@ -981,38 +1006,47 @@ class App:
             except FileExistsError as e:
                 if self._initialized_UI:
                     mb.showwarning(f"[ERROR] File already exists",
-                                   f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
+                                   f"Trying to create:\n`{str(e.filename2)}` but already exists\n\nException:\n{e}")
 
-                logger.error("[ERROR] File already exists",
-                             f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
-                processed_errors += 1
-                continue
+                logger.error("[ERROR] File already exists\n"
+                             f"Trying to create:\n`{str(e.filename2)}` but already exists\nException:\n{e}")
+                if not self._initialized_UI:
+                    raise e
+                else:
+                    continue
             except PermissionError as e:
                 if self._initialized_UI:
                     mb.showerror("[ERROR] Permission Error",
                                  "Can't access the file because it's being used by a different process\n\n"
                                  f"Exception:\n{e}")
 
-                logger.error("[ERROR] Permission Error",
-                             "Can't access the file because it's being used by a different process\n\n"
-                             f"Exception:\n{e}")
+                logger.error("[ERROR] Permission Error"
+                             "Can't access the file because it's being used by a different process\n"
+                             f"Exception:\n{str(e)}")
                 processed_errors += 1
-                continue
+                if not self._initialized_UI:
+                    raise e
+                else:
+                    continue
             except FileNotFoundError as e:
                 if self._initialized_UI:
                     mb.showerror("[ERROR] File Not Found",
                                  "Can't access the file because it's being used by a different process\n\n"
-                                 f"Exception:\n{e}")
+                                 f"Exception:\n{str(e)}")
 
-                logger.error("[ERROR] File Not Found",
-                             "Can't access the file because it's being used by a different process\n\n"
-                             f"Exception:\n{e}")
+                logger.error("[ERROR] File Not Found\n"
+                             "Can't access the file because it's being used by a different process\n"
+                             f"Exception:\n{str(e)}")
                 processed_errors += 1
-                continue
+                if not self._initialized_UI:
+                    raise e
+                else:
+                    continue
             except Exception as e:
                 if self._initialized_UI:
                     mb.showerror("Something went wrong", "Error processing. Check logs.")
                 logger.critical("Exception Processing", e)
+                raise e
             if self._initialized_UI:
                 pb_root.update()
                 percentage = ((processed_counter + processed_errors) / total_times_count) * 100
