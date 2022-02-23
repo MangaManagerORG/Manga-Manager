@@ -294,6 +294,8 @@ class App:
     def process(self):
         logger.debug("Starting processing of files.")
         self.button4_proceed.config(relief=tk.SUNKEN, text="Processing")
+
+        self.disableButtons(self.frame_coversetter)
         total = len(self.treeview1.get_children())
         # TBH I'd like to rework how this processing bar works. - Promidius
         label_progress_text = tk.StringVar()
