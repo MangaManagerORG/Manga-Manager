@@ -269,7 +269,6 @@ class App:
             )
             tmp_info.imageObject = self.image_in_confirmation
 
-
             self.covers_path_in_confirmation[str(self.image_in_confirmation)].append(tmp_info)
             logger.info(f"Added to the processing queue -> {os.path.basename(iterated_file_path)} ")
 
@@ -279,8 +278,8 @@ class App:
             self.treeview1.insert(parent='', index='end', image=self.image_in_confirmation,
                                   values=(displayed_file_path, overwrite_displayedval))
             self.treeview1.yview_moveto(1)
-
-        cbzs_path_list = tuple
+        selected_files = True if cbzs_path_list else False
+        cbzs_path_list = tuple()
         self.do_overwrite_first.set(False)
         self.overwrite_yes_button.configure(text="No")
         self.button_7_clearqueue.config(state="normal")
@@ -288,7 +287,7 @@ class App:
         if not delete and not recover:
             if self.checkbox0_settings_val.get():
                 self.display_next_cover()
-            if self.checkbox1_settings_val.get() and cbzs_path_list:
+            if self.checkbox1_settings_val.get() and selected_files:
                 self.add_file_to_list()
 
     def process(self):
