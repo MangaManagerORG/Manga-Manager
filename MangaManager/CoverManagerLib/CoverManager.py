@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 import os
+import re
 import tkinter
 import tkinter as tk
 from itertools import cycle
@@ -258,11 +259,12 @@ class App:
 
         for iterated_file_path in cbzs_path_list:
             iterated_file_path = iterated_file_path.name
+            file_format = re.findall(r"(?i)\.[a-z]+$", image_path)[0]
             tmp_info = cover_process_item_info(
                 cbz_file=iterated_file_path,
                 cover_path=image_path,
                 cover_name=os.path.basename(image_path),
-                cover_format=image_path[-3:],
+                cover_format=file_format,
                 coverDelete=option_delete,
                 coverRecover=option_recover,
                 coverOverwrite=option_overwrite
