@@ -118,17 +118,18 @@ class App:
         try:
             # if self.spinbox_3_volume_var.get() < -1 or
             if not isinstance(self.spinbox_3_volume_var.get(), int):
-                self.mainwindow.bell()
+                self.master.bell()
                 self.spinbox_3_volume_var.set(-1)
             else:
                 self.spinbox_3_volume_var_prev.set(self.spinbox_3_volume_var.get())
         except tk.TclError as e:
+            print(str(e))
             if str(e) == 'expected floating-point number but got ""' or str(
                     e) == 'expected floating-point number but got "-"':
                 return
-            elif re.match(r"-[0-9]*", str(e)):
+            elif re.match(r"^(?!.*\/\/)(-?)([0-9]+\.[0-9]+$)", str(e)):
                 return
-            self.mainwindow.bell()
+            self.master.bell()
             if self.spinbox_3_volume_var_prev.get() != (-1):
                 self.spinbox_3_volume_var.set(self.spinbox_3_volume_var_prev.get())
                 return
@@ -177,7 +178,7 @@ class App:
         def ValidateIfNum(s, S):
             dummy = s
             # disallow anything but numbers
-            valid = S == '' or S.isdigit()
+            valid = S == '' or S.isdigit() or S == "."
             if not valid:
                 self._frame1.bell()
                 # logger.info("input not valid")
@@ -232,7 +233,7 @@ class App:
         self._label_4_chapter = tk.Label(self._frame_2)
         self._label_4_chapter.configure(anchor='n', text='Chapter')
         self._label_4_chapter.grid(column=0, row='6')
-        self._spinbox_4_chapter = tk.Spinbox(self._frame_2, validate='all', validatecommand=vldt_ifnum_cmd,
+        self._spinbox_4_chapter = tk.Spinbox(self._frame_2, validate="all", validatecommand=vldt_ifnum_cmd,
                                              name="spinbox_chapter")
         self._spinbox_4_chapter.configure(buttonuprelief='flat', cursor='arrow', justify='center', state='disabled')
         self._spinbox_4_chapter.configure(textvariable=self.spinbox_4_chapter_var)
