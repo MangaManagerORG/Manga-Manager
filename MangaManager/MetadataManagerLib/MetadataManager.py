@@ -644,10 +644,10 @@ class App:
                                f"One will be created when saving changes to file.\n"
                                f"This applies to all future errors")
                 if not cls.warning_metadataNotFound:
-                    mb.warning("Error reading ComicInfo",
-                               f"ComicInfo.xml was not found inside: {cbz_path}\n"
-                               f"One will be created when saving changes to file.\n"
-                               f"This applies to all future errors")
+                    mb.showerror("Error reading ComicInfo",
+                                 f"ComicInfo.xml was not found inside: {cbz_path}\n"
+                                 f"One will be created when saving changes to file.\n"
+                                 f"This applies to all future errors")
                     cls.warning_metadataNotFound = True
                 comicinfo = ComicInfo.ComicInfo()
             except XMLSyntaxError as e:
