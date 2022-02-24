@@ -2,6 +2,7 @@
 import argparse
 import logging
 import os
+import pathlib
 import sys
 import tkinter as tk
 from logging.handlers import RotatingFileHandler
@@ -52,7 +53,6 @@ parser.add_argument(
     '-p', '--path',
     type=is_dir_path,dest="active_dir_path")
 
-
 args = parser.parse_args()
 # </Arguments parser>
 
@@ -61,7 +61,9 @@ args = parser.parse_args()
 logger = logging.getLogger()
 logging.getLogger('PIL').setLevel(logging.WARNING)
 formatter = logging.Formatter()
-rotating_file_handler = RotatingFileHandler("./logs/MangaManager.log", maxBytes=20725760,
+
+PROJECT_PATH = pathlib.Path(__file__).parent
+rotating_file_handler = RotatingFileHandler(f"{PROJECT_PATH}/logs/MangaManager.log", maxBytes=5725760,
                                             backupCount=2)
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
