@@ -38,6 +38,8 @@ class App:
         self.highlighted_changes = []
         self._initialized_UI = False
         self.widgets_obj = []
+        self.spinbox_4_chapter_var_isModified = False
+        self.spinbox_3_volume_var_isModified = False
 
     def initialize_StringVars(self):
         self.highlighted_changes = []
@@ -132,6 +134,28 @@ class App:
                 return
             self.spinbox_3_volume_var.set(-1)
 
+    def makeEditable(self, event: tk.Event = None):
+        # <Double-Button-1>
+        # TODO: Add a better error message to explain that any changes will be overwritten
+        if event.widget.cget('state') == "disabled":
+            print(str(event.widget))
+            if re.match(r".*(entry_volume|spinbox_chapter).*", str(event.widget)):
+                answer = mb.askyesno("Warning!", "Warning: This change will be overwritten to all files.\
+                Only one file should be selected to change this value.Continue?")
+                if answer:
+                    event.widget.configure(state="normal", highlightbackground="#00bfff", highlightcolor="#00bfff",
+                                           highlightthickness='2')
+                    self.highlighted_changes.append(event.widget)
+                    self.spinbox_4_chapter_var_isModified = True
+                else:
+                    return
+        else:
+            if re.match(r".*(entry_volume).*", str(event.widget)):
+                self.spinbox_3_volume_var_isModified = True
+            event.widget.configure(state="normal", highlightbackground="#00bfff", highlightcolor="#00bfff",
+                                   highlightthickness='2')
+            self.highlighted_changes.append(event.widget)
+
     def start_ui(self):
         master = self.master
 
@@ -149,24 +173,6 @@ class App:
         def onFocusOut(event: tk.Event = None):
             # <FocusOut>
             makeReadOnly(event)
-
-        def makeEditable(event: tk.Event = None):
-            # <Double-Button-1>
-            # TODO: Add a better error message to explain that any changes will be overwritten
-            if event.widget.cget('state') == "disabled":
-                if str(event.widget) in (".!frame.!frame.!spinbox4", ".!frame.!frame.!spinbox3"):
-                    answer = mb.askyesno("Warning!", "Warning: This change will be overwritten to all files.\
-                    Only one file should be selected to change this value.Continue?")
-                    if answer:
-                        event.widget.configure(state="normal", highlightbackground="#00bfff", highlightcolor="#00bfff",
-                                               highlightthickness='2')
-                        self.highlighted_changes.append(event.widget)
-                    else:
-                        return
-            else:
-                event.widget.configure(state="normal", highlightbackground="#00bfff", highlightcolor="#00bfff",
-                                       highlightthickness='2')
-                self.highlighted_changes.append(event.widget)
 
         def ValidateIfNum(s, S):
             dummy = s
@@ -191,13 +197,13 @@ class App:
         self._label_1_year.grid(column=0, row='0')
 
         self._spinbox_1_year = tk.Spinbox(self._frame_2, from_=1800, to=99999,
-                                          validate='all', validatecommand=vldt_ifnum_cmd)
+                                          validate='all', validatecommand=vldt_ifnum_cmd, name="spinbox_year")
         self._spinbox_1_year.configure(justify='center', state='readonly', textvariable=self.spinbox_1_year_var)
         self._spinbox_1_year.grid(column=0, row='1')
         self._spinbox_1_year.bind('<Button-1>', makeFocused, add='+')
         self._spinbox_1_year.bind('<Button-1>', makeFocused, add='+')
-        self._spinbox_1_year.bind('<Double-Button-1>', makeEditable, add='+')
-        self._spinbox_1_year.bind('<Double-Button-1>', makeEditable, add='+')
+        self._spinbox_1_year.bind('<Double-Button-1>', self.makeEditable, add='+')
+        self._spinbox_1_year.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._spinbox_1_year.bind('<FocusOut>', onFocusOut, add='+')
         self._spinbox_1_year.bind('<Return>', makeReadOnly, add='+')
         self._spinbox_1_year.bind('<Return>', makeReadOnly, add='+')
@@ -209,29 +215,30 @@ class App:
         self._spinbox_2_month.configure(justify='center', state='readonly', textvariable=self.spinbox_2_month_var)
         self._spinbox_2_month.grid(column=0, row='3')
         self._spinbox_2_month.bind('<Button-1>', makeFocused, add='+')
-        self._spinbox_2_month.bind('<Double-Button-1>', makeEditable, add='+')
+        self._spinbox_2_month.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._spinbox_2_month.bind('<FocusOut>', onFocusOut, add='+')
         self._spinbox_2_month.bind('<Return>', makeReadOnly, add='+')
         self._label_3_volume = tk.Label(self._frame_2)
         self._label_3_volume.configure(text='Volume')
         self._label_3_volume.grid(column=0, row='4')
-        self._spinbox_3_volume = tk.Entry(self._frame_2, validate='all')
+        self._spinbox_3_volume = tk.Entry(self._frame_2, validate='all', name="entry_volume")
         self._spinbox_3_volume.configure(justify='center')
         self._spinbox_3_volume.configure(state='readonly', textvariable=self.spinbox_3_volume_var)
         self._spinbox_3_volume.grid(column=0, row='5')
         self._spinbox_3_volume.bind('<Button-1>', makeFocused, add='+')
-        self._spinbox_3_volume.bind('<Double-Button-1>', makeEditable, add='+')
+        self._spinbox_3_volume.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._spinbox_3_volume.bind('<FocusOut>', onFocusOut, add='+')
         self._spinbox_3_volume.bind('<Return>', makeReadOnly, add='+')
         self._label_4_chapter = tk.Label(self._frame_2)
         self._label_4_chapter.configure(anchor='n', text='Chapter')
         self._label_4_chapter.grid(column=0, row='6')
-        self._spinbox_4_chapter = tk.Spinbox(self._frame_2, validate='all', validatecommand=vldt_ifnum_cmd)
+        self._spinbox_4_chapter = tk.Spinbox(self._frame_2, validate='all', validatecommand=vldt_ifnum_cmd,
+                                             name="spinbox_chapter")
         self._spinbox_4_chapter.configure(buttonuprelief='flat', cursor='arrow', justify='center', state='disabled')
         self._spinbox_4_chapter.configure(textvariable=self.spinbox_4_chapter_var)
         self._spinbox_4_chapter.grid(column=0, row='7')
         self._spinbox_4_chapter.bind('<Button-1>', makeFocused, add='+')
-        self._spinbox_4_chapter.bind('<Double-Button-1>', makeEditable, add='+')
+        self._spinbox_4_chapter.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._spinbox_4_chapter.bind('<FocusOut>', onFocusOut, add='+')
         self._spinbox_4_chapter.bind('<Return>', makeReadOnly, add='+')
 
@@ -244,7 +251,7 @@ class App:
                                             textvariable=self.spinbox_5_pageCount_var)
         self._spinbox_5_pageCount.grid(column=1, row=1)
         self._spinbox_5_pageCount.bind('<Button-1>', makeFocused, add='+')
-        self._spinbox_5_pageCount.bind('<Double-Button-1>', makeEditable, add='+')
+        self._spinbox_5_pageCount.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._spinbox_5_pageCount.bind('<FocusOut>', onFocusOut, add='+')
         self._spinbox_5_pageCount.bind('<Return>', makeReadOnly, add='+')
 
@@ -252,14 +259,14 @@ class App:
         self._label_14_langIso.configure(text='Language ISO')
         self._label_14_langIso.grid(column='1', row=2)
         self._label_14_langIso.bind('<Button-1>', makeFocused, add='+')
-        self._label_14_langIso.bind('<Double-Button-1>', makeEditable, add='+')
+        self._label_14_langIso.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._label_14_langIso.bind('<FocusOut>', onFocusOut, add='+')
         self._label_14_langIso.bind('<Return>', makeReadOnly, add='+')
         self._entry_10_langIso = tk.Entry(self._frame_2)
         self._entry_10_langIso.configure(justify='center', state='readonly', textvariable=self.entry_10_langIso_var)
         self._entry_10_langIso.grid(column='1', row=3)
         self._entry_10_langIso.bind('<Button-1>', makeFocused, add='+')
-        self._entry_10_langIso.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_10_langIso.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_10_langIso.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_10_langIso.bind('<Return>', makeReadOnly, add='+')
 
@@ -270,7 +277,7 @@ class App:
         self._entry_15_format.configure(justify='center', state='readonly', textvariable=self.entry_15_format_var)
         self._entry_15_format.grid(column='1', row=5)
         self._entry_15_format.bind('<Button-1>', makeFocused, add='+')
-        self._entry_15_format.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_15_format.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_15_format.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_15_format.bind('<Return>', makeReadOnly, add='+')
 
@@ -304,7 +311,7 @@ class App:
                                            textvariable=self.entry_1_seriesName_var)
         self._entry_1_seriesName.grid(row='1', sticky='ew')
         self._entry_1_seriesName.bind('<Button-1>', makeFocused, add='+')
-        self._entry_1_seriesName.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_1_seriesName.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_1_seriesName.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_1_seriesName.bind('<Return>', makeReadOnly, add='+')
         self._label_6_title = tk.Label(self._frame_1)
@@ -314,7 +321,7 @@ class App:
         self._entry_2_title.configure(font='TkDefaultFont', state='readonly', textvariable=self.entry_2_title_var)
         self._entry_2_title.grid(row='3', sticky='ew')
         self._entry_2_title.bind('<Button-1>', makeFocused, add='+')
-        self._entry_2_title.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_2_title.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_2_title.bind('<Enter>', makeReadOnly, add='+')
         self._entry_2_title.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_2_title.bind('<Return>', makeReadOnly, add='+')
@@ -333,8 +340,8 @@ class App:
         self._entry_6_storyArc.grid(column='0', row='7', sticky='ew')
         self._entry_6_storyArc.bind('<Button-1>', makeFocused, add='+')
         self._entry_6_storyArc.bind('<Button-1>', makeFocused, add='+')
-        self._entry_6_storyArc.bind('<Double-Button-1>', makeEditable, add='+')
-        self._entry_6_storyArc.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_6_storyArc.bind('<Double-Button-1>', self.makeEditable, add='+')
+        self._entry_6_storyArc.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_6_storyArc.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_6_storyArc.bind('<Return>', makeReadOnly, add='+')
         self._entry_6_storyArc.bind('<Return>', makeReadOnly, add='+')
@@ -356,7 +363,7 @@ class App:
         self._entry_7_SeriesGroup.configure(state='readonly', textvariable=self.entry_7_SeriesGroup_var)
         self._entry_7_SeriesGroup.grid(column='0', row='9', sticky='ew')
         self._entry_7_SeriesGroup.bind('<Button-1>', makeFocused, add='+')
-        self._entry_7_SeriesGroup.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_7_SeriesGroup.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_7_SeriesGroup.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_7_SeriesGroup.bind('<Return>', makeReadOnly, add='+')
         self._frame_1.configure(height='200', width='200')
@@ -375,7 +382,7 @@ class App:
         self._entry_3_writer.configure(state='readonly', textvariable=self.entry_3_writer_var)
         self._entry_3_writer.grid(column='0', row='2', sticky='ew')
         self._entry_3_writer.bind('<Button-1>', makeFocused, add='+')
-        self._entry_3_writer.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_3_writer.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_3_writer.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_3_writer.bind('<Return>', makeReadOnly, add='+')
         self._label_10_penciller = tk.Label(self._frame_3_people)
@@ -385,7 +392,7 @@ class App:
         self._entry_4_penciller.configure(state='readonly', textvariable=self.entry_4_penciller_var)
         self._entry_4_penciller.grid(column='0', row='4', sticky='ew')
         self._entry_4_penciller.bind('<Button-1>', makeFocused, add='+')
-        self._entry_4_penciller.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_4_penciller.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_4_penciller.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_4_penciller.bind('<Return>', makeReadOnly, add='+')
         self._label_11_Inker = tk.Label(self._frame_3_people)
@@ -395,7 +402,7 @@ class App:
         self._entry_5_inker.configure(state='readonly', textvariable=self.entry_5_inker_var)
         self._entry_5_inker.grid(column='0', row='6', sticky='ew')
         self._entry_5_inker.bind('<Button-1>', makeFocused, add='+')
-        self._entry_5_inker.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_5_inker.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_5_inker.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_5_inker.bind('<Return>', makeReadOnly, add='+')
         self._label_12_colorist = tk.Label(self._frame_3_people)
@@ -405,7 +412,7 @@ class App:
         self._entry_8_colorist.configure(state='readonly', textvariable=self.entry_8_colorist_var)
         self._entry_8_colorist.grid(column='0', row='8', sticky='ew')
         self._entry_8_colorist.bind('<Button-1>', makeFocused, add='+')
-        self._entry_8_colorist.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_8_colorist.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_8_colorist.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_8_colorist.bind('<Return>', makeReadOnly, add='+')
         self._label_13_letterist = tk.Label(self._frame_3_people)
@@ -415,7 +422,7 @@ class App:
         self._entry_9_letterer.configure(state='readonly', textvariable=self.entry_9_letterer_var)
         self._entry_9_letterer.grid(column='0', row='10', sticky='ew')
         self._entry_9_letterer.bind('<Button-1>', makeFocused, add='+')
-        self._entry_9_letterer.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_9_letterer.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_9_letterer.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_9_letterer.bind('<Return>', makeReadOnly, add='+')
         self._label_14_coverArtist = tk.Label(self._frame_3_people)
@@ -425,7 +432,7 @@ class App:
         self._entry_11_coverArtist.configure(state='readonly', textvariable=self.entry_11_coverArtist_var)
         self._entry_11_coverArtist.grid(column='0', row='12', sticky='ew')
         self._entry_11_coverArtist.bind('<Button-1>', makeFocused, add='+')
-        self._entry_11_coverArtist.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_11_coverArtist.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_11_coverArtist.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_11_coverArtist.bind('<Return>', makeReadOnly, add='+')
         self._label_15_editor = tk.Label(self._frame_3_people)
@@ -435,7 +442,7 @@ class App:
         self._entry_12_editor.configure(state='readonly', textvariable=self.entry_12_editor_var)
         self._entry_12_editor.grid(column='0', row='14', sticky='ew')
         self._entry_12_editor.bind('<Button-1>', makeFocused, add='+')
-        self._entry_12_editor.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_12_editor.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_12_editor.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_12_editor.bind('<Return>', makeReadOnly, add='+')
         self._label_16_publisher = tk.Label(self._frame_3_people)
@@ -445,7 +452,7 @@ class App:
         self._entry_13_publisher.configure(state='readonly', textvariable=self.entry_13_publisher_var)
         self._entry_13_publisher.grid(column='0', row='16', sticky='ew')
         self._entry_13_publisher.bind('<Button-1>', makeFocused, add='+')
-        self._entry_13_publisher.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_13_publisher.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_13_publisher.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_13_publisher.bind('<Return>', makeReadOnly, add='+')
         self._label_17_imprint = tk.Label(self._frame_3_people)
@@ -455,7 +462,7 @@ class App:
         self._entry_14_imprint.configure(state='readonly', textvariable=self.entry_14_imprint_var)
         self._entry_14_imprint.grid(column='0', row='18', sticky='ew')
         self._entry_14_imprint.bind('<Button-1>', makeFocused, add='+')
-        self._entry_14_imprint.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_14_imprint.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_14_imprint.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_14_imprint.bind('<Return>', makeReadOnly, add='+')
         self._label_23_characters = tk.Label(self._frame_3_people)
@@ -465,7 +472,7 @@ class App:
         self._entry_16_characters.configure(state='readonly', textvariable=self.entry_16_characters_var)
         self._entry_16_characters.grid(column='0', row='20')
         self._entry_16_characters.bind('<Button-1>', makeFocused, add='+')
-        self._entry_16_characters.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_16_characters.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_16_characters.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_16_characters.bind('<Return>', makeReadOnly, add='+')
         self._frame_3_people.configure(height='200', width='200')
@@ -481,7 +488,7 @@ class App:
         self._entry_15_genres.configure(state='readonly', textvariable=self.entry_15_genres_var)
         self._entry_15_genres.grid(column='0', row='1', sticky='ew')
         self._entry_15_genres.bind('<Button-1>', makeFocused, add='+')
-        self._entry_15_genres.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_15_genres.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_15_genres.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_15_genres.bind('<Return>', makeReadOnly, add='+')
         self._label_19_tags = tk.Label(self._frame_3)
@@ -491,7 +498,7 @@ class App:
         self._entry_16_tags.configure(state='readonly', textvariable=self.entry_16_tags_var)
         self._entry_16_tags.grid(column='0', row='3', sticky='ew')
         self._entry_16_tags.bind('<Button-1>', makeFocused, add='+')
-        self._entry_16_tags.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_16_tags.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_16_tags.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_16_tags.bind('<Return>', makeReadOnly, add='+')
         self._label_20_web = tk.Label(self._frame_3)
@@ -501,7 +508,7 @@ class App:
         self._entry_17_web.configure(state='readonly', textvariable=self.entry_17_web_var)
         self._entry_17_web.grid(column='0', row='5', sticky='ew')
         self._entry_17_web.bind('<Button-1>', makeFocused, add='+')
-        self._entry_17_web.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_17_web.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_17_web.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_17_web.bind('<Return>', makeReadOnly, add='+')
         self._label_24_scanInfo = tk.Label(self._frame_3)
@@ -511,7 +518,7 @@ class App:
         self._entry_20_scanInfo.configure(state='readonly', textvariable=self.entry_20_scanInfo_var)
         self._entry_20_scanInfo.grid(column='0', row='7', sticky='ew')
         self._entry_20_scanInfo.bind('<Button-1>', makeFocused, add='+')
-        self._entry_20_scanInfo.bind('<Double-Button-1>', makeEditable, add='+')
+        self._entry_20_scanInfo.bind('<Double-Button-1>', self.makeEditable, add='+')
         self._entry_20_scanInfo.bind('<FocusOut>', onFocusOut, add='+')
         self._entry_20_scanInfo.bind('<Return>', makeReadOnly, add='+')
 
@@ -599,7 +606,11 @@ class App:
 
     def _reset_highlightedUI(self):
         for widget in self.highlighted_changes:
-            widget.configure(highlightcolor="#FFF", highlightbackground="#FFF", highlightthickness="0")
+            if re.match(r".*(entry_volume|spinbox_chapter).*", str(widget)):
+                widget.configure(highlightcolor="#FFF", highlightbackground="#FFF", highlightthickness="0",
+                                 state="disabled")
+            else:
+                widget.configure(highlightcolor="#FFF", highlightbackground="#FFF", highlightthickness="0")
         self._label_28_statusinfo.configure(text="")
         try:
             self.input_1_summary_obj.linked_text_field = self._text_1_summary
@@ -616,6 +627,7 @@ class App:
         self.selected_filenames = list[str]()
         covers_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
                                                    filetypes=(("CBZ Files", ".cbz"),)
+                                                   # ("Zip files", ".zip"))
                                                    )
         for file in covers_path_list:
             self.selected_filenames.append(file.name)
@@ -938,6 +950,10 @@ class App:
                 else:
                     if str(widgetvar) == "volume" and doForceVolume:
                         comicinfo_atr_set(-1)
+                    elif str(widgetvar) == "volume" and self.spinbox_3_volume_var_isModified:
+                        comicinfo_atr_set(widgetvar.get())
+                    elif str(widgetvar) == "Number" and cls.spinbox_4_chapter_var_isModified:
+                        comicinfo_atr_set(widgetvar.get())
 
             return loadedInfo
 
