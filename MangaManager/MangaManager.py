@@ -61,8 +61,8 @@ args = parser.parse_args()
 logger = logging.getLogger()
 logging.getLogger('PIL').setLevel(logging.WARNING)
 formatter = logging.Formatter()
-rotating_file_handler = RotatingFileHandler("logs/MangaManager.log", maxBytes=20725760,
-                                             backupCount=2)
+rotating_file_handler = RotatingFileHandler("./logs/MangaManager.log", maxBytes=20725760,
+                                            backupCount=2)
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     handlers=[logging.StreamHandler(sys.stdout), rotating_file_handler]
