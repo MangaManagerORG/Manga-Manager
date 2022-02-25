@@ -21,11 +21,10 @@ launch_path = ""
 
 
 class App:
-    def __init__(self,master:tkinter.Tk):
+    def __init__(self, master: tkinter.Tk):
         self.deleteCoverFilePath = f"{ScriptDir}/DELETE_COVER.jpg"
         self.recoverCoverFilePath = f"{ScriptDir}/RECOVER_COVER.jpg"
         self.master = master
-
 
         self.do_overwrite_first = tk.BooleanVar()
         self.checkbox0_settings_val = tk.BooleanVar()
@@ -36,134 +35,126 @@ class App:
     def start_ui(self):
         # build ui
         logger.debug("Starting UI")
-        self.master.title("Cover Manager")
-        # build ui
-        self._frame_coversetter = tk.Frame(self.master)
-        self._canvas_frame = tk.Frame(self._frame_coversetter)
-        self._canvas1_coverimage = tk.Canvas(self._canvas_frame)
-        self._canvas1_coverimage.configure(background='#878787', height='260', width='190')
-        self._canvas1_coverimage.grid(column='0', row='0')
-        self._label_coverimagetitle = tk.Label(self._canvas_frame)
-        self._label_coverimagetitle.configure(text='OPEN ONE OR MORE IMAGES')
-        self._label_coverimagetitle.grid(column='0', row='1')
-        self._button3_load_images = tk.Button(self._canvas_frame)
-        self._button3_load_images.configure(text='Select covers')
-        self._button3_load_images.grid(column='0', row='0')
-        self._button3_load_images.configure(command=self.opencovers)
 
-        self._button1_next = tk.Button(self._canvas_frame)
-        self._button1_next.configure(justify='center', state='disabled', text='Next cover')
-        self._button1_next.grid(column='0', row='2', sticky='ew')
-        self._button1_next.grid_propagate(0)
-        self._button1_next.configure(command=self.display_next_cover)
+        self.master.title("Cover Setter")
+        self.master.geometry("860x750")
 
-        self._canvas_frame.configure(width='200')
-        self._canvas_frame.place(anchor='nw', height='310', relx='0.01', rely='0.02', width='200', x='9', y='0')
-        self._controller_buttons_frame = tk.Frame(self._frame_coversetter)
-        self._do_overwrite_first_label = tk.Label(self._controller_buttons_frame)
-        self._do_overwrite_first_label.configure(text='Replace current cover?')
-        self._do_overwrite_first_label.grid(column='0', row='0', sticky='ew')
-        self._controller_buttons_frame.rowconfigure('0', pad='5')
-        self._overwrite_yes_button = tk.Button(self._controller_buttons_frame)
-        self._overwrite_yes_button.configure(text='No')
-        self._overwrite_yes_button.grid(column='0', row='1', sticky='ew')
-        self._controller_buttons_frame.rowconfigure('1', pad='10')
-        self._overwrite_yes_button.configure(command=self.set_do_overwrite_first_label)
-        self._separator_2 = ttk.Separator(self._controller_buttons_frame)
-        self._separator_2.configure(orient='horizontal')
-        self._separator_2.grid(column='0', row='2', sticky='ew')
-        self._controller_buttons_frame.rowconfigure('2', pad='10')
-        self._button2_openfile = tk.Button(self._controller_buttons_frame)
-        self._button2_openfile.configure(text='Open File to Apply this cover')
-        self._button2_openfile.grid(column='0', row='3', sticky='ew')
-        self._controller_buttons_frame.rowconfigure('3', pad='10')
-        self._button2_openfile.configure(command=self.add_file_to_list)
-        self._button5_delete_covers = tk.Button(self._controller_buttons_frame)
-        self._button5_delete_covers.configure(text='Open Files to Delete their cover')
-        self._button5_delete_covers.grid(column='0', row='4', sticky='ew')
-        self._controller_buttons_frame.rowconfigure('4', pad='10')
-        self._button5_delete_covers.configure(command=self.add_file_to_list)
+        self.frame_coversetter = ttk.Frame(self.master)
+        self.frame_coversetter.rowconfigure(0, minsize=0, weight=1)
+        self.frame_coversetter.rowconfigure(1)
+        self.frame_coversetter.rowconfigure(2, pad=40)
 
-        self._controller_buttons_frame.rowconfigure('5', pad='10')
-        self._button6_reselect_covers = tk.Button(self._controller_buttons_frame)
-        self._button6_reselect_covers.configure(text='Select new set of covers')
-        self._button6_reselect_covers.grid(column='0', row='6', sticky='ew')
-        self._button6_reselect_covers.configure(command=self.opencovers)
+        self.canvas_frame = ttk.Frame(self.frame_coversetter)
+        self.canvas_frame.grid(row=0, column=0)
 
-        self._controller_buttons_frame.rowconfigure('6', pad='10')
+        self.canvas1_coverimage = tk.Canvas(self.master)
+        self.canvas1_coverimage.configure(background='#878787', height=442, state='normal', width=296)
+        # self.canvas1_coverimage.grid(column=0, row=0, padx="10 30")
+        self.canvas1_coverimage.place(in_=self.master, relx=0.10)
+        self.button3_load_images = tk.Button(self.canvas_frame, text="Select covers", command=self.opencovers)
+        # self.button3_load_images.grid(column=0, row=0, pady=20)
+        self.button3_load_images.place()
 
-        self._button_8_recover = tk.Button(self._controller_buttons_frame)
-        self._button_8_recover.configure(text='Recover covers')
-        self._button_8_recover.grid(column='0', row='2', sticky='ew')
-        self._button_8_recover.configure(command=self.recover)
-        self._controller_buttons_frame.configure(borderwidth='0', height='200', highlightbackground='grey',
-                                                 highlightcolor='grey')
-        self._controller_buttons_frame.configure(highlightthickness='1', padx='10', pady='10', width='200')
-        self._controller_buttons_frame.place(anchor='nw', relx='0.01', rely='0.53', x='15', y='0')
-        self._settings = tk.Frame(self._frame_coversetter)
-        self._label_2_settings = ttk.Label(self._settings)
-        self._label_2_settings.configure(text='Settings')
-        self._label_2_settings.grid(column='0', row='0', sticky='w')
-        self._checkbox0_settings = tk.Checkbutton(self._settings)
+        self.label_coverimagetitle = ttk.Label(self.canvas_frame)
+        self.label_coverimagetitle.configure(text='OPEN ONE OR MORE IMAGES')
+        # self.label_coverimagetitle.grid(column=0, row=1, sticky='n')
+        self.label_coverimagetitle.place()
 
-        self._checkbox0_settings.configure(text='Display next cover after adding a file to the queue (not delete)',
-                                           variable=self.checkbox0_settings_val)
-        self._checkbox0_settings.grid(column='0', row='1', sticky='w')
-        self._checkbox1_settings = tk.Checkbutton(self._settings)
-        self._checkbox1_settings.configure(text='Open File selector dialog after adding to queue (default replace: no)',
-                                           variable=self.checkbox1_settings_val)
-        self._checkbox1_settings.grid(column='0', row='2', sticky='w')
-        self._settings.configure(height='160', highlightbackground='black', highlightcolor='black',
-                                 highlightthickness='1')
-        self._settings.configure(width='200')
-        self._settings.place(anchor='nw', relx='0.03', rely='0.885', x='0')
+        self.button1_next = tk.Button(self.canvas_frame)
+        self.button1_next.configure(cursor='arrow', default='disabled', justify='center', text='Next', width=20)
+        # self.button1_next.grid(column=0, row=2)
+        self.button1_next.place()
+        # self.button1_next.grid_propagate(0)
+        self.button1_next.configure(command=self.display_next_cover)
+
+        # Column 0 Frame
+        self.column_0_frame = tk.Frame(self.canvas_frame)
+
+        self.do_overwrite_first.set(False)
+        self.do_overwrite_first_label = tk.Label(self.column_0_frame, text="Replace current cover?")
+        self.do_overwrite_first_label.grid(column=0, row=1, columnspan=2)
+        self.overwrite_yes_button = tk.Button(self.column_0_frame, text="No",
+                                              command=self.set_do_overwrite_first_label)
+        self.overwrite_yes_button.grid(row=2, column=0, sticky=tk.W + tk.E, columnspan=2, pady="0 10")
+
+        self.button2_openfile = tk.Button(self.column_0_frame)
+        self.button2_openfile.configure(font='TkDefaultFont', justify='center', text='Open File to Apply this cover')
+        self.button2_openfile.grid(column=0, row=4, columnspan=2, pady="15 0")
+        self.button2_openfile.configure(command=self.add_file_to_list)
+
+        separator = ttk.Separator(self.column_0_frame, orient="horizontal")
+        separator.grid(column=0, row=5, sticky=tk.W + tk.E, pady="7 7", columnspan=2)
+        self.button5_delete_covers = tk.Button(self.column_0_frame, text="Delete covers")
+        self.button5_delete_covers.configure(command=lambda: self.add_file_to_list(True))
+        self.button5_delete_covers.grid(column=0, row=6, sticky=tk.W + tk.E, columnspan=2)
+
+        separator2 = ttk.Separator(self.column_0_frame, orient="horizontal")
+        separator2.grid(column=0, row=7, sticky=tk.W + tk.E, pady="20 10", columnspan=2)
+        self.button6_reselect_covers = tk.Button(self.column_0_frame, text="Select new set of covers")
+        self.button6_reselect_covers.configure(command=self.opencovers)
+        self.button6_reselect_covers.grid(column=0, row=8, sticky=tk.W + tk.E, columnspan=2)
+        self.column_0_frame.grid(row=3, pady=20)
+
+        settings = tk.Frame(self.frame_coversetter, height=160, width=200)
+        settings.grid(row=4, column=0, sticky=tk.E)
+
+        self.checkbox0_settings_val.set(True)
+        checkbox0_settings = tk.Checkbutton(settings,
+                                            text="Display next cover after adding a file to the queue (not delete)",
+                                            variable=self.checkbox0_settings_val)
+        checkbox0_settings.grid(row=0, sticky=tk.W)
+
+        checkbox1_settings = tk.Checkbutton(settings,
+                                            text="Open File selector dialog after adding to queue (default replace: no)",
+                                            variable=self.checkbox1_settings_val)
+        checkbox1_settings.grid(row=1, sticky=tk.W)
+
+        # This is the 2d column of Frame
+        # Column 1 - Row 0
         s = ttk.Style()
         s.configure('Treeview', rowheight=65, rowpady=5, rowwidth=360)
+        self.treeview1 = ttk.Treeview(self.frame_coversetter)
+        self.treeview1_cols = ['column3', 'overwrite']
+        self.treeview1_dcols = ['column3', 'overwrite']
+        self.treeview1.configure(columns=self.treeview1_cols, displaycolumns=self.treeview1_dcols)
+        self.treeview1.column('#0', anchor='center', stretch=False, width=65)
+        self.treeview1.column('column3', anchor='w', stretch=True, width=300, minwidth=260)
+        self.treeview1.column('overwrite', anchor='center', stretch=True, width=60)
 
-        self._treeview1 = ttk.Treeview(self._frame_coversetter)
-        self._treeview1.tag_configure('monospace', font=('courier', 10))
-        self._treeview1_cols = ['column3', 'overwrite']
-        self._treeview1_dcols = ['column3', 'overwrite']
-        self._treeview1.configure(columns=self._treeview1_cols, displaycolumns=self._treeview1_dcols)
-        self._treeview1.column('#0', anchor='center', stretch=False, width=80)
-        self._treeview1.column('column3', anchor='w', stretch='true', width='260', minwidth='20')
-        self._treeview1.column('overwrite', anchor='center', stretch='false', width='60', minwidth='20')
-        self._treeview1.heading('column3', anchor='center', text='Queue')
-        self._treeview1.heading('overwrite', anchor='center', text='Overwrite')
-        self._treeview1.bind('<Button-1>', self._handle_click, add='')
+        self.treeview1.heading('column3', anchor='center', text='Queue')
+        self.treeview1.heading('overwrite', anchor='center', text='Overwrite')
+        self.treeview1.grid(column=1, row=0, sticky=tk.N, pady="2 0")
+        # Column 1 - Row 1
+        self.inline_proceed_recover_controls = tk.Frame(self.frame_coversetter)
+        self.inline_proceed_recover_controls.grid(row=1, column=1)
+        self.button4_proceed = tk.Button(self.inline_proceed_recover_controls)
+        self.button4_proceed.configure(text='Proceed')
+        self.button4_proceed.grid(column=0, row=0, columnspan=2)
+        self.button4_proceed.configure(command=self.process)
 
-        self._treeview1.place(anchor='nw', height='350', relheight='0.14', relwidth='0.69', relx='0.28', rely='0.02')
+        self.button_8_recover = tk.Button(self.inline_proceed_recover_controls)
+        self.button_8_recover.configure(text="Recover covers")
+        self.button_8_recover.grid(row=1, column=0)
+        self.button_8_recover.configure(command=self.recover)
 
-        self._frame_6 = tk.Frame(self._frame_coversetter)
-        self._button_7_clearqueue = tk.Button(self._frame_6)
-        self._button_7_clearqueue.configure(compound='top', font='TkTextFont', text='Clear Queue')
-        self._button_7_clearqueue.grid(column='0', row='0', sticky='ew')
-        self._frame_6.rowconfigure('0', pad='5')
-        self._button_7_clearqueue.configure(command=self.clearqueue)
-        self._button4_proceed = tk.Button(self._frame_6)
-        self._button4_proceed.configure(text='Proceed')
-        self._button4_proceed.grid(column='0', columnspan='2', row='1', sticky='ew')
-        self._frame_6.rowconfigure('1', pad='5')
-        self._button4_proceed.configure(command=self.process)
+        self.button_7_clearqueue = tk.Button(self.inline_proceed_recover_controls)
+        self.button_7_clearqueue.configure(text='Clear')
+        self.button_7_clearqueue.grid(column=1, row=1)
+        self.button_7_clearqueue.configure(command=self.clearqueue)
 
-        self._frame_6.rowconfigure('2', pad='5')
+        # Column 1 - Row 2
 
-        self._frame_6.configure(height='200', width='200')
-        self._frame_6.place(anchor='n', relx='0.62', rely='0.71', x='0', y='0')
-        self._progressbar_frame = tk.Frame(self._frame_coversetter)
-        self._progressbar_frame.place(anchor='nw', height='20', relx='0.4', rely='0.83', width='400', x='0', y='0')
-        self._frame_coversetter.configure(height='640', highlightbackground='grey', highlightcolor='black',
-                                          highlightthickness='1')
-        self._frame_coversetter.configure(width='800')
-        self._frame_coversetter.pack(anchor='center', expand='true', side='top')
+        self.progressbar_frame = tk.Frame(self.frame_coversetter, width=60, height=60)
+        self.progressbar_frame.grid(column=1, row=3, rowspan=2, sticky=tk.W + tk.E, padx=30)
 
-        # Main widget
-        self._mainwindow = self._frame_coversetter
+        # End frame
+        self.frame_coversetter.configure(height=420, padding='20', width='400')
+        self.frame_coversetter.pack(expand=tk.YES, fill=tk.BOTH)
 
-        self.disableButtons(self._frame_coversetter)
-        self._button3_load_images.config(state="normal")
-        self._button5_delete_covers.config(state="normal")
-        self._button_8_recover.config(state="normal")
+        self.disableButtons(self.frame_coversetter)
+        self.button3_load_images.config(state="normal")
+        self.button5_delete_covers.config(state="normal")
+        self.button_8_recover.config(state="normal")
         self._initialized_UI = True
         # Main widget
         logger.debug("UI initialised")
@@ -175,10 +166,10 @@ class App:
     def set_do_overwrite_first_label(self):
         if self.do_overwrite_first.get():
             self.do_overwrite_first.set(False)
-            self._overwrite_yes_button.configure(text="No")
+            self.overwrite_yes_button.configure(text="No")
         else:
             self.do_overwrite_first.set(True)
-            self._overwrite_yes_button.configure(text="Yes")
+            self.overwrite_yes_button.configure(text="Yes")
 
     def opencovers(self):
         """
@@ -189,13 +180,14 @@ class App:
             logger.debug("Printing first image in canvas")
             cls.thiselem, cls.nextelem = cls.nextelem, next(cls.licycle)
             image = Image.open(cls.thiselem.name)
-            image = image.resize((190, 260), Image.ANTIALIAS)
+            image = image.resize((300, 445), Image.ANTIALIAS)
             cls.image = ImageTk.PhotoImage(image)
-            cls.canvas_image = cls._canvas1_coverimage.create_image(0, 0, anchor=tk.NW, image=cls.image)
-            cls._label_coverimagetitle.configure(text=os.path.basename(cls.thiselem.name))
+            cls.canvas_image = cls.canvas1_coverimage.create_image(0, 0, anchor=tk.NW, image=cls.image)
+            cls.label_coverimagetitle.configure(text=os.path.basename(cls.thiselem.name))
+
         logger.debug("Selecting covers")
 
-        self._button3_load_images.configure(text="Loading...", state="disabled")
+        self.button3_load_images.configure(text="Loading...", state="disabled")
         covers_path_list = filedialog.askopenfiles(initialdir=launch_path,
                                                    title="Open all covers you want to work with:"
                                                    )
@@ -206,37 +198,36 @@ class App:
             # self.button3_load_images.configure(text="Select covers")
             mb.showwarning("No file selected", "No images were selected.")
             self.image = None
-            self._button3_load_images.configure(text="Select covers", state="normal")
-            self._button3_load_images.grid()
+            self.button3_load_images.configure(text="Select covers", state="normal")
+            self.button3_load_images.grid()
             logger.error("No images were selected when asked for")
             raise
         self.prevelem = None
-        self.enableButtons(self._frame_coversetter)
+        self.enableButtons(self.frame_coversetter)
         try:
-            self._button3_load_images.grid_remove()
-            self.canvas_image = ""
+            self.button3_load_images.grid_remove()
+
             show_first_cover(self)
 
         except UnidentifiedImageError as e:
             mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
             logger.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
-            self._button3_load_images.configure(text="Select covers", state="normal")
-            self._button3_load_images.grid()
+            self.button3_load_images.configure(text="Select covers", state="normal")
+            self.button3_load_images.grid()
 
     def display_next_cover(self):
         logger.info(f"Printing next cover in canvas - {self.nextelem}")
         self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
         try:
             rawimage: Image = Image.open(self.thiselem.name)
-            image = rawimage.resize((190, 260), Image.ANTIALIAS)
-            self.image = ImageTk.PhotoImage(image)
-            # logger.debug(self.label.gettags("IMG10"))
-            self._canvas1_coverimage.itemconfig(self.canvas_image, image=self.image)
-            self._label_coverimagetitle.configure(text=os.path.basename(self.thiselem.name))
-
         except UnidentifiedImageError as e:
             mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
             logger.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
+        image = rawimage.resize((300, 445), Image.ANTIALIAS)
+        self.image = ImageTk.PhotoImage(image)
+        # logger.debug(self.label.gettags("IMG10"))
+        self.canvas1_coverimage.itemconfig(self.canvas_image, image=self.image)
+        self.label_coverimagetitle.configure(text=os.path.basename(self.thiselem.name))
 
     def add_file_to_list(self, delete=False, recover=False):
         logger.debug("Adding files to processing list")
@@ -287,17 +278,17 @@ class App:
             logger.info(f"Added to the processing queue -> {os.path.basename(iterated_file_path)} ")
 
             # Adding file is done. Just adding visual feedback in UI
-            displayed_file_path = f"...{os.path.basename(iterated_file_path)[-47:]}"
+            displayed_file_path = f"...{os.path.basename(iterated_file_path)[-46:]}"
             overwrite_displayedval = self.do_overwrite_first.get() if not delete else "Delete"
-            self._treeview1.insert(parent='', index='end', image=self.image_in_confirmation, tags='monospace',
-                                   values=(displayed_file_path, overwrite_displayedval))
-            self._treeview1.yview_moveto(1)
+            self.treeview1.insert(parent='', index='end', image=self.image_in_confirmation,
+                                  values=(displayed_file_path, overwrite_displayedval))
+            self.treeview1.yview_moveto(1)
         selected_files = True if cbzs_path_list else False
         cbzs_path_list = tuple()
         self.do_overwrite_first.set(False)
-        self._overwrite_yes_button.configure(text="No")
-        self._button_7_clearqueue.config(state="normal")
-        self._button4_proceed.config(state="normal", text="Proceed")
+        self.overwrite_yes_button.configure(text="No")
+        self.button_7_clearqueue.config(state="normal")
+        self.button4_proceed.config(state="normal", text="Proceed")
         if not delete and not recover:
             if self.checkbox0_settings_val.get():
                 self.display_next_cover()
@@ -306,14 +297,14 @@ class App:
 
     def process(self):
         logger.debug("Starting processing of files.")
-        self._button4_proceed.config(relief=tk.SUNKEN, text="Processing")
+        self.button4_proceed.config(relief=tk.SUNKEN, text="Processing")
 
-        self.disableButtons(self._frame_coversetter)
-        total = len(self._treeview1.get_children())
+        self.disableButtons(self.frame_coversetter)
+        total = len(self.treeview1.get_children())
         # TBH I'd like to rework how this processing bar works. - Promidius
         label_progress_text = tk.StringVar()
         if self._initialized_UI:
-            pb_root = self._progressbar_frame
+            pb_root = self.progressbar_frame
 
             style = ttk.Style(pb_root)
             style.layout('text.Horizontal.TProgressbar',
@@ -356,7 +347,6 @@ class App:
                 try:
                     SetCover(file)
 
-
                     label_progress_text.set(
                         f"Processed: {processed_counter}/{total} - {processed_errors} errors")
                     processed_counter += 1
@@ -386,7 +376,7 @@ class App:
                                     text='{:g} %'.format(round(percentage, 2)))  # update label
                     pb['value'] = percentage
                     label_progress_text.set(
-                    f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors")
+                        f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors")
         self.covers_path_in_confirmation = {}  # clear queue
 
         self.disableButtons(self.master)
@@ -395,7 +385,7 @@ class App:
 
         try:
             logger.debug("Cleanup: Try to clear treeview")
-            self._treeview1.delete(*self._treeview1.get_children())
+            self.treeview1.delete(*self.treeview1.get_children())
             # self.treeview1.grid_forget()
         except AttributeError:
             logger.debug("Can't clear treeview. -> doesnt exist yet")
@@ -403,14 +393,14 @@ class App:
             logger.debug("Can't clear treeview", exc_info=e)
         logger.debug("All done")
 
-        self.enableButtons(self._frame_coversetter)
-        self._button4_proceed.config(relief=tk.RAISED, text="Proceed")
+        self.enableButtons(self.frame_coversetter)
+        self.button4_proceed.config(relief=tk.RAISED, text="Proceed")
 
     def clearqueue(self):
         self.covers_path_in_confirmation = {}  # clear queue
         try:
             logger.debug(" Try to clear treeview")
-            self._treeview1.delete(*self._treeview1.get_children())
+            self.treeview1.delete(*self.treeview1.get_children())
             # self.treeview1.grid_forget()
         except AttributeError:
             logger.debug("Can't clear treeview. -> doesnt exist yet")
@@ -449,7 +439,3 @@ class App:
                         for w3 in w2.winfo_children():
                             if w3.winfo_class() == "Button":
                                 w3.configure(state="disabled")
-
-    def _handle_click(self, event):
-        if self._treeview1.identify_region(event.x, event.y) == "separator":
-            return "break"

@@ -274,7 +274,7 @@ class App:
                 newFile_Name = "Filename won't be modified. Vol will be added to ComicInfo.xml"
                 file_regex_finds.complete_new_path = filepath
             else:
-                newFile_Name = f"{new_file_path}/{file_regex_finds.name} Vol.{volume_to_apply} {file_regex_finds.chapterinfo}{file_regex_finds.afterchapter}".replace(
+                newFile_Name = f"{new_file_path}/{file_regex_finds.name} Vol.{str(volume_to_apply).zfill(2)} {file_regex_finds.chapterinfo}{file_regex_finds.afterchapter}".replace(
                     "  ", " ")
                 file_regex_finds.complete_new_path = newFile_Name
 
