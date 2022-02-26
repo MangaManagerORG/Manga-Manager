@@ -1,4 +1,4 @@
-lxml==4.6.4
+lxml==4.6.5
 Pillow==9.0.1
 requests==2.26.0
 six==1.16.0
