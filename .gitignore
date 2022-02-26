@@ -8,3 +8,11 @@ undo.json
 /.idea/modules.xml
 /.idea/vcs.xml
 /ZIPPER_2_COVER_SETTER_UI.ui
+/junk_stuff/
+/MangaManager/CoverManagerLib/.pytest_cache/
+/MangaManager/MetadataManagerLib/.pytest_cache/
+/MangaManager/tests/.pytest_cache/
+/MangaManager/tests/Sample CBZ Chapter 23.cbz
+/MangaManager/tests/Sample CBZ Chapter 24.cbz
+/.pytest_cache/
+/MangaManager/logs/MangaManager.log
