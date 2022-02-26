@@ -82,7 +82,7 @@ class App:
         self._button5_delete_covers.configure(text='Open Files to Delete their cover')
         self._button5_delete_covers.grid(column='0', row='4', sticky='ew')
         self._controller_buttons_frame.rowconfigure('4', pad='10')
-        self._button5_delete_covers.configure(command=self.add_file_to_list)
+        self._button5_delete_covers.configure(command=self._deleteCover)
 
         self._controller_buttons_frame.rowconfigure('5', pad='10')
         self._button6_reselect_covers = tk.Button(self._controller_buttons_frame)
@@ -303,6 +303,9 @@ class App:
                 self.display_next_cover()
             if self.checkbox1_settings_val.get() and selected_files:
                 self.add_file_to_list()
+
+    def _deleteCover(self):
+        self.add_file_to_list(delete=True)
 
     def process(self):
         logger.debug("Starting processing of files.")
