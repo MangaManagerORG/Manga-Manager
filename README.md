@@ -11,5 +11,3 @@ There's 3 tools currently:
 - [Cover Manager](https://github.com/ThePromidius/Manga-Manager/wiki/Cover-Manager)
 - [Metadata Manager](https://github.com/ThePromidius/Manga-Manager/wiki/Metadata-Manager)
 - [Volume Manager](https://github.com/ThePromidius/Manga-Manager/wiki/Volume-Manager)
-
-To access more details of each tool, [go to the wiki page](https://github.com/ThePromidius/Manga-Manager/wiki)
