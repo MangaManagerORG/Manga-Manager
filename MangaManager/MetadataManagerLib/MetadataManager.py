@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 # noinspection PyTypeChecker
 class App:
-    def __init__(self, master: tk.Tk = None):
+    def __init__(self, master: tk.Tk = None, disable_metadata_notFound_warning=False):
         self.master = master
         # self.master.eval('tk::PlaceWindow . center')
         self.initialize_StringVars()
@@ -40,6 +40,7 @@ class App:
         self.widgets_obj = []
         self.spinbox_4_chapter_var_isModified = False
         self.spinbox_3_volume_var_isModified = False
+        self.warning_metadataNotFound = disable_metadata_notFound_warning
 
     def initialize_StringVars(self):
         self.highlighted_changes = []
@@ -127,7 +128,7 @@ class App:
             if str(e) == 'expected floating-point number but got ""' or str(
                     e) == 'expected floating-point number but got "-"':
                 return
-            elif re.match(r"^(?!.*\/\/)(-?)([0-9]+\.[0-9]+$)", str(e)):
+            elif re.match(r"^(?!.*\/\/)(-?)([0-9]+\.*[0-9]*$)", str(e)):
                 return
             self.master.bell()
             if self.spinbox_3_volume_var_prev.get() != (-1):
@@ -637,7 +638,7 @@ class App:
 
     def create_loadedComicInfo_list(self, cli_selected_files: list[str] = None):
         self.conflicts = {}
-        self.warning_metadataNotFound = False
+
         def load_comicinfo_xml(cls, cbz_path) -> LoadedComicInfo:
             """
             Accepts a path string

@@ -435,7 +435,7 @@ class App:
             for item in self._list_filestorename:
 
                 try:
-                    cominfo_app = taggerApp()
+                    cominfo_app = taggerApp(disable_metadata_notFound_warning=True)
                     cominfo_app.create_loadedComicInfo_list([item.complete_new_path])
                     cominfo_app.spinbox_3_volume_var.set(item.volume)
                     cominfo_app.parseUI_toComicInfo(forceVolume=True)
