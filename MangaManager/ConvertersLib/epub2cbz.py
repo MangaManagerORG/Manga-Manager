@@ -1,4 +1,4 @@
-import zipfile
+import os
 import os
 import re
 import tempfile
@@ -8,7 +8,7 @@ import zipfile
 logger = logging.getLogger(__name__)
 
 
-class epub2cbz:
+class App:
     def __init__(self, epubsPathList: list[str], convert_to_webp=False):
         self.convert_to_webp = convert_to_webp
         logger.info(f"Loaded file list: \n" + "\n".join(epubsPathList))
@@ -58,7 +58,11 @@ class epub2cbz:
                         zout.writestr(image_name, zin.read(image))
                         logger.debug(f"Added '{image.filename}' to new tempfile")
 
+    def start_ui(self):
+        pass
 
+    def run(self):
+        pass
 def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
     """
     Call in a loop to create terminal progress bar
@@ -108,4 +112,4 @@ if __name__ == '__main__':
     if not filenames:
         print("No files found")
         exit()
-    app = epub2cbz(filenames)
+    app = App(filenames)
