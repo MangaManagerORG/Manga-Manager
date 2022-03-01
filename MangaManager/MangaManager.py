@@ -60,7 +60,7 @@ args = parser.parse_args()
 # <Logger>
 logger = logging.getLogger()
 logging.getLogger('PIL').setLevel(logging.WARNING)
-formatter = logging.Formatter()
+# formatter = logging.Formatter()
 
 PROJECT_PATH = pathlib.Path(__file__).parent
 rotating_file_handler = RotatingFileHandler(f"{PROJECT_PATH}/logs/MangaManager.log", maxBytes=5725760,

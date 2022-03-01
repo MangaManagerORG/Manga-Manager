@@ -5,18 +5,17 @@ import re
 import tempfile
 import zipfile
 from io import BytesIO
-from typing import IO
 
 from PIL import Image
 
 logger = logging.getLogger(__name__)
 
-
+supportedFormats = (".png", ".jpeg", ".jpg")
 class WebpConverter:
-    def __init__(self, cbzFilePathList: list[str], overrideSupportedFormat=(".png", ".jpeg", ".jpg")):
+    def __init__(self, cbzFilePathList: list[str], overrideSupportedFormat=supportedFormats):
         logger.info(f"Loaded file list: \n" + "\n".join(cbzFilePathList))
         l = len(cbzFilePathList)
-        printProgressBar(0, l, prefix='Progress:', suffix='Complete', length=50)
+        _printProgressBar(0, l, prefix='Progress:', suffix='Complete', length=50)
         for i, cbzFilepath in enumerate(cbzFilePathList):
             # print(i)
             # print(cbzFilepath)
@@ -44,7 +43,7 @@ class WebpConverter:
                 print(f"Error. Not processed '{os.path.basename(cbzFilePathList[i])}'")
                 logger.error(f"Error processing '{cbzFilepath}': {str(e)}", exc_info=True)
                 os.remove(self._tmpname)
-            printProgressBar(i + 1, l, prefix=f"Progress:", suffix='Complete', length=50)
+            _printProgressBar(i + 1, l, prefix=f"Progress:", suffix='Complete', length=50)
         logger.info("Completed processing for all selected files")
     def _process(self):
         with zipfile.ZipFile(self.zipFilePath, 'r') as zin:
@@ -72,7 +71,7 @@ class WebpConverter:
 # CLI ProgressBar
 
 
-def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
+def _printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
     """
     Call in a loop to create terminal progress bar
     @params:
@@ -94,12 +93,21 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
         print()
 
 
-def convert(open_zipped_file: IO[bytes]) -> bytes:
+def getNewWebpFormatName(currentName: str) -> str:
+    file_format = re.findall(r"(?i)\.[a-z]+$", currentName)
+    if file_format:
+        file_format = file_format[0]
+        file_name = currentName.replace(file_format, "")
+        return file_name + ".webp"
+
+
+def convertToWebp(open_zipped_file) -> bytes:
     image = Image.open(open_zipped_file)
     # print(image.size, image.mode, len(image.getdata()))
     converted_image = BytesIO()
     image.save(converted_image, format="webp")
     image.close()
+    logger.debug("Successfully converted image to webp}")
     return converted_image.getvalue()
 
 

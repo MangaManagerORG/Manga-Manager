@@ -26,10 +26,10 @@ class App:
         self.recoverCoverFilePath = f"{ScriptDir}/RECOVER_COVER.jpg"
         self.master = master
 
-
         self.do_overwrite_first = tk.BooleanVar()
-        self.checkbox0_settings_val = tk.BooleanVar()
-        self.checkbox1_settings_val = tk.BooleanVar()
+        self.checkbox0_settings_val = tk.BooleanVar(value=True)
+        self.checkbox1_settings_val = tk.BooleanVar(value=False)
+        self.checkbox2_settings_val = tk.BooleanVar(value=False)
         self.covers_path_in_confirmation = {}
         self._initialized_UI = False
 
@@ -99,7 +99,7 @@ class App:
         self._controller_buttons_frame.configure(borderwidth='0', height='200', highlightbackground='grey',
                                                  highlightcolor='grey')
         self._controller_buttons_frame.configure(highlightthickness='1', padx='10', pady='10', width='200')
-        self._controller_buttons_frame.place(anchor='nw', relx='0.01', rely='0.53', x='15', y='0')
+        self._controller_buttons_frame.place(anchor='nw', relx='0.01', rely='0.485', x='15', y='0')
         self._settings = tk.Frame(self._frame_coversetter)
         self._label_2_settings = ttk.Label(self._settings)
         self._label_2_settings.configure(text='Settings')
@@ -109,14 +109,21 @@ class App:
         self._checkbox0_settings.configure(text='Display next cover after adding a file to the queue (not delete)',
                                            variable=self.checkbox0_settings_val)
         self._checkbox0_settings.grid(column='0', row='1', sticky='w')
+
         self._checkbox1_settings = tk.Checkbutton(self._settings)
         self._checkbox1_settings.configure(text='Open File selector dialog after adding to queue (default replace: no)',
                                            variable=self.checkbox1_settings_val)
         self._checkbox1_settings.grid(column='0', row='2', sticky='w')
+
+        self._checkbox2_settings = tk.Checkbutton(self._settings)
+        self._checkbox2_settings.configure(text='Convert images to webp (may take a lot of time)',
+                                           variable=self.checkbox2_settings_val)
+        self._checkbox2_settings.grid(column='0', row='3', sticky='w')
+
         self._settings.configure(height='160', highlightbackground='black', highlightcolor='black',
                                  highlightthickness='1')
         self._settings.configure(width='200')
-        self._settings.place(anchor='nw', relx='0.03', rely='0.885', x='0')
+        self._settings.place(anchor='nw', relx='0.03', rely='0.85', x='0')
         s = ttk.Style()
         s.configure('Treeview', rowheight=65, rowpady=5, rowwidth=360)
 
@@ -151,10 +158,9 @@ class App:
         self._frame_6.configure(height='200', width='200')
         self._frame_6.place(anchor='n', relx='0.62', rely='0.71', x='0', y='0')
         self._progressbar_frame = tk.Frame(self._frame_coversetter)
-        self._progressbar_frame.place(anchor='nw', height='20', relx='0.4', rely='0.83', width='400', x='0', y='0')
-        self._frame_coversetter.configure(height='640', highlightbackground='grey', highlightcolor='black',
-                                          highlightthickness='1')
-        self._frame_coversetter.configure(width='800')
+        self._progressbar_frame.place(anchor='nw', height='20', relx='0.4', rely='0.8', width='400', x='0', y='0')
+        self._frame_coversetter.configure(height='690', highlightbackground='grey', highlightcolor='black',
+                                          highlightthickness='1', width='800')
         self._frame_coversetter.pack(anchor='center', expand='true', side='top')
 
         # Main widget
@@ -352,14 +358,12 @@ class App:
 
         processed_counter = 0
         processed_errors = 0
-
+        convert_images = self.checkbox2_settings_val.get()
         for item in self.covers_path_in_confirmation:
             for file in self.covers_path_in_confirmation[item]:
                 logger.info(f"Starting processing for file: {item}")
                 try:
-                    SetCover(file)
-
-
+                    SetCover(file, conver_to_webp=convert_images)
                     label_progress_text.set(
                         f"Processed: {processed_counter}/{total} - {processed_errors} errors")
                     processed_counter += 1
