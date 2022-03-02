@@ -2,6 +2,7 @@
 import logging
 import os
 import re
+import time
 import tkinter
 import tkinter as tk
 from itertools import cycle
@@ -156,9 +157,10 @@ class App:
         self._frame_6.rowconfigure('2', pad='5')
 
         self._frame_6.configure(height='200', width='200')
-        self._frame_6.place(anchor='n', relx='0.62', rely='0.71', x='0', y='0')
+        self._frame_6.place(anchor='n', relx='0.62', rely='0.69', x='0', y='0')
         self._progressbar_frame = tk.Frame(self._frame_coversetter)
-        self._progressbar_frame.place(anchor='nw', height='20', relx='0.4', rely='0.8', width='400', x='0', y='0')
+        self._progressbar_frame.lower(self._settings)
+        self._progressbar_frame.place(anchor='nw', height='60', relx='0.4', rely='0.79', width='400', x='0', y='0')
         self._frame_coversetter.configure(height='690', highlightbackground='grey', highlightcolor='black',
                                           highlightthickness='1', width='800')
         self._frame_coversetter.pack(anchor='center', expand='true', side='top')
@@ -351,21 +353,33 @@ class App:
                                  mode="determinate")  # create progress bar
             style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
 
-            pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
+            pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W, justify="right")
             logger.info("Initialized progress bar")
             pb.grid(row=0, column=0, sticky=tk.E + tk.W)
             pb_text.grid(row=1, column=0, sticky=tk.E)
 
+        def get_elapsed_time(start_time):
+            current_time = time.time()
+            seconds = current_time - start_time
+            minutes, seconds = divmod(seconds, 60)
+
+            return f"{int(round(seconds, 0))} seconds and {int(round(minutes, 0))} minutes"
+
+        start_time = time.time()
         processed_counter = 0
         processed_errors = 0
         convert_images = self.checkbox2_settings_val.get()
+        label_progress_text.set(
+            f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors\n"
+            f"Elapsed time: {get_elapsed_time(start_time)}")
         for item in self.covers_path_in_confirmation:
             for file in self.covers_path_in_confirmation[item]:
                 logger.info(f"Starting processing for file: {item}")
                 try:
                     SetCover(file, conver_to_webp=convert_images)
-                    label_progress_text.set(
-                        f"Processed: {processed_counter}/{total} - {processed_errors} errors")
+                    # label_progress_text.set(
+                    #     f"Processed: {processed_counter}/{total} - {processed_errors} errors"
+                    #     f" - Elapsed time: {get_elapsed_time}")
                     processed_counter += 1
 
                 except FileExistsError as e:
@@ -393,7 +407,8 @@ class App:
                                     text='{:g} %'.format(round(percentage, 2)))  # update label
                     pb['value'] = percentage
                     label_progress_text.set(
-                    f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors")
+                        f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors\n"
+                        f"Elapsed time: {get_elapsed_time(start_time)}")
         self.covers_path_in_confirmation = {}  # clear queue
 
         self.disableButtons(self.master)
