@@ -363,7 +363,7 @@ class App:
             seconds = current_time - start_time
             minutes, seconds = divmod(seconds, 60)
 
-            return f"{int(round(seconds, 0))} seconds and {int(round(minutes, 0))} minutes"
+            return f"{int(round(minutes, 0))} minutes and {int(round(seconds, 0))} seconds"
 
         start_time = time.time()
         processed_counter = 0
