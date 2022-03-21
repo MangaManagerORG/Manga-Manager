@@ -7,6 +7,7 @@ import sys
 import tkinter as tk
 from logging.handlers import RotatingFileHandler
 
+from ConvertersLib import epub2cbz
 from CoverManagerLib import CoverManager
 from MetadataManagerLib import MetadataManager
 from VolumeManager import VolumeManager
@@ -35,8 +36,12 @@ parser.add_argument(
     '--volume',
     help="Launches volume Manager tool",
     action="store_const", dest="default_selected_tool", const=3
-    )
-
+)
+parser.add_argument(
+    '--epub2cbz',
+    help="Launches volume Manager tool",
+    action="store_const", dest="default_selected_tool", const=4
+)
 
 def is_dir_path(path):
     if os.path.isdir(path):
@@ -74,7 +79,7 @@ logger.debug('DEBUG LEVEL - MAIN MODULE')
 logger.info('INFO LEVEL - MAIN MODULE')
 # </Logger>
 
-tools = [CoverManager, MetadataManager, VolumeManager]
+tools = [CoverManager, MetadataManager, VolumeManager, epub2cbz]
 
 def main():
     selected_tool = False
@@ -82,6 +87,7 @@ def main():
     print("1 - Cover Setter")
     print("2 - Manga Tagger")
     print("3 - Volume Setter")
+    print("4 - Epub to CBZ converter")
     if not args.default_selected_tool:
         while not selected_tool:
             selection = input("Select Number >")
