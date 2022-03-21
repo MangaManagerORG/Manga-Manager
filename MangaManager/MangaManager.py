@@ -7,7 +7,7 @@ import sys
 import tkinter as tk
 from logging.handlers import RotatingFileHandler
 
-from ConvertersLib import epub2cbz
+from ConvertersLib.epub2cbz import epub2cbz
 from CoverManagerLib import CoverManager
 from MetadataManagerLib import MetadataManager
 from VolumeManager import VolumeManager

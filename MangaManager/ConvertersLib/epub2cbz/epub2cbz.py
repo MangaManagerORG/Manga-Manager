@@ -1,19 +1,20 @@
-import os
+import logging
+import logging
 import os
 import re
 import tempfile
-import tkinter
-import zipfile
-import logging
 import tkinter as tk
-from tkinter.ttk import Style,Progressbar
+import zipfile
+from pathlib import Path
 from tkinter import filedialog
+from tkinter.ttk import Style, Progressbar
+
 # from CommonLib import webp_converter as convert_to_webp
 logger = logging.getLogger(__name__)
 
 
 class App:
-    def __init__(self, master:tk.Tk, epubsPathList: list[str] = None, convert_to_webp=False,):
+    def __init__(self, master: tk.Tk, epubsPathList: list[str] = None, convert_to_webp=False, ):
         """
 
         :param epubsPathList: The list of string paths to the epubs files to process
@@ -46,18 +47,18 @@ class App:
             style = Style(pb_root)
             style.layout('text.Horizontal.TProgressbar',
                          [('Horizontal.Progressbar.trough',
-                              {'children': [
-                                      ('Horizontal.Progressbar.pbar',{
-                                           'side': 'left',
-                                           'sticky': 'ns'
-                                       })],
-                                  'sticky': 'nswe'}),
-                         ('Horizontal.Progressbar.label',{
+                           {'children': [
+                               ('Horizontal.Progressbar.pbar', {
+                                   'side': 'left',
+                                   'sticky': 'ns'
+                               })],
+                               'sticky': 'nswe'}),
+                          ('Horizontal.Progressbar.label', {
                               'sticky': 'nswe'
                           })])
 
             pb = Progressbar(pb_root, length=400, style='text.Horizontal.TProgressbar',
-                                 mode="determinate")  # create progress bar
+                             mode="determinate")  # create progress bar
             style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
 
             pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
@@ -69,20 +70,27 @@ class App:
         processed_errors = 0
         # l = len(self.epubsPathList)
         # printProgressBar(0, l, prefix='Progress:', suffix='Complete', length=50)
+
         for i, epubPath in enumerate(self.epubsPathList):
-
-            logger.info(f"Processing '{epubPath}'")
-
-
             try:
-                if os.path.exists(epubPath):
-                    raise FileExistsError
-                zipFilePath = epubPath
-                tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipFilePath))
-                os.close(tmpfd)
-                newCbzName = zipFilePath.replace(re.findall(r"(?i).*(\.[a-z]+)", zipFilePath)[0], ".cbz")
+                if not self.output_folder:
+                    output_path = os.path.dirname(epubPath) + "/epub2cbz"
+                    Path(output_path).mkdir(parents=True, exist_ok=True)
+                else:
+                    output_path = self.output_folder
+                logger.info(f"Processing '{epubPath}'")
 
-                self._processFile(zipFilePath,tmpname)
+                zipFileName = os.path.basename(epubPath)
+                if os.path.exists(Path(output_path, zipFileName)):
+                    raise FileExistsError
+
+                tmpfd, tmpname = tempfile.mkstemp(dir=output_path)
+                os.close(tmpfd)
+
+                newCbzName = (output_path + "/" + zipFileName).replace(
+                    re.findall(r"(?i).*(\.[a-z]+)", epubPath)[0]
+                    , ".cbz")
+                self._processFile(epubPath, tmpname)
                 os.rename(tmpname, newCbzName)
                 # print(" " * int(66 + len(os.path.basename(epubPath))), end="\r")
                 # print(f"Processed '{os.path.basename(epubPath)}'")
@@ -99,9 +107,9 @@ class App:
                 logger.error(f"Error processing file '{epubPath}': {str(e)}", exc_info=False)
                 processed_errors += 1
                 # os.remove(tmpname)
-
             except Exception as e:
-                logger.error(f"Error processing file '{epubPath}': {str(e)}", exc_info=True)
+                print(e)
+                logger.error(f"Error processing file '{epubPath}': {str(e)}")
                 processed_errors += 1
                 os.remove(tmpname)
             if self._initialized_UI:
@@ -111,14 +119,15 @@ class App:
                                 text='{:g} %'.format(round(percentage, 2)))  # update label
                 pb['value'] = percentage
                 label_progress_text.set(
-                f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors")
+                    f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors")
             # printProgressBar(i + 1, l, prefix=f"Progress:", suffix='Complete', length=50)
         logger.info("Completed processing for all selected files")
 
     def _processFile(self, zipFilePath, tmpname):
-
+        logger.info("Inside process")
         with zipfile.ZipFile(zipFilePath, 'r') as zin:
             with zipfile.ZipFile(tmpname, 'w') as zout:
+
                 images_in_ImagesFolder = [v for v in zin.infolist() if
                                           "images/" in v.filename]  # Notes all folders to not process them.
                 if not images_in_ImagesFolder:
@@ -128,6 +137,7 @@ class App:
                     if self.convert_to_webp:
                         # zout.writestr(covers[0],  zin.read(covers[0]))
                         raise NotImplementedError
+                        # TODO webp convert
                         pass
                     else:
                         zout.writestr(covers[0], zin.read(covers[0]))
@@ -182,13 +192,24 @@ class App:
         self.frame_1.grid(column='0', row='0')
         self.frame_1.rowconfigure('2', pad='20')
         self._progressbar_frame = tk.Frame(self.frame_1)
-        self._progressbar_frame.grid(column=0,row=6)
-
+        self._progressbar_frame.grid(column=0, row=6)
+        self.button_2 = tk.Button(self.frame_1)
+        self.button_2.configure(text='Change output folder')
+        self.button_2.grid(column='0', row=7)
+        self.button_2.configure(command=self._change_out_folder)
+        self.label_4 = tk.Label(self.frame_1)
+        self.label_4.configure(text='Selected folder:\nfile_path/epub2cbz/')
+        self.label_4.grid(column='0', row=8)
 
         self._initialized_UI = True
 
+    def _change_out_folder(self):
+        self.output_folder = filedialog.askdirectory()
+        self.label_4.configure(text="Selected folder:\n" + self.output_folder)
+
     def run(self):
         self.master.mainloop()
+
 
 def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
     """
@@ -216,7 +237,7 @@ if __name__ == '__main__':
     import pathlib
     from logging.handlers import RotatingFileHandler
     import sys
-    import glob
+
     #
     PROJECT_PATH = pathlib.Path(__file__).parent
     rotating_file_handler = RotatingFileHandler(f"{PROJECT_PATH}/epub2cbz.log", maxBytes=1025760,
@@ -240,5 +261,6 @@ if __name__ == '__main__':
     # if not filenames:
     #     print("No files found")
     #     exit()
-    app = App()
+    root = tk.Tk()
+    app = App(root)
     app.run()
