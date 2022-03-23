@@ -7,11 +7,13 @@ import sys
 import tkinter as tk
 from logging.handlers import RotatingFileHandler
 
+from CommonLib import WebpConverter
 from CoverManagerLib import CoverManager
 from MetadataManagerLib import MetadataManager
 from VolumeManager import VolumeManager
 
 # <Arguments parser>
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '-d', '--debug',
@@ -35,8 +37,12 @@ parser.add_argument(
     '--volume',
     help="Launches volume Manager tool",
     action="store_const", dest="default_selected_tool", const=3
-    )
-
+)
+parser.add_argument(
+    '--webpConverter',
+    help="Launches volume Manager tool",
+    action="store_const", dest="default_selected_tool", const=5
+)
 
 def is_dir_path(path):
     if os.path.isdir(path):
@@ -74,7 +80,7 @@ logger.debug('DEBUG LEVEL - MAIN MODULE')
 logger.info('INFO LEVEL - MAIN MODULE')
 # </Logger>
 
-tools = [CoverManager, MetadataManager, VolumeManager]
+tools = [CoverManager, MetadataManager, VolumeManager, "Placeholder", WebpConverter]
 
 def main():
     selected_tool = False
@@ -82,6 +88,7 @@ def main():
     print("1 - Cover Setter")
     print("2 - Manga Tagger")
     print("3 - Volume Setter")
+    print("5 - Webp Coverter")
     if not args.default_selected_tool:
         while not selected_tool:
             selection = input("Select Number >")

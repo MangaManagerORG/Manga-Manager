@@ -70,7 +70,7 @@ class SetCover:
             else:
                 return False
         cover_is_000 = False
-        r = r"(?i)^0*\.[a-z]{3}$"
+        r = r"(?i)^0*\.[a-z]+$"
 
         with zipfile.ZipFile(self.values.zipFilePath, 'r') as zin:
             with zipfile.ZipFile(tmpname, 'w') as zout:
@@ -99,12 +99,12 @@ class SetCover:
                         continue
 
                     # If it's a file with a format not supported by converter we save it as it is
-                    file_format = re.findall(r"(?i)\.[a-z]+$", item.filename)
-                    if file_format:
-                        if not file_format[0] in supportedFormats:
-                            zout.writestr(item.filename, zin.read(item.filename))
-                            logger.debug(f"Added '{item.filename}' to new tempfile. File was not processed")
-                            continue
+                    # file_format = re.findall(r"(?i)\.[a-z]+$", item.filename)
+                    # if file_format:
+                    #     if not file_format[0] in supportedFormats:
+                    #         zout.writestr(item.filename, zin.read(item.filename))
+                    #         logger.debug(f"Added '{item.filename}' to new tempfile. File was not processed")
+                    #         continue
 
                     if item.filename in cover_matches:  # This file is a potential cover
 
@@ -143,7 +143,7 @@ class SetCover:
                             continue
 
                     # Find 001.ext
-                    if re.match(r"(?i)^0*1\.[a-z]{3}$", item.filename) and (
+                    if re.match(r"(?i)^0*1\.[a-z]+$", item.filename) and (
                             self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
 
                         if self.conver_to_webp:
@@ -159,7 +159,7 @@ class SetCover:
                         processed_files.append(item.filename)
                         continue
                     # Find 002.ext
-                    elif re.match(r"(?i)^0*2\.[a-z]{3}$", item.filename) and (
+                    elif re.match(r"(?i)^0*2\.[a-z]+$", item.filename) and (
                             self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
                         if self.conver_to_webp:
                             newname = f"OldCover_{getNewWebpFormatName(item.filename)}.bak"
@@ -174,7 +174,7 @@ class SetCover:
                         processed_files.append(item.filename)
                         continue
                     # Find 003.ext
-                    elif re.match(r"(?i)^0*3\.[a-z]{3}$", item.filename) and (
+                    elif re.match(r"(?i)^0*3\.[a-z]+$", item.filename) and (
                             self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
                         if self.conver_to_webp:
                             newname = f"OldCover_{getNewWebpFormatName(item.filename)}.bak"
@@ -189,7 +189,7 @@ class SetCover:
                         processed_files.append(item.filename)
                         continue
                     # Find 004.ext
-                    elif re.match(r"(?i)^0*4\.[a-z]{3}$", item.filename) and (
+                    elif re.match(r"(?i)^0*4\.[a-z]+$", item.filename) and (
                             self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
                         if self.conver_to_webp:
                             newname = f"OldCover_{getNewWebpFormatName(item.filename)}.bak"
@@ -204,7 +204,7 @@ class SetCover:
                         processed_files.append(item.filename)
                         continue
                     # Find 00.ext
-                    elif re.match(r"(?i)^0*\.[a-z]{3}$", item.filename) and (
+                    elif re.match(r"(?i)^0*\.[a-z]+$", item.filename) and (
                             self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
                         if self.conver_to_webp:
                             newname = f"OldCover_{getNewWebpFormatName(item.filename)}.bak"

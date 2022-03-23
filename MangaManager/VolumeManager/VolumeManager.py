@@ -2,6 +2,7 @@ import io
 import logging
 import os
 import re
+import time
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox as mb
@@ -10,6 +11,7 @@ from tkinter import ttk
 from lxml.etree import XMLSyntaxError
 from typing.io import IO
 
+from CommonLib.HelperFunctions import get_estimated_time, get_elapsed_time
 from .errors import NoFilesSelected
 from .models import ChapterFileNameData
 
@@ -349,6 +351,7 @@ class App:
         total_times_count = len(self._list_filestorename)
         processed_counter = 0
         processed_errors = 0
+        start_time = time.time()
         if self._initialized_UI:
             pb_root = self.frame_1_progressbar
 
@@ -383,6 +386,10 @@ class App:
             logger.info("[VolumeManager] Initialized progress bar")
             pb.grid(row=0, column=0, sticky=tk.E)
             pb_text.grid(row=1, column=0, sticky=tk.E)
+            label_progress_text.set(
+                f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors\n"
+                f"Elapsed time  : {get_elapsed_time(start_time)}\n"
+                f"Estimated time: {get_estimated_time(start_time, processed_counter, total_times_count)}")
         if not self.checkbutton_4_5_settings_val.get():
             for item in self._list_filestorename:
                 logger.info(f"[VolumeManager] Renaming {item.complete_new_path}")
@@ -412,18 +419,21 @@ class App:
                                     text='{:g} %'.format(round(percentage, 2)))  # update label
                     pb['value'] = percentage
                     label_progress_text.set(
-                        f"Renamed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors")
+                        f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors\n"
+                        f"Elapsed time  : {get_elapsed_time(start_time)}\n"
+                        f"Estimated time: {get_estimated_time(start_time, processed_counter, total_times_count)}")
 
         if self.checkbutton_4_settings_val.get():
             # Process ComicInfo
             logger.info("[VolumeManager] Save to ComicInfo is enabled. Starting process")
+            start_time = time.time()
             processed_counter = 0
             processed_errors = 0
             if self._initialized_UI:
                 label_progress_text.set(
-                    f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
-                    f"{processed_errors} errors")
-
+                    f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors\n"
+                    f"Elapsed time  : {get_elapsed_time(start_time)}\n"
+                    f"Estimated time: {get_estimated_time(start_time, processed_counter, total_times_count)}")
                 pb_root.update()
                 percentage = ((processed_counter + processed_errors) / total_times_count) * 100
                 style.configure('text.Horizontal.TProgressbar',
@@ -458,6 +468,6 @@ class App:
                                     text='{:g} %'.format(round(percentage, 2)))  # update label
                     pb['value'] = percentage
                     label_progress_text.set(
-                        f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
-                        f"{processed_errors} errors")
-
+                        f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors\n"
+                        f"Elapsed time  : {get_elapsed_time(start_time)}\n"
+                        f"Estimated time: {get_estimated_time(start_time, processed_counter, total_times_count)}")

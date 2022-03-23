@@ -3,6 +3,7 @@ import logging
 import os
 import pathlib
 import re
+import time
 import tkinter as tk
 import tkinter.scrolledtext
 from tkinter import filedialog
@@ -11,6 +12,7 @@ from tkinter import ttk
 
 from lxml.etree import XMLSyntaxError
 
+from CommonLib.HelperFunctions import get_elapsed_time, get_estimated_time
 from . import ComicInfo
 from . import models
 from .cbz_handler import ReadComicInfo, WriteComicInfo
@@ -968,6 +970,7 @@ class App:
 
     def saveComicInfo(self):
         total_times_count = len(self.loadedComicInfo_list)
+        start_time = time.time()
         processed_counter = 0
         processed_errors = 0
 
@@ -1008,6 +1011,10 @@ class App:
             logger.info("Initialized progress bar")
             pb.grid(row=0, column=0, sticky=tk.E + tk.W)
             pb_text.grid(row=1, column=0, sticky=tk.E)
+            label_progress_text.set(
+                f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors\n"
+                f"Elapsed time  : {get_elapsed_time(start_time)}\n"
+                f"Estimated time: {get_estimated_time(start_time, processed_counter, total_times_count)}")
 
         for loadedComicObj in self.loadedComicInfo_list:
             print("Started thread")
@@ -1019,7 +1026,9 @@ class App:
                 WriteComicInfo(loadedComicObj).to_file()
                 if self._initialized_UI:
                     label_progress_text.set(
-                        f"Processed: {processed_counter}/{total_times_count} - {processed_errors} errors")
+                        f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors\n"
+                        f"Elapsed time  : {get_elapsed_time(start_time)}\n"
+                        f"Estimated time: {get_estimated_time(start_time, processed_counter, total_times_count)}")
                 processed_counter += 1
             except FileExistsError as e:
                 if self._initialized_UI:
@@ -1072,7 +1081,9 @@ class App:
                                 text='{:g} %'.format(round(percentage, 2)))  # update label
                 pb['value'] = percentage
                 label_progress_text.set(
-                    f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors")
+                    f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors\n"
+                    f"Elapsed time  : {get_elapsed_time(start_time)}\n"
+                    f"Estimated time: {get_estimated_time(start_time, processed_counter, total_times_count)}")
 
     def deleteComicInfo(self):
         """
