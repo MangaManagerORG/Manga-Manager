@@ -11,12 +11,8 @@ logger = logging.getLogger(__name__)
 class LoadedComicInfo:
     path: str
     comicInfoObj: ComicInfo
-    originalComicObj: ComicInfo
-    """
-        This class represents a loaded comicinfo.
+    originalComicObj: ComicInfo = None
 
-        :param comicInfoObj: This is the ComicInfo class object
-        """
 
     def __init__(self, path, comicInfo, original=None):
         self.path = path
