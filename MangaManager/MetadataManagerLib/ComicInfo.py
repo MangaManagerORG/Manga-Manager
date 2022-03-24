@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Sat Feb  5 19:25:03 2022 by generateDS.py version 2.40.7.
+# Generated Wed Mar 23 22:29:29 2022 by generateDS.py version 2.40.7.
 # Python 3.10.0 (tags/v3.10.0:b494f59, Oct  4 2021, 19:00:18) [MSC v.1929 64 bit (AMD64)]
 #
 # Command line options:
@@ -15,11 +15,10 @@
 #   generateDS-2.40.7/generateDS.py -o "ComicInfo.py" ComicInfo.xsd
 #
 # Current working directory (os.getcwd()):
-#   xml_stuff
+#   PYTHON_TOOLS
 #
 
 import sys
-
 
 try:
     ModulenotfoundExp_ = ModuleNotFoundError
@@ -32,7 +31,6 @@ import base64
 import datetime as datetime_
 import decimal as decimal_
 from lxml import etree as etree_
-
 
 Validate_simpletypes_ = True
 SaveElementTreeNode = True
@@ -73,6 +71,7 @@ def parsexmlstring_(instring, parser=None, doRecover=False, **kwargs):
     element = etree_.fromstring(instring, parser=parser, **kwargs)
     return element
 
+
 #
 # Namespace prefix definition table (and other attributes, too)
 #
@@ -111,11 +110,11 @@ def parsexmlstring_(instring, parser=None, doRecover=False, **kwargs):
 
 try:
     from generatedsnamespaces import GenerateDSNamespaceDefs as GenerateDSNamespaceDefs_
-except ModulenotfoundExp_ :
+except ModulenotfoundExp_:
     GenerateDSNamespaceDefs_ = {}
 try:
     from generatedsnamespaces import GenerateDSNamespaceTypePrefixes as GenerateDSNamespaceTypePrefixes_
-except ModulenotfoundExp_ :
+except ModulenotfoundExp_:
     GenerateDSNamespaceTypePrefixes_ = {}
 
 #
@@ -126,7 +125,7 @@ except ModulenotfoundExp_ :
 #
 try:
     from generatedscollector import GdsCollector as GdsCollector_
-except ModulenotfoundExp_ :
+except ModulenotfoundExp_:
 
     class GdsCollector_(object):
 
@@ -153,14 +152,13 @@ except ModulenotfoundExp_ :
             for msg in self.messages:
                 outstream.write("Warning: {}\n".format(msg))
 
-
 #
 # The super-class for enum types
 #
 
 try:
     from enum import Enum
-except ModulenotfoundExp_ :
+except ModulenotfoundExp_:
     Enum = object
 
 #
@@ -178,20 +176,26 @@ except ModulenotfoundExp_ as exp:
     except ModulenotfoundExp_ as exp:
         class GeneratedsSuperSuper(object):
             pass
-    
+
+
     class GeneratedsSuper(GeneratedsSuperSuper):
         __hash__ = object.__hash__
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
+
         class _FixedOffsetTZ(datetime_.tzinfo):
             def __init__(self, offset, name):
                 self.__offset = datetime_.timedelta(minutes=offset)
                 self.__name = name
+
             def utcoffset(self, dt):
                 return self.__offset
+
             def tzname(self, dt):
                 return self.__name
+
             def dst(self, dt):
                 return None
+
         def __str__(self):
             settings = {
                 'str_pretty_print': True,
@@ -219,37 +223,47 @@ except ModulenotfoundExp_ as exp:
             strval = output.getvalue()
             output.close()
             return strval
+
         def gds_format_string(self, input_data, input_name=''):
             return input_data
+
         def gds_parse_string(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_validate_string(self, input_data, node=None, input_name=''):
             if not input_data:
                 return ''
             else:
                 return input_data
+
         def gds_format_base64(self, input_data, input_name=''):
             return base64.b64encode(input_data).decode('ascii')
+
         def gds_validate_base64(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_integer(self, input_data, input_name=''):
             return '%d' % int(input_data)
+
         def gds_parse_integer(self, input_data, node=None, input_name=''):
             try:
                 ival = int(input_data)
             except (TypeError, ValueError) as exp:
                 raise_parse_error(node, 'Requires integer value: %s' % exp)
             return ival
+
         def gds_validate_integer(self, input_data, node=None, input_name=''):
             try:
                 value = int(input_data)
             except (TypeError, ValueError):
                 raise_parse_error(node, 'Requires integer value')
             return value
+
         def gds_format_integer_list(self, input_data, input_name=''):
             if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
                 input_data = [str(s) for s in input_data]
             return '%s' % ' '.join(input_data)
+
         def gds_validate_integer_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -259,24 +273,29 @@ except ModulenotfoundExp_ as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of integer values')
             return values
+
         def gds_format_float(self, input_data, input_name=''):
             return ('%.15f' % float(input_data)).rstrip('0')
+
         def gds_parse_float(self, input_data, node=None, input_name=''):
             try:
                 fval_ = float(input_data)
             except (TypeError, ValueError) as exp:
                 raise_parse_error(node, 'Requires float or double value: %s' % exp)
             return fval_
+
         def gds_validate_float(self, input_data, node=None, input_name=''):
             try:
                 value = float(input_data)
             except (TypeError, ValueError):
                 raise_parse_error(node, 'Requires float value')
             return value
+
         def gds_format_float_list(self, input_data, input_name=''):
             if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
                 input_data = [str(s) for s in input_data]
             return '%s' % ' '.join(input_data)
+
         def gds_validate_float_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -286,6 +305,7 @@ except ModulenotfoundExp_ as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of float values')
             return values
+
         def gds_format_decimal(self, input_data, input_name=''):
             return_value = '%s' % input_data
             if '.' in return_value:
@@ -293,22 +313,28 @@ except ModulenotfoundExp_ as exp:
                 if return_value.endswith('.'):
                     return_value = return_value.rstrip('.')
             return return_value
+
         def gds_parse_decimal(self, input_data, node=None, input_name=''):
             try:
                 decimal_value = decimal_.Decimal(input_data)
-            except (TypeError, ValueError):
-                raise_parse_error(node, 'Requires decimal value')
+            except (TypeError, ValueError, decimal_.InvalidOperation):
+                if input_data in ("None", "none",):
+                    return 0
+                # raise_parse_error(node, 'Requires decimal value')
             return decimal_value
+
         def gds_validate_decimal(self, input_data, node=None, input_name=''):
             try:
                 value = decimal_.Decimal(input_data)
             except (TypeError, ValueError):
                 raise_parse_error(node, 'Requires decimal value')
             return value
+
         def gds_format_decimal_list(self, input_data, input_name=''):
             if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
                 input_data = [str(s) for s in input_data]
             return ' '.join([self.gds_format_decimal(item) for item in input_data])
+
         def gds_validate_decimal_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -318,24 +344,29 @@ except ModulenotfoundExp_ as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of decimal values')
             return values
+
         def gds_format_double(self, input_data, input_name=''):
             return '%s' % input_data
+
         def gds_parse_double(self, input_data, node=None, input_name=''):
             try:
                 fval_ = float(input_data)
             except (TypeError, ValueError) as exp:
                 raise_parse_error(node, 'Requires double or float value: %s' % exp)
             return fval_
+
         def gds_validate_double(self, input_data, node=None, input_name=''):
             try:
                 value = float(input_data)
             except (TypeError, ValueError):
                 raise_parse_error(node, 'Requires double or float value')
             return value
+
         def gds_format_double_list(self, input_data, input_name=''):
             if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
                 input_data = [str(s) for s in input_data]
             return '%s' % ' '.join(input_data)
+
         def gds_validate_double_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -346,8 +377,10 @@ except ModulenotfoundExp_ as exp:
                     raise_parse_error(
                         node, 'Requires sequence of double or float values')
             return values
+
         def gds_format_boolean(self, input_data, input_name=''):
             return ('%s' % input_data).lower()
+
         def gds_parse_boolean(self, input_data, node=None, input_name=''):
             if input_data in ('true', '1'):
                 bval = True
@@ -356,30 +389,35 @@ except ModulenotfoundExp_ as exp:
             else:
                 raise_parse_error(node, 'Requires boolean value')
             return bval
+
         def gds_validate_boolean(self, input_data, node=None, input_name=''):
-            if input_data not in (True, 1, False, 0, ):
+            if input_data not in (True, 1, False, 0,):
                 raise_parse_error(
                     node,
                     'Requires boolean value '
                     '(one of True, 1, False, 0)')
             return input_data
+
         def gds_format_boolean_list(self, input_data, input_name=''):
             if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
                 input_data = [str(s) for s in input_data]
             return '%s' % ' '.join(input_data)
+
         def gds_validate_boolean_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
             for value in values:
                 value = self.gds_parse_boolean(value, node, input_name)
-                if value not in (True, 1, False, 0, ):
+                if value not in (True, 1, False, 0,):
                     raise_parse_error(
                         node,
                         'Requires sequence of boolean values '
                         '(one of True, 1, False, 0)')
             return values
+
         def gds_validate_datetime(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_datetime(self, input_data, input_name=''):
             if input_data.microsecond == 0:
                 _svalue = '%04d-%02d-%02dT%02d:%02d:%02d' % (
@@ -416,6 +454,7 @@ except ModulenotfoundExp_ as exp:
                         minutes = (total_seconds - (hours * 3600)) // 60
                         _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
             return _svalue
+
         @classmethod
         def gds_parse_datetime(cls, input_data):
             tz = None
@@ -436,7 +475,7 @@ except ModulenotfoundExp_ as exp:
             if len(time_parts) > 1:
                 micro_seconds = int(float('0.' + time_parts[1]) * 1000000)
                 input_data = '%s.%s' % (
-                    time_parts[0], "{}".format(micro_seconds).rjust(6, "0"), )
+                    time_parts[0], "{}".format(micro_seconds).rjust(6, "0"),)
                 dt = datetime_.datetime.strptime(
                     input_data, '%Y-%m-%dT%H:%M:%S.%f')
             else:
@@ -444,8 +483,10 @@ except ModulenotfoundExp_ as exp:
                     input_data, '%Y-%m-%dT%H:%M:%S')
             dt = dt.replace(tzinfo=tz)
             return dt
+
         def gds_validate_date(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_date(self, input_data, input_name=''):
             _svalue = '%04d-%02d-%02d' % (
                 input_data.year,
@@ -472,6 +513,7 @@ except ModulenotfoundExp_ as exp:
             except AttributeError:
                 pass
             return _svalue
+
         @classmethod
         def gds_parse_date(cls, input_data):
             tz = None
@@ -491,8 +533,10 @@ except ModulenotfoundExp_ as exp:
             dt = datetime_.datetime.strptime(input_data, '%Y-%m-%d')
             dt = dt.replace(tzinfo=tz)
             return dt.date()
+
         def gds_validate_time(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_time(self, input_data, input_name=''):
             if input_data.microsecond == 0:
                 _svalue = '%02d:%02d:%02d' % (
@@ -523,6 +567,7 @@ except ModulenotfoundExp_ as exp:
                         minutes = (total_seconds - (hours * 3600)) // 60
                         _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
             return _svalue
+
         def gds_validate_simple_patterns(self, patterns, target):
             # pat is a list of lists of strings/patterns.
             # The target value must match at least one of the patterns
@@ -539,6 +584,7 @@ except ModulenotfoundExp_ as exp:
                     found1 = False
                     break
             return found1
+
         @classmethod
         def gds_parse_time(cls, input_data):
             tz = None
@@ -561,6 +607,7 @@ except ModulenotfoundExp_ as exp:
                 dt = datetime_.datetime.strptime(input_data, '%H:%M:%S')
             dt = dt.replace(tzinfo=tz)
             return dt.time()
+
         def gds_check_cardinality_(
                 self, value, input_name,
                 min_occurs=0, max_occurs=1, required=None):
@@ -570,7 +617,7 @@ except ModulenotfoundExp_ as exp:
                 length = len(value)
             else:
                 length = 1
-            if required is not None :
+            if required is not None:
                 if required and length < 1:
                     self.gds_collector_.add_message(
                         "Required value {}{} is missing".format(
@@ -589,6 +636,7 @@ except ModulenotfoundExp_ as exp:
                     "expected at most {}, found {}".format(
                         input_name, self.gds_get_node_lineno_(),
                         max_occurs, length))
+
         def gds_validate_builtin_ST_(
                 self, validator, value, input_name,
                 min_occurs=None, max_occurs=None, required=None):
@@ -597,6 +645,7 @@ except ModulenotfoundExp_ as exp:
                     validator(value, input_name=input_name)
                 except GDSParseError as parse_error:
                     self.gds_collector_.add_message(str(parse_error))
+
         def gds_validate_defined_ST_(
                 self, validator, value, input_name,
                 min_occurs=None, max_occurs=None, required=None):
@@ -605,15 +654,19 @@ except ModulenotfoundExp_ as exp:
                     validator(value)
                 except GDSParseError as parse_error:
                     self.gds_collector_.add_message(str(parse_error))
+
         def gds_str_lower(self, instring):
             return instring.lower()
+
         def get_path_(self, node):
             path_list = []
             self.get_path_list_(node, path_list)
             path_list.reverse()
             path = '/'.join(path_list)
             return path
+
         Tag_strip_pattern_ = re_.compile(r'\{.*\}')
+
         def get_path_list_(self, node, path_list):
             if node is None:
                 return
@@ -621,6 +674,7 @@ except ModulenotfoundExp_ as exp:
             if tag:
                 path_list.append(tag)
             self.get_path_list_(node.getparent(), path_list)
+
         def get_class_obj_(self, node, default_class=None):
             class_obj1 = default_class
             if 'xsi' in node.nsmap:
@@ -633,14 +687,17 @@ except ModulenotfoundExp_ as exp:
                     if class_obj2 is not None:
                         class_obj1 = class_obj2
             return class_obj1
+
         def gds_build_any(self, node, type_name=None):
             # provide default value in case option --disable-xml is used.
             content = ""
             content = etree_.tostring(node, encoding="unicode")
             return content
+
         @classmethod
         def gds_reverse_node_mapping(cls, mapping):
             return dict(((v, k) for k, v in mapping.items()))
+
         @staticmethod
         def gds_encode(instring):
             if sys.version_info.major == 2:
@@ -651,36 +708,45 @@ except ModulenotfoundExp_ as exp:
                 return instring.encode(encoding)
             else:
                 return instring
+
         @staticmethod
         def convert_unicode(instring):
             if isinstance(instring, str):
                 result = quote_xml(instring)
-            elif sys.version_info.major == 2 and isinstance(instring, str):
+            elif sys.version_info.major == 2 and isinstance(instring, unicode):
                 result = quote_xml(instring).encode('utf8')
             else:
                 result = GeneratedsSuper.gds_encode(str(instring))
             return result
+
         def __eq__(self, other):
             def excl_select_objs_(obj):
                 return (obj[0] != 'parent_object_' and
                         obj[0] != 'gds_collector_')
+
             if type(self) != type(other):
                 return False
             return all(x == y for x, y in zip_longest(
                 filter(excl_select_objs_, self.__dict__.items()),
                 filter(excl_select_objs_, other.__dict__.items())))
+
         def __ne__(self, other):
             return not self.__eq__(other)
+
         # Django ETL transform hooks.
         def gds_djo_etl_transform(self):
             pass
+
         def gds_djo_etl_transform_db_obj(self, dbobj):
             pass
+
         # SQLAlchemy ETL transform hooks.
         def gds_sqa_etl_transform(self):
             return 0, None
+
         def gds_sqa_etl_transform_db_obj(self, dbobj):
             pass
+
         def gds_get_node_lineno_(self):
             if (hasattr(self, "gds_elementtree_node_") and
                     self.gds_elementtree_node_ is not None):
@@ -688,8 +754,8 @@ except ModulenotfoundExp_ as exp:
                     self.gds_elementtree_node_.sourceline)
             else:
                 return ""
-    
-    
+
+
     def getSubclassFromModule_(module, class_):
         '''Get the subclass of a class from a specific module.'''
         name = class_.__name__ + 'Sub'
@@ -697,7 +763,6 @@ except ModulenotfoundExp_ as exp:
             return getattr(module, name)
         else:
             return None
-
 
 #
 # If you have installed IPython you can uncomment and use the following.
@@ -731,6 +796,7 @@ CDATA_pattern_ = re_.compile(r"<!\[CDATA\[.*?\]\]>", re_.DOTALL)
 # Change this to redirect the generated superclass module to use a
 # specific subclass module.
 CurrentSubclassModule_ = None
+
 
 #
 # Support/utility functions.
@@ -823,7 +889,7 @@ def find_attr_value_(attr_name, node):
         else:
             namespace = node.nsmap.get(prefix)
         if namespace is not None:
-            value = attrs.get('{%s}%s' % (namespace, name, ))
+            value = attrs.get('{%s}%s' % (namespace, name,))
     return value
 
 
@@ -837,7 +903,7 @@ class GDSParseError(Exception):
 
 def raise_parse_error(node, msg):
     if node is not None:
-        msg = '%s (element %s/line %d)' % (msg, node.tag, node.sourceline, )
+        msg = '%s (element %s/line %d)' % (msg, node.tag, node.sourceline,)
     raise GDSParseError(msg)
 
 
@@ -857,19 +923,25 @@ class MixedContainer:
     TypeDouble = 6
     TypeBoolean = 7
     TypeBase64 = 8
+
     def __init__(self, category, content_type, name, value):
         self.category = category
         self.content_type = content_type
         self.name = name
         self.value = value
+
     def getCategory(self):
         return self.category
+
     def getContenttype(self, content_type):
         return self.content_type
+
     def getValue(self):
         return self.value
+
     def getName(self):
         return self.name
+
     def export(self, outfile, level, name, namespace,
                pretty_print=True):
         if self.category == MixedContainer.CategoryText:
@@ -878,10 +950,11 @@ class MixedContainer:
                 outfile.write(self.value)
         elif self.category == MixedContainer.CategorySimple:
             self.exportSimple(outfile, level, name)
-        else:    # category == MixedContainer.CategoryComplex
+        else:  # category == MixedContainer.CategoryComplex
             self.value.export(
                 outfile, level, namespace, name_=name,
                 pretty_print=pretty_print)
+
     def exportSimple(self, outfile, level, name):
         if self.content_type == MixedContainer.TypeString:
             outfile.write('<%s>%s</%s>' % (
@@ -902,6 +975,7 @@ class MixedContainer:
                 self.name,
                 base64.b64encode(self.value),
                 self.name))
+
     def to_etree(self, element, mapping_=None, reverse_mapping_=None, nsmap_=None):
         if self.category == MixedContainer.CategoryText:
             # Prevent exporting empty content as empty lines.
@@ -920,22 +994,24 @@ class MixedContainer:
             subelement = etree_.SubElement(
                 element, '%s' % self.name)
             subelement.text = self.to_etree_simple()
-        else:    # category == MixedContainer.CategoryComplex
+        else:  # category == MixedContainer.CategoryComplex
             self.value.to_etree(element)
+
     def to_etree_simple(self, mapping_=None, reverse_mapping_=None, nsmap_=None):
         if self.content_type == MixedContainer.TypeString:
             text = self.value
         elif (self.content_type == MixedContainer.TypeInteger or
-                self.content_type == MixedContainer.TypeBoolean):
+              self.content_type == MixedContainer.TypeBoolean):
             text = '%d' % self.value
         elif (self.content_type == MixedContainer.TypeFloat or
-                self.content_type == MixedContainer.TypeDecimal):
+              self.content_type == MixedContainer.TypeDecimal):
             text = '%f' % self.value
         elif self.content_type == MixedContainer.TypeDouble:
             text = '%g' % self.value
         elif self.content_type == MixedContainer.TypeBase64:
             text = '%s' % base64.b64encode(self.value)
         return text
+
     def exportLiteral(self, outfile, level, name):
         if self.category == MixedContainer.CategoryText:
             showIndent(outfile, level)
@@ -949,7 +1025,7 @@ class MixedContainer:
                 'model_.MixedContainer(%d, %d, "%s", "%s"),\n' % (
                     self.category, self.content_type,
                     self.name, self.value))
-        else:    # category == MixedContainer.CategoryComplex
+        else:  # category == MixedContainer.CategoryComplex
             showIndent(outfile, level)
             outfile.write(
                 'model_.MixedContainer(%d, %d, "%s",\n' % (
@@ -961,17 +1037,26 @@ class MixedContainer:
 
 class MemberSpec_(object):
     def __init__(self, name='', data_type='', container=0,
-            optional=0, child_attrs=None, choice=None):
+                 optional=0, child_attrs=None, choice=None):
         self.name = name
         self.data_type = data_type
         self.container = container
         self.child_attrs = child_attrs
         self.choice = choice
         self.optional = optional
-    def set_name(self, name): self.name = name
-    def get_name(self): return self.name
-    def set_data_type(self, data_type): self.data_type = data_type
-    def get_data_type_chain(self): return self.data_type
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_name(self):
+        return self.name
+
+    def set_data_type(self, data_type):
+        self.data_type = data_type
+
+    def get_data_type_chain(self):
+        return self.data_type
+
     def get_data_type(self):
         if isinstance(self.data_type, list):
             if len(self.data_type) > 0:
@@ -980,14 +1065,30 @@ class MemberSpec_(object):
                 return 'xs:string'
         else:
             return self.data_type
-    def set_container(self, container): self.container = container
-    def get_container(self): return self.container
-    def set_child_attrs(self, child_attrs): self.child_attrs = child_attrs
-    def get_child_attrs(self): return self.child_attrs
-    def set_choice(self, choice): self.choice = choice
-    def get_choice(self): return self.choice
-    def set_optional(self, optional): self.optional = optional
-    def get_optional(self): return self.optional
+
+    def set_container(self, container):
+        self.container = container
+
+    def get_container(self):
+        return self.container
+
+    def set_child_attrs(self, child_attrs):
+        self.child_attrs = child_attrs
+
+    def get_child_attrs(self):
+        return self.child_attrs
+
+    def set_choice(self, choice):
+        self.choice = choice
+
+    def get_choice(self):
+        return self.choice
+
+    def set_optional(self, optional):
+        self.optional = optional
+
+    def get_optional(self):
+        return self.optional
 
 
 def _cast(typ, value):
@@ -995,27 +1096,28 @@ def _cast(typ, value):
         return value
     return typ(value)
 
+
 #
 # Data representation classes.
 #
 
 
 class AgeRating(str, Enum):
-    UNKNOWN='Unknown'
-    ADULTS_ONLY_18='Adults Only 18+'
-    EARLY_CHILDHOOD='Early Childhood'
-    EVERYONE='Everyone'
-    EVERYONE_10='Everyone 10+'
-    G='G'
-    KIDSTO_ADULTS='Kids to Adults'
-    M='M'
-    MA_15='MA 15+'
-    MATURE_17='Mature 17+'
-    PG='PG'
-    R_18='R18+'
-    RATING_PENDING='Rating Pending'
-    TEEN='Teen'
-    X_18='X18+'
+    UNKNOWN = 'Unknown'
+    ADULTS_ONLY_18 = 'Adults Only 18+'
+    EARLY_CHILDHOOD = 'Early Childhood'
+    EVERYONE = 'Everyone'
+    EVERYONE_10 = 'Everyone 10+'
+    G = 'G'
+    KIDSTO_ADULTS = 'Kids to Adults'
+    M = 'M'
+    MA_15 = 'MA 15+'
+    MATURE_17 = 'Mature 17+'
+    PG = 'PG'
+    R_18 = 'R18+'
+    RATING_PENDING = 'Rating Pending'
+    TEEN = 'Teen'
+    X_18 = 'X18+'
 
     @classmethod
     def list(cls):
@@ -1059,7 +1161,14 @@ class ComicInfo(GeneratedsSuper):
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = None
-    def __init__(self, Title='', Series='', Number='', Count=-1, Volume=-1, AlternateSeries='', AlternateNumber='', AlternateCount=-1, Summary='', Notes='', Year=-1, Month=-1, Day=-1, Writer='', Penciller='', Inker='', Colorist='', Letterer='', CoverArtist='', Editor='', Translator='', Publisher='', Imprint='', Genre='', Tags='', Web='', PageCount=0, LanguageISO='', Format='', BlackAndWhite='Unknown', Manga='Unknown', Characters='', Teams='', Locations='', ScanInformation='', StoryArc='', StoryArcNumber='', SeriesGroup='', AgeRating='Unknown', Pages=None, CommunityRating=None, gds_collector_=None, **kwargs_):
+
+    def __init__(self, Title='', Series='', Number='', Count=-1, Volume=-1, AlternateSeries='', SeriesSort='',
+                 LocalizedSeries='', AlternateNumber='', AlternateCount=-1, Summary='', Notes='', Year=-1, Month=-1,
+                 Day=-1, Writer='', Penciller='', Inker='', Colorist='', Letterer='', CoverArtist='', Editor='',
+                 Translator='', Publisher='', Imprint='', Genre='', Tags='', Web='', PageCount=0, LanguageISO='',
+                 Format='', BlackAndWhite='Unknown', Manga='Unknown', Characters='', Teams='', Locations='',
+                 ScanInformation='', StoryArc='', StoryArcNumber='', SeriesGroup='', AgeRating='Unknown', Pages=None,
+                 CommunityRating=None, gds_collector_=None, **kwargs_):
         self.gds_collector_ = gds_collector_
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
@@ -1077,6 +1186,10 @@ class ComicInfo(GeneratedsSuper):
         self.Volume_nsprefix_ = None
         self.AlternateSeries = AlternateSeries
         self.AlternateSeries_nsprefix_ = None
+        self.SeriesSort = SeriesSort
+        self.SeriesSort_nsprefix_ = None
+        self.LocalizedSeries = LocalizedSeries
+        self.LocalizedSeries_nsprefix_ = None
         self.AlternateNumber = AlternateNumber
         self.AlternateNumber_nsprefix_ = None
         self.AlternateCount = AlternateCount
@@ -1151,6 +1264,7 @@ class ComicInfo(GeneratedsSuper):
         self.CommunityRating = CommunityRating
         self.validate_Rating(self.CommunityRating)
         self.CommunityRating_nsprefix_ = None
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1161,284 +1275,409 @@ class ComicInfo(GeneratedsSuper):
             return ComicInfo.subclass(*args_, **kwargs_)
         else:
             return ComicInfo(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_ns_prefix_(self):
         return self.ns_prefix_
+
     def set_ns_prefix_(self, ns_prefix):
         self.ns_prefix_ = ns_prefix
+
     def get_Title(self):
         return self.Title
+
     def set_Title(self, Title):
         self.Title = Title
+
     def get_Series(self):
         return self.Series
+
     def set_Series(self, Series):
         self.Series = Series
+
     def get_Number(self):
         return self.Number
+
     def set_Number(self, Number):
         self.Number = Number
+
     def get_Count(self):
         return self.Count
+
     def set_Count(self, Count):
         self.Count = Count
+
     def get_Volume(self):
         return self.Volume
+
     def set_Volume(self, Volume):
         self.Volume = Volume
+
     def get_AlternateSeries(self):
         return self.AlternateSeries
+
     def set_AlternateSeries(self, AlternateSeries):
         self.AlternateSeries = AlternateSeries
+
+    def get_SeriesSort(self):
+        return self.SeriesSort
+
+    def set_SeriesSort(self, SeriesSort):
+        self.SeriesSort = SeriesSort
+
+    def get_LocalizedSeries(self):
+        return self.LocalizedSeries
+
+    def set_LocalizedSeries(self, LocalizedSeries):
+        self.LocalizedSeries = LocalizedSeries
+
     def get_AlternateNumber(self):
         return self.AlternateNumber
+
     def set_AlternateNumber(self, AlternateNumber):
         self.AlternateNumber = AlternateNumber
+
     def get_AlternateCount(self):
         return self.AlternateCount
+
     def set_AlternateCount(self, AlternateCount):
         self.AlternateCount = AlternateCount
+
     def get_Summary(self):
         return self.Summary
+
     def set_Summary(self, Summary):
         self.Summary = Summary
+
     def get_Notes(self):
         return self.Notes
+
     def set_Notes(self, Notes):
         self.Notes = Notes
+
     def get_Year(self):
         return self.Year
+
     def set_Year(self, Year):
         self.Year = Year
+
     def get_Month(self):
         return self.Month
+
     def set_Month(self, Month):
         self.Month = Month
+
     def get_Day(self):
         return self.Day
+
     def set_Day(self, Day):
         self.Day = Day
+
     def get_Writer(self):
         return self.Writer
+
     def set_Writer(self, Writer):
         self.Writer = Writer
+
     def get_Penciller(self):
         return self.Penciller
+
     def set_Penciller(self, Penciller):
         self.Penciller = Penciller
+
     def get_Inker(self):
         return self.Inker
+
     def set_Inker(self, Inker):
         self.Inker = Inker
+
     def get_Colorist(self):
         return self.Colorist
+
     def set_Colorist(self, Colorist):
         self.Colorist = Colorist
+
     def get_Letterer(self):
         return self.Letterer
+
     def set_Letterer(self, Letterer):
         self.Letterer = Letterer
+
     def get_CoverArtist(self):
         return self.CoverArtist
+
     def set_CoverArtist(self, CoverArtist):
         self.CoverArtist = CoverArtist
+
     def get_Editor(self):
         return self.Editor
+
     def set_Editor(self, Editor):
         self.Editor = Editor
+
     def get_Translator(self):
         return self.Translator
+
     def set_Translator(self, Translator):
         self.Translator = Translator
+
     def get_Publisher(self):
         return self.Publisher
+
     def set_Publisher(self, Publisher):
         self.Publisher = Publisher
+
     def get_Imprint(self):
         return self.Imprint
+
     def set_Imprint(self, Imprint):
         self.Imprint = Imprint
+
     def get_Genre(self):
         return self.Genre
+
     def set_Genre(self, Genre):
         self.Genre = Genre
+
     def get_Tags(self):
         return self.Tags
+
     def set_Tags(self, Tags):
         self.Tags = Tags
+
     def get_Web(self):
         return self.Web
+
     def set_Web(self, Web):
         self.Web = Web
+
     def get_PageCount(self):
         return self.PageCount
+
     def set_PageCount(self, PageCount):
         self.PageCount = PageCount
+
     def get_LanguageISO(self):
         return self.LanguageISO
+
     def set_LanguageISO(self, LanguageISO):
         self.LanguageISO = LanguageISO
+
     def get_Format(self):
         return self.Format
+
     def set_Format(self, Format):
         self.Format = Format
+
     def get_BlackAndWhite(self):
         return self.BlackAndWhite
+
     def set_BlackAndWhite(self, BlackAndWhite):
         self.BlackAndWhite = BlackAndWhite
+
     def get_Manga(self):
         return self.Manga
+
     def set_Manga(self, Manga):
         self.Manga = Manga
+
     def get_Characters(self):
         return self.Characters
+
     def set_Characters(self, Characters):
         self.Characters = Characters
+
     def get_Teams(self):
         return self.Teams
+
     def set_Teams(self, Teams):
         self.Teams = Teams
+
     def get_Locations(self):
         return self.Locations
+
     def set_Locations(self, Locations):
         self.Locations = Locations
+
     def get_ScanInformation(self):
         return self.ScanInformation
+
     def set_ScanInformation(self, ScanInformation):
         self.ScanInformation = ScanInformation
+
     def get_StoryArc(self):
         return self.StoryArc
+
     def set_StoryArc(self, StoryArc):
         self.StoryArc = StoryArc
+
     def get_StoryArcNumber(self):
         return self.StoryArcNumber
+
     def set_StoryArcNumber(self, StoryArcNumber):
         self.StoryArcNumber = StoryArcNumber
+
     def get_SeriesGroup(self):
         return self.SeriesGroup
+
     def set_SeriesGroup(self, SeriesGroup):
         self.SeriesGroup = SeriesGroup
+
     def get_AgeRating(self):
         return self.AgeRating
+
     def set_AgeRating(self, AgeRating):
         self.AgeRating = AgeRating
+
     def get_Pages(self):
         return self.Pages
+
     def set_Pages(self, Pages):
         self.Pages = Pages
+
     def get_CommunityRating(self):
         return self.CommunityRating
+
     def set_CommunityRating(self, CommunityRating):
         self.CommunityRating = CommunityRating
+
     def validate_YesNo(self, value):
         result = True
         # Validate type YesNo, a restriction on xs:string.
         if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
             if not isinstance(value, str):
                 lineno = self.gds_get_node_lineno_()
-                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                self.gds_collector_.add_message(
+                    'Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value,
+                                                                                                  "lineno": lineno, })
                 return False
             value = value
             enumerations = ['Unknown', 'No', 'Yes']
             if value not in enumerations:
                 lineno = self.gds_get_node_lineno_()
-                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on YesNo' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                self.gds_collector_.add_message(
+                    'Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on YesNo' % {
+                        "value": encode_str_2_3(value), "lineno": lineno})
                 result = False
         return result
+
     def validate_Manga(self, value):
         result = True
         # Validate type Manga, a restriction on xs:string.
         if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
             if not isinstance(value, str):
                 lineno = self.gds_get_node_lineno_()
-                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                self.gds_collector_.add_message(
+                    'Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value,
+                                                                                                  "lineno": lineno, })
                 return False
             value = value
             enumerations = ['Unknown', 'No', 'Yes', 'YesAndRightToLeft']
             if value not in enumerations:
                 lineno = self.gds_get_node_lineno_()
-                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on Manga' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                self.gds_collector_.add_message(
+                    'Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on Manga' % {
+                        "value": encode_str_2_3(value), "lineno": lineno})
                 result = False
         return result
+
     def validate_AgeRating(self, value):
         result = True
         # Validate type AgeRating, a restriction on xs:string.
         if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
             if not isinstance(value, str):
                 lineno = self.gds_get_node_lineno_()
-                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                self.gds_collector_.add_message(
+                    'Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value,
+                                                                                                  "lineno": lineno, })
                 return False
             value = value
-            enumerations = ['Unknown', 'Adults Only 18+', 'Early Childhood', 'Everyone', 'Everyone 10+', 'G', 'Kids to Adults', 'M', 'MA 15+', 'Mature 17+', 'PG', 'R18+', 'Rating Pending', 'Teen', 'X18+']
+            enumerations = ['Unknown', 'Adults Only 18+', 'Early Childhood', 'Everyone', 'Everyone 10+', 'G',
+                            'Kids to Adults', 'M', 'MA 15+', 'Mature 17+', 'PG', 'R18+', 'Rating Pending', 'Teen',
+                            'X18+']
             if value not in enumerations:
                 lineno = self.gds_get_node_lineno_()
-                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on AgeRating' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                self.gds_collector_.add_message(
+                    'Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on AgeRating' % {
+                        "value": encode_str_2_3(value), "lineno": lineno})
                 result = False
         return result
+
     def validate_Rating(self, value):
         result = True
         # Validate type Rating, a restriction on xs:decimal.
         if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
             if not isinstance(value, decimal_.Decimal):
                 lineno = self.gds_get_node_lineno_()
-                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (decimal_.Decimal)' % {"value": value, "lineno": lineno, })
+                self.gds_collector_.add_message(
+                    'Value "%(value)s"%(lineno)s is not of the correct base simple type (decimal_.Decimal)' % {
+                        "value": value, "lineno": lineno, })
                 return False
             if value < 0:
                 lineno = self.gds_get_node_lineno_()
-                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on Rating' % {"value": value, "lineno": lineno} )
+                self.gds_collector_.add_message(
+                    'Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on Rating' % {
+                        "value": value, "lineno": lineno})
                 result = False
             if value > 5:
                 lineno = self.gds_get_node_lineno_()
-                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd maxInclusive restriction on Rating' % {"value": value, "lineno": lineno} )
+                self.gds_collector_.add_message(
+                    'Value "%(value)s"%(lineno)s does not match xsd maxInclusive restriction on Rating' % {
+                        "value": value, "lineno": lineno})
                 result = False
         return result
+
     def _hasContent(self):
         if (
-            self.Title != "" or
-            self.Series != "" or
-            self.Number != "" or
-            self.Count != -1 or
-            self.Volume != -1 or
-            self.AlternateSeries != "" or
-            self.AlternateNumber != "" or
-            self.AlternateCount != -1 or
-            self.Summary != "" or
-            self.Notes != "" or
-            self.Year != -1 or
-            self.Month != -1 or
-            self.Day != -1 or
-            self.Writer != "" or
-            self.Penciller != "" or
-            self.Inker != "" or
-            self.Colorist != "" or
-            self.Letterer != "" or
-            self.CoverArtist != "" or
-            self.Editor != "" or
-            self.Translator != "" or
-            self.Publisher != "" or
-            self.Imprint != "" or
-            self.Genre != "" or
-            self.Tags != "" or
-            self.Web != "" or
-            self.PageCount != 0 or
-            self.LanguageISO != "" or
-            self.Format != "" or
-            self.BlackAndWhite != "Unknown" or
-            self.Manga != "Unknown" or
-            self.Characters != "" or
-            self.Teams != "" or
-            self.Locations != "" or
-            self.ScanInformation != "" or
-            self.StoryArc != "" or
-            self.StoryArcNumber != "" or
-            self.SeriesGroup != "" or
-            self.AgeRating != "Unknown" or
-            self.Pages is not None or
-            self.CommunityRating is not None
+                self.Title != "" or
+                self.Series != "" or
+                self.Number != "" or
+                self.Count != -1 or
+                self.Volume != -1 or
+                self.AlternateSeries != "" or
+                self.SeriesSort != "" or
+                self.LocalizedSeries != "" or
+                self.AlternateNumber != "" or
+                self.AlternateCount != -1 or
+                self.Summary != "" or
+                self.Notes != "" or
+                self.Year != -1 or
+                self.Month != -1 or
+                self.Day != -1 or
+                self.Writer != "" or
+                self.Penciller != "" or
+                self.Inker != "" or
+                self.Colorist != "" or
+                self.Letterer != "" or
+                self.CoverArtist != "" or
+                self.Editor != "" or
+                self.Translator != "" or
+                self.Publisher != "" or
+                self.Imprint != "" or
+                self.Genre != "" or
+                self.Tags != "" or
+                self.Web != "" or
+                self.PageCount != 0 or
+                self.LanguageISO != "" or
+                self.Format != "" or
+                self.BlackAndWhite != "Unknown" or
+                self.Manga != "Unknown" or
+                self.Characters != "" or
+                self.Teams != "" or
+                self.Locations != "" or
+                self.ScanInformation != "" or
+                self.StoryArc != "" or
+                self.StoryArcNumber != "" or
+                self.SeriesGroup != "" or
+                self.AgeRating != "Unknown" or
+                self.Pages is not None or
+                self.CommunityRating is not None
         ):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='ComicInfo', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ComicInfo')
         if imported_ns_def_ is not None:
@@ -1452,19 +1691,23 @@ class ComicInfo(GeneratedsSuper):
         if UseCapturedNS_ and self.ns_prefix_:
             namespaceprefix_ = self.ns_prefix_ + ':'
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ComicInfo')
         if self._hasContent():
-            outfile.write('>%s' % (eol_, ))
-            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='ComicInfo', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='ComicInfo',
+                                 pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ComicInfo'):
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='ComicInfo', fromsubclass_=False, pretty_print=True):
+
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='ComicInfo',
+                        fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -1472,166 +1715,261 @@ class ComicInfo(GeneratedsSuper):
         if self.Title != "":
             namespaceprefix_ = self.Title_nsprefix_ + ':' if (UseCapturedNS_ and self.Title_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTitle>%s</%sTitle>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Title), input_name='Title')), namespaceprefix_ , eol_))
+            outfile.write('<%sTitle>%s</%sTitle>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Title), input_name='Title')),
+                namespaceprefix_, eol_))
         if self.Series != "":
             namespaceprefix_ = self.Series_nsprefix_ + ':' if (UseCapturedNS_ and self.Series_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSeries>%s</%sSeries>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Series), input_name='Series')), namespaceprefix_ , eol_))
+            outfile.write('<%sSeries>%s</%sSeries>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Series), input_name='Series')),
+                namespaceprefix_, eol_))
         if self.Number != "":
             namespaceprefix_ = self.Number_nsprefix_ + ':' if (UseCapturedNS_ and self.Number_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sNumber>%s</%sNumber>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Number), input_name='Number')), namespaceprefix_ , eol_))
+            outfile.write('<%sNumber>%s</%sNumber>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Number), input_name='Number')),
+                namespaceprefix_, eol_))
         if self.Count != -1:
             namespaceprefix_ = self.Count_nsprefix_ + ':' if (UseCapturedNS_ and self.Count_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCount>%s</%sCount>%s' % (namespaceprefix_ , self.gds_format_integer(self.Count, input_name='Count'), namespaceprefix_ , eol_))
+            outfile.write('<%sCount>%s</%sCount>%s' % (
+                namespaceprefix_, self.gds_format_integer(self.Count, input_name='Count'), namespaceprefix_, eol_))
         if self.Volume != -1:
             namespaceprefix_ = self.Volume_nsprefix_ + ':' if (UseCapturedNS_ and self.Volume_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVolume>%s</%sVolume>%s' % (namespaceprefix_ , self.gds_format_integer(self.Volume, input_name='Volume'), namespaceprefix_ , eol_))
+            outfile.write('<%sVolume>%s</%sVolume>%s' % (
+                namespaceprefix_, self.gds_format_integer(self.Volume, input_name='Volume'), namespaceprefix_, eol_))
         if self.AlternateSeries != "":
-            namespaceprefix_ = self.AlternateSeries_nsprefix_ + ':' if (UseCapturedNS_ and self.AlternateSeries_nsprefix_) else ''
+            namespaceprefix_ = self.AlternateSeries_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.AlternateSeries_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAlternateSeries>%s</%sAlternateSeries>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AlternateSeries), input_name='AlternateSeries')), namespaceprefix_ , eol_))
+            outfile.write('<%sAlternateSeries>%s</%sAlternateSeries>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AlternateSeries), input_name='AlternateSeries')),
+                                                                           namespaceprefix_, eol_))
+        if self.SeriesSort != "":
+            namespaceprefix_ = self.SeriesSort_nsprefix_ + ':' if (UseCapturedNS_ and self.SeriesSort_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sSeriesSort>%s</%sSeriesSort>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.SeriesSort), input_name='SeriesSort')), namespaceprefix_, eol_))
+        if self.LocalizedSeries != "":
+            namespaceprefix_ = self.LocalizedSeries_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.LocalizedSeries_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sLocalizedSeries>%s</%sLocalizedSeries>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.LocalizedSeries), input_name='LocalizedSeries')),
+                                                                           namespaceprefix_, eol_))
         if self.AlternateNumber != "":
-            namespaceprefix_ = self.AlternateNumber_nsprefix_ + ':' if (UseCapturedNS_ and self.AlternateNumber_nsprefix_) else ''
+            namespaceprefix_ = self.AlternateNumber_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.AlternateNumber_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAlternateNumber>%s</%sAlternateNumber>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AlternateNumber), input_name='AlternateNumber')), namespaceprefix_ , eol_))
+            outfile.write('<%sAlternateNumber>%s</%sAlternateNumber>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AlternateNumber), input_name='AlternateNumber')),
+                                                                           namespaceprefix_, eol_))
         if self.AlternateCount != -1:
-            namespaceprefix_ = self.AlternateCount_nsprefix_ + ':' if (UseCapturedNS_ and self.AlternateCount_nsprefix_) else ''
+            namespaceprefix_ = self.AlternateCount_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.AlternateCount_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAlternateCount>%s</%sAlternateCount>%s' % (namespaceprefix_ , self.gds_format_integer(self.AlternateCount, input_name='AlternateCount'), namespaceprefix_ , eol_))
+            outfile.write('<%sAlternateCount>%s</%sAlternateCount>%s' % (
+                namespaceprefix_, self.gds_format_integer(self.AlternateCount, input_name='AlternateCount'),
+                namespaceprefix_, eol_))
         if self.Summary != "":
             namespaceprefix_ = self.Summary_nsprefix_ + ':' if (UseCapturedNS_ and self.Summary_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSummary>%s</%sSummary>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Summary), input_name='Summary')), namespaceprefix_ , eol_))
+            outfile.write('<%sSummary>%s</%sSummary>%s' % (
+                namespaceprefix_,
+                self.gds_encode(self.gds_format_string(quote_xml(self.Summary), input_name='Summary')),
+                namespaceprefix_, eol_))
         if self.Notes != "":
             namespaceprefix_ = self.Notes_nsprefix_ + ':' if (UseCapturedNS_ and self.Notes_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sNotes>%s</%sNotes>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Notes), input_name='Notes')), namespaceprefix_ , eol_))
+            outfile.write('<%sNotes>%s</%sNotes>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Notes), input_name='Notes')),
+                namespaceprefix_, eol_))
         if self.Year != -1:
             namespaceprefix_ = self.Year_nsprefix_ + ':' if (UseCapturedNS_ and self.Year_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sYear>%s</%sYear>%s' % (namespaceprefix_ , self.gds_format_integer(self.Year, input_name='Year'), namespaceprefix_ , eol_))
+            outfile.write('<%sYear>%s</%sYear>%s' % (
+                namespaceprefix_, self.gds_format_integer(self.Year, input_name='Year'), namespaceprefix_, eol_))
         if self.Month != -1:
             namespaceprefix_ = self.Month_nsprefix_ + ':' if (UseCapturedNS_ and self.Month_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMonth>%s</%sMonth>%s' % (namespaceprefix_ , self.gds_format_integer(self.Month, input_name='Month'), namespaceprefix_ , eol_))
+            outfile.write('<%sMonth>%s</%sMonth>%s' % (
+                namespaceprefix_, self.gds_format_integer(self.Month, input_name='Month'), namespaceprefix_, eol_))
         if self.Day != -1:
             namespaceprefix_ = self.Day_nsprefix_ + ':' if (UseCapturedNS_ and self.Day_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDay>%s</%sDay>%s' % (namespaceprefix_ , self.gds_format_integer(self.Day, input_name='Day'), namespaceprefix_ , eol_))
+            outfile.write('<%sDay>%s</%sDay>%s' % (
+                namespaceprefix_, self.gds_format_integer(self.Day, input_name='Day'), namespaceprefix_, eol_))
         if self.Writer != "":
             namespaceprefix_ = self.Writer_nsprefix_ + ':' if (UseCapturedNS_ and self.Writer_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sWriter>%s</%sWriter>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Writer), input_name='Writer')), namespaceprefix_ , eol_))
+            outfile.write('<%sWriter>%s</%sWriter>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Writer), input_name='Writer')),
+                namespaceprefix_, eol_))
         if self.Penciller != "":
             namespaceprefix_ = self.Penciller_nsprefix_ + ':' if (UseCapturedNS_ and self.Penciller_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPenciller>%s</%sPenciller>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Penciller), input_name='Penciller')), namespaceprefix_ , eol_))
+            outfile.write('<%sPenciller>%s</%sPenciller>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Penciller), input_name='Penciller')), namespaceprefix_, eol_))
         if self.Inker != "":
             namespaceprefix_ = self.Inker_nsprefix_ + ':' if (UseCapturedNS_ and self.Inker_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sInker>%s</%sInker>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Inker), input_name='Inker')), namespaceprefix_ , eol_))
+            outfile.write('<%sInker>%s</%sInker>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Inker), input_name='Inker')),
+                namespaceprefix_, eol_))
         if self.Colorist != "":
             namespaceprefix_ = self.Colorist_nsprefix_ + ':' if (UseCapturedNS_ and self.Colorist_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sColorist>%s</%sColorist>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Colorist), input_name='Colorist')), namespaceprefix_ , eol_))
+            outfile.write('<%sColorist>%s</%sColorist>%s' % (
+                namespaceprefix_,
+                self.gds_encode(self.gds_format_string(quote_xml(self.Colorist), input_name='Colorist')),
+                namespaceprefix_, eol_))
         if self.Letterer != "":
             namespaceprefix_ = self.Letterer_nsprefix_ + ':' if (UseCapturedNS_ and self.Letterer_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLetterer>%s</%sLetterer>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Letterer), input_name='Letterer')), namespaceprefix_ , eol_))
+            outfile.write('<%sLetterer>%s</%sLetterer>%s' % (
+                namespaceprefix_,
+                self.gds_encode(self.gds_format_string(quote_xml(self.Letterer), input_name='Letterer')),
+                namespaceprefix_, eol_))
         if self.CoverArtist != "":
-            namespaceprefix_ = self.CoverArtist_nsprefix_ + ':' if (UseCapturedNS_ and self.CoverArtist_nsprefix_) else ''
+            namespaceprefix_ = self.CoverArtist_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.CoverArtist_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCoverArtist>%s</%sCoverArtist>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.CoverArtist), input_name='CoverArtist')), namespaceprefix_ , eol_))
+            outfile.write('<%sCoverArtist>%s</%sCoverArtist>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.CoverArtist), input_name='CoverArtist')), namespaceprefix_, eol_))
         if self.Editor != "":
             namespaceprefix_ = self.Editor_nsprefix_ + ':' if (UseCapturedNS_ and self.Editor_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEditor>%s</%sEditor>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Editor), input_name='Editor')), namespaceprefix_ , eol_))
+            outfile.write('<%sEditor>%s</%sEditor>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Editor), input_name='Editor')),
+                namespaceprefix_, eol_))
         if self.Translator != "":
             namespaceprefix_ = self.Translator_nsprefix_ + ':' if (UseCapturedNS_ and self.Translator_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTranslator>%s</%sTranslator>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Translator), input_name='Translator')), namespaceprefix_ , eol_))
+            outfile.write('<%sTranslator>%s</%sTranslator>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Translator), input_name='Translator')), namespaceprefix_, eol_))
         if self.Publisher != "":
             namespaceprefix_ = self.Publisher_nsprefix_ + ':' if (UseCapturedNS_ and self.Publisher_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPublisher>%s</%sPublisher>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Publisher), input_name='Publisher')), namespaceprefix_ , eol_))
+            outfile.write('<%sPublisher>%s</%sPublisher>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Publisher), input_name='Publisher')), namespaceprefix_, eol_))
         if self.Imprint != "":
             namespaceprefix_ = self.Imprint_nsprefix_ + ':' if (UseCapturedNS_ and self.Imprint_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sImprint>%s</%sImprint>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Imprint), input_name='Imprint')), namespaceprefix_ , eol_))
+            outfile.write('<%sImprint>%s</%sImprint>%s' % (
+                namespaceprefix_,
+                self.gds_encode(self.gds_format_string(quote_xml(self.Imprint), input_name='Imprint')),
+                namespaceprefix_, eol_))
         if self.Genre != "":
             namespaceprefix_ = self.Genre_nsprefix_ + ':' if (UseCapturedNS_ and self.Genre_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGenre>%s</%sGenre>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Genre), input_name='Genre')), namespaceprefix_ , eol_))
+            outfile.write('<%sGenre>%s</%sGenre>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Genre), input_name='Genre')),
+                namespaceprefix_, eol_))
         if self.Tags != "":
             namespaceprefix_ = self.Tags_nsprefix_ + ':' if (UseCapturedNS_ and self.Tags_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTags>%s</%sTags>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Tags), input_name='Tags')), namespaceprefix_ , eol_))
+            outfile.write('<%sTags>%s</%sTags>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Tags), input_name='Tags')),
+                namespaceprefix_, eol_))
         if self.Web != "":
             namespaceprefix_ = self.Web_nsprefix_ + ':' if (UseCapturedNS_ and self.Web_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sWeb>%s</%sWeb>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Web), input_name='Web')), namespaceprefix_ , eol_))
+            outfile.write('<%sWeb>%s</%sWeb>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Web), input_name='Web')),
+                namespaceprefix_, eol_))
         if self.PageCount != 0:
             namespaceprefix_ = self.PageCount_nsprefix_ + ':' if (UseCapturedNS_ and self.PageCount_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPageCount>%s</%sPageCount>%s' % (namespaceprefix_ , self.gds_format_integer(self.PageCount, input_name='PageCount'), namespaceprefix_ , eol_))
+            outfile.write('<%sPageCount>%s</%sPageCount>%s' % (
+                namespaceprefix_, self.gds_format_integer(self.PageCount, input_name='PageCount'), namespaceprefix_,
+                eol_))
         if self.LanguageISO != "":
-            namespaceprefix_ = self.LanguageISO_nsprefix_ + ':' if (UseCapturedNS_ and self.LanguageISO_nsprefix_) else ''
+            namespaceprefix_ = self.LanguageISO_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.LanguageISO_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLanguageISO>%s</%sLanguageISO>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.LanguageISO), input_name='LanguageISO')), namespaceprefix_ , eol_))
+            outfile.write('<%sLanguageISO>%s</%sLanguageISO>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.LanguageISO), input_name='LanguageISO')), namespaceprefix_, eol_))
         if self.Format != "":
             namespaceprefix_ = self.Format_nsprefix_ + ':' if (UseCapturedNS_ and self.Format_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFormat>%s</%sFormat>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Format), input_name='Format')), namespaceprefix_ , eol_))
+            outfile.write('<%sFormat>%s</%sFormat>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Format), input_name='Format')),
+                namespaceprefix_, eol_))
         if self.BlackAndWhite != "Unknown":
-            namespaceprefix_ = self.BlackAndWhite_nsprefix_ + ':' if (UseCapturedNS_ and self.BlackAndWhite_nsprefix_) else ''
+            namespaceprefix_ = self.BlackAndWhite_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.BlackAndWhite_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBlackAndWhite>%s</%sBlackAndWhite>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.BlackAndWhite), input_name='BlackAndWhite')), namespaceprefix_ , eol_))
+            outfile.write('<%sBlackAndWhite>%s</%sBlackAndWhite>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.BlackAndWhite), input_name='BlackAndWhite')), namespaceprefix_,
+                                                                       eol_))
         if self.Manga != "Unknown":
             namespaceprefix_ = self.Manga_nsprefix_ + ':' if (UseCapturedNS_ and self.Manga_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sManga>%s</%sManga>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Manga), input_name='Manga')), namespaceprefix_ , eol_))
+            outfile.write('<%sManga>%s</%sManga>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Manga), input_name='Manga')),
+                namespaceprefix_, eol_))
         if self.Characters != "":
             namespaceprefix_ = self.Characters_nsprefix_ + ':' if (UseCapturedNS_ and self.Characters_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCharacters>%s</%sCharacters>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Characters), input_name='Characters')), namespaceprefix_ , eol_))
+            outfile.write('<%sCharacters>%s</%sCharacters>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Characters), input_name='Characters')), namespaceprefix_, eol_))
         if self.Teams != "":
             namespaceprefix_ = self.Teams_nsprefix_ + ':' if (UseCapturedNS_ and self.Teams_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTeams>%s</%sTeams>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Teams), input_name='Teams')), namespaceprefix_ , eol_))
+            outfile.write('<%sTeams>%s</%sTeams>%s' % (
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Teams), input_name='Teams')),
+                namespaceprefix_, eol_))
         if self.Locations != "":
             namespaceprefix_ = self.Locations_nsprefix_ + ':' if (UseCapturedNS_ and self.Locations_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLocations>%s</%sLocations>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Locations), input_name='Locations')), namespaceprefix_ , eol_))
+            outfile.write('<%sLocations>%s</%sLocations>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Locations), input_name='Locations')), namespaceprefix_, eol_))
         if self.ScanInformation != "":
-            namespaceprefix_ = self.ScanInformation_nsprefix_ + ':' if (UseCapturedNS_ and self.ScanInformation_nsprefix_) else ''
+            namespaceprefix_ = self.ScanInformation_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.ScanInformation_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sScanInformation>%s</%sScanInformation>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.ScanInformation), input_name='ScanInformation')), namespaceprefix_ , eol_))
+            outfile.write('<%sScanInformation>%s</%sScanInformation>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.ScanInformation), input_name='ScanInformation')),
+                                                                           namespaceprefix_, eol_))
         if self.StoryArc != "":
             namespaceprefix_ = self.StoryArc_nsprefix_ + ':' if (UseCapturedNS_ and self.StoryArc_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStoryArc>%s</%sStoryArc>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.StoryArc), input_name='StoryArc')), namespaceprefix_ , eol_))
+            outfile.write('<%sStoryArc>%s</%sStoryArc>%s' % (
+                namespaceprefix_,
+                self.gds_encode(self.gds_format_string(quote_xml(self.StoryArc), input_name='StoryArc')),
+                namespaceprefix_, eol_))
         if self.StoryArcNumber != "":
-            namespaceprefix_ = self.StoryArcNumber_nsprefix_ + ':' if (UseCapturedNS_ and self.StoryArcNumber_nsprefix_) else ''
+            namespaceprefix_ = self.StoryArcNumber_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.StoryArcNumber_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStoryArcNumber>%s</%sStoryArcNumber>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.StoryArcNumber), input_name='StoryArcNumber')), namespaceprefix_ , eol_))
+            outfile.write('<%sStoryArcNumber>%s</%sStoryArcNumber>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.StoryArcNumber), input_name='StoryArcNumber')), namespaceprefix_,
+                                                                         eol_))
         if self.SeriesGroup != "":
-            namespaceprefix_ = self.SeriesGroup_nsprefix_ + ':' if (UseCapturedNS_ and self.SeriesGroup_nsprefix_) else ''
+            namespaceprefix_ = self.SeriesGroup_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.SeriesGroup_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSeriesGroup>%s</%sSeriesGroup>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.SeriesGroup), input_name='SeriesGroup')), namespaceprefix_ , eol_))
+            outfile.write('<%sSeriesGroup>%s</%sSeriesGroup>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.SeriesGroup), input_name='SeriesGroup')), namespaceprefix_, eol_))
         if self.AgeRating != "Unknown":
             namespaceprefix_ = self.AgeRating_nsprefix_ + ':' if (UseCapturedNS_ and self.AgeRating_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgeRating>%s</%sAgeRating>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AgeRating), input_name='AgeRating')), namespaceprefix_ , eol_))
+            outfile.write('<%sAgeRating>%s</%sAgeRating>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AgeRating), input_name='AgeRating')), namespaceprefix_, eol_))
         if self.Pages is not None:
             namespaceprefix_ = self.Pages_nsprefix_ + ':' if (UseCapturedNS_ and self.Pages_nsprefix_) else ''
-            self.Pages.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Pages', pretty_print=pretty_print)
+            self.Pages.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Pages',
+                              pretty_print=pretty_print)
         if self.CommunityRating is not None:
-            namespaceprefix_ = self.CommunityRating_nsprefix_ + ':' if (UseCapturedNS_ and self.CommunityRating_nsprefix_) else ''
+            namespaceprefix_ = self.CommunityRating_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.CommunityRating_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCommunityRating>%s</%sCommunityRating>%s' % (namespaceprefix_ , self.gds_format_decimal(self.CommunityRating, input_name='CommunityRating'), namespaceprefix_ , eol_))
+            outfile.write('<%sCommunityRating>%s</%sCommunityRating>%s' % (
+                namespaceprefix_, self.gds_format_decimal(self.CommunityRating, input_name='CommunityRating'),
+                namespaceprefix_, eol_))
+
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
         if SaveElementTreeNode:
@@ -1684,6 +2022,18 @@ class ComicInfo(GeneratedsSuper):
             value_ = self.gds_validate_string(value_, node, 'AlternateSeries')
             self.AlternateSeries = value_
             self.AlternateSeries_nsprefix_ = child_.prefix
+        elif nodeName_ == 'SeriesSort':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'SeriesSort')
+            value_ = self.gds_validate_string(value_, node, 'SeriesSort')
+            self.SeriesSort = value_
+            self.SeriesSort_nsprefix_ = child_.prefix
+        elif nodeName_ == 'LocalizedSeries':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'LocalizedSeries')
+            value_ = self.gds_validate_string(value_, node, 'LocalizedSeries')
+            self.LocalizedSeries = value_
+            self.LocalizedSeries_nsprefix_ = child_.prefix
         elif nodeName_ == 'AlternateNumber':
             value_ = child_.text
             value_ = self.gds_parse_string(value_, node, 'AlternateNumber')
@@ -1901,6 +2251,8 @@ class ComicInfo(GeneratedsSuper):
             self.CommunityRating_nsprefix_ = child_.prefix
             # validate type Rating
             self.validate_Rating(self.CommunityRating)
+
+
 # end class ComicInfo
 
 
@@ -1908,6 +2260,7 @@ class ArrayOfComicPageInfo(GeneratedsSuper):
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = None
+
     def __init__(self, Page=None, gds_collector_=None, **kwargs_):
         self.gds_collector_ = gds_collector_
         self.gds_elementtree_node_ = None
@@ -1919,6 +2272,7 @@ class ArrayOfComicPageInfo(GeneratedsSuper):
         else:
             self.Page = Page
         self.Page_nsprefix_ = None
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1929,29 +2283,40 @@ class ArrayOfComicPageInfo(GeneratedsSuper):
             return ArrayOfComicPageInfo.subclass(*args_, **kwargs_)
         else:
             return ArrayOfComicPageInfo(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_ns_prefix_(self):
         return self.ns_prefix_
+
     def set_ns_prefix_(self, ns_prefix):
         self.ns_prefix_ = ns_prefix
+
     def get_Page(self):
         return self.Page
+
     def set_Page(self, Page):
         self.Page = Page
+
     def add_Page(self, value):
         self.Page.append(value)
+
     def insert_Page_at(self, index, value):
         self.Page.insert(index, value)
+
     def replace_Page_at(self, index, value):
         self.Page[index] = value
+
     def _hasContent(self):
         if (
-            self.Page
+                self.Page
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='ArrayOfComicPageInfo', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='ArrayOfComicPageInfo',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ArrayOfComicPageInfo')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1964,19 +2329,23 @@ class ArrayOfComicPageInfo(GeneratedsSuper):
         if UseCapturedNS_ and self.ns_prefix_:
             namespaceprefix_ = self.ns_prefix_ + ':'
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ArrayOfComicPageInfo')
         if self._hasContent():
-            outfile.write('>%s' % (eol_, ))
-            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='ArrayOfComicPageInfo', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='ArrayOfComicPageInfo',
+                                 pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ArrayOfComicPageInfo'):
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='ArrayOfComicPageInfo', fromsubclass_=False, pretty_print=True):
+
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='ArrayOfComicPageInfo',
+                        fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -1984,6 +2353,7 @@ class ArrayOfComicPageInfo(GeneratedsSuper):
         for Page_ in self.Page:
             namespaceprefix_ = self.Page_nsprefix_ + ':' if (UseCapturedNS_ and self.Page_nsprefix_) else ''
             Page_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Page', pretty_print=pretty_print)
+
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
         if SaveElementTreeNode:
@@ -1995,14 +2365,18 @@ class ArrayOfComicPageInfo(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
         return self
+
     def _buildAttributes(self, node, attrs, already_processed):
         pass
+
     def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
         if nodeName_ == 'Page':
             obj_ = ComicPageInfo.factory(parent_object_=self)
             obj_.build(child_, gds_collector_=gds_collector_)
             self.Page.append(obj_)
             obj_.original_tagname_ = 'Page'
+
+
 # end class ArrayOfComicPageInfo
 
 
@@ -2010,7 +2384,9 @@ class ComicPageInfo(GeneratedsSuper):
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = None
-    def __init__(self, Image=None, Type='Story', DoublePage=False, ImageSize=0, Key='', Bookmark='', ImageWidth=-1, ImageHeight=-1, gds_collector_=None, **kwargs_):
+
+    def __init__(self, Image=None, Type='Story', DoublePage=False, ImageSize=0, Key='', Bookmark='', ImageWidth=-1,
+                 ImageHeight=-1, gds_collector_=None, **kwargs_):
         self.gds_collector_ = gds_collector_
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
@@ -2032,6 +2408,7 @@ class ComicPageInfo(GeneratedsSuper):
         self.ImageWidth_nsprefix_ = None
         self.ImageHeight = _cast(int, ImageHeight)
         self.ImageHeight_nsprefix_ = None
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2042,46 +2419,67 @@ class ComicPageInfo(GeneratedsSuper):
             return ComicPageInfo.subclass(*args_, **kwargs_)
         else:
             return ComicPageInfo(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_ns_prefix_(self):
         return self.ns_prefix_
+
     def set_ns_prefix_(self, ns_prefix):
         self.ns_prefix_ = ns_prefix
+
     def get_Image(self):
         return self.Image
+
     def set_Image(self, Image):
         self.Image = Image
+
     def get_Type(self):
         return self.Type
+
     def set_Type(self, Type):
         self.Type = Type
+
     def get_DoublePage(self):
         return self.DoublePage
+
     def set_DoublePage(self, DoublePage):
         self.DoublePage = DoublePage
+
     def get_ImageSize(self):
         return self.ImageSize
+
     def set_ImageSize(self, ImageSize):
         self.ImageSize = ImageSize
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_Bookmark(self):
         return self.Bookmark
+
     def set_Bookmark(self, Bookmark):
         self.Bookmark = Bookmark
+
     def get_ImageWidth(self):
         return self.ImageWidth
+
     def set_ImageWidth(self, ImageWidth):
         self.ImageWidth = ImageWidth
+
     def get_ImageHeight(self):
         return self.ImageHeight
+
     def set_ImageHeight(self, ImageHeight):
         self.ImageHeight = ImageHeight
+
     def validate_ComicPageType(self, value):
         # Validate type ComicPageType, a restriction on xs:string.
         pass
+
     def _hasContent(self):
         if (
 
@@ -2089,6 +2487,7 @@ class ComicPageInfo(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='ComicPageInfo', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ComicPageInfo')
         if imported_ns_def_ is not None:
@@ -2102,22 +2501,25 @@ class ComicPageInfo(GeneratedsSuper):
         if UseCapturedNS_ and self.ns_prefix_:
             namespaceprefix_ = self.ns_prefix_ + ':'
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ComicPageInfo')
         if self._hasContent():
-            outfile.write('>%s' % (eol_, ))
-            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='ComicPageInfo', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='ComicPageInfo',
+                                 pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ComicPageInfo'):
         if self.Image is not None and 'Image' not in already_processed:
             already_processed.add('Image')
             outfile.write(' Image="%s"' % self.gds_format_integer(self.Image, input_name='Image'))
         if self.Type != "Story" and 'Type' not in already_processed:
             already_processed.add('Type')
-            outfile.write(' Type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Type), input_name='Type')), ))
+            outfile.write(
+                ' Type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Type), input_name='Type')),))
         if self.DoublePage and 'DoublePage' not in already_processed:
             already_processed.add('DoublePage')
             outfile.write(' DoublePage="%s"' % self.gds_format_boolean(self.DoublePage, input_name='DoublePage'))
@@ -2126,18 +2528,23 @@ class ComicPageInfo(GeneratedsSuper):
             outfile.write(' ImageSize="%s"' % self.gds_format_integer(self.ImageSize, input_name='ImageSize'))
         if self.Key != "" and 'Key' not in already_processed:
             already_processed.add('Key')
-            outfile.write(' Key=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Key), input_name='Key')), ))
+            outfile.write(
+                ' Key=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Key), input_name='Key')),))
         if self.Bookmark != "" and 'Bookmark' not in already_processed:
             already_processed.add('Bookmark')
-            outfile.write(' Bookmark=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Bookmark), input_name='Bookmark')), ))
+            outfile.write(' Bookmark=%s' % (
+                self.gds_encode(self.gds_format_string(quote_attrib(self.Bookmark), input_name='Bookmark')),))
         if self.ImageWidth != -1 and 'ImageWidth' not in already_processed:
             already_processed.add('ImageWidth')
             outfile.write(' ImageWidth="%s"' % self.gds_format_integer(self.ImageWidth, input_name='ImageWidth'))
         if self.ImageHeight != -1 and 'ImageHeight' not in already_processed:
             already_processed.add('ImageHeight')
             outfile.write(' ImageHeight="%s"' % self.gds_format_integer(self.ImageHeight, input_name='ImageHeight'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='ComicPageInfo', fromsubclass_=False, pretty_print=True):
+
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='', name_='ComicPageInfo',
+                        fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
         if SaveElementTreeNode:
@@ -2149,6 +2556,7 @@ class ComicPageInfo(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
         return self
+
     def _buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('Image', node)
         if value is not None and 'Image' not in already_processed:
@@ -2158,7 +2566,7 @@ class ComicPageInfo(GeneratedsSuper):
         if value is not None and 'Type' not in already_processed:
             already_processed.add('Type')
             self.Type = value
-            self.validate_ComicPageType(self.Type.split())    # validate type ComicPageType
+            self.validate_ComicPageType(self.Type.split())  # validate type ComicPageType
         value = find_attr_value_('DoublePage', node)
         if value is not None and 'DoublePage' not in already_processed:
             already_processed.add('DoublePage')
@@ -2188,15 +2596,17 @@ class ComicPageInfo(GeneratedsSuper):
         if value is not None and 'ImageHeight' not in already_processed:
             already_processed.add('ImageHeight')
             self.ImageHeight = self.gds_parse_integer(value, node, 'ImageHeight')
+
     def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
         pass
+
+
 # end class ComicPageInfo
 
 
 GDSClassesMapping = {
     'ComicInfo': ComicInfo,
 }
-
 
 USAGE_TEXT = """
 Usage: python <Parser>.py [ -s ] <in_xml_file>
@@ -2381,7 +2791,7 @@ def main():
 
 
 if __name__ == '__main__':
-    #import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     main()
 
 RenameMappings_ = {
