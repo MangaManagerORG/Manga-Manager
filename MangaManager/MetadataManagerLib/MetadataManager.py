@@ -166,7 +166,7 @@ def get_settersArray(ComicInfoObject):
         ComicInfoObject.set_StoryArcNumber]
 
 
-def load_comicinfo_xml(cls, cbz_path, forceVolume: bool = False) -> LoadedComicInfo:
+def load_comicinfo_xml(cls, cbz_path) -> LoadedComicInfo:
     """
     Accepts a path string
     Returns a LoadedComicInfo with the ComicInfo class generated from the data contained inside ComicInfo file
@@ -186,10 +186,10 @@ def load_comicinfo_xml(cls, cbz_path, forceVolume: bool = False) -> LoadedComicI
                        f"One will be created when saving changes to file.\n"
                        f"This applies to all future errors")
         if not cls.warning_metadataNotFound and cls._initialized_UI:
-            mb.showerror("Error reading ComicInfo",
-                         f"ComicInfo.xml was not found inside: {cbz_path}\n"
-                         f"One will be created when saving changes to file.\n"
-                         f"This applies to all future errors")
+            mb.showwarning("Warning reading ComicInfo",
+                           f"ComicInfo.xml was not found inside: {cbz_path}\n"
+                           f"One will be created when saving changes to file.\n"
+                           f"This applies to all selected files")
             cls.warning_metadataNotFound = True
         comicinfo = ComicInfo.ComicInfo()
     except XMLSyntaxError as e:
@@ -213,107 +213,78 @@ def load_comicinfo_xml(cls, cbz_path, forceVolume: bool = False) -> LoadedComicI
         raise CorruptedComicInfo
     loadedInfo = LoadedComicInfo(cbz_path, comicinfo, comicinfo)
     logger.debug("comicinfo was read and a LoadedComicInfo was created")
-    if cls.widgets_obj:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
-        widgets_var_zip = zip(cls.widgets_var, get_gettersArray(loadedInfo.comicInfoObj),
-                              get_settersArray(loadedInfo.comicInfoObj), cls.widgets_obj)
-        cls._initialized_UI = True
-    else:
-        widgets_var_zip = zip(cls.widgets_var, get_gettersArray(loadedInfo.comicInfoObj),
-                              get_settersArray(loadedInfo.comicInfoObj))
-        cls._initialized_UI = False
 
+    widgets_var_zip = _get_widgets_var_zip(
+        cls.widgets_var, loadedInfo.comicInfoObj, cls.widgets_obj)
     # Load the comic info into our StringVar(s) and IntVar(s), so they can be modified in the ui
     for widgets_var_tuple in widgets_var_zip:
-
         widgetvar = widgets_var_tuple[0]
         comicinfo_atr_get = widgets_var_tuple[1]()
         comicinfo_atr_set = widgets_var_tuple[2]
         # logger.debug(f"Processing '{widgetvar}' | Value: {widgetvar.get()} | ComicInfo Value: {comicinfo_atr_get}")
         # field is empty. Skipping
-        if (widgetvar.get() != comicinfo_atr_get):
+        if widgetvar.get() != comicinfo_atr_get:
+            if not cls.widgets_obj:
+                comicinfo_atr_set(widgetvar.get())
+                continue
             try:
-                # TODO: Logic
-                #  If field is chapter skip them.
-                #  We don't want to mess up chapter overwriting the same value to all files
-                if cls.widgets_obj:
-                    widget = widgets_var_tuple[3]
-
-                    logger.debug(f"Processing {widgetvar}")
-                    if isinstance(widgetvar, models.LongText):
-                        widgetvar.set(comicinfo_atr_get)
-                        continue
-                    if isinstance(widget, tk.OptionMenu):
-                        widgetvar.set(comicinfo_atr_get)
-                        continue
-                    widget_list = list(widget['values'])
-                    # logger.error(widget['values'])
-                    if comicinfo_atr_get not in list(widget['values']):  # check duplicate
-
-                        if not widget['values']:
-                            widget['values'] = (comicinfo_atr_get,)
-                        else:
-                            widget_list.append(comicinfo_atr_get)
-                            widget['values'] = widget_list  # += (widgetvar.get(),)  # add option
-                        widgetvar.set(comicinfo_atr_get)
+                if not cls.widgets_obj:
                     continue
-                else:  # UI NOT initialized we skip these
-                    if str(widgetvar) == "volume" and forceVolume:
-                        comicinfo_atr_set(-1)
-                    elif str(widgetvar) == "volume":
-                        comicinfo_atr_set(widgetvar.get())
-                    elif str(widgetvar) == "Number" and cls.spinbox_4_chapter_var_isModified:
-                        comicinfo_atr_set(widgetvar.get())
-                widgetvar.set(comicinfo_atr_get)
-                logger.debug(
-                    f"Loaded new value for tag '{widgetvar}'")
+                widget = widgets_var_tuple[3]
+
+                logger.debug(f"Processing {widgetvar}")
+                if isinstance(widgetvar, models.LongText):
+                    widgetvar.set(comicinfo_atr_get)
+                    continue
+                if isinstance(widget, tk.OptionMenu):
+                    widgetvar.set(comicinfo_atr_get)
+                    continue
+                widget_list = list(widget['values'])
+                # logger.error(widget['values'])
+                if comicinfo_atr_get not in widget_list:  # check duplicate
+
+                    if not widget['values']:
+                        widget['values'] = (comicinfo_atr_get,)
+                        widget_list = list(widget['values'])
+                    else:
+                        widget_list.append(comicinfo_atr_get)
+                        widget['values'] = widget_list  # += (widgetvar.get(),)  # add option
+                        logger.debug(
+                            f"Appended new value for tag '{widgetvar}'")
+                    if len(widget_list) == 1:
+                        widgetvar.set(comicinfo_atr_get)
+                        logger.debug(
+                            f"Loaded new value for tag '{widgetvar}'")
+                    elif isinstance(widget, tk.OptionMenu):
+                        widgetvar.set("Unknown")
+                    elif isinstance(widgetvar, tk.StringVar):
+                        widgetvar.set("")
+                    elif isinstance(widgetvar, tk.IntVar):
+                        if str(widgetvar) == "PageCount":
+                            widgetvar.set(0)
+                        else:
+                            widgetvar.set(-1)
+
+                # Ignored values: Volume, number
+
             except Exception as e:
                 logger.error("Exception found", exc_info=e)
-        # Conflict. UI and ComicInfo not the same.
-        # elif widgetvar.get() != comicinfo_atr_get:
-        #     if str(widgetvar) == "Number" and cls.conflict_chapter:
-        #         logger.debug("Skipping chapter field due to conflict")
-        #         continue
-        #     # Empty variable since they don't match.
-        #     # This way when saving, original value will be kept.
-        #     # If user edits in the ui, warning will appear: The field in all selected files will be the same
-        #     if isinstance(widgetvar, tk.StringVar):
-        #         widgetvar.set("")
-        #     elif isinstance(widgetvar, tk.IntVar):
-        #         if str(widgetvar) == "pageCount":
-        #             widgetvar.set(0)
-        #         elif str(widgetvar) == "blackWhite" or str(widgetvar) == "manga" or str(
-        #                 widgetvar) == "ageRating":
-        #             widgetvar.set("Unknown")
-        #         else:
-        #             widgetvar.set(-1)
-        #     elif isinstance(widgetvar, models.LongText):
-        #         widgetvar.set("")
-        #
-        #     else:
-        #         logger.warning(f"Unrecognised type \n{str(widgetvar)}\n{widgetvar}")
-        #
-        #     if cls._initialized_UI:  # For the items that are different, highlight in orane if ui is initialized
-        #         widgetobj = widgets_var_tuple[3]  # This is the actual widget, not the variable
-        #         logger.debug("++#############++")
-        #         logger.debug(comicinfo_atr_get)
-        #         logger.debug(widgetvar.get())
-        #         logger.debug("__#############__")
-        #         widgetobj.configure(highlightbackground='orange', highlightcolor="orange",
-        #                             highlightthickness='3')
-        #         cls.highlighted_changes.append(widgetobj)
-        #
-        #     if str(widgetvar) == "Number" and cls.conflict_chapter:
-        #         cls.conflict_chapter = True
-        #     logger.debug(
-        #         f"Conflict betwen comicinfo and UI for tag '{str(widgetvar)}'. Content does not match.")
-        # else:
-        # logger.debug(
-        # f"Content in comicinfo and UI for tag '{str(widgetvar)}' is the same, skipping")
 
     return loadedInfo
 
 
-# noinspection PyTypeChecker
+def _get_widgets_var_zip(widgets_variable_list, comicInfoObj: ComicInfo.ComicInfo, widgets_object_list=None):
+    getters_array = get_gettersArray(comicInfoObj)
+    setters_array = get_settersArray(comicInfoObj)
+    if widgets_object_list:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
+        widgets_var_zip = zip(widgets_variable_list, getters_array,
+                              setters_array, widgets_object_list)
+    else:
+        widgets_var_zip = zip(widgets_variable_list, getters_array,
+                              setters_array)
+    return widgets_var_zip
+
+
 class App:
     def __init__(self, master: tk.Tk = None, disable_metadata_notFound_warning=False):
         self.master = master
@@ -327,7 +298,7 @@ class App:
         self.selected_filenames = []
         self.loadedComicInfo_list = list[LoadedComicInfo]()
 
-        self.entry_Title_val = tk.StringVar(value='', name="title")
+        self.entry_Title_val = tk.StringVar(value='', name="Title")
         self.entry_Series_val = tk.StringVar(value='', name="Series")
         self.entry_LocalizedSeries_val = tk.StringVar(value='', name="LocalizedSeries")
         self.entry_SeriesSort_val = tk.StringVar(value='', name="SeriesSort")
@@ -337,7 +308,7 @@ class App:
         self.entry_Tags_val = tk.StringVar(value='', name="Tags")
         self.entry_Web_val = tk.StringVar(value='', name="Web")
         self.entry_SeriesGroup_val = tk.StringVar(value='', name="SeriesGroup")
-        self.entry_AgeRating_val = tk.StringVar(value="Unknown", name="AgeRating")
+        self.entry_AgeRating_val = tk.StringVar(value="Unknown", name="OptionMenu_AgeRating")
         self.entry_CommunityRating_val = tk.StringVar(value='', name="CommunityRating")
         self.entry_ScanInformation_val = tk.StringVar(value='', name="ScanInformation")
         self.entry_StoryArc_val = tk.StringVar(value='', name="StoryArc")
@@ -360,8 +331,8 @@ class App:
         # self.__tkvar = tk.StringVar(value='Unknown')
         self.entry_StoryArcNumber_val = tk.StringVar(value='', name="StoryArcNumber")
         self.input_1_summary_obj = models.LongText(name="summary")
-        self.entry_BlackAndWhite_val = tk.StringVar(name="BlackWhite", value="Unknown")
-        self.entry_Manga_val = tk.StringVar(name="Manga", value="Unknown")
+        self.entry_BlackAndWhite_val = tk.StringVar(name="OptionMenu_BlackWhite", value="Unknown")
+        self.entry_Manga_val = tk.StringVar(name="OptionMenu_Manga", value="Unknown")
         self.entry_Count_val = tk.IntVar(value=-1, name="Count")
         self.entry_AlternateCount_val = tk.IntVar(value=-1, name="AlternateCount")
         self.entry_Volume_val = tk.IntVar(value=-1, name="Volume")
@@ -473,19 +444,21 @@ class App:
         master = self.master
 
         def makeReadOnly(event: tk.Event = None):
-            # <Return>
-            if event.widget.cget('state') == "disabled":
-                return
-            if isinstance(event.widget, tk.Entry):
-                event.widget.configure(state="readonly")
+            # # <Return>
+            # if event.widget.cget('state') == "disabled":
+            #     return
+            # if isinstance(event.widget, ttk.Combobox):
+            #     event.widget.configure(state="readonly")
+            pass
 
         def makeFocused(event: tk.Event = None):
             # <Button-1>
-            event.widget.focus()
-
+            # event.widget.focus()
+            pass
         def onFocusOut(event: tk.Event = None):
             # <FocusOut>
-            makeReadOnly(event)
+            # makeReadOnly(event)
+            pass
 
         def ValidateIfNum(s, S):
             dummy = s
@@ -972,9 +945,9 @@ class App:
         self._panedwindow_1.pack(expand='true', fill='both', padx='10', pady='10', side='top')
         self._frame_3 = tk.Frame(self.frame_1)
         self._button_1 = tk.Button(self._frame_3)
-        self._button_1.configure(text='Open', command=self._open_files)
+        self._button_1.configure(text='Open', command=self._open_files, )
         self._button_1.grid(column='0', row='0')
-        self._button_2 = tk.Button(self._frame_3)
+        self._button_2 = tk.Button(self._frame_3, command=self.do_save_UI)
         self._button_2.configure(text='Save')
         self._button_2.grid(column='0', row='1')
         self._button_3 = tk.Button(self._frame_3)
@@ -1121,54 +1094,70 @@ class App:
         except CancelComicInfoLoad:
             self.loadedComicInfo_list = []
 
-    def parseUI_toComicInfo(self, forceVolume=False):
+    def _parseUI_toComicInfo(self):
         """
         Modifies every ComicInfo loaded with values from the UI
+        :return: True if all LoadedComicInfo were updated. If any error or saving is cancelled returns False
         """
 
-        def parse_UI_toComicInfo(cls, loadedInfo: LoadedComicInfo, doForceVolume) -> LoadedComicInfo:
+        def parse_UI_toComicInfo(cls, loadedInfo: LoadedComicInfo, keep_original_value) -> tuple[
+            LoadedComicInfo, object]:
             """
             Accepts a path string
             Returns a LoadedComicInfo with the modified ComicInfo from the modified StringVars
-
             """
             logger.debug(f"parsing UI to file: '{loadedInfo.path}'")
 
-            if cls.widgets_obj:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
-                widgets_var_zip = zip(cls.widgets_var, get_gettersArray(loadedInfo.comicInfoObj),
-                                      get_settersArray(loadedInfo.comicInfoObj), cls.widgets_obj)
-                cls._initialized_UI = True
-            else:
-                widgets_var_zip = zip(cls.widgets_var, get_gettersArray(loadedInfo.comicInfoObj),
-                                      get_settersArray(loadedInfo.comicInfoObj))
-                cls._initialized_UI = False
-
             # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
+            widgets_var_zip = _get_widgets_var_zip(cls.widgets_var, loadedInfo.comicInfoObj, cls.widgets_obj)
+
+            # logger.debug([str(i[0]) for i in widgets_var_zip if not isinstance(i[3],tk.OptionMenu) and not isinstance(i[3],models.LongText)])
+            # return
+            if cls.widgets_obj:
+                noSelectionCheck = [str(widgets_var_tuple[0]) for widgets_var_tuple in [i for i in widgets_var_zip if
+                                                                                        not isinstance(i[3],
+                                                                                                       tk.OptionMenu) and not isinstance(
+                                                                                            i[3], models.LongText)] if
+                                    (not list(widgets_var_tuple[3]['values']) and not widgets_var_tuple[0].get())]
+                if noSelectionCheck and keep_original_value is None:
+                    keep_original_value = mb.askokcancel("Fields not selected",
+                                                         message=f"There are conflics in your selection.\n"
+                                                                 f"Ignore if you want the following fields to keep it's original value.\n"
+                                                                 f"{', '.join(noSelectionCheck)}\n\nContinue?")
+                    if not keep_original_value:
+                        raise CancelComicInfoSave()
+                    logger.info("Proceeding with saving. Unset fields will retain original values")
+                else:
+                    logger.info("Proceeding with saving. Unset fields will retain original values")
+                logger.info("Before loop")
+            widgets_var_zip = _get_widgets_var_zip(cls.widgets_var, loadedInfo.comicInfoObj, cls.widgets_obj)
             for widgets_var_tuple in widgets_var_zip:
                 widgetvar = widgets_var_tuple[0]
-                comicinfo_atr_get = widgets_var_tuple[1]
+                comicinfo_atr_get = widgets_var_tuple[1]()
                 comicinfo_atr_set = widgets_var_tuple[2]
-
-                if widgetvar.get() != comicinfo_atr_get() and widgetvar.get() not in (-1, 0, "", "Unknown", None):
+                if not cls.widgets_obj:
                     comicinfo_atr_set(widgetvar.get())
-                else:
-                    if str(widgetvar) == "volume" and doForceVolume:
+                    continue
+                if isinstance(widgetvar, tk.StringVar) and widgetvar.get() == "-1":
+                    comicinfo_atr_set("")
+                elif isinstance(widgetvar, tk.IntVar) and widgetvar.get():
+                    if str(widgetvar) == "PageCount" and widgetvar.get() == -1:
+                        comicinfo_atr_set(0)
+                    if widgetvar.get() == -1:
                         comicinfo_atr_set(-1)
-                    elif str(widgetvar) == "volume" and self.spinbox_3_volume_var_isModified:
-                        comicinfo_atr_set(widgetvar.get())
-                    elif str(widgetvar) == "Number" and cls.spinbox_4_chapter_var_isModified:
-                        comicinfo_atr_set(widgetvar.get())
-
-            return loadedInfo
+                comicinfo_atr_set(widgetvar.get())
+            return loadedInfo, keep_original_value
 
         modified_loadedComicInfo_list = []
         # modified_loadedComicInfo_XML_list = list[str]()
+        keep_original_values = None
         for comicObj in self.loadedComicInfo_list:
-            modified_loadedComicInfo = parse_UI_toComicInfo(self, comicObj, doForceVolume=forceVolume)
+            modified_loadedComicInfo, keep_original_values = parse_UI_toComicInfo(self, comicObj, keep_original_values)
             modified_loadedComicInfo_list.append(modified_loadedComicInfo)
-            self.loadedComicInfo_list = modified_loadedComicInfo_list
+        self.loadedComicInfo_list = modified_loadedComicInfo_list
 
-    def saveComicInfo(self):
+    def _saveComicInfo(self):
+
         total_times_count = len(self.loadedComicInfo_list)
         processed_counter = 0
         processed_errors = 0
@@ -1292,5 +1281,8 @@ class App:
                 WriteComicInfo(loadedComicObj).delete()
 
     def do_save_UI(self):
-        self.parseUI_toComicInfo()
-        self.saveComicInfo()
+        try:
+            self._parseUI_toComicInfo()
+            self._saveComicInfo()
+        except CancelComicInfoSave:
+            logger.info("Cancelled Saving")

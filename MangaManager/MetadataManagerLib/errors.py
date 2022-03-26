@@ -25,3 +25,12 @@ class CancelComicInfoLoad(Exception):
     def __init__(self):
         super().__init__(f'Loading cancelled')
 
+
+class CancelComicInfoSave(Exception):
+    """
+    Exception raised when the users cancels parsing.
+    Triggered when the user wants to cancel.
+    """
+
+    def __init__(self):
+        super().__init__(f'Saving cancelled')
