@@ -437,10 +437,10 @@ class App:
                 try:
                     cominfo_app = taggerApp(disable_metadata_notFound_warning=True)
                     cominfo_app.create_loadedComicInfo_list([item.complete_new_path])
-                    cominfo_app.spinbox_3_volume_var.set(item.volume)
-                    cominfo_app.parseUI_toComicInfo(forceVolume=True)
-                    cominfo_app.saveComicInfo()
-                    logger.debug("")
+                    cominfo_app.entry_Volume_val.set(item.volume)
+                    vol_val = cominfo_app.entry_Volume_val.get()
+
+                    cominfo_app.do_save_UI()
                     processed_counter += 1
                 except XMLSyntaxError:
                     logger.error(f"Failed to load ComicInfo.xml file inside file: {item.complete_new_path}'")

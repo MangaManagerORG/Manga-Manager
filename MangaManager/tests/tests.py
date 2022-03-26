@@ -338,9 +338,9 @@ class VolumeManagerTester(unittest.TestCase):
             final_dir_count = len(zin.namelist())
         items_in_test_path_dir = os.listdir(test_path_dir)
         try:
-            print("Aserting if new name exists in directory")
+            print(f"Aserting if renamed file exists in directory ({aseert_name} in Folder)")
             self.assertTrue(aseert_name in items_in_test_path_dir)
-            print("Aserting if new volume numer in comicinfo is saved")
+            print(f"Aserting if new volume numer in comicinfo is saved ({random_vol_number}=={app.get_Volume()})")
             self.assertEqual(random_vol_number, app.get_Volume())
         except AssertionError as e:
             self.zcleanup_test()
