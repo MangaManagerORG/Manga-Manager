@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from tkinter import Text, INSERT
+from tkinter import Text, INSERT, END
 
 from . import ComicInfo
 
@@ -31,7 +31,8 @@ class LongText:
     def set(self, value: str):
         if not self.linked_text_field:  # If its not defined then UI is not being use. Store value in class variable.
             self._value = value
-            return self._value
+            return  # self._value
+        self.linked_text_field.delete(1.0, END)
         self.linked_text_field.insert(INSERT, value)
 
     def get(self):

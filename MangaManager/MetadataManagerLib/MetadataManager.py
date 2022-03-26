@@ -437,6 +437,8 @@ class App:
         self.entry_Month_val.set(-1)
         self.entry_Day_val.set(-1)
 
+        self.input_1_summary_obj.set("")
+
     def makeEditable(self, event: tk.Event = None):
         pass
 
@@ -956,6 +958,10 @@ class App:
         self._button_4 = tk.Button(self._frame_3)
         self._button_4.configure(default='disabled', state='disabled', text='Fetch Online')
         self._button_4.grid(column='0', row='3')
+        self._button_5 = tk.Button(self._frame_3)
+        self._button_5.configure(text='Clear')
+        self._button_5.grid(column='0', row='4')
+        self._button_5.configure(command=self._clearUI)
         self._frame_3.configure(height='200', width='200')
         self._frame_3.pack(side='top')
         self.frame_1.configure(height='200', width='200')
@@ -1060,7 +1066,6 @@ class App:
         # self._label_28_statusinfo.configure(text="Successfuly loaded")
 
     def create_loadedComicInfo_list(self, cli_selected_files: list[str] = None):
-        self.conflicts = {}
 
         try:
             if not self.selected_filenames:
@@ -1225,3 +1230,7 @@ class App:
             self._saveComicInfo()
         except CancelComicInfoSave:
             logger.info("Cancelled Saving")
+
+    def _clearUI(self):
+        self.initialize_StringVars()
+        self.loadedComicInfo_list = []
