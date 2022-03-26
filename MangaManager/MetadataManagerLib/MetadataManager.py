@@ -1157,61 +1157,10 @@ class App:
         self.loadedComicInfo_list = modified_loadedComicInfo_list
 
     def _saveComicInfo(self):
-
-        total_times_count = len(self.loadedComicInfo_list)
-        processed_counter = 0
-        processed_errors = 0
-
-        if self._initialized_UI:
-            self.frame_1_progressbar = tk.Frame(self._files_controller)
-            self.frame_1_progressbar.grid(row=1, columnspan=4)
-            # TBH I'd like to rework how this processing bar works. - Promidius
-            pb_root = self.frame_1_progressbar
-
-            style = ttk.Style(pb_root)
-            style.layout('text.Horizontal.TProgressbar',
-                         [
-                             ('Horizontal.Progressbar.trough',
-                              {
-                                  'children': [
-                                      ('Horizontal.Progressbar.pbar',
-                                       {
-                                           'side': 'left',
-                                           'sticky': 'ns'
-                                       }
-                                       )
-                                  ],
-                                  'sticky': 'nswe'
-                              }
-                              ),
-                             ('Horizontal.Progressbar.label',
-                              {
-                                  'sticky': 'nswe'
-                              }
-                              )
-                         ]
-                         )
-            pb = ttk.Progressbar(pb_root, length=400, style='text.Horizontal.TProgressbar',
-                                 mode="determinate")  # create progress bar
-            style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
-            label_progress_text = tk.StringVar()
-            pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
-            logger.info("Initialized progress bar")
-            pb.grid(row=0, column=0, sticky=tk.E + tk.W)
-            pb_text.grid(row=1, column=0, sticky=tk.E)
-
         for loadedComicObj in self.loadedComicInfo_list:
-            print("Started thread")
-
             logger.info(f"[Processing] Starting processing to save data to file {loadedComicObj.path}")
-            # The following Try/Catch looks awful
-            # TODO: redo this in a better way
             try:
                 WriteComicInfo(loadedComicObj).to_file()
-                if self._initialized_UI:
-                    label_progress_text.set(
-                        f"Processed: {processed_counter}/{total_times_count} - {processed_errors} errors")
-                processed_counter += 1
             except FileExistsError as e:
                 if self._initialized_UI:
                     mb.showwarning(f"[ERROR] File already exists",
@@ -1232,7 +1181,6 @@ class App:
                 logger.error("[ERROR] Permission Error"
                              "Can't access the file because it's being used by a different process\n"
                              f"Exception:\n{str(e)}")
-                processed_errors += 1
                 if not self._initialized_UI:
                     raise e
                 else:
@@ -1246,7 +1194,6 @@ class App:
                 logger.error("[ERROR] File Not Found\n"
                              "Can't access the file because it's being used by a different process\n"
                              f"Exception:\n{str(e)}")
-                processed_errors += 1
                 if not self._initialized_UI:
                     raise e
                 else:
@@ -1256,14 +1203,6 @@ class App:
                     mb.showerror("Something went wrong", "Error processing. Check logs.")
                 logger.critical("Exception Processing", e)
                 raise e
-            if self._initialized_UI:
-                pb_root.update()
-                percentage = ((processed_counter + processed_errors) / total_times_count) * 100
-                style.configure('text.Horizontal.TProgressbar',
-                                text='{:g} %'.format(round(percentage, 2)))  # update label
-                pb['value'] = percentage
-                label_progress_text.set(
-                    f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors")
 
     def deleteComicInfo(self):
         """
