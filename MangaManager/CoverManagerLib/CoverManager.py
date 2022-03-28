@@ -2,8 +2,6 @@
 import logging
 import os
 import re
-import time
-import tkinter
 import tkinter as tk
 from itertools import cycle
 from tkinter import filedialog
@@ -12,7 +10,7 @@ from tkinter import ttk
 
 from PIL import ImageTk, Image, UnidentifiedImageError
 
-from CommonLib.HelperFunctions import get_elapsed_time, get_estimated_time
+from CommonLib.ProgressBarWidget import ProgressBar
 from .cbz_handler import SetCover
 from .models import cover_process_item_info
 
@@ -23,7 +21,7 @@ launch_path = ""
 
 
 class App:
-    def __init__(self,master:tkinter.Tk):
+    def __init__(self, master: tk.Tk):
         self.deleteCoverFilePath = f"{ScriptDir}/DELETE_COVER.jpg"
         self.recoverCoverFilePath = f"{ScriptDir}/RECOVER_COVER.jpg"
         self.master = master
@@ -323,50 +321,9 @@ class App:
         self.disableButtons(self._frame_coversetter)
         total = len(self._treeview1.get_children())
         # TBH I'd like to rework how this processing bar works. - Promidius
-        label_progress_text = tk.StringVar()
-        if self._initialized_UI:
-            pb_root = self._progressbar_frame
-
-            style = ttk.Style(pb_root)
-            style.layout('text.Horizontal.TProgressbar',
-                         [
-                             ('Horizontal.Progressbar.trough',
-                              {
-                                  'children': [
-                                      ('Horizontal.Progressbar.pbar',
-                                       {
-                                           'side': 'left',
-                                           'sticky': 'ns'
-                                       }
-                                       )
-                                  ],
-                                  'sticky': 'nswe'
-                              }
-                              ),
-                             ('Horizontal.Progressbar.label',
-                              {
-                                  'sticky': 'nswe'
-                              }
-                              )
-                         ]
-                         )
-            pb = ttk.Progressbar(pb_root, length=400, style='text.Horizontal.TProgressbar',
-                                 mode="determinate")  # create progress bar
-            style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
-
-            pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W, justify="right")
-            logger.info("Initialized progress bar")
-            pb.grid(row=0, column=0, sticky=tk.E + tk.W)
-            pb_text.grid(row=1, column=0, sticky=tk.E)
-
-        start_time = time.time()
-        processed_counter = 0
-        processed_errors = 0
+        progressBar = ProgressBar(self._initialized_UI, self._progressbar_frame, total)
         convert_images = self.checkbox2_settings_val.get()
-        label_progress_text.set(
-            f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors\n"
-            f"Elapsed time  : {get_elapsed_time(start_time)}\n"
-            f"Estimated time: {get_estimated_time(start_time, processed_counter, total)}")
+
         for item in self.covers_path_in_confirmation:
             for file in self.covers_path_in_confirmation[item]:
                 logger.info(f"Starting processing for file: {item}")
@@ -375,36 +332,27 @@ class App:
                     # label_progress_text.set(
                     #     f"Processed: {processed_counter}/{total} - {processed_errors} errors"
                     #     f" - Elapsed time: {get_elapsed_time}")
-                    processed_counter += 1
-
+                    progressBar.increaseCount()
                 except FileExistsError as e:
                     mb.showwarning(f"[ERROR] File already exists",
                                    f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
-                    processed_errors += 1
+                    progressBar.increaseError()
                     continue
                 except PermissionError as e:
                     mb.showerror("Can't access the file because it's being used by a different process",
                                  f"Exception:{e}")
-                    processed_errors += 1
+                    progressBar.increaseError()
                     continue
                 except FileNotFoundError as e:
                     mb.showerror("Can't access the file because it's being used by a different process",
                                  f"Exception:{e}")
-                    processed_errors += 1
+                    progressBar.increaseError()
                     continue
                 except Exception as e:
                     mb.showerror("Something went wrong", "Error processing. Check logs.")
                     logger.critical("Exception Processing", e)
-                if self._initialized_UI:
-                    pb_root.update()
-                    percentage = ((processed_counter + processed_errors) / total) * 100
-                    style.configure('text.Horizontal.TProgressbar',
-                                    text='{:g} %'.format(round(percentage, 2)))  # update label
-                    pb['value'] = percentage
-                    label_progress_text.set(
-                        f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors\n"
-                        f"Elapsed time  : {get_elapsed_time(start_time)}\n"
-                        f"Estimated time: {get_estimated_time(start_time, processed_counter, total)}")
+                    progressBar.increaseError()
+                progressBar.updatePB()
         self.covers_path_in_confirmation = {}  # clear queue
 
         self.disableButtons(self.master)

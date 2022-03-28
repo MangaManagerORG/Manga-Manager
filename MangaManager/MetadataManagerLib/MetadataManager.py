@@ -3,16 +3,14 @@ import logging
 import os
 import pathlib
 import re
-import time
 import tkinter as tk
 import tkinter.scrolledtext
 from tkinter import filedialog
 from tkinter import messagebox as mb
-from tkinter import ttk
 
 from lxml.etree import XMLSyntaxError
 
-from CommonLib.HelperFunctions import get_elapsed_time, get_estimated_time
+from ProgressBarWidget import ProgressBar
 from . import ComicInfo
 from . import models
 from .cbz_handler import ReadComicInfo, WriteComicInfo
@@ -970,51 +968,10 @@ class App:
 
     def saveComicInfo(self):
         total_times_count = len(self.loadedComicInfo_list)
-        start_time = time.time()
-        processed_counter = 0
-        processed_errors = 0
-
         if self._initialized_UI:
-            self.frame_1_progressbar = tk.Frame(self._files_controller)
-            self.frame_1_progressbar.grid(row=1, columnspan=4)
-            # TBH I'd like to rework how this processing bar works. - Promidius
-            pb_root = self.frame_1_progressbar
-
-            style = ttk.Style(pb_root)
-            style.layout('text.Horizontal.TProgressbar',
-                         [
-                             ('Horizontal.Progressbar.trough',
-                              {
-                                  'children': [
-                                      ('Horizontal.Progressbar.pbar',
-                                       {
-                                           'side': 'left',
-                                           'sticky': 'ns'
-                                       }
-                                       )
-                                  ],
-                                  'sticky': 'nswe'
-                              }
-                              ),
-                             ('Horizontal.Progressbar.label',
-                              {
-                                  'sticky': 'nswe'
-                              }
-                              )
-                         ]
-                         )
-            pb = ttk.Progressbar(pb_root, length=400, style='text.Horizontal.TProgressbar',
-                                 mode="determinate")  # create progress bar
-            style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
-            label_progress_text = tk.StringVar()
-            pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
-            logger.info("Initialized progress bar")
-            pb.grid(row=0, column=0, sticky=tk.E + tk.W)
-            pb_text.grid(row=1, column=0, sticky=tk.E)
-            label_progress_text.set(
-                f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors\n"
-                f"Elapsed time  : {get_elapsed_time(start_time)}\n"
-                f"Estimated time: {get_estimated_time(start_time, processed_counter, total_times_count)}")
+            progressBar = ProgressBar(self._initialized_UI, self.frame_1_progressbar, total_times_count)
+        else:
+            progressBar = ProgressBar(self._initialized_UI, False, total_times_count)
 
         for loadedComicObj in self.loadedComicInfo_list:
             print("Started thread")
@@ -1024,12 +981,7 @@ class App:
             # TODO: redo this in a better way
             try:
                 WriteComicInfo(loadedComicObj).to_file()
-                if self._initialized_UI:
-                    label_progress_text.set(
-                        f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors\n"
-                        f"Elapsed time  : {get_elapsed_time(start_time)}\n"
-                        f"Estimated time: {get_estimated_time(start_time, processed_counter, total_times_count)}")
-                processed_counter += 1
+                progressBar.increaseCount()
             except FileExistsError as e:
                 if self._initialized_UI:
                     mb.showwarning(f"[ERROR] File already exists",
@@ -1037,6 +989,7 @@ class App:
 
                 logger.error("[ERROR] File already exists\n"
                              f"Trying to create:\n`{str(e.filename2)}` but already exists\nException:\n{e}")
+                progressBar.increaseError()
                 if not self._initialized_UI:
                     raise e
                 else:
@@ -1050,7 +1003,7 @@ class App:
                 logger.error("[ERROR] Permission Error"
                              "Can't access the file because it's being used by a different process\n"
                              f"Exception:\n{str(e)}")
-                processed_errors += 1
+                progressBar.increaseError()
                 if not self._initialized_UI:
                     raise e
                 else:
@@ -1064,7 +1017,7 @@ class App:
                 logger.error("[ERROR] File Not Found\n"
                              "Can't access the file because it's being used by a different process\n"
                              f"Exception:\n{str(e)}")
-                processed_errors += 1
+                progressBar.increaseError()
                 if not self._initialized_UI:
                     raise e
                 else:
@@ -1073,17 +1026,9 @@ class App:
                 if self._initialized_UI:
                     mb.showerror("Something went wrong", "Error processing. Check logs.")
                 logger.critical("Exception Processing", e)
+                progressBar.increaseError()
                 raise e
-            if self._initialized_UI:
-                pb_root.update()
-                percentage = ((processed_counter + processed_errors) / total_times_count) * 100
-                style.configure('text.Horizontal.TProgressbar',
-                                text='{:g} %'.format(round(percentage, 2)))  # update label
-                pb['value'] = percentage
-                label_progress_text.set(
-                    f"Processed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors\n"
-                    f"Elapsed time  : {get_elapsed_time(start_time)}\n"
-                    f"Estimated time: {get_estimated_time(start_time, processed_counter, total_times_count)}")
+            progressBar.updatePB()
 
     def deleteComicInfo(self):
         """
