@@ -7,12 +7,13 @@ import sys
 import tkinter as tk
 from logging.handlers import RotatingFileHandler
 
-from ConvertersLib.epub2cbz import epub2cbz
 from CoverManagerLib import CoverManager
 from MetadataManagerLib import MetadataManager
 from VolumeManager import VolumeManager
-
+from ConvertersLib.epub2cbz import epub2cbz
+from CommonLib import WebpConverter
 # <Arguments parser>
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '-d', '--debug',
@@ -42,6 +43,11 @@ parser.add_argument(
     help="Launches volume Manager tool",
     action="store_const", dest="default_selected_tool", const=4
 )
+parser.add_argument(
+    '--webpConverter',
+    help="Launches volume Manager tool",
+    action="store_const", dest="default_selected_tool", const=5
+)
 
 def is_dir_path(path):
     if os.path.isdir(path):
@@ -65,7 +71,7 @@ args = parser.parse_args()
 # <Logger>
 logger = logging.getLogger()
 logging.getLogger('PIL').setLevel(logging.WARNING)
-formatter = logging.Formatter()
+# formatter = logging.Formatter()
 
 PROJECT_PATH = pathlib.Path(__file__).parent
 rotating_file_handler = RotatingFileHandler(f"{PROJECT_PATH}/logs/MangaManager.log", maxBytes=5725760,
@@ -79,7 +85,7 @@ logger.debug('DEBUG LEVEL - MAIN MODULE')
 logger.info('INFO LEVEL - MAIN MODULE')
 # </Logger>
 
-tools = [CoverManager, MetadataManager, VolumeManager, epub2cbz]
+tools = [CoverManager, MetadataManager, VolumeManager, epub2cbz, WebpConverter]
 
 def main():
     selected_tool = False
@@ -88,6 +94,7 @@ def main():
     print("2 - Manga Tagger")
     print("3 - Volume Setter")
     print("4 - Epub to CBZ converter")
+    print("5 - Webp Converter")
     if not args.default_selected_tool:
         while not selected_tool:
             selection = input("Select Number >")

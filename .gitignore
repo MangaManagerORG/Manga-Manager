@@ -16,3 +16,5 @@ undo.json
 /MangaManager/tests/Sample CBZ Chapter 24.cbz
 /.pytest_cache/
 /MangaManager/logs/MangaManager.log
+/releases
+/testing/

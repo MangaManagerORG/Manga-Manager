@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
+
 import logging
 import os
 import re
-import tkinter
 import tkinter as tk
 from itertools import cycle
 from tkinter import filedialog
@@ -11,6 +10,7 @@ from tkinter import ttk
 
 from PIL import ImageTk, Image, UnidentifiedImageError
 
+from CommonLib.ProgressBarWidget import ProgressBar
 from .cbz_handler import SetCover
 from .models import cover_process_item_info
 
@@ -21,15 +21,15 @@ launch_path = ""
 
 
 class App:
-    def __init__(self,master:tkinter.Tk):
+    def __init__(self, master: tk.Tk):
         self.deleteCoverFilePath = f"{ScriptDir}/DELETE_COVER.jpg"
         self.recoverCoverFilePath = f"{ScriptDir}/RECOVER_COVER.jpg"
         self.master = master
 
-
         self.do_overwrite_first = tk.BooleanVar()
-        self.checkbox0_settings_val = tk.BooleanVar()
-        self.checkbox1_settings_val = tk.BooleanVar()
+        self.checkbox0_settings_val = tk.BooleanVar(value=True)
+        self.checkbox1_settings_val = tk.BooleanVar(value=False)
+        self.checkbox2_settings_val = tk.BooleanVar(value=False)
         self.covers_path_in_confirmation = {}
         self._initialized_UI = False
 
@@ -99,7 +99,7 @@ class App:
         self._controller_buttons_frame.configure(borderwidth='0', height='200', highlightbackground='grey',
                                                  highlightcolor='grey')
         self._controller_buttons_frame.configure(highlightthickness='1', padx='10', pady='10', width='200')
-        self._controller_buttons_frame.place(anchor='nw', relx='0.01', rely='0.53', x='15', y='0')
+        self._controller_buttons_frame.place(anchor='nw', relx='0.01', rely='0.485', x='15', y='0')
         self._settings = tk.Frame(self._frame_coversetter)
         self._label_2_settings = ttk.Label(self._settings)
         self._label_2_settings.configure(text='Settings')
@@ -109,14 +109,21 @@ class App:
         self._checkbox0_settings.configure(text='Display next cover after adding a file to the queue (not delete)',
                                            variable=self.checkbox0_settings_val)
         self._checkbox0_settings.grid(column='0', row='1', sticky='w')
+
         self._checkbox1_settings = tk.Checkbutton(self._settings)
         self._checkbox1_settings.configure(text='Open File selector dialog after adding to queue (default replace: no)',
                                            variable=self.checkbox1_settings_val)
         self._checkbox1_settings.grid(column='0', row='2', sticky='w')
+
+        self._checkbox2_settings = tk.Checkbutton(self._settings)
+        self._checkbox2_settings.configure(text='Convert images to webp (may take a lot of time)',
+                                           variable=self.checkbox2_settings_val)
+        self._checkbox2_settings.grid(column='0', row='3', sticky='w')
+
         self._settings.configure(height='160', highlightbackground='black', highlightcolor='black',
                                  highlightthickness='1')
         self._settings.configure(width='200')
-        self._settings.place(anchor='nw', relx='0.03', rely='0.885', x='0')
+        self._settings.place(anchor='nw', relx='0.03', rely='0.85', x='0')
         s = ttk.Style()
         s.configure('Treeview', rowheight=65, rowpady=5, rowwidth=360)
 
@@ -149,12 +156,12 @@ class App:
         self._frame_6.rowconfigure('2', pad='5')
 
         self._frame_6.configure(height='200', width='200')
-        self._frame_6.place(anchor='n', relx='0.62', rely='0.71', x='0', y='0')
+        self._frame_6.place(anchor='n', relx='0.62', rely='0.69', x='0', y='0')
         self._progressbar_frame = tk.Frame(self._frame_coversetter)
-        self._progressbar_frame.place(anchor='nw', height='20', relx='0.4', rely='0.83', width='400', x='0', y='0')
-        self._frame_coversetter.configure(height='640', highlightbackground='grey', highlightcolor='black',
-                                          highlightthickness='1')
-        self._frame_coversetter.configure(width='800')
+        self._progressbar_frame.lower(self._settings)
+        self._progressbar_frame.place(anchor='nw', height='80', relx='0.4', rely='0.79', width='400', x='0', y='0')
+        self._frame_coversetter.configure(height='690', highlightbackground='grey', highlightcolor='black',
+                                          highlightthickness='1', width='800')
         self._frame_coversetter.pack(anchor='center', expand='true', side='top')
 
         # Main widget
@@ -314,82 +321,38 @@ class App:
         self.disableButtons(self._frame_coversetter)
         total = len(self._treeview1.get_children())
         # TBH I'd like to rework how this processing bar works. - Promidius
-        label_progress_text = tk.StringVar()
-        if self._initialized_UI:
-            pb_root = self._progressbar_frame
-
-            style = ttk.Style(pb_root)
-            style.layout('text.Horizontal.TProgressbar',
-                         [
-                             ('Horizontal.Progressbar.trough',
-                              {
-                                  'children': [
-                                      ('Horizontal.Progressbar.pbar',
-                                       {
-                                           'side': 'left',
-                                           'sticky': 'ns'
-                                       }
-                                       )
-                                  ],
-                                  'sticky': 'nswe'
-                              }
-                              ),
-                             ('Horizontal.Progressbar.label',
-                              {
-                                  'sticky': 'nswe'
-                              }
-                              )
-                         ]
-                         )
-            pb = ttk.Progressbar(pb_root, length=400, style='text.Horizontal.TProgressbar',
-                                 mode="determinate")  # create progress bar
-            style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
-
-            pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
-            logger.info("Initialized progress bar")
-            pb.grid(row=0, column=0, sticky=tk.E + tk.W)
-            pb_text.grid(row=1, column=0, sticky=tk.E)
-
-        processed_counter = 0
-        processed_errors = 0
+        progressBar = ProgressBar(self._initialized_UI, self._progressbar_frame, total)
+        convert_images = self.checkbox2_settings_val.get()
 
         for item in self.covers_path_in_confirmation:
             for file in self.covers_path_in_confirmation[item]:
                 logger.info(f"Starting processing for file: {item}")
                 try:
-                    SetCover(file)
-
-
-                    label_progress_text.set(
-                        f"Processed: {processed_counter}/{total} - {processed_errors} errors")
-                    processed_counter += 1
-
+                    SetCover(file, conver_to_webp=convert_images)
+                    # label_progress_text.set(
+                    #     f"Processed: {processed_counter}/{total} - {processed_errors} errors"
+                    #     f" - Elapsed time: {get_elapsed_time}")
+                    progressBar.increaseCount()
                 except FileExistsError as e:
                     mb.showwarning(f"[ERROR] File already exists",
                                    f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
-                    processed_errors += 1
+                    progressBar.increaseError()
                     continue
                 except PermissionError as e:
                     mb.showerror("Can't access the file because it's being used by a different process",
                                  f"Exception:{e}")
-                    processed_errors += 1
+                    progressBar.increaseError()
                     continue
                 except FileNotFoundError as e:
                     mb.showerror("Can't access the file because it's being used by a different process",
                                  f"Exception:{e}")
-                    processed_errors += 1
+                    progressBar.increaseError()
                     continue
                 except Exception as e:
                     mb.showerror("Something went wrong", "Error processing. Check logs.")
                     logger.critical("Exception Processing", e)
-                if self._initialized_UI:
-                    pb_root.update()
-                    percentage = ((processed_counter + processed_errors) / total) * 100
-                    style.configure('text.Horizontal.TProgressbar',
-                                    text='{:g} %'.format(round(percentage, 2)))  # update label
-                    pb['value'] = percentage
-                    label_progress_text.set(
-                    f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors")
+                    progressBar.increaseError()
+                progressBar.updatePB()
         self.covers_path_in_confirmation = {}  # clear queue
 
         self.disableButtons(self.master)
