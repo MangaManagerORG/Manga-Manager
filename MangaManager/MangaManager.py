@@ -7,11 +7,11 @@ import sys
 import tkinter as tk
 from logging.handlers import RotatingFileHandler
 
-from CommonLib import WebpConverter
 from CoverManagerLib import CoverManager
 from MetadataManagerLib import MetadataManager
 from VolumeManager import VolumeManager
-
+from ConvertersLib.epub2cbz import epub2cbz
+from CommonLib import WebpConverter
 # <Arguments parser>
 
 parser = argparse.ArgumentParser()
@@ -37,6 +37,11 @@ parser.add_argument(
     '--volume',
     help="Launches volume Manager tool",
     action="store_const", dest="default_selected_tool", const=3
+)
+parser.add_argument(
+    '--epub2cbz',
+    help="Launches volume Manager tool",
+    action="store_const", dest="default_selected_tool", const=4
 )
 parser.add_argument(
     '--webpConverter',
@@ -80,7 +85,7 @@ logger.debug('DEBUG LEVEL - MAIN MODULE')
 logger.info('INFO LEVEL - MAIN MODULE')
 # </Logger>
 
-tools = [CoverManager, MetadataManager, VolumeManager, "Placeholder", WebpConverter]
+tools = [CoverManager, MetadataManager, VolumeManager, epub2cbz, WebpConverter]
 
 def main():
     selected_tool = False
@@ -88,7 +93,8 @@ def main():
     print("1 - Cover Setter")
     print("2 - Manga Tagger")
     print("3 - Volume Setter")
-    print("5 - Webp Coverter")
+    print("4 - Epub to CBZ converter")
+    print("5 - Webp Converter")
     if not args.default_selected_tool:
         while not selected_tool:
             selection = input("Select Number >")
