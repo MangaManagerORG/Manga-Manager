@@ -9,26 +9,28 @@ from tkinter import filedialog
 from tkinter.ttk import Style, Progressbar
 
 # from CommonLib import webp_converter as convert_to_webp
+
 logger = logging.getLogger(__name__)
 
 
 class App:
     def __init__(self, master: tk.Tk, epubsPathList: list[str] = None, convert_to_webp=False, ):
         """
+        If there are epubsPathList; start() must be called manually
 
         :param epubsPathList: The list of string paths to the epubs files to process
         :param convert_to_webp: Should the images be converted to .webp when adding
         :param master: used for tkinter integrations
         """
-
+        self.output_folder = ""
         self.convert_to_webp = convert_to_webp
         if not master:
             master = tk.Tk()
         self.master = master
         self.epubsPathList = epubsPathList
-        if epubsPathList:
-            self.start()
-        else:
+        self._initialized_UI = False
+        if not epubsPathList:
+            self._initialized_UI = True
             self.start_ui()
 
     def start(self):
@@ -78,22 +80,22 @@ class App:
                 else:
                     output_path = self.output_folder
                 logger.info(f"Processing '{epubPath}'")
-
+                logger.info(f"File '{output_path}' will be created")
                 zipFileName = os.path.basename(epubPath)
-                if os.path.exists(Path(output_path, zipFileName)):
-                    raise FileExistsError
-
+                logger.debug(Path(output_path, zipFileName))
                 tmpfd, tmpname = tempfile.mkstemp(dir=output_path)
                 os.close(tmpfd)
-
-                newCbzName = (output_path + "/" + zipFileName).replace(
-                    re.findall(r"(?i).*(\.[a-z]+)", epubPath)[0]
+                self.newCbzName = (output_path + "/" + zipFileName).replace(
+                    re.findall(r"(?i).*(\.[a-z]+$)", epubPath)[0]
                     , ".cbz")
+                if os.path.exists(self.newCbzName):
+                    os.remove(tmpname)
+                    raise FileExistsError
                 self._processFile(epubPath, tmpname)
-                os.rename(tmpname, newCbzName)
+                os.rename(tmpname, self.newCbzName)
                 # print(" " * int(66 + len(os.path.basename(epubPath))), end="\r")
                 # print(f"Processed '{os.path.basename(epubPath)}'")
-                logger.info(f"Successfuly created '{newCbzName}'")
+                logger.info(f"Successfuly created '{self.newCbzName}'")
                 processed_counter += 1
                 label_progress_text.set(
                     f"Processed: {processed_counter}/{total} - {processed_errors} errors")
@@ -103,14 +105,17 @@ class App:
                     except Exception as e:
                         print(e)
             except FileExistsError as e:
-                logger.error(f"Error processing file '{epubPath}': {str(e)}", exc_info=False)
+                logger.error(f"Error processing file '{epubPath}'. It already exists: {str(e)}", exc_info=False)
                 processed_errors += 1
                 # os.remove(tmpname)
             except Exception as e:
                 print(e)
-                logger.error(f"Error processing file '{epubPath}': {str(e)}")
+                logger.error(f"Error processing file '{epubPath}': {str(e)}",e)
                 processed_errors += 1
-                os.remove(tmpname)
+                try:
+                    os.remove(tmpname)
+                except UnboundLocalError: # we just want to make sure there are no leftover files
+                    pass
             if self._initialized_UI:
                 pb_root.update()
                 percentage = ((processed_counter + processed_errors) / total) * 100

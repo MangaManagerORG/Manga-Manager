@@ -380,9 +380,10 @@ class App:
             progressBar = ProgressBar(self._initialized_UI, None, total_times_count)
         if self.checkbutton_4_settings_val.get():
             logger.info("[VolumeManager] Save to ComicInfo is enabled. Starting process")
-            from MetadataManagerLib.MetadataManager import App as taggerApp
+
             for item in self._list_filestorename:
                 try:
+                    from MetadataManagerLib.MetadataManager import App as taggerApp
                     cominfo_app = taggerApp(disable_metadata_notFound_warning=True)
                     cominfo_app.create_loadedComicInfo_list([item.complete_new_path])
                     cominfo_app.entry_Volume_val.set(item.volume)
