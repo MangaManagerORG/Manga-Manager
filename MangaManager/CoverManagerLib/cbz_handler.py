@@ -214,7 +214,7 @@ class SetCover:
                     # Adding file to new file.
                     # File is not flagged as potential cover
                     item_filename = item.filename
-                    if self.conver_to_webp and not item.filename.endswith(supportedFormats):
+                    if self.conver_to_webp and item.filename.endswith(supportedFormats):
                         with zin.open(item.filename) as open_zipped_file:
                             zout.writestr(getNewWebpFormatName(item.filename), convertToWebp(open_zipped_file))
                         logger.debug(

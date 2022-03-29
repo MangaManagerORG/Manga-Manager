@@ -1168,7 +1168,7 @@ class ComicInfo(GeneratedsSuper):
                  Translator='', Publisher='', Imprint='', Genre='', Tags='', Web='', PageCount=0, LanguageISO='',
                  Format='', BlackAndWhite='Unknown', Manga='Unknown', Characters='', Teams='', Locations='',
                  ScanInformation='', StoryArc='', StoryArcNumber='', SeriesGroup='', AgeRating='Unknown', Pages=None,
-                 CommunityRating=None, gds_collector_=None, **kwargs_):
+                 CommunityRating='', gds_collector_=None, **kwargs_):
         self.gds_collector_ = gds_collector_
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
@@ -1672,7 +1672,7 @@ class ComicInfo(GeneratedsSuper):
                 self.SeriesGroup != "" or
                 self.AgeRating != "Unknown" or
                 self.Pages is not None or
-                self.CommunityRating is not None
+                self.CommunityRating != ""
         ):
             return True
         else:
@@ -1962,7 +1962,7 @@ class ComicInfo(GeneratedsSuper):
             namespaceprefix_ = self.Pages_nsprefix_ + ':' if (UseCapturedNS_ and self.Pages_nsprefix_) else ''
             self.Pages.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Pages',
                               pretty_print=pretty_print)
-        if self.CommunityRating is not None:
+        if self.CommunityRating != "":
             namespaceprefix_ = self.CommunityRating_nsprefix_ + ':' if (
                     UseCapturedNS_ and self.CommunityRating_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)

@@ -167,123 +167,18 @@ def get_settersArray(ComicInfoObject):
         ComicInfoObject.set_StoryArcNumber]
 
 
-def load_comicinfo_xml(cls, cbz_path) -> LoadedComicInfo:
-    """
-    Accepts a path string
-    Returns a LoadedComicInfo with the ComicInfo class generated from the data contained inside ComicInfo file
-    which is taken from the zip-like file type
-
-    :param cls: parent self
-    :param string cbz_path: the path to the zip-like file
-    :return: LoadedComicInfo: LoadedComicInfo
-    """
-    logger.info(f"loading file: '{cbz_path}'")
-    # Load ComicInfo.xml to Class
-    try:
-        # raise CorruptedComicInfo(cbz_path)
-        comicinfo = ReadComicInfo(cbz_path).to_ComicInfo(print_xml=False)
-    except NoMetadataFileFound:
-        logger.warning(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}\n"
-                       f"One will be created when saving changes to file.\n"
-                       f"This applies to all future errors")
-        if not cls.warning_metadataNotFound and cls._initialized_UI:
-            mb.showwarning("Warning reading ComicInfo",
-                           f"ComicInfo.xml was not found inside: {cbz_path}\n"
-                           f"One will be created when saving changes to file.\n"
-                           f"This applies to all selected files")
-            cls.warning_metadataNotFound = True
-        comicinfo = ComicInfo.ComicInfo()
-    except XMLSyntaxError as e:
-        logger.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
-        mb.showerror("Error reading ComicInfo", "Error loading file."
-                                                f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e))
-        raise e
-
-    except CorruptedComicInfo as e:
-        logger.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
-        if cls._initialized_UI:
-            answer = mb.askyesno("Failed to load metadata",
-                                 f"Failed to load metadata from file:\n{cbz_path}\n\n"
-                                 "ComicInfo.xml file was found but seems corrupted.\n"
-                                 "A fix was attempted but it failed.\n\n"
-                                 "Continue loading?")
-            if answer:
-                return
-            else:
-                raise CancelComicInfoLoad
-        raise CorruptedComicInfo
-    loadedInfo = LoadedComicInfo(cbz_path, comicinfo, comicinfo)
-    logger.debug("comicinfo was read and a LoadedComicInfo was created")
-
-    widgets_var_zip = _get_widgets_var_zip(
-        cls.widgets_var, loadedInfo.comicInfoObj, cls.widgets_obj)
-    # Load the comic info into our StringVar(s) and IntVar(s), so they can be modified in the ui
-    for widgets_var_tuple in widgets_var_zip:
-        widgetvar = widgets_var_tuple[0]
-        comicinfo_atr_get = widgets_var_tuple[1]()
-        comicinfo_atr_set = widgets_var_tuple[2]
-        # logger.debug(f"Processing '{widgetvar}' | Value: {widgetvar.get()} | ComicInfo Value: {comicinfo_atr_get}")
-        # field is empty. Skipping
-        if widgetvar.get() != comicinfo_atr_get:
-            if not cls.widgets_obj:
-                comicinfo_atr_set(widgetvar.get())
-                continue
-            try:
-                if not cls.widgets_obj:
-                    continue
-                widget = widgets_var_tuple[3]
-
-                logger.debug(f"Processing {widgetvar}")
-                if isinstance(widgetvar, models.LongText):
-                    widgetvar.set(comicinfo_atr_get)
-                    continue
-                if isinstance(widget, tk.OptionMenu):
-                    widgetvar.set(comicinfo_atr_get)
-                    continue
-                widget_list = list(widget['values'])
-                # logger.error(widget['values'])
-                if comicinfo_atr_get not in widget_list:  # check duplicate
-
-                    if not widget['values']:
-                        widget['values'] = (comicinfo_atr_get,)
-                        widget_list = list(widget['values'])
-                    else:
-                        widget_list.append(comicinfo_atr_get)
-                        widget['values'] = widget_list  # += (widgetvar.get(),)  # add option
-                        logger.debug(
-                            f"Appended new value for tag '{widgetvar}'")
-                    if len(widget_list) == 1:
-                        widgetvar.set(comicinfo_atr_get)
-                        logger.debug(
-                            f"Loaded new value for tag '{widgetvar}'")
-                    elif isinstance(widget, tk.OptionMenu):
-                        widgetvar.set("Unknown")
-                    elif isinstance(widgetvar, tk.StringVar):
-                        widgetvar.set("")
-                    elif isinstance(widgetvar, tk.IntVar):
-                        if str(widgetvar) == "PageCount":
-                            widgetvar.set(0)
-                        else:
-                            widgetvar.set(-1)
-
-                # Ignored values: Volume, number
-
-            except Exception as e:
-                logger.error("Exception found", exc_info=e)
-
-    return loadedInfo
 
 
 def _get_widgets_var_zip(widgets_variable_list, comicInfoObj: ComicInfo.ComicInfo, widgets_object_list=None):
     getters_array = get_gettersArray(comicInfoObj)
     setters_array = get_settersArray(comicInfoObj)
     if widgets_object_list:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
-        widgets_var_zip = zip(widgets_variable_list, getters_array,
-                              setters_array, widgets_object_list)
+        return zip(widgets_variable_list, getters_array,
+                   setters_array, widgets_object_list)
     else:
-        widgets_var_zip = zip(widgets_variable_list, getters_array,
-                              setters_array)
-    return widgets_var_zip
+        return zip(widgets_variable_list, getters_array,
+                   setters_array)
+
 
 
 class App:
@@ -299,7 +194,7 @@ class App:
         self.selected_filenames = []
         self.loadedComicInfo_list = list[LoadedComicInfo]()
 
-        self.entry_Title_val = tk.StringVar(value='', name="Title")
+        self.entry_Title_val = tk.StringVar(value='', name="title")
         self.entry_Series_val = tk.StringVar(value='', name="Series")
         self.entry_LocalizedSeries_val = tk.StringVar(value='', name="LocalizedSeries")
         self.entry_SeriesSort_val = tk.StringVar(value='', name="SeriesSort")
@@ -488,12 +383,8 @@ class App:
         self._entry_Title.configure(textvariable=self.entry_Title_val)
         self._entry_Title.pack(expand='false', fill='both', side='top')
         self._entry_Title.bind('<Button-1>', makeFocused, add='')
-        self._entry_Title.bind('<Button-1>', makeFocused, add='')
-        self._entry_Title.bind('<Double-Button-1>', self.makeEditable, add='')
         self._entry_Title.bind('<Double-Button-1>', self.makeEditable, add='')
         self._entry_Title.bind('<FocusOut>', onFocusOut, add='')
-        self._entry_Title.bind('<FocusOut>', onFocusOut, add='')
-        self._entry_Title.bind('<Return>', makeReadOnly, add='')
         self._entry_Title.bind('<Return>', makeReadOnly, add='')
         self._label_2 = tk.Label(self.frame_2)
         self._label_2.configure(text='Series')
@@ -1064,12 +955,13 @@ class App:
         # self._label_28_statusinfo.configure(text="Successfuly loaded")
 
     def create_loadedComicInfo_list(self, cli_selected_files: list[str] = None):
+        self.initialize_StringVars()
         try:
             if not self.selected_filenames:
                 if cli_selected_files:
                     for file in cli_selected_files:
                         try:
-                            loaded_ComIinf = load_comicinfo_xml(self, file)
+                            loaded_ComIinf = self.load_comicinfo_xml(file)
                         except XMLSyntaxError:
                             # This is already logged. Exception is raised again so it excepts on CLI mode
                             continue
@@ -1086,7 +978,7 @@ class App:
             else:
                 logger.debug("Selected files UI:" + "".join(self.selected_filenames))
                 for file_path in self.selected_filenames:
-                    loaded_ComIinf = load_comicinfo_xml(self, file_path)
+                    loaded_ComIinf = self.load_comicinfo_xml(file_path)
 
                     if loaded_ComIinf:
                         self.loadedComicInfo_list.append(loaded_ComIinf)
@@ -1159,7 +1051,7 @@ class App:
         self.loadedComicInfo_list = modified_loadedComicInfo_list
 
     def _saveComicInfo(self):
-        progressbar = ProgressBar(self._initialized_UI, self._progressBarFrame if self._initialized_UI else None,
+        progressBar = ProgressBar(self._initialized_UI, self._progressBarFrame if self._initialized_UI else None,
                                   total=len(self.loadedComicInfo_list))
         for loadedComicObj in self.loadedComicInfo_list:
             logger.info(f"[Processing] Starting processing to save data to file {loadedComicObj.path}")
@@ -1243,3 +1135,114 @@ class App:
             if isinstance(widget, ttk.Combobox):
                 widget['values'] = []
         self.loadedComicInfo_list = []
+
+    def load_comicinfo_xml(self, cbz_path) -> LoadedComicInfo:
+        """
+        Accepts a path string
+        Returns a LoadedComicInfo with the ComicInfo class generated from the data contained inside ComicInfo file
+        which is taken from the zip-like file type
+
+        :param self: parent self
+        :param string cbz_path: the path to the zip-like file
+        :return: LoadedComicInfo: LoadedComicInfo
+        """
+        logger.info(f"loading file: '{cbz_path}'")
+        # Load ComicInfo.xml to Class
+        try:
+            # raise CorruptedComicInfo(cbz_path)
+            comicinfo = ReadComicInfo(cbz_path).to_ComicInfo(print_xml=False)
+        except NoMetadataFileFound:
+            logger.warning(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}\n"
+                           f"One will be created when saving changes to file.\n"
+                           f"This applies to all future errors")
+            if not self.warning_metadataNotFound and self._initialized_UI:
+                mb.showwarning("Warning reading ComicInfo",
+                               f"ComicInfo.xml was not found inside: {cbz_path}\n"
+                               f"One will be created when saving changes to file.\n"
+                               f"This applies to all selected files")
+                self.warning_metadataNotFound = True
+            comicinfo = ComicInfo.ComicInfo()
+        except XMLSyntaxError as e:
+            logger.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
+            mb.showerror("Error reading ComicInfo", "Error loading file."
+                                                    f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e))
+            raise e
+
+        except CorruptedComicInfo as e:
+            logger.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
+            if self._initialized_UI:
+                answer = mb.askyesno("Failed to load metadata",
+                                     f"Failed to load metadata from file:\n{cbz_path}\n\n"
+                                     "ComicInfo.xml file was found but seems corrupted.\n"
+                                     "A fix was attempted but it failed.\n\n"
+                                     "Continue loading?")
+                if answer:
+                    return
+                else:
+                    raise CancelComicInfoLoad
+            raise CorruptedComicInfo
+        loadedInfo = LoadedComicInfo(cbz_path, comicinfo, comicinfo)
+        logger.debug("comicinfo was read and a LoadedComicInfo was created")
+
+        widgets_var_zip = _get_widgets_var_zip(
+            self.widgets_var, loadedInfo.comicInfoObj, self.widgets_obj)
+        # Load the comic info into our StringVar(s) and IntVar(s), so they can be modified in the ui
+        for widgets_var_tuple in widgets_var_zip:
+            widgetvar = widgets_var_tuple[0]
+            comicinfo_atr_get = widgets_var_tuple[1]()
+            comicinfo_atr_set = widgets_var_tuple[2]
+            # logger.debug(f"Processing '{widgetvar}' | Value: {widgetvar.get()} | ComicInfo Value: {comicinfo_atr_get}")
+            # field is empty. Skipping
+
+            logger.info(str(widgetvar))
+            logger.info(str(widgetvar))
+            logger.info(str(widgetvar))
+
+            if widgetvar.get() != comicinfo_atr_get:
+                if not self.widgets_obj:
+                    comicinfo_atr_set(widgetvar.get())
+                    continue
+                try:
+                    if not self.widgets_obj:
+                        continue
+                    widget = widgets_var_tuple[3]
+
+                    logger.debug(f"Processing {widgetvar}")
+                    if isinstance(widgetvar, models.LongText):
+                        widgetvar.set(comicinfo_atr_get)
+                        continue
+                    if isinstance(widget, tk.OptionMenu):
+                        widgetvar.set(comicinfo_atr_get)
+                        continue
+                    widget_list = list(widget['values'])
+                    # logger.error(widget['values'])
+                    if comicinfo_atr_get not in widget_list:  # check duplicate
+
+                        if not widget['values']:
+                            widget['values'] = (comicinfo_atr_get,)
+                            widget_list = list(widget['values'])
+                        else:
+                            widget_list.append(comicinfo_atr_get)
+                            widget['values'] = widget_list  # += (widgetvar.get(),)  # add option
+                            logger.debug(
+                                f"Appended new value for tag '{widgetvar}'")
+                        if len(widget_list) == 1:
+                            widgetvar.set(comicinfo_atr_get)
+                            logger.debug(
+                                f"Loaded new value for tag '{widgetvar}'")
+                        elif isinstance(widget, tk.OptionMenu):
+                            widgetvar.set("Unknown")
+                        elif isinstance(widgetvar, tk.StringVar):
+                            widgetvar.set("")
+                        elif isinstance(widgetvar, tk.IntVar):
+                            if str(widgetvar) == "PageCount":
+                                widgetvar.set(0)
+                            else:
+                                widgetvar.set(-1)
+
+                    # Ignored values: Volume, number
+
+                except Exception as e:
+                    logger.error("Exception found", exc_info=e)
+
+        return loadedInfo
