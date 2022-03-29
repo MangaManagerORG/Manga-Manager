@@ -10,6 +10,7 @@ from tkinter import ttk
 from lxml.etree import XMLSyntaxError
 from typing.io import IO
 
+from ProgressBarWidget import ProgressBar
 from .errors import NoFilesSelected
 from .models import ChapterFileNameData
 
@@ -347,93 +348,36 @@ class App:
     def process(self):
 
         total_times_count = len(self._list_filestorename)
-        processed_counter = 0
-        processed_errors = 0
-        if self._initialized_UI:
-            pb_root = self.frame_1_progressbar
+        progressBar = ProgressBar(self._initialized_UI, self.frame_1_progressbar, total_times_count)
 
-            style = ttk.Style(pb_root)
-            style.layout('text.Horizontal.TProgressbar',
-                         [
-                             ('Horizontal.Progressbar.trough',
-                              {
-                                  'children': [
-                                      ('Horizontal.Progressbar.pbar',
-                                       {
-                                           'side': 'left',
-                                           'sticky': 'ns'
-                                       }
-                                       )
-                                  ],
-                                  'sticky': 'nswe'
-                              }
-                              ),
-                             ('Horizontal.Progressbar.label',
-                              {
-                                  'sticky': 'nswe'
-                              }
-                              )
-                         ]
-                         )
-            pb = ttk.Progressbar(pb_root, length=400, style='text.Horizontal.TProgressbar',
-                                 mode="determinate")  # create progress bar
-            style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
-            label_progress_text = tk.StringVar()
-            pb_text = tk.Label(pb_root, textvariable=label_progress_text, anchor=tk.W)
-            logger.info("[VolumeManager] Initialized progress bar")
-            pb.grid(row=0, column=0, sticky=tk.E)
-            pb_text.grid(row=1, column=0, sticky=tk.E)
         if not self.checkbutton_4_5_settings_val.get():
             for item in self._list_filestorename:
                 logger.info(f"[VolumeManager] Renaming {item.complete_new_path}")
                 oldPath = item.fullpath
                 try:
                     os.rename(oldPath, item.complete_new_path)
-                    processed_counter += 1
                     logger.info(f"[VolumeManager] Renamed {item.name}")
-
+                    progressBar.increaseCount()
                 except PermissionError as e:
                     if self._initialized_UI:
                         mb.showerror("Can't access the file because it's being used by a different process")
                     logger.error("Can't access the file because it's being used by a different process")
-                    processed_errors += 1
+                    progressBar.increaseError()
                 except FileNotFoundError as e:
                     if self._initialized_UI:
                         mb.showerror("Can't access the file because it's was not found")
                     logger.error("Can't access the file because it's being used by a different process")
-                    processed_errors += 1
+                    progressBar.increaseError()
                 except Exception as e:
-                    processed_errors += 1
+                    progressBar.increaseError()
                     logger.error("Unhandled exception", exc_info=e)
-                if self._initialized_UI:
-                    pb_root.update()
-                    percentage = ((processed_counter + processed_errors) / total_times_count) * 100
-                    style.configure('text.Horizontal.TProgressbar',
-                                    text='{:g} %'.format(round(percentage, 2)))  # update label
-                    pb['value'] = percentage
-                    label_progress_text.set(
-                        f"Renamed: {(processed_counter + processed_errors)}/{total_times_count} files - {processed_errors} errors")
+                progressBar.updatePB()
+        progressBar = ProgressBar(self._initialized_UI, self.frame_1_progressbar, total_times_count)
 
         if self.checkbutton_4_settings_val.get():
-            # Process ComicInfo
             logger.info("[VolumeManager] Save to ComicInfo is enabled. Starting process")
-            processed_counter = 0
-            processed_errors = 0
-            if self._initialized_UI:
-                label_progress_text.set(
-                    f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
-                    f"{processed_errors} errors")
-
-                pb_root.update()
-                percentage = ((processed_counter + processed_errors) / total_times_count) * 100
-                style.configure('text.Horizontal.TProgressbar',
-                                text='{:g} %'.format(round(percentage, 2)))  # update label
-                pb['value'] = percentage
-
             from MetadataManagerLib.MetadataManager import App as taggerApp
-
             for item in self._list_filestorename:
-
                 try:
                     cominfo_app = taggerApp(disable_metadata_notFound_warning=True)
                     cominfo_app.create_loadedComicInfo_list([item.complete_new_path])
@@ -441,23 +385,14 @@ class App:
                     vol_val = cominfo_app.entry_Volume_val.get()
 
                     cominfo_app.do_save_UI()
-                    processed_counter += 1
+                    progressBar.increaseCount()
                 except XMLSyntaxError:
                     logger.error(f"Failed to load ComicInfo.xml file inside file: {item.complete_new_path}'")
-                    processed_errors += 1
+                    progressBar.increaseError()
                 except PermissionError as e:
                     logger.error(str(e))
-                    processed_errors += 1
+                    progressBar.increaseError()
                 except Exception as e:
                     logger.error(f"Uncaught exception for file: '{item.complete_new_path}'", exc_info=e)
-                    processed_errors += 1
-                if self._initialized_UI:
-                    pb_root.update()
-                    percentage = ((processed_counter + processed_errors) / total_times_count) * 100
-                    style.configure('text.Horizontal.TProgressbar',
-                                    text='{:g} %'.format(round(percentage, 2)))  # update label
-                    pb['value'] = percentage
-                    label_progress_text.set(
-                        f"Processed ComicInfo: {(processed_counter + processed_errors)}/{total_times_count} files - "
-                        f"{processed_errors} errors")
-
+                    progressBar.increaseError()
+                progressBar.updatePB()
