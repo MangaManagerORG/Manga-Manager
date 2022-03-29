@@ -1,0 +1,1017 @@
+<?xml version='1.0' encoding='utf-8'?>
+<interface version="1.2">
+  <object class="tk.Frame" id="frame_1">
+    <property name="height">200</property>
+    <property name="width">200</property>
+    <layout manager="grid">
+      <property name="column">0</property>
+      <property name="row">0</property>
+    </layout>
+    <child>
+      <object class="tk.PanedWindow" id="_panedwindow_1">
+        <property name="borderwidth">30</property>
+        <property name="handlesize">1</property>
+        <property name="height">0</property>
+        <property name="orient">horizontal</property>
+        <property name="proxyrelief">raised</property>
+        <property name="sashpad">10</property>
+        <property name="sashrelief">raised</property>
+        <property name="sashwidth">7</property>
+        <property name="showhandle">false</property>
+        <layout manager="pack">
+          <property name="expand">true</property>
+          <property name="fill">both</property>
+          <property name="padx">10</property>
+          <property name="pady">10</property>
+          <property name="side">top</property>
+        </layout>
+        <child>
+          <object class="tk.PanedWindow.Pane" id="_pane_1">
+            <property name="pady">10</property>
+            <child>
+              <object class="tk.Frame" id="frame_2">
+                <property name="height">200</property>
+                <property name="width">200</property>
+                <layout manager="place">
+                  <property name="anchor">nw</property>
+                  <property name="x">0</property>
+                  <property name="y">0</property>
+                </layout>
+                <containerlayout manager="pack">
+                  <property name="anchor">nw</property>
+                </containerlayout>
+                <child>
+                  <object class="tk.Label" id="label_1">
+                    <property name="text" translatable="yes">Title</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="entry_Title">
+                    <property name="textvariable">string:entry_Title_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="expand">false</property>
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_2">
+                    <property name="text" translatable="yes">Series</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Series">
+                    <property name="textvariable">string:entry_Series_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="label_41">
+                    <property name="text" translatable="yes">Localized Series</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_LocalizedSeries">
+                    <property name="textvariable">string:entry_LocalizedSeries_val</property>
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_3">
+                    <property name="text" translatable="yes">SeriesSort</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_SeriesSort1">
+                    <property name="textvariable">string:entry_SeriesSort_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_7">
+                    <property name="text" translatable="yes">AlternateSeries</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_AlternateSeries1">
+                    <property name="cursor">boat</property>
+                    <property name="textvariable">string:entry_AlternateSeries_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_10">
+                    <property name="text" translatable="yes">Summary</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="pygubu.builder.widgets.tkinterscrolledtext" id="tkinterscrolledtext_1">
+                    <property name="height">5</property>
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_11">
+                    <property name="text" translatable="yes">Notes</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Notes1">
+                    <property name="textvariable">string:entry_Notes_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_24">
+                    <property name="text" translatable="yes">Genre</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Genre1">
+                    <property name="textvariable">string:entry_Genre_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_25">
+                    <property name="text" translatable="yes">Tags</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Tags1">
+                    <property name="textvariable">string:entry_Tags_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_26">
+                    <property name="text" translatable="yes">Web</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Web1">
+                    <property name="textvariable">string:entry_Web_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_38">
+                    <property name="text" translatable="yes">SeriesGroup</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_SeriesGroup1">
+                    <property name="textvariable">string:entry_SeriesGroup_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_39">
+                    <property name="text" translatable="yes">AgeRating</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_AgeRating1">
+                    <property name="textvariable">string:entry_AgeRating_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_40">
+                    <property name="text" translatable="yes">CommunityRating</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_CommunityRating1">
+                    <property name="textvariable">string:entry_CommunityRating_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_35">
+                    <property name="text" translatable="yes">ScanInformation</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_ScanInformation1">
+                    <property name="textvariable">string:entry_ScanInformation_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_36">
+                    <property name="text" translatable="yes">StoryArc</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_StoryArc1">
+                    <property name="textvariable">string:entry_StoryArc_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">both</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="tk.PanedWindow.Pane" id="_pane_2">
+            <child>
+              <object class="tk.LabelFrame" id="_lframe_2">
+                <property name="height">200</property>
+                <property name="width">200</property>
+                <layout manager="place">
+                  <property name="anchor">nw</property>
+                  <property name="relx">0.1</property>
+                  <property name="rely">0.1</property>
+                  <property name="x">500000</property>
+                  <property name="y">50</property>
+                </layout>
+                <child>
+                  <object class="tk.Label" id="_label_15">
+                    <property name="text" translatable="yes">Writer</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Writer1">
+                    <property name="textvariable">string:entry_Writer_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_16">
+                    <property name="text" translatable="yes">Inker</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Inker1">
+                    <property name="textvariable">string:entry_Inker_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_17">
+                    <property name="text" translatable="yes">Colorist</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Colorist1">
+                    <property name="textvariable">string:entry_Colorist_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_18">
+                    <property name="text" translatable="yes">Letterer</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Letterer1">
+                    <property name="textvariable">string:entry_Letterer_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_19">
+                    <property name="text" translatable="yes">CoverArtist</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_CoverArtist1">
+                    <property name="textvariable">string:entry_CoverArtist_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_20">
+                    <property name="text" translatable="yes">Editor</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Editor1">
+                    <property name="textvariable">string:entry_Editor_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_21">
+                    <property name="text" translatable="yes">Translator</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Translator1">
+                    <property name="textvariable">string:entry_Translator_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_22">
+                    <property name="text" translatable="yes">Publisher</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Publisher1">
+                    <property name="textvariable">string:entry_Publisher_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_23">
+                    <property name="text" translatable="yes">Imprint</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Imprint1">
+                    <property name="textvariable">string:entry_Imprint_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_32">
+                    <property name="text" translatable="yes">Characters</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Characters1">
+                    <property name="textvariable">string:entry_Characters_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_33">
+                    <property name="text" translatable="yes">Teams</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Teams1">
+                    <property name="textvariable">string:entry_Teams_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_34">
+                    <property name="text" translatable="yes">Locations</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Locations1">
+                    <property name="textvariable">string:entry_Locations_val</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="fill">x</property>
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="tk.PanedWindow.Pane" id="pane_3">
+            <child>
+              <object class="tk.Frame" id="_frame_5">
+                <property name="height">200</property>
+                <property name="width">200</property>
+                <layout manager="place">
+                  <property name="anchor">nw</property>
+                  <property name="x">0</property>
+                  <property name="y">0</property>
+                </layout>
+                <child>
+                  <object class="tk.Label" id="_label_4">
+                    <property name="text" translatable="yes">Number</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Number1">
+                    <property name="textvariable">string:entry_Number_val</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_8">
+                    <property name="text" translatable="yes">AlternateNumber</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_AlternateNumber1">
+                    <property name="textvariable">string:entry_AlternateNumber_val</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_5">
+                    <property name="text" translatable="yes">Count</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_AlternateCount1">
+                    <property name="textvariable">int:entry_AlternateCount_val</property>
+                    <property name="values">-1</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_9">
+                    <property name="text" translatable="yes">AlternateCount</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Count1">
+                    <property name="textvariable">int:entry_Count_val</property>
+                    <property name="values">-1</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_6">
+                    <property name="text" translatable="yes">Volume</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Volume1">
+                    <property name="textvariable">int:entry_Volume_val</property>
+                    <property name="values">-1</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_27">
+                    <property name="text" translatable="yes">PageCount</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_PageCount1">
+                    <property name="textvariable">int:entry_PageCount_val</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_12">
+                    <property name="text" translatable="yes">Year</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Year1">
+                    <property name="textvariable">int:entry_Year_val</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_13">
+                    <property name="text" translatable="yes">Month</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Month1">
+                    <property name="textvariable">int:entry_Month_val</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_14">
+                    <property name="text" translatable="yes">Day</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Day1">
+                    <property name="textvariable">int:entry_Day_val</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_29">
+                    <property name="text" translatable="yes">Format</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_Format1">
+                    <property name="textvariable">string:entry_Format_val</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_28">
+                    <property name="text" translatable="yes">LanguageISO</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_LanguageISO1">
+                    <property name="textvariable">string:entry_LanguageISO_val</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_30">
+                    <property name="text" translatable="yes">BlackAndWhite</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.OptionMenu" id="_entry_BlackAndWhite">
+                    <property name="value">Unknown</property>
+                    <property name="values">Yes,No</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_31">
+                    <property name="text" translatable="yes">Manga</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.OptionMenu" id="_entry_Manga">
+                    <property name="value">Unknown</property>
+                    <property name="values">No,Yes,YesAndRightToLeft</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_37">
+                    <property name="text" translatable="yes">StoryArcNumber</property>
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Combobox" id="_entry_StoryArcNumber1">
+                    <property name="textvariable">string:entry_StoryArcNumber_val</property>
+                    <property name="width">10</property>
+                    <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add="" />
+                    <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add="" />
+                    <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add="" />
+                    <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add="" />
+                    <layout manager="pack">
+                      <property name="side">top</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Frame" id="_frame_3">
+        <property name="height">200</property>
+        <property name="width">200</property>
+        <layout manager="pack">
+          <property name="side">top</property>
+        </layout>
+        <containerlayout manager="grid">
+          <property type="col" id="0" name="weight">1</property>
+          <property type="col" id="1" name="weight">10</property>
+          <property type="col" id="2" name="weight">1</property>
+          <property type="col" id="3" name="pad">20</property>
+        </containerlayout>
+        <child>
+          <object class="tk.Button" id="_button_2">
+            <property name="text" translatable="yes">Save</property>
+            <property name="width">10</property>
+            <layout manager="grid">
+              <property name="column">0</property>
+              <property name="row">0</property>
+              <property name="sticky">ew</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Button" id="_button_1">
+            <property name="text" translatable="yes">Open</property>
+            <property name="width">10</property>
+            <layout manager="grid">
+              <property name="column">1</property>
+              <property name="row">0</property>
+              <property name="sticky">ew</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Button" id="_button_3">
+            <property name="justify">center</property>
+            <property name="text" translatable="yes">Remove ComicInfo</property>
+            <layout manager="grid">
+              <property name="column">0</property>
+              <property name="row">1</property>
+              <property name="sticky">w</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Button" id="_button_4">
+            <property name="justify">center</property>
+            <property name="state">disabled</property>
+            <property name="text" translatable="yes">Fetch Online</property>
+            <layout manager="grid">
+              <property name="column">1</property>
+              <property name="columnspan">3</property>
+              <property name="row">1</property>
+              <property name="sticky">e</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Button" id="_button_5">
+            <property name="command" type="command" cbtype="simple">_clearUI</property>
+            <property name="text" translatable="yes">Clear</property>
+            <property name="width">10</property>
+            <layout manager="grid">
+              <property name="column">2</property>
+              <property name="row">0</property>
+              <property name="sticky">ew</property>
+            </layout>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
