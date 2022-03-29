@@ -10,6 +10,7 @@ from tkinter.scrolledtext import ScrolledText
 
 from lxml.etree import XMLSyntaxError
 
+from ProgressBarWidget import ProgressBar
 from . import ComicInfo
 from . import models
 from .cbz_handler import ReadComicInfo, WriteComicInfo
@@ -947,21 +948,22 @@ class App:
         self._panedwindow_1.pack(expand='true', fill='both', padx='10', pady='10', side='top')
         self._frame_3 = tk.Frame(self.frame_1)
         self._button_1 = tk.Button(self._frame_3)
-        self._button_1.configure(text='Open', command=self._open_files, )
-        self._button_1.grid(column='0', row='0')
+        self._button_1.configure(text='Open', command=self._open_files, width=10)
+        self._button_1.grid(column='0', row='0', sticky=tk.W+tk.E)
         self._button_2 = tk.Button(self._frame_3, command=self.do_save_UI)
-        self._button_2.configure(text='Save')
-        self._button_2.grid(column='0', row='1')
+        self._button_2.configure(text='Save', width=10)
+        self._button_2.grid(column=1, row=0, sticky=tk.W+tk.E)
         self._button_3 = tk.Button(self._frame_3)
-        self._button_3.configure(text='Remove ComicInfo')
-        self._button_3.grid(column='0', row='2')
+        self._button_3.configure(text='Remove ComicInfo', width=16)
+        self._button_3.grid(column='0', row=1)
         self._button_4 = tk.Button(self._frame_3)
-        self._button_4.configure(default='disabled', state='disabled', text='Fetch Online')
-        self._button_4.grid(column='0', row='3')
+        self._button_4.configure(default='disabled', state='disabled', text='Fetch Online', width=16)
+        self._button_4.grid(column=2, row=1)
         self._button_5 = tk.Button(self._frame_3)
-        self._button_5.configure(text='Clear')
-        self._button_5.grid(column='0', row='4')
-        self._button_5.configure(command=self._clearUI)
+        self._button_5.configure(text='Clear', command=self._clearUI, width=10)
+        self._button_5.grid(column='2', row='0', sticky=tk.W+tk.E)
+        self._progressBarFrame = tk.Frame(self._frame_3)
+        self._progressBarFrame.grid(column=0,row=3,columnspan=3)
         self._frame_3.configure(height='200', width='200')
         self._frame_3.pack(side='top')
         self.frame_1.configure(height='200', width='200')
@@ -1045,15 +1047,11 @@ class App:
         # self._frame_3_people.configure(bg="purple")
         # self._frame_1.configure(bg="green")
 
-    def _reset_highlightedUI(self):
-        pass
-
     def run(self):
         self.mainwindow.mainloop()
 
     def _open_files(self):
-        self._reset_highlightedUI()
-        self.initialize_StringVars()
+        self._clearUI()
 
         self.selected_filenames = list[str]()
         covers_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
@@ -1066,7 +1064,6 @@ class App:
         # self._label_28_statusinfo.configure(text="Successfuly loaded")
 
     def create_loadedComicInfo_list(self, cli_selected_files: list[str] = None):
-
         try:
             if not self.selected_filenames:
                 if cli_selected_files:
@@ -1162,10 +1159,14 @@ class App:
         self.loadedComicInfo_list = modified_loadedComicInfo_list
 
     def _saveComicInfo(self):
+        progressbar = ProgressBar(self._initialized_UI, self._progressBarFrame if self._initialized_UI else None,
+                                  total=len(self.loadedComicInfo_list))
         for loadedComicObj in self.loadedComicInfo_list:
             logger.info(f"[Processing] Starting processing to save data to file {loadedComicObj.path}")
+
             try:
                 WriteComicInfo(loadedComicObj).to_file()
+                progressbar.increaseCount()
             except FileExistsError as e:
                 if self._initialized_UI:
                     mb.showwarning(f"[ERROR] File already exists",
@@ -1173,6 +1174,7 @@ class App:
 
                 logger.error("[ERROR] File already exists\n"
                              f"Trying to create:\n`{str(e.filename2)}` but already exists\nException:\n{e}")
+                progressbar.increaseError()
                 if not self._initialized_UI:
                     raise e
                 else:
@@ -1186,6 +1188,7 @@ class App:
                 logger.error("[ERROR] Permission Error"
                              "Can't access the file because it's being used by a different process\n"
                              f"Exception:\n{str(e)}")
+                progressbar.increaseError()
                 if not self._initialized_UI:
                     raise e
                 else:
@@ -1199,6 +1202,7 @@ class App:
                 logger.error("[ERROR] File Not Found\n"
                              "Can't access the file because it's being used by a different process\n"
                              f"Exception:\n{str(e)}")
+                progressbar.increaseError()
                 if not self._initialized_UI:
                     raise e
                 else:
@@ -1207,6 +1211,7 @@ class App:
                 if self._initialized_UI:
                     mb.showerror("Something went wrong", "Error processing. Check logs.")
                 logger.critical("Exception Processing", e)
+                progressbar.increaseError()
                 raise e
 
     def deleteComicInfo(self):
@@ -1233,4 +1238,7 @@ class App:
 
     def _clearUI(self):
         self.initialize_StringVars()
+        for widget in self.widgets_obj:
+            if isinstance(widget, ttk.Combobox):
+                widget['values'] = []
         self.loadedComicInfo_list = []

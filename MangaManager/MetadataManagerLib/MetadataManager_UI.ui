@@ -947,54 +947,70 @@
         <layout manager="pack">
           <property name="side">top</property>
         </layout>
+        <containerlayout manager="grid">
+          <property type="col" id="0" name="weight">1</property>
+          <property type="col" id="1" name="weight">10</property>
+          <property type="col" id="2" name="weight">1</property>
+          <property type="col" id="3" name="pad">20</property>
+        </containerlayout>
         <child>
-          <object class="tk.Button" id="_button_1">
-            <property name="text" translatable="yes">Open</property>
+          <object class="tk.Button" id="_button_2">
+            <property name="text" translatable="yes">Save</property>
+            <property name="width">10</property>
             <layout manager="grid">
               <property name="column">0</property>
               <property name="row">0</property>
+              <property name="sticky">ew</property>
             </layout>
           </object>
         </child>
         <child>
-          <object class="tk.Button" id="_button_2">
-            <property name="text" translatable="yes">Save</property>
+          <object class="tk.Button" id="_button_1">
+            <property name="text" translatable="yes">Open</property>
+            <property name="width">10</property>
             <layout manager="grid">
-              <property name="column">0</property>
-              <property name="row">1</property>
+              <property name="column">1</property>
+              <property name="row">0</property>
+              <property name="sticky">ew</property>
             </layout>
           </object>
         </child>
         <child>
           <object class="tk.Button" id="_button_3">
+            <property name="justify">center</property>
             <property name="text" translatable="yes">Remove ComicInfo</property>
             <layout manager="grid">
               <property name="column">0</property>
-              <property name="row">2</property>
+              <property name="row">1</property>
+              <property name="sticky">w</property>
             </layout>
           </object>
         </child>
         <child>
-            <object class="tk.Button" id="_button_4">
-                <property name="default">disabled</property>
-                <property name="state">disabled</property>
-                <property name="text" translatable="yes">Fetch Online</property>
-                <layout manager="grid">
-                    <property name="column">0</property>
-                    <property name="row">3</property>
-                </layout>
-            </object>
+          <object class="tk.Button" id="_button_4">
+            <property name="justify">center</property>
+            <property name="state">disabled</property>
+            <property name="text" translatable="yes">Fetch Online</property>
+            <layout manager="grid">
+              <property name="column">1</property>
+              <property name="columnspan">3</property>
+              <property name="row">1</property>
+              <property name="sticky">e</property>
+            </layout>
+          </object>
         </child>
-          <child>
-              <object class="tk.Button" id="_button_5">
-                  <property name="command" type="command" cbtype="simple">_clearUI</property>
-                  <property name="text" translatable="yes">Clear</property>
-                  <layout manager="grid">
-                      <property name="column">0</property>
-                      <property name="row">4</property>
-                  </layout>
-              </object>
-          </child>
+        <child>
+          <object class="tk.Button" id="_button_5">
+            <property name="command" type="command" cbtype="simple">_clearUI</property>
+            <property name="text" translatable="yes">Clear</property>
+            <property name="width">10</property>
+            <layout manager="grid">
+              <property name="column">2</property>
+              <property name="row">0</property>
+              <property name="sticky">ew</property>
+            </layout>
+          </object>
+        </child>
       </object>
     </child>
   </object>
