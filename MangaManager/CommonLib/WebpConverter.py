@@ -224,6 +224,7 @@ def getNewWebpFormatName(currentName: str) -> str:
 
 
 def convertToWebp(open_zipped_file) -> bytes:
+    # TODO: Bulletproof image passed not image
     image = Image.open(open_zipped_file)
     # print(image.size, image.mode, len(image.getdata()))
     converted_image = BytesIO()

@@ -4,9 +4,8 @@ import re
 import tempfile
 import zipfile
 
-import WebpConverter
-from . import errors
 from CommonLib.WebpConverter import convertToWebp, getNewWebpFormatName, supportedFormats
+from . import errors
 from .models import cover_process_item_info
 
 logger = logging.getLogger(__name__)
