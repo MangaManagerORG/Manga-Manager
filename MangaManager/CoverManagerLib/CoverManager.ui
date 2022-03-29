@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
 <interface version="1.1">
-  <object class="tk.Frame" id="frame_coversetter">
-    <property name="height">640</property>
+  <object class="tk.Frame" id="_frame_coversetter">
+    <property name="height">690</property>
     <property name="highlightbackground">grey</property>
     <property name="highlightcolor">black</property>
     <property name="highlightthickness">1</property>
-    <property name="width">800</property>
+    <property name="width">900</property>
     <layout manager="pack">
       <property name="anchor">center</property>
       <property name="expand">true</property>
@@ -17,8 +17,8 @@
         <property name="width">200</property>
         <layout manager="place">
           <property name="anchor">nw</property>
-          <property name="height">285</property>
-          <property name="relx">0.02</property>
+          <property name="height">310</property>
+          <property name="relx">0.01</property>
           <property name="rely">0.02</property>
           <property name="width">200</property>
           <property name="x">9</property>
@@ -57,6 +57,20 @@
             </layout>
           </object>
         </child>
+        <child>
+          <object class="tk.Button" id="_button1_next">
+            <property name="command" type="command" cbtype="simple">display_next_cover</property>
+            <property name="justify">center</property>
+            <property name="state">disabled</property>
+            <property name="text" translatable="yes">Next cover</property>
+            <layout manager="grid">
+              <property name="column">0</property>
+              <property name="propagate">False</property>
+              <property name="row">2</property>
+              <property name="sticky">ew</property>
+            </layout>
+          </object>
+        </child>
       </object>
     </child>
     <child>
@@ -71,10 +85,9 @@
         <property name="width">200</property>
         <layout manager="place">
           <property name="anchor">nw</property>
-          <property name="relx">0.02</property>
-          <property name="rely">0.48</property>
+          <property name="relx">0.01</property>
+          <property name="rely">0.485</property>
           <property name="x">15</property>
-          <property name="y">0</property>
         </layout>
         <child>
           <object class="tk.Label" id="_do_overwrite_first_label">
@@ -122,7 +135,7 @@
               <property name="propagate">True</property>
               <property name="row">3</property>
               <property name="sticky">ew</property>
-              <property type="row" id="3" name="pad">5</property>
+              <property type="row" id="3" name="pad">10</property>
             </layout>
           </object>
         </child>
@@ -135,19 +148,7 @@
               <property name="propagate">True</property>
               <property name="row">4</property>
               <property name="sticky">ew</property>
-              <property type="row" id="4" name="pad">5</property>
-            </layout>
-          </object>
-        </child>
-        <child>
-          <object class="ttk.Separator" id="_separator_1">
-            <property name="orient">horizontal</property>
-            <layout manager="grid">
-              <property name="column">0</property>
-              <property name="propagate">True</property>
-              <property name="row">5</property>
-              <property name="sticky">ew</property>
-              <property type="row" id="5" name="pad">5</property>
+              <property type="row" id="4" name="pad">10</property>
             </layout>
           </object>
         </child>
@@ -158,8 +159,24 @@
             <layout manager="grid">
               <property name="column">0</property>
               <property name="propagate">True</property>
+              <property name="row">5</property>
+              <property name="sticky">ew</property>
+              <property type="row" id="5" name="minsize">0</property>
+              <property type="row" id="5" name="pad">10</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Button" id="_button_8_recover">
+            <property name="command" type="command" cbtype="simple">recover</property>
+            <property name="text" translatable="yes">Recover covers</property>
+            <layout manager="grid">
+              <property name="column">0</property>
+              <property name="propagate">True</property>
               <property name="row">6</property>
               <property name="sticky">ew</property>
+              <property type="row" id="6" name="minsize">0</property>
+              <property type="row" id="6" name="pad">10</property>
             </layout>
           </object>
         </child>
@@ -175,7 +192,7 @@
         <layout manager="place">
           <property name="anchor">nw</property>
           <property name="relx">0.03</property>
-          <property name="rely">0.86</property>
+          <property name="rely">0.85</property>
           <property name="x">0</property>
         </layout>
         <child>
@@ -191,7 +208,7 @@
         </child>
         <child>
           <object class="tk.Checkbutton" id="_checkbox0_settings">
-            <property name="text" translatable="yes">Display next cover after adding a file to the queue (not delete)
+            <property name="text" translatable="yes">Display next cover after adding a file to the queue (notdelete)
             </property>
             <property name="variable">boolean:checkbox0_settings_val</property>
             <layout manager="grid">
@@ -216,6 +233,18 @@
             </layout>
           </object>
         </child>
+        <child>
+          <object class="tk.Checkbutton" id="_checkbox2_settings">
+            <property name="text" translatable="yes">Convert images to webp (may take a lot of time)</property>
+            <property name="variable">double:checkbox1_settings_val</property>
+            <layout manager="grid">
+              <property name="column">0</property>
+              <property name="propagate">True</property>
+              <property name="row">3</property>
+              <property name="sticky">w</property>
+            </layout>
+          </object>
+        </child>
       </object>
     </child>
     <child>
@@ -225,10 +254,10 @@
         <property name="style">Toolbutton</property>
         <layout manager="place">
           <property name="anchor">nw</property>
-          <property name="height">295</property>
+          <property name="height">350</property>
           <property name="relheight">0.14</property>
-          <property name="relwidth">0.66</property>
-          <property name="relx">0.32</property>
+          <property name="relwidth">0.69</property>
+          <property name="relx">0.28</property>
           <property name="rely">0.02</property>
           <property name="x">1</property>
         </layout>
@@ -264,8 +293,8 @@
         <property name="width">200</property>
         <layout manager="place">
           <property name="anchor">n</property>
-          <property name="relx">0.68</property>
-          <property name="rely">0.64</property>
+          <property name="relx">0.62</property>
+          <property name="rely">0.69</property>
           <property name="x">0</property>
           <property name="y">0</property>
         </layout>
@@ -298,32 +327,49 @@
             </layout>
           </object>
         </child>
-        <child>
-          <object class="tk.Button" id="_button_8_recover">
-            <property name="command" type="command" cbtype="simple">recover</property>
-            <property name="text" translatable="yes">Recover covers</property>
-            <layout manager="grid">
-              <property name="column">0</property>
-              <property name="propagate">True</property>
-              <property name="row">2</property>
-              <property name="sticky">ew</property>
-              <property type="row" id="2" name="pad">5</property>
-            </layout>
-          </object>
-        </child>
       </object>
     </child>
     <child>
       <object class="tk.Frame" id="_progressbar_frame">
         <layout manager="place">
           <property name="anchor">nw</property>
-          <property name="height">20</property>
-          <property name="relx">0.423</property>
-          <property name="rely">0.8</property>
+          <property name="height">50</property>
+          <property name="relx">0.4</property>
+          <property name="rely">0.79</property>
           <property name="width">400</property>
           <property name="x">0</property>
           <property name="y">0</property>
         </layout>
+        <child>
+          <object class="ttk.Progressbar" id="progressbar_1">
+            <property name="length">400</property>
+            <property name="orient">horizontal</property>
+            <layout manager="grid">
+              <property name="column">0</property>
+              <property name="propagate">True</property>
+              <property name="row">0</property>
+              <property type="col" id="0" name="uniform"/>
+              <property type="col" id="0" name="weight">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Label" id="label_1">
+            <property name="justify">right</property>
+            <property name="relief">flat</property>
+            <property name="text" translatable="yes">################################################
+              GET elapsed time
+            </property>
+            <layout manager="grid">
+              <property name="column">0</property>
+              <property name="propagate">True</property>
+              <property name="row">1</property>
+              <property name="sticky">e</property>
+              <property type="col" id="0" name="uniform"/>
+              <property type="col" id="0" name="weight">0</property>
+            </layout>
+          </object>
+        </child>
       </object>
     </child>
   </object>

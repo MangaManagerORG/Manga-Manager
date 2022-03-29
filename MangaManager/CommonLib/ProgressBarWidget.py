@@ -80,4 +80,3 @@ class ProgressBar:
             f"Processed: {(self.processed_counter + self.processed_errors)}/{self.total} files - {self.processed_errors} errors\n"
             f"Elapsed time  : {get_elapsed_time(self.start_time)}\n"
             f"Estimated time: {get_estimated_time(self.start_time, self.processed_counter, self.total)}")
-

@@ -1166,7 +1166,7 @@ class App:
 
             try:
                 WriteComicInfo(loadedComicObj).to_file()
-                progressbar.increaseCount()
+                progressBar.increaseCount()
             except FileExistsError as e:
                 if self._initialized_UI:
                     mb.showwarning(f"[ERROR] File already exists",
@@ -1174,7 +1174,7 @@ class App:
 
                 logger.error("[ERROR] File already exists\n"
                              f"Trying to create:\n`{str(e.filename2)}` but already exists\nException:\n{e}")
-                progressbar.increaseError()
+                progressBar.increaseError()
                 if not self._initialized_UI:
                     raise e
                 else:
@@ -1202,7 +1202,7 @@ class App:
                 logger.error("[ERROR] File Not Found\n"
                              "Can't access the file because it's being used by a different process\n"
                              f"Exception:\n{str(e)}")
-                progressbar.increaseError()
+                progressBar.increaseError()
                 if not self._initialized_UI:
                     raise e
                 else:
@@ -1211,8 +1211,9 @@ class App:
                 if self._initialized_UI:
                     mb.showerror("Something went wrong", "Error processing. Check logs.")
                 logger.critical("Exception Processing", e)
-                progressbar.increaseError()
+                progressBar.increaseError()
                 raise e
+            progressBar.updatePB()
 
     def deleteComicInfo(self):
         """
