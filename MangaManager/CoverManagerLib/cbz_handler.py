@@ -4,8 +4,9 @@ import re
 import tempfile
 import zipfile
 
-from CommonLib.WebpConverter import convertToWebp, getNewWebpFormatName, supportedFormats
+import WebpConverter
 from . import errors
+from CommonLib.WebpConverter import convertToWebp, getNewWebpFormatName, supportedFormats
 from .models import cover_process_item_info
 
 logger = logging.getLogger(__name__)
@@ -62,6 +63,7 @@ class SetCover:
         """
 
         tmpname = self.temp_file
+
         # backup_isdone = False
 
         def is_folder(name: str, folders_list):
@@ -69,6 +71,7 @@ class SetCover:
                 return True
             else:
                 return False
+
         cover_is_000 = False
         r = r"(?i)^0*\.[a-z]+$"
 
@@ -85,7 +88,6 @@ class SetCover:
                     cover_is_000 = True
                 backup_isdone = False
                 for item in zin.infolist():
-
                     # Delete existing "OldCover_00.ext.bak file
                     if item.filename.startswith("OldCover_"):
                         continue
@@ -97,14 +99,6 @@ class SetCover:
                         else:
                             zout.writestr(item.filename, zin.read(item.filename))
                         continue
-
-                    # If it's a file with a format not supported by converter we save it as it is
-                    # file_format = re.findall(r"(?i)\.[a-z]+$", item.filename)
-                    # if file_format:
-                    #     if not file_format[0] in supportedFormats:
-                    #         zout.writestr(item.filename, zin.read(item.filename))
-                    #         logger.debug(f"Added '{item.filename}' to new tempfile. File was not processed")
-                    #         continue
 
                     if item.filename in cover_matches:  # This file is a potential cover
 
@@ -221,7 +215,7 @@ class SetCover:
                     # Adding file to new file.
                     # File is not flagged as potential cover
                     item_filename = item.filename
-                    if self.conver_to_webp:
+                    if self.conver_to_webp and not item.filename.endswith(supportedFormats):
                         with zin.open(item.filename) as open_zipped_file:
                             zout.writestr(getNewWebpFormatName(item.filename), convertToWebp(open_zipped_file))
                         logger.debug(

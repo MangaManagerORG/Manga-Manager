@@ -31,7 +31,7 @@ parser.add_argument(
     '--tagger',
     help="Launches Manga Tagger tool",
     action="store_const", dest="default_selected_tool", const=2
-    )
+)
 
 parser.add_argument(
     '--volume',
