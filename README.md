@@ -1,6 +1,6 @@
 # Manga Manager
 
-## Min required version: Python 3.7
+## Min required version: Python 3.9
 
 ## What is Manga Manager
 

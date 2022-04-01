@@ -10,7 +10,7 @@ from tkinter.scrolledtext import ScrolledText
 
 from lxml.etree import XMLSyntaxError
 
-from ProgressBarWidget import ProgressBar
+from CommonLib.ProgressBarWidget import ProgressBar
 from . import ComicInfo
 from . import models
 from .cbz_handler import ReadComicInfo, WriteComicInfo

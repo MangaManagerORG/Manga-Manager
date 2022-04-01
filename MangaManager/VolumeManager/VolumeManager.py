@@ -10,7 +10,7 @@ from tkinter import ttk
 from lxml.etree import XMLSyntaxError
 from typing.io import IO
 
-from ProgressBarWidget import ProgressBar
+from CommonLib.ProgressBarWidget import ProgressBar
 from .errors import NoFilesSelected
 from .models import ChapterFileNameData
 
@@ -338,7 +338,7 @@ class App:
             except NoFilesSelected:
                 logger.warning("No files selected.")
 
-    def cli_select_files(self, files: list[str]):
+    def cli_select_files(self, files: List[str]):
         self.cbz_files_path_list = files
         self._preview_changes()
 
