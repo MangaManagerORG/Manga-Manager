@@ -1080,7 +1080,7 @@ class App:
                 logger.error("[ERROR] Permission Error"
                              "Can't access the file because it's being used by a different process\n"
                              f"Exception:\n{str(e)}")
-                progressbar.increaseError()
+                progressBar.increaseError()
                 if not self._initialized_UI:
                     raise e
                 else:
