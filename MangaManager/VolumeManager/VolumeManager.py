@@ -338,7 +338,7 @@ class App:
             except NoFilesSelected:
                 logger.warning("No files selected.")
 
-    def cli_select_files(self, files: List[str]):
+    def cli_select_files(self, files: list[str]):
         self.cbz_files_path_list = files
         self._preview_changes()
 
