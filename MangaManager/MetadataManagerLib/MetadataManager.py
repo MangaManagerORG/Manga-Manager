@@ -1017,13 +1017,12 @@ class App:
         # modified_loadedComicInfo_XML_list = list[str]()
         keep_original_value = None
         for comicObj in self.loadedComicInfo_list:
-            logger.debug(f"parsing UI to file: '{comicObj.path}'")
+            logger.debug(f"parsing UI to ComicInfo: '{comicObj.path}'")
 
             # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
             widgets_var_zip = _get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
 
-            # logger.debug([str(i[0]) for i in widgets_var_zip if not isinstance(i[3],tk.OptionMenu) and not isinstance(i[3],models.LongText)])
-            # return
+
             if self.widgets_obj:
                 noSelectionCheck = [str(widgets_var_tuple[0]) for widgets_var_tuple in
                                     [i for i in widgets_var_zip if
@@ -1052,11 +1051,17 @@ class App:
                     continue
                 if isinstance(widgetvar, tk.StringVar) and widgetvar.get() == "-1":
                     comicinfo_atr_set("")
+                    continue
                 elif isinstance(widgetvar, tk.IntVar) and widgetvar.get():
-                    if str(widgetvar) == "PageCount" and widgetvar.get() == -1:
+                    if str(widgetvar) == "Number":
+                        ...
+                        # TODO check how this works this is giving me issues
+                    # If the value in the ui is set to -1 this means to clear the tag and set it to default
+                    if str(widgetvar) == "PageCount" and widgetvar.get() == -1:  # Pagecount default is not -1 but 0
                         comicinfo_atr_set(0)
-                    if widgetvar.get() == -1:
+                    elif widgetvar.get() == -1:
                         comicinfo_atr_set(-1)
+
                 comicinfo_atr_set(widgetvar.get())
             modified_loadedComicInfo, keep_original_value = comicObj, keep_original_value
             modified_loadedComicInfo_list.append(modified_loadedComicInfo)
