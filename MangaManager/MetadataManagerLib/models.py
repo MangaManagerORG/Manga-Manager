@@ -1,8 +1,10 @@
 import logging
 from dataclasses import dataclass
 from tkinter import Text, INSERT, END
-
-from . import ComicInfo
+if __name__.startswith("MetadataManagerLib"):
+    from . import ComicInfo
+else:
+    import ComicInfo
 
 logger = logging.getLogger(__name__)
 
@@ -10,9 +12,8 @@ logger = logging.getLogger(__name__)
 @dataclass()
 class LoadedComicInfo:
     path: str
-    comicInfoObj: ComicInfo
-    originalComicObj: ComicInfo = None
-
+    comicInfoObj: ComicInfo.ComicInfo
+    originalComicObj: ComicInfo.ComicInfo = None
 
     def __init__(self, path, comicInfo, original=None):
         self.path = path

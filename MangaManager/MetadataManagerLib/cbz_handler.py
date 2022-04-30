@@ -5,8 +5,15 @@ import zipfile
 
 from lxml.etree import XMLSyntaxError
 
-from .errors import NoMetadataFileFound, CorruptedComicInfo
-from .models import *
+if __name__.startswith("MetadataManagerLib") or __name__ == 'MangaManager.MetadataManagerLib.cbz_handler':
+    from .errors import NoMetadataFileFound, CorruptedComicInfo
+    from .models import *
+    # from . import ComicInfo
+else:
+    name = __name__
+    from errors import NoMetadataFileFound, CorruptedComicInfo
+    from models import *
+    # import ComicInfo
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +88,7 @@ class WriteComicInfo:
             self._export_io = export_io.getvalue()
         except AttributeError as e:
             logger.info(f"Attribute error :{str(e)}")
+            # raise e
 
     def _backup(self):
         """

@@ -1,184 +1,202 @@
 #!/usr/bin/env python3
-import logging
-import os
-import pathlib
-import tkinter as tk
-from tkinter import filedialog
-from tkinter import messagebox as mb
-from tkinter import ttk
-from tkinter.scrolledtext import ScrolledText
+from __future__ import annotations
 
-from lxml.etree import XMLSyntaxError
-
-from CommonLib.ProgressBarWidget import ProgressBar
-from . import ComicInfo
-from . import models
-from .cbz_handler import ReadComicInfo, WriteComicInfo
-from .errors import *
-from .models import LoadedComicInfo
-
-# logging.getLogger('PIL').setLevel(logger.WARNING)
-# TODO:
-#   - Add info message if nothing is loaded into UI because comicinfo not exist and one will be created
-#   - Add successfully loaded window/message somewhere
-
-launch_path = ""
-
-ScriptDir = os.path.dirname(__file__)
-PROJECT_PATH = pathlib.Path(__file__).parent
-logger = logging.getLogger(__name__)
+if __name__ == '__main__':
+    import logging
+    import os.path
+    import pathlib
+    import sys
+    import cbz_handler
+    from ComicInfo import ComicInfo
+    from errors import NoFilesSelected, NoComicInfoLoaded
+    from models import LoadedComicInfo
+    import argparse
 
 
-def get_gettersArray(ComicInfoObject):
-    # self.widgets_var = [
-    #     {
-    #     self.entry_Title_val,
-    #     self.entry_Series_val,
-    #     self.entry_LocalizedSeries_val,
-    #     self.entry_SeriesSort_val,
-    #     self.entry_AlternateSeries_val,
-    #     self.input_1_summary_obj,
-    #     self.entry_Notes_val,
-    #     self.entry_Genre_val,
-    #     self.entry_Tags_val,
-    #     self.entry_Web_val,
-    #     self.entry_SeriesGroup_val,
-    #     self.entry_AgeRating_val,
-    #     self.entry_CommunityRating_val,
-    #     self.entry_ScanInformation_val,
-    #     self.entry_StoryArc_val,
-    #
-    #     self.entry_Writer_val,
-    #     self.entry_Inker_val,
-    #     self.entry_Colorist_val,
-    #     self.entry_Letterer_val,
-    #     self.entry_CoverArtist_val,
-    #     self.entry_Editor_val,
-    #     self.entry_Translator_val,
-    #     self.entry_Publisher_val,
-    #     self.entry_Imprint_val,
-    #     self.entry_Characters_val,
-    #     self.entry_Teams_val,
-    #     self.entry_Locations_val,}
-    #
-    #     self.entry_Number_val,
-    #     self.entry_AlternateNumber_val,
-    #     self.entry_Count_val,
-    #     self.entry_AlternateCount_val,
-    #     self.entry_Volume_val,
-    #     self.entry_PageCount_val,
-    #     self.entry_Year_val,
-    #     self.entry_Month_val,
-    #     self.entry_Day_val,
-    #     self.entry_Format_val,
-    #     self.entry_LanguageISO_val,
-    #     self.entry_BlackAndWhite_val,
-    #     self.entry_Manga_val,
-    #     self.entry_StoryArcNumber_val
-    #
-    # ]
-    return [
-        ComicInfoObject.get_Title,
-        ComicInfoObject.get_Series,
-        ComicInfoObject.get_LocalizedSeries,
-        ComicInfoObject.get_SeriesSort,
-        ComicInfoObject.get_AlternateSeries,
-        ComicInfoObject.get_Summary,
-        ComicInfoObject.get_Notes,
-        ComicInfoObject.get_Genre,
-        ComicInfoObject.get_Tags,
-        ComicInfoObject.get_Web,
-        ComicInfoObject.get_SeriesGroup,
-        ComicInfoObject.get_AgeRating,
-        ComicInfoObject.get_CommunityRating,
-        ComicInfoObject.get_ScanInformation,
-        ComicInfoObject.get_StoryArc,
-        ComicInfoObject.get_Writer,
-        ComicInfoObject.get_Inker,
-        ComicInfoObject.get_Colorist,
-        ComicInfoObject.get_Letterer,
-        ComicInfoObject.get_CoverArtist,
-        ComicInfoObject.get_Editor,
-        ComicInfoObject.get_Translator,
-        ComicInfoObject.get_Publisher,
-        ComicInfoObject.get_Imprint,
-        ComicInfoObject.get_Characters,
-        ComicInfoObject.get_Teams,
-        ComicInfoObject.get_Locations,
-        ComicInfoObject.get_Number,
-        ComicInfoObject.get_AlternateNumber,
-        ComicInfoObject.get_Count,
-        ComicInfoObject.get_AlternateCount,
-        ComicInfoObject.get_Volume,
-        ComicInfoObject.get_PageCount,
-        ComicInfoObject.get_Year,
-        ComicInfoObject.get_Month,
-        ComicInfoObject.get_Day,
-        ComicInfoObject.get_Format,
-        ComicInfoObject.get_LanguageISO,
-        ComicInfoObject.get_BlackAndWhite,
-        ComicInfoObject.get_Manga,
-        ComicInfoObject.get_StoryArcNumber
-    ]
+    def is_dir_path(path):
+
+        if os.path.isfile(path):
+            return path
+        else:
+            raise argparse.ArgumentTypeError(f"readable_dir:{path} is not a valid path")
+else:
+    import logging
+    import os
+    import pathlib
+    import tkinter as tk
+    from tkinter import filedialog
+    from tkinter import messagebox as mb
+    from tkinter import ttk
+    from tkinter.scrolledtext import ScrolledText
+
+    from lxml.etree import XMLSyntaxError
+
+    from CommonLib.ProgressBarWidget import ProgressBar
+    from . import ComicInfo
+    from . import models
+    from .cbz_handler import ReadComicInfo, WriteComicInfo
+    from .errors import *
+    from .models import LoadedComicInfo
+
+    # logging.getLogger('PIL').setLevel(logger.WARNING)
+    # TODO:
+    #   - Add info message if nothing is loaded into UI because comicinfo not exist and one will be created
+    #   - Add successfully loaded window/message somewhere
+
+    launch_path = ""
+
+    ScriptDir = os.path.dirname(__file__)
+    PROJECT_PATH = pathlib.Path(__file__).parent
+    logger = logging.getLogger(__name__)
 
 
-def get_settersArray(ComicInfoObject):
-    return [
-        ComicInfoObject.set_Title,
-        ComicInfoObject.set_Series,
-        ComicInfoObject.set_LocalizedSeries,
-        ComicInfoObject.set_SeriesSort,
-        ComicInfoObject.set_AlternateSeries,
-        ComicInfoObject.set_Summary,
-        ComicInfoObject.set_Notes,
-        ComicInfoObject.set_Genre,
-        ComicInfoObject.set_Tags,
-        ComicInfoObject.set_Web,
-        ComicInfoObject.set_SeriesGroup,
-        ComicInfoObject.set_AgeRating,
-        ComicInfoObject.set_CommunityRating,
-        ComicInfoObject.set_ScanInformation,
-        ComicInfoObject.set_StoryArc,
-        ComicInfoObject.set_Writer,
-        ComicInfoObject.set_Inker,
-        ComicInfoObject.set_Colorist,
-        ComicInfoObject.set_Letterer,
-        ComicInfoObject.set_CoverArtist,
-        ComicInfoObject.set_Editor,
-        ComicInfoObject.set_Translator,
-        ComicInfoObject.set_Publisher,
-        ComicInfoObject.set_Imprint,
-        ComicInfoObject.set_Characters,
-        ComicInfoObject.set_Teams,
-        ComicInfoObject.set_Locations,
-        ComicInfoObject.set_Number,
-        ComicInfoObject.set_AlternateNumber,
-        ComicInfoObject.set_Count,
-        ComicInfoObject.set_AlternateCount,
-        ComicInfoObject.set_Volume,
-        ComicInfoObject.set_PageCount,
-        ComicInfoObject.set_Year,
-        ComicInfoObject.set_Month,
-        ComicInfoObject.set_Day,
-        ComicInfoObject.set_Format,
-        ComicInfoObject.set_LanguageISO,
-        ComicInfoObject.set_BlackAndWhite,
-        ComicInfoObject.set_Manga,
-        ComicInfoObject.set_StoryArcNumber]
+    def get_gettersArray(ComicInfoObject):
+        # self.widgets_var = [
+        #     {
+        #     self.entry_Title_val,
+        #     self.entry_Series_val,
+        #     self.entry_LocalizedSeries_val,
+        #     self.entry_SeriesSort_val,
+        #     self.entry_AlternateSeries_val,
+        #     self.input_1_summary_obj,
+        #     self.entry_Notes_val,
+        #     self.entry_Genre_val,
+        #     self.entry_Tags_val,
+        #     self.entry_Web_val,
+        #     self.entry_SeriesGroup_val,
+        #     self.entry_AgeRating_val,
+        #     self.entry_CommunityRating_val,
+        #     self.entry_ScanInformation_val,
+        #     self.entry_StoryArc_val,
+        #
+        #     self.entry_Writer_val,
+        #     self.entry_Inker_val,
+        #     self.entry_Colorist_val,
+        #     self.entry_Letterer_val,
+        #     self.entry_CoverArtist_val,
+        #     self.entry_Editor_val,
+        #     self.entry_Translator_val,
+        #     self.entry_Publisher_val,
+        #     self.entry_Imprint_val,
+        #     self.entry_Characters_val,
+        #     self.entry_Teams_val,
+        #     self.entry_Locations_val,}
+        #
+        #     self.entry_Number_val,
+        #     self.entry_AlternateNumber_val,
+        #     self.entry_Count_val,
+        #     self.entry_AlternateCount_val,
+        #     self.entry_Volume_val,
+        #     self.entry_PageCount_val,
+        #     self.entry_Year_val,
+        #     self.entry_Month_val,
+        #     self.entry_Day_val,
+        #     self.entry_Format_val,
+        #     self.entry_LanguageISO_val,
+        #     self.entry_BlackAndWhite_val,
+        #     self.entry_Manga_val,
+        #     self.entry_StoryArcNumber_val
+        #
+        # ]
+        return [
+            ComicInfoObject.get_Title,
+            ComicInfoObject.get_Series,
+            ComicInfoObject.get_LocalizedSeries,
+            ComicInfoObject.get_SeriesSort,
+            ComicInfoObject.get_AlternateSeries,
+            ComicInfoObject.get_Summary,
+            ComicInfoObject.get_Notes,
+            ComicInfoObject.get_Genre,
+            ComicInfoObject.get_Tags,
+            ComicInfoObject.get_Web,
+            ComicInfoObject.get_SeriesGroup,
+            ComicInfoObject.get_AgeRating,
+            ComicInfoObject.get_CommunityRating,
+            ComicInfoObject.get_ScanInformation,
+            ComicInfoObject.get_StoryArc,
+            ComicInfoObject.get_Writer,
+            ComicInfoObject.get_Inker,
+            ComicInfoObject.get_Colorist,
+            ComicInfoObject.get_Letterer,
+            ComicInfoObject.get_CoverArtist,
+            ComicInfoObject.get_Editor,
+            ComicInfoObject.get_Translator,
+            ComicInfoObject.get_Publisher,
+            ComicInfoObject.get_Imprint,
+            ComicInfoObject.get_Characters,
+            ComicInfoObject.get_Teams,
+            ComicInfoObject.get_Locations,
+            ComicInfoObject.get_Number,
+            ComicInfoObject.get_AlternateNumber,
+            ComicInfoObject.get_Count,
+            ComicInfoObject.get_AlternateCount,
+            ComicInfoObject.get_Volume,
+            ComicInfoObject.get_PageCount,
+            ComicInfoObject.get_Year,
+            ComicInfoObject.get_Month,
+            ComicInfoObject.get_Day,
+            ComicInfoObject.get_Format,
+            ComicInfoObject.get_LanguageISO,
+            ComicInfoObject.get_BlackAndWhite,
+            ComicInfoObject.get_Manga,
+            ComicInfoObject.get_StoryArcNumber
+        ]
 
 
+    def get_settersArray(ComicInfoObject):
+        return [
+            ComicInfoObject.set_Title,
+            ComicInfoObject.set_Series,
+            ComicInfoObject.set_LocalizedSeries,
+            ComicInfoObject.set_SeriesSort,
+            ComicInfoObject.set_AlternateSeries,
+            ComicInfoObject.set_Summary,
+            ComicInfoObject.set_Notes,
+            ComicInfoObject.set_Genre,
+            ComicInfoObject.set_Tags,
+            ComicInfoObject.set_Web,
+            ComicInfoObject.set_SeriesGroup,
+            ComicInfoObject.set_AgeRating,
+            ComicInfoObject.set_CommunityRating,
+            ComicInfoObject.set_ScanInformation,
+            ComicInfoObject.set_StoryArc,
+            ComicInfoObject.set_Writer,
+            ComicInfoObject.set_Inker,
+            ComicInfoObject.set_Colorist,
+            ComicInfoObject.set_Letterer,
+            ComicInfoObject.set_CoverArtist,
+            ComicInfoObject.set_Editor,
+            ComicInfoObject.set_Translator,
+            ComicInfoObject.set_Publisher,
+            ComicInfoObject.set_Imprint,
+            ComicInfoObject.set_Characters,
+            ComicInfoObject.set_Teams,
+            ComicInfoObject.set_Locations,
+            ComicInfoObject.set_Number,
+            ComicInfoObject.set_AlternateNumber,
+            ComicInfoObject.set_Count,
+            ComicInfoObject.set_AlternateCount,
+            ComicInfoObject.set_Volume,
+            ComicInfoObject.set_PageCount,
+            ComicInfoObject.set_Year,
+            ComicInfoObject.set_Month,
+            ComicInfoObject.set_Day,
+            ComicInfoObject.set_Format,
+            ComicInfoObject.set_LanguageISO,
+            ComicInfoObject.set_BlackAndWhite,
+            ComicInfoObject.set_Manga,
+            ComicInfoObject.set_StoryArcNumber]
 
 
-def _get_widgets_var_zip(widgets_variable_list, comicInfoObj: ComicInfo.ComicInfo, widgets_object_list=None):
-    getters_array = get_gettersArray(comicInfoObj)
-    setters_array = get_settersArray(comicInfoObj)
-    if widgets_object_list:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
-        return zip(widgets_variable_list, getters_array,
-                   setters_array, widgets_object_list)
-    else:
-        return zip(widgets_variable_list, getters_array,
-                   setters_array)
-
+    def _get_widgets_var_zip(widgets_variable_list, comicInfoObj: ComicInfo.ComicInfo, widgets_object_list=None):
+        getters_array = get_gettersArray(comicInfoObj)
+        setters_array = get_settersArray(comicInfoObj)
+        if widgets_object_list:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
+            return zip(widgets_variable_list, getters_array,
+                       setters_array, widgets_object_list)
+        else:
+            return zip(widgets_variable_list, getters_array,
+                       setters_array)
 
 
 class App:
@@ -225,7 +243,7 @@ class App:
         self.entry_Format_val = tk.StringVar(value='', name="Format")
         self.entry_LanguageISO_val = tk.StringVar(value='', name="LanguageISO")
         # self.__tkvar = tk.StringVar(value='Unknown')
-        self.entry_StoryArcNumber_val = tk.StringVar(value='', name="StoryArcNumber")
+        self.entry_StoryArcNumber_val = tk.StringVar(value="", name="StoryArcNumber")
         self.input_1_summary_obj = models.LongText(name="summary")
         self.entry_BlackAndWhite_val = tk.StringVar(name="OptionMenu_BlackWhite", value="Unknown")
         self.entry_Manga_val = tk.StringVar(name="OptionMenu_Manga", value="Unknown")
@@ -322,10 +340,10 @@ class App:
         self.entry_Format_val.set('')
         self.entry_LanguageISO_val.set('')
         # self.__tkvar.set('Unknown')
-        self.entry_StoryArcNumber_val.set('')
+        self.entry_StoryArcNumber_val.set("")
         self.entry_BlackAndWhite_val.set("Unknown")
         self.entry_Manga_val.set("Unknown")
-        self.entry_Count_val.set(-1, )
+        self.entry_Count_val.set(-1)
         self.entry_AlternateCount_val.set(-1)
         self.entry_Volume_val.set(-1)
         self.entry_PageCount_val.set(0)
@@ -353,6 +371,7 @@ class App:
             # <Button-1>
             # event.widget.focus()
             pass
+
         def onFocusOut(event: tk.Event = None):
             # <FocusOut>
             # makeReadOnly(event)
@@ -705,7 +724,7 @@ class App:
         self._label_5.pack(side='top')
         self._entry_Count1 = ttk.Combobox(self._frame_5)
 
-        self._entry_Count1.configure(textvariable=self.entry_Count_val, values='-1', width='10')
+        self._entry_Count1.configure(textvariable=self.entry_Count_val, width='10')
         self._entry_Count1.pack(side='top')
         self._entry_Count1.bind('<Button-1>', makeFocused, add='')
         self._entry_Count1.bind('<Double-Button-1>', self.makeEditable, add='')
@@ -716,7 +735,7 @@ class App:
         self._label_9.pack(side='top')
         self._entry_AlternateCount1 = ttk.Combobox(self._frame_5)
 
-        self._entry_AlternateCount1.configure(textvariable=self.entry_AlternateCount_val, values='-1', width='10')
+        self._entry_AlternateCount1.configure(textvariable=self.entry_AlternateCount_val, width='10')
         self._entry_AlternateCount1.pack(side='top')
         self._entry_AlternateCount1.bind('<Button-1>', makeFocused, add='')
         self._entry_AlternateCount1.bind('<Double-Button-1>', self.makeEditable, add='')
@@ -728,7 +747,7 @@ class App:
         self._label_6.pack(side='top')
         self._entry_Volume1 = ttk.Combobox(self._frame_5)
 
-        self._entry_Volume1.configure(textvariable=self.entry_Volume_val, values='-1', width='10')
+        self._entry_Volume1.configure(textvariable=self.entry_Volume_val, width='10')
         self._entry_Volume1.pack(side='top')
         self._entry_Volume1.bind('<Button-1>', makeFocused, add='')
         self._entry_Volume1.bind('<Double-Button-1>', self.makeEditable, add='')
@@ -951,7 +970,7 @@ class App:
                                                    )
         for file in covers_path_list:
             self.selected_filenames.append(file.name)
-        self.create_loadedComicInfo_list()
+            self.create_loadedComicInfo_list()
         # self._label_28_statusinfo.configure(text="Successfuly loaded")
 
     def create_loadedComicInfo_list(self, cli_selected_files: list[str] = None):
@@ -994,24 +1013,23 @@ class App:
         :return: True if all LoadedComicInfo were updated. If any error or saving is cancelled returns False
         """
 
-        def parse_UI_toComicInfo(cls, loadedInfo: LoadedComicInfo, keep_original_value) -> tuple[
-            LoadedComicInfo, object]:
-            """
-            Accepts a path string
-            Returns a LoadedComicInfo with the modified ComicInfo from the modified StringVars
-            """
-            logger.debug(f"parsing UI to file: '{loadedInfo.path}'")
+        modified_loadedComicInfo_list = []
+        # modified_loadedComicInfo_XML_list = list[str]()
+        keep_original_value = None
+        for comicObj in self.loadedComicInfo_list:
+            logger.debug(f"parsing UI to file: '{comicObj.path}'")
 
             # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
-            widgets_var_zip = _get_widgets_var_zip(cls.widgets_var, loadedInfo.comicInfoObj, cls.widgets_obj)
+            widgets_var_zip = _get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
 
             # logger.debug([str(i[0]) for i in widgets_var_zip if not isinstance(i[3],tk.OptionMenu) and not isinstance(i[3],models.LongText)])
             # return
-            if cls.widgets_obj:
-                noSelectionCheck = [str(widgets_var_tuple[0]) for widgets_var_tuple in [i for i in widgets_var_zip if
-                                                                                        not isinstance(i[3],
-                                                                                                       tk.OptionMenu) and not isinstance(
-                                                                                            i[3], models.LongText)] if
+            if self.widgets_obj:
+                noSelectionCheck = [str(widgets_var_tuple[0]) for widgets_var_tuple in
+                                    [i for i in widgets_var_zip if
+                                     not isinstance(i[3],
+                                                    tk.OptionMenu) and not isinstance(
+                                         i[3], models.LongText)] if
                                     (not list(widgets_var_tuple[3]['values']) and not widgets_var_tuple[0].get())]
                 if noSelectionCheck and keep_original_value is None:
                     keep_original_value = mb.askokcancel("Fields not selected",
@@ -1024,12 +1042,12 @@ class App:
                 else:
                     logger.info("Proceeding with saving. Unset fields will retain original values")
                 logger.info("Before loop")
-            widgets_var_zip = _get_widgets_var_zip(cls.widgets_var, loadedInfo.comicInfoObj, cls.widgets_obj)
+            widgets_var_zip = _get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
             for widgets_var_tuple in widgets_var_zip:
                 widgetvar = widgets_var_tuple[0]
                 comicinfo_atr_get = widgets_var_tuple[1]()
                 comicinfo_atr_set = widgets_var_tuple[2]
-                if not cls.widgets_obj:
+                if not self.widgets_obj:
                     comicinfo_atr_set(widgetvar.get())
                     continue
                 if isinstance(widgetvar, tk.StringVar) and widgetvar.get() == "-1":
@@ -1040,13 +1058,7 @@ class App:
                     if widgetvar.get() == -1:
                         comicinfo_atr_set(-1)
                 comicinfo_atr_set(widgetvar.get())
-            return loadedInfo, keep_original_value
-
-        modified_loadedComicInfo_list = []
-        # modified_loadedComicInfo_XML_list = list[str]()
-        keep_original_values = None
-        for comicObj in self.loadedComicInfo_list:
-            modified_loadedComicInfo, keep_original_values = parse_UI_toComicInfo(self, comicObj, keep_original_values)
+            modified_loadedComicInfo, keep_original_value = comicObj, keep_original_value
             modified_loadedComicInfo_list.append(modified_loadedComicInfo)
         self.loadedComicInfo_list = modified_loadedComicInfo_list
 
@@ -1128,6 +1140,8 @@ class App:
             self._saveComicInfo()
         except CancelComicInfoSave:
             logger.info("Cancelled Saving")
+        except Exception as e:
+            raise e
 
     def _clearUI(self):
         self.initialize_StringVars()
@@ -1200,7 +1214,7 @@ class App:
 
             if widgetvar.get() != comicinfo_atr_get:
                 if not self.widgets_obj:
-                    comicinfo_atr_set(widgetvar.get())
+                    widgetvar.set(comicinfo_atr_get)
                     continue
                 try:
                     if not self.widgets_obj:
@@ -1246,3 +1260,107 @@ class App:
                     logger.error("Exception found", exc_info=e)
 
         return loadedInfo
+
+
+class AppCli:
+
+    def __init__(self):
+        self.args = None
+        self.selected_files: list[str] = None
+        self.loadedComicInfo_List: list[LoadedComicInfo] = None
+
+        self.origin_path = None
+        self.parse_args()
+        self.loadedComicInfo_List, self.origin_LoadedcInfo = self.loadFiles()
+
+    def parse_args(self):
+        """
+        Parses the argument provided on the execution of the script.
+
+        **AppCli.copyFrom** The path to the origin file to copy from\n
+        **AppCli.copyTo** The path to the destination paths\n
+        **AppCli.keepNumeration** boolean Whether to keep numeration from destination path or remove when pasting\n
+        """
+        parser = argparse.ArgumentParser()
+
+        parser.add_argument("--copyfrom", help="The path to the file you want to copy the metatada from.\n "
+                                               "(Volume and number are not parsed)", type=is_dir_path,
+                            metavar="<path>")
+        parser.add_argument("--copyto", type=is_dir_path, help="The path of the files to modify."
+                                                               " (Accepts shell-style wildcards)",
+                            metavar="<path>", nargs="+")
+        parser.add_argument("--keepNumeration", action="store_true",
+                            help="Should the modified file keep the numbering (volume and number)")
+        self.args = parser.parse_args()
+        from glob import glob
+        if self.args.copyfrom:
+            self.origin_path = glob(self.args.copyfrom)[0]
+        if self.args.copyto:
+            if isinstance(self.args.copyto, list):
+                selected_files = self.args.copyto
+            else:
+                selected_files = glob(self.args.copyto)
+            self.selected_files = selected_files
+        self.keepNumeration = self.args.keepNumeration
+
+    def loadFiles(self) -> tuple[list[LoadedComicInfo], LoadedComicInfo | None]:
+        """
+        Loads the files whose paths are contained in App.selected_files
+        :return: List of LoadedComicInfo
+        """
+        if not self.selected_files:
+            raise NoFilesSelected()
+        loadedComicInfo_List = list[LoadedComicInfo]()
+        copyFrom_LoadedComicInfo = None
+        for file_path in self.selected_files:
+            logger.debug(f"Loading '{os.path.basename(file_path)}'")
+            comicInfo: ComicInfo = cbz_handler.ReadComicInfo(file_path, ignore_empty_metadata=True).to_ComicInfo()
+            loadedComicinfo = LoadedComicInfo(file_path, comicInfo=comicInfo)
+            loadedComicInfo_List.append(loadedComicinfo)
+            logger.debug(f"Loaded  {os.path.basename(file_path)}")
+        if self.args.copyfrom:
+            logger.debug(f"Loading source ComicInfo: '{os.path.basename(self.args.copyfrom)}'")
+            comicInfo = cbz_handler.ReadComicInfo(self.origin_path, ignore_empty_metadata=False).to_ComicInfo()
+            comicInfo.set_Number("")
+            comicInfo.set_Volume(-1)
+            copyFrom_LoadedComicInfo = LoadedComicInfo(self.origin_path, comicInfo)
+
+        return loadedComicInfo_List, copyFrom_LoadedComicInfo
+
+    def saveFiles(self):
+        if not self.loadedComicInfo_List:
+            raise NoComicInfoLoaded()
+        for loadedComicInfo in self.loadedComicInfo_List:
+            cbz_handler.WriteComicInfo(loadedComicInfo).to_file()
+            logger.debug(f"Saved {os.path.basename(loadedComicInfo.path)}")
+
+    def copyCInfo(self, ):
+        if not self.loadedComicInfo_List:
+            raise NoComicInfoLoaded()
+        if not self.origin_LoadedcInfo:
+            raise NoComicInfoLoaded(": No comicinfo to copy from selected")
+        for loadedInfo in self.loadedComicInfo_List:
+            loadedInfo.comicInfoObj = self.origin_LoadedcInfo.comicInfoObj
+
+
+if __name__ == '__main__':
+    # <Logger>
+    logger = logging.getLogger()
+    logging.getLogger('PIL').setLevel(logging.WARNING)
+    # formatter = logging.Formatter()
+
+    PROJECT_PATH = pathlib.Path(__file__).parent
+    # rotating_file_handler = RotatingFileHandler(f"{PROJECT_PATH}/logs/MangaManager.log", maxBytes=5725760,
+    #                                             backupCount=2)
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s - %(name)-12s - %(levelname)-8s - %(message)s',
+                        handlers=[logging.StreamHandler(sys.stdout)]
+                        # filename='/tmp/myapp.log'
+                        )
+    # logger.debug('DEBUG LEVEL - MAIN MODULE')
+    # logger.info('INFO LEVEL - MAIN MODULE\n\n')
+    # </Logger>
+
+    app = AppCli()
+    app.copyCInfo()
+    app.saveFiles()

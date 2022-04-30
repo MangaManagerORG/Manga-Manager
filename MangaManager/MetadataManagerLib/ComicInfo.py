@@ -321,6 +321,10 @@ except ModulenotfoundExp_ as exp:
                 if input_data in ("None", "none",):
                     return 0
                 # raise_parse_error(node, 'Requires decimal value')
+            try:
+                int(input_data)
+            except ValueError:
+                return 0
             return decimal_value
 
         def gds_validate_decimal(self, input_data, node=None, input_name=''):
