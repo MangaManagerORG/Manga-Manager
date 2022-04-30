@@ -31,7 +31,7 @@ else:
 
     from lxml.etree import XMLSyntaxError
 
-    from CommonLib.ProgressBarWidget import ProgressBar
+    from MangaManager.CommonLib.ProgressBarWidget import ProgressBar
     from . import ComicInfo
     from . import models
     from .cbz_handler import ReadComicInfo, WriteComicInfo
@@ -1022,7 +1022,6 @@ class App:
             # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
             widgets_var_zip = _get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
 
-
             if self.widgets_obj:
                 noSelectionCheck = [str(widgets_var_tuple[0]) for widgets_var_tuple in
                                     [i for i in widgets_var_zip if
@@ -1049,18 +1048,32 @@ class App:
                 if not self.widgets_obj:
                     comicinfo_atr_set(widgetvar.get())
                     continue
-                if isinstance(widgetvar, tk.StringVar) and widgetvar.get() == "-1":
-                    comicinfo_atr_set("")
-                    continue
-                elif isinstance(widgetvar, tk.IntVar) and widgetvar.get():
-                    if str(widgetvar) == "Number":
-                        ...
-                        # TODO check how this works this is giving me issues
-                    # If the value in the ui is set to -1 this means to clear the tag and set it to default
+
+                # Cases to cover:
+                    # User wants to set new value (he writes in the ui value else value is "" when loading and if there is conflict
+                    # User wants to keep original value (user writes "")
+                    # User wants to clear the field (user writes -2)(both StringVar and IntVar
+                if isinstance(widgetvar, tk.StringVar):
+                    if widgetvar.get() == "-2":  # If UI has this value it should clean tags
+                        comicinfo_atr_set("")
+                        continue
+                    else:
+                        comicinfo_atr_set(widgetvar.get())
+                        continue
+                elif isinstance(widgetvar, models.LongText) and widgetvar.get():  # If its description field and there's
+                    # actual description overwrite it
+                    comicinfo_atr_set(widgetvar.get())
+                elif isinstance(widgetvar, tk.IntVar):
+                    # python default is -1 for most tags. if value is -2 then clear out the tag
                     if str(widgetvar) == "PageCount" and widgetvar.get() == -1:  # Pagecount default is not -1 but 0
                         comicinfo_atr_set(0)
-                    elif widgetvar.get() == -1:
-                        comicinfo_atr_set(-1)
+                    elif widgetvar.get() == -2:  # If value is -1
+                        comicinfo_atr_set(-1)  # reset tag
+                    else:
+                        comicinfo_atr_set(widgetvar.get())
+
+                    # TODO check how this works this is giving me issues
+                    # If the value in the ui is set to -1 this means to clear the tag and set it to default
 
                 comicinfo_atr_set(widgetvar.get())
             modified_loadedComicInfo, keep_original_value = comicObj, keep_original_value
