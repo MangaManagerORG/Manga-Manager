@@ -7,11 +7,12 @@ import sys
 import tkinter as tk
 from logging.handlers import RotatingFileHandler
 
+from CommonLib import WebpConverter
+from ConvertersLib.epub2cbz import epub2cbz
 from CoverManagerLib import CoverManager
 from MetadataManagerLib import MetadataManager
 from VolumeManager import VolumeManager
-from ConvertersLib.epub2cbz import epub2cbz
-from CommonLib import WebpConverter
+
 # <Arguments parser>
 
 parser = argparse.ArgumentParser()
@@ -64,7 +65,7 @@ parser.add_argument(
     '-p', '--path',
     type=is_dir_path,dest="active_dir_path")
 
-args = parser.parse_args()
+
 # </Arguments parser>
 
 
@@ -95,6 +96,7 @@ def main():
     print("3 - Volume Setter")
     print("4 - Epub to CBZ converter")
     print("5 - Webp Converter")
+    args = parser.parse_args()
     if not args.default_selected_tool:
         while not selected_tool:
             selection = input("Select Number >")
@@ -108,10 +110,13 @@ def main():
     print(selection)
 
     root = tk.Tk()
+    root.state('zoomed')
+    # root.geometry("%dx%d" % (root.winfo_width(), root.winfo_height()))
+    # root.geometry("")
     # if selection == 3:
     #     print("Not implemented yet")
 
-    selApp = tools[selection-1]
+    selApp = tools[selection - 1]
     # logger = selApp.loggerCall()
     app = selApp.App(root)
     app.start_ui()

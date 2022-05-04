@@ -74,6 +74,11 @@ original_cleanup_var1 = ""
 final_cleanup_var1 = ""
 
 class ComicInfoTester(unittest.TestCase):
+    """
+    The purpose of this test is to check ComicInfo class is properly edited.
+    It's a automatically generated class with changes
+    """
+
     def setUp(self) -> None:
         self.comicinfo = ComicInfo.ComicInfo()
         self.comicinfo.set_AgeRating(ComicInfo.AgeRating.RATING_PENDING)
@@ -90,7 +95,7 @@ class ComicInfoTester(unittest.TestCase):
 initial_dir_count = 0
 
 
-class TaggerCbzControllerTester(unittest.TestCase):
+class MetadataEditorTests(unittest.TestCase):
     def setUp(self) -> None:
         self.initial_dir_count = len(os.listdir(os.path.dirname(test_path)))
         first_file_chapter = ""
@@ -115,9 +120,11 @@ class TaggerCbzControllerTester(unittest.TestCase):
         app = MetadataManager.App(root)
 
         app.create_loadedComicInfo_list(test_files)
-
-        app.entry_Title_val.set(f"This_title_var_is modified_{random_int}")
-
+        for widget_var in app.widgets_var:
+            if isinstance(widget_var, tk.StringVar):
+                widget_var.set(f"This is: {str(widget_var)} modified_ randint:{random_int}")
+            else:
+                widget_var.set(random_int)
         app.input_1_summary_obj.set(f"This is the summary_{random_int}")
 
         # Chapter number must be kept when handling multiple files they can't be the same.
@@ -146,6 +153,51 @@ class TaggerCbzControllerTester(unittest.TestCase):
         print(f"Asserting Chapter number. (they can't match) '{self.first_file_chapter}' vs '{second_file_chapter}'")
         if not (self.first_file_chapter and second_file_chapter == ""):
             self.assertNotEqual(self.first_file_chapter, second_file_chapter)
+
+        # app.input_1_summary_obj.set(f"This is the summary_{random_int}")
+
+    def test_modifying_values(self):
+        root = tk.Tk()
+        random_int = random.random()
+        app: MetadataManager.App = MetadataManager.App(root)
+        test_files = [path_23, path_24]
+
+        app.create_loadedComicInfo_list(test_files)
+        for widget_var in app.widgets_var:
+            # if str(widget_var) ==
+            if isinstance(widget_var, tk.StringVar):
+                widget_var.set(f"This is: {str(widget_var)} modified_ randint:{random_int}")
+            elif isinstance(widget_var, tk.OptionMenu):
+                continue
+            else:
+                widget_var.set(random_int)
+        # app.input_1_summary_obj.set(f"This is the summary_{random_int}")
+
+        # Chapter number must be kept when handling multiple files they can't be the same.
+        app.do_save_UI()
+        # Reopen each file and check that they match edited values
+        app = MetadataManager.App(root)
+        app.create_loadedComicInfo_list([path_23])
+        for widget_var in app.widgets_var:
+            if isinstance(widget_var, tk.StringVar):
+                print(f"Asserting: {str(widget_var)}")
+                if str(widget_var) == "CommunityRating":
+                    self.assertEqual('0', widget_var.get())
+                    continue
+                try:
+                    self.assertEqual(f"This is: {str(widget_var)} modified_ randint:{random_int}", widget_var.get())
+                except tk.TclError:
+                    pass
+
+
+            elif isinstance(widget_var, tk.OptionMenu):
+                continue
+            elif isinstance(widget_var, tk.IntVar):
+                print(f"Asserting: {str(widget_var)}")
+                self.assertEqual(int(random_int), widget_var.get())
+            else:
+                print(f"Asserting: {str(widget_var)}")
+                self.assertEqual(random_int, float(widget_var.get()))
 
     def test_deleteAndRecover(self):
         test_files = [path_23, path_24]

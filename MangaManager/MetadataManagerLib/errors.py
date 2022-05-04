@@ -34,3 +34,21 @@ class CancelComicInfoSave(Exception):
 
     def __init__(self):
         super().__init__(f'Saving cancelled')
+
+
+class NoFilesSelected(Exception):
+    """
+    Exception raised when a method that requires selected files is called and no selected files.
+    """
+
+    def __init__(self):
+        super().__init__(f'No Files Selected')
+
+
+class NoComicInfoLoaded(Exception):
+    """
+    Exception raised when the list of LoadedComicInfo is empty.
+    """
+
+    def __init__(self, info=None):
+        super().__init__(f'No ComicInfo Loaded' + info)
