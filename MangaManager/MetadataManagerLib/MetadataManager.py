@@ -28,7 +28,7 @@ else:
     from tkinter import messagebox as mb
     from tkinter import ttk
     from tkinter.scrolledtext import ScrolledText
-
+    from ScrolledFrame import ScrolledFrame
     from lxml.etree import XMLSyntaxError
 
     from CommonLib.ProgressBarWidget import ProgressBar
@@ -387,29 +387,58 @@ class App:
             return valid
 
         self._initialized_UI = True
-        vldt_ifnum_cmd = (self.master.register(ValidateIfNum), '%s', '%S')
+        # vldt_ifnum_cmd = (self.master.register(ValidateIfNum), '%s', '%S')
         self._edit_warning = False  # We send warning that changing chapter or volume will be set to all files selected
         self.frame_1 = tk.Frame(master)
 
         # build ui
-        self._panedwindow_1 = tk.PanedWindow(self.frame_1, orient='horizontal')
+        # build ui
+        self.frame_1 = tk.Frame(master)
+        self._frame_3 = tk.Frame(self.frame_1)
+        self._button_2 = tk.Button(self._frame_3)
+        self._button_2.configure(text='Save', width='10')
+        self._button_2.grid(column='0', row='0', sticky='ew')
+        self._button_1 = tk.Button(self._frame_3)
+        self._button_1.configure(text='Open', width='10')
+        self._button_1.grid(column='1', row='0', sticky='ew')
+        self._button_3 = tk.Button(self._frame_3)
+        self._button_3.configure(justify='center', text='Remove ComicInfo')
+        self._button_3.grid(column='0', row='1', sticky='w')
+        self._button_4 = tk.Button(self._frame_3)
+        self._button_4.configure(justify='center', state='disabled', text='Fetch Online')
+        self._button_4.grid(column='1', columnspan='3', row='1', sticky='e')
+        self._button_5 = tk.Button(self._frame_3)
+        self._button_5.configure(text='Clear', width='10')
+        self._button_5.grid(column='2', row='0', sticky='ew')
+        self._button_5.configure(command=self._clearUI)
+        self._frame_3.configure(height='200', width='200')
+        self._frame_3.pack(side='top')
+        self._frame_3.columnconfigure('0', weight='1')
+        self._frame_3.columnconfigure('1', weight='10')
+        self._frame_3.columnconfigure('2', weight='1')
+        self._frame_3.columnconfigure('3', pad='20')
+        self.scrolledframe_2 = ScrolledFrame(self.frame_1, scrolltype='both')
+        self.frame_3 = tk.Frame(self.scrolledframe_2.innerframe)
+        self._panedwindow_1 = tk.PanedWindow(self.frame_3, orient='horizontal')
         self.frame_2 = tk.Frame(self._panedwindow_1)
-        self._label_1 = tk.Label(self.frame_2)
-        self._label_1.configure(text='Title')
-        self._label_1.pack(side='top')
+        self.label_1 = tk.Label(self.frame_2)
+        self.label_1.configure(text='Title')
+        self.label_1.pack(side='top')
         self._entry_Title = ttk.Combobox(self.frame_2)
-
         self._entry_Title.configure(textvariable=self.entry_Title_val)
         self._entry_Title.pack(expand='false', fill='both', side='top')
         self._entry_Title.bind('<Button-1>', makeFocused, add='')
+        self._entry_Title.bind('<Button-1>', makeFocused, add='')
+        self._entry_Title.bind('<Double-Button-1>', self.makeEditable, add='')
         self._entry_Title.bind('<Double-Button-1>', self.makeEditable, add='')
         self._entry_Title.bind('<FocusOut>', onFocusOut, add='')
+        self._entry_Title.bind('<FocusOut>', onFocusOut, add='')
+        self._entry_Title.bind('<Return>', makeReadOnly, add='')
         self._entry_Title.bind('<Return>', makeReadOnly, add='')
         self._label_2 = tk.Label(self.frame_2)
         self._label_2.configure(text='Series')
         self._label_2.pack(side='top')
         self._entry_Series = ttk.Combobox(self.frame_2)
-
         self._entry_Series.configure(textvariable=self.entry_Series_val)
         self._entry_Series.pack(fill='both', side='top')
         self._entry_Series.bind('<Button-1>', makeFocused, add='')
@@ -420,14 +449,12 @@ class App:
         self.label_41.configure(text='Localized Series')
         self.label_41.pack(side='top')
         self._entry_LocalizedSeries = ttk.Combobox(self.frame_2)
-
         self._entry_LocalizedSeries.configure(textvariable=self.entry_LocalizedSeries_val)
         self._entry_LocalizedSeries.pack(fill='both', side='top')
         self._label_3 = tk.Label(self.frame_2)
         self._label_3.configure(text='SeriesSort')
         self._label_3.pack(side='top')
         self._entry_SeriesSort1 = ttk.Combobox(self.frame_2)
-
         self._entry_SeriesSort1.configure(textvariable=self.entry_SeriesSort_val)
         self._entry_SeriesSort1.pack(fill='both', side='top')
         self._entry_SeriesSort1.bind('<Button-1>', makeFocused, add='')
@@ -438,7 +465,6 @@ class App:
         self._label_7.configure(text='AlternateSeries')
         self._label_7.pack(side='top')
         self._entry_AlternateSeries1 = ttk.Combobox(self.frame_2)
-
         self._entry_AlternateSeries1.configure(cursor='boat', textvariable=self.entry_AlternateSeries_val)
         self._entry_AlternateSeries1.pack(fill='both', side='top')
         self._entry_AlternateSeries1.bind('<Button-1>', makeFocused, add='')
@@ -448,22 +474,13 @@ class App:
         self._label_10 = tk.Label(self.frame_2)
         self._label_10.configure(text='Summary')
         self._label_10.pack(side='top')
-
-        # OLD
-        # self._text_1_summary = tkinter.scrolledtext.ScrolledText(self._frame_1, wrap=tk.WORD)
-        # self._text_1_summary.configure(cursor='arrow', height='4', state='normal', width='50')
-        # self.input_1_summary_obj.linked_text_field = self._text_1_summary
-        # self._text_1_summary.grid(row='5', sticky=tk.E + tk.W)
-
-        self.tkinterscrolledtext_1 = ScrolledText(self.frame_2, wrap=tk.WORD)
+        self.tkinterscrolledtext_1 = ScrolledText(self.frame_2)
         self.tkinterscrolledtext_1.configure(height='5')
-        self.input_1_summary_obj.linked_text_field = self.tkinterscrolledtext_1
         self.tkinterscrolledtext_1.pack(fill='both', side='top')
         self._label_11 = tk.Label(self.frame_2)
         self._label_11.configure(text='Notes')
         self._label_11.pack(side='top')
         self._entry_Notes1 = ttk.Combobox(self.frame_2)
-
         self._entry_Notes1.configure(textvariable=self.entry_Notes_val)
         self._entry_Notes1.pack(fill='both', side='top')
         self._entry_Notes1.bind('<Button-1>', makeFocused, add='')
@@ -474,7 +491,6 @@ class App:
         self._label_24.configure(text='Genre')
         self._label_24.pack(side='top')
         self._entry_Genre1 = ttk.Combobox(self.frame_2)
-
         self._entry_Genre1.configure(textvariable=self.entry_Genre_val)
         self._entry_Genre1.pack(fill='both', side='top')
         self._entry_Genre1.bind('<Button-1>', makeFocused, add='')
@@ -485,7 +501,6 @@ class App:
         self._label_25.configure(text='Tags')
         self._label_25.pack(side='top')
         self._entry_Tags1 = ttk.Combobox(self.frame_2)
-
         self._entry_Tags1.configure(textvariable=self.entry_Tags_val)
         self._entry_Tags1.pack(fill='both', side='top')
         self._entry_Tags1.bind('<Button-1>', makeFocused, add='')
@@ -496,7 +511,6 @@ class App:
         self._label_26.configure(text='Web')
         self._label_26.pack(side='top')
         self._entry_Web1 = ttk.Combobox(self.frame_2)
-
         self._entry_Web1.configure(textvariable=self.entry_Web_val)
         self._entry_Web1.pack(fill='both', side='top')
         self._entry_Web1.bind('<Button-1>', makeFocused, add='')
@@ -507,7 +521,6 @@ class App:
         self._label_38.configure(text='SeriesGroup')
         self._label_38.pack(side='top')
         self._entry_SeriesGroup1 = ttk.Combobox(self.frame_2)
-
         self._entry_SeriesGroup1.configure(textvariable=self.entry_SeriesGroup_val)
         self._entry_SeriesGroup1.pack(fill='both', side='top')
         self._entry_SeriesGroup1.bind('<Button-1>', makeFocused, add='')
@@ -517,8 +530,8 @@ class App:
         self._label_39 = tk.Label(self.frame_2)
         self._label_39.configure(text='AgeRating')
         self._label_39.pack(side='top')
-        self._entry_AgeRating1 = tk.OptionMenu(self.frame_2, self.entry_AgeRating_val, *ComicInfo.AgeRating.list(),
-                                               command=None)
+        self._entry_AgeRating1 = ttk.Combobox(self.frame_2)
+        self._entry_AgeRating1.configure(textvariable=self.entry_AgeRating_val)
         self._entry_AgeRating1.pack(fill='both', side='top')
         self._entry_AgeRating1.bind('<Button-1>', makeFocused, add='')
         self._entry_AgeRating1.bind('<Double-Button-1>', self.makeEditable, add='')
@@ -528,7 +541,6 @@ class App:
         self._label_40.configure(text='CommunityRating')
         self._label_40.pack(side='top')
         self._entry_CommunityRating1 = ttk.Combobox(self.frame_2)
-
         self._entry_CommunityRating1.configure(textvariable=self.entry_CommunityRating_val)
         self._entry_CommunityRating1.pack(fill='both', side='top')
         self._entry_CommunityRating1.bind('<Button-1>', makeFocused, add='')
@@ -539,7 +551,6 @@ class App:
         self._label_35.configure(text='ScanInformation')
         self._label_35.pack(side='top')
         self._entry_ScanInformation1 = ttk.Combobox(self.frame_2)
-
         self._entry_ScanInformation1.configure(textvariable=self.entry_ScanInformation_val)
         self._entry_ScanInformation1.pack(fill='both', side='top')
         self._entry_ScanInformation1.bind('<Button-1>', makeFocused, add='')
@@ -550,7 +561,6 @@ class App:
         self._label_36.configure(text='StoryArc')
         self._label_36.pack(side='top')
         self._entry_StoryArc1 = ttk.Combobox(self.frame_2)
-
         self._entry_StoryArc1.configure(textvariable=self.entry_StoryArc_val)
         self._entry_StoryArc1.pack(fill='both', side='top')
         self._entry_StoryArc1.bind('<Button-1>', makeFocused, add='')
@@ -565,7 +575,6 @@ class App:
         self._label_15.configure(text='Writer')
         self._label_15.pack(side='top')
         self._entry_Writer1 = ttk.Combobox(self._lframe_2)
-
         self._entry_Writer1.configure(textvariable=self.entry_Writer_val)
         self._entry_Writer1.pack(fill='x', side='top')
         self._entry_Writer1.bind('<Button-1>', makeFocused, add='')
@@ -576,7 +585,6 @@ class App:
         self._label_16.configure(text='Inker')
         self._label_16.pack(side='top')
         self._entry_Inker1 = ttk.Combobox(self._lframe_2)
-
         self._entry_Inker1.configure(textvariable=self.entry_Inker_val)
         self._entry_Inker1.pack(fill='x', side='top')
         self._entry_Inker1.bind('<Button-1>', makeFocused, add='')
@@ -587,7 +595,6 @@ class App:
         self._label_17.configure(text='Colorist')
         self._label_17.pack(side='top')
         self._entry_Colorist1 = ttk.Combobox(self._lframe_2)
-
         self._entry_Colorist1.configure(textvariable=self.entry_Colorist_val)
         self._entry_Colorist1.pack(fill='x', side='top')
         self._entry_Colorist1.bind('<Button-1>', makeFocused, add='')
@@ -598,7 +605,6 @@ class App:
         self._label_18.configure(text='Letterer')
         self._label_18.pack(side='top')
         self._entry_Letterer1 = ttk.Combobox(self._lframe_2)
-
         self._entry_Letterer1.configure(textvariable=self.entry_Letterer_val)
         self._entry_Letterer1.pack(fill='x', side='top')
         self._entry_Letterer1.bind('<Button-1>', makeFocused, add='')
@@ -609,7 +615,6 @@ class App:
         self._label_19.configure(text='CoverArtist')
         self._label_19.pack(side='top')
         self._entry_CoverArtist1 = ttk.Combobox(self._lframe_2)
-
         self._entry_CoverArtist1.configure(textvariable=self.entry_CoverArtist_val)
         self._entry_CoverArtist1.pack(fill='x', side='top')
         self._entry_CoverArtist1.bind('<Button-1>', makeFocused, add='')
@@ -620,7 +625,6 @@ class App:
         self._label_20.configure(text='Editor')
         self._label_20.pack(side='top')
         self._entry_Editor1 = ttk.Combobox(self._lframe_2)
-
         self._entry_Editor1.configure(textvariable=self.entry_Editor_val)
         self._entry_Editor1.pack(fill='x', side='top')
         self._entry_Editor1.bind('<Button-1>', makeFocused, add='')
@@ -631,7 +635,6 @@ class App:
         self._label_21.configure(text='Translator')
         self._label_21.pack(side='top')
         self._entry_Translator1 = ttk.Combobox(self._lframe_2)
-
         self._entry_Translator1.configure(textvariable=self.entry_Translator_val)
         self._entry_Translator1.pack(fill='x', side='top')
         self._entry_Translator1.bind('<Button-1>', makeFocused, add='')
@@ -642,7 +645,6 @@ class App:
         self._label_22.configure(text='Publisher')
         self._label_22.pack(side='top')
         self._entry_Publisher1 = ttk.Combobox(self._lframe_2)
-
         self._entry_Publisher1.configure(textvariable=self.entry_Publisher_val)
         self._entry_Publisher1.pack(fill='x', side='top')
         self._entry_Publisher1.bind('<Button-1>', makeFocused, add='')
@@ -653,7 +655,6 @@ class App:
         self._label_23.configure(text='Imprint')
         self._label_23.pack(side='top')
         self._entry_Imprint1 = ttk.Combobox(self._lframe_2)
-
         self._entry_Imprint1.configure(textvariable=self.entry_Imprint_val)
         self._entry_Imprint1.pack(fill='x', side='top')
         self._entry_Imprint1.bind('<Button-1>', makeFocused, add='')
@@ -664,7 +665,6 @@ class App:
         self._label_32.configure(text='Characters')
         self._label_32.pack(side='top')
         self._entry_Characters1 = ttk.Combobox(self._lframe_2)
-
         self._entry_Characters1.configure(textvariable=self.entry_Characters_val)
         self._entry_Characters1.pack(fill='x', side='top')
         self._entry_Characters1.bind('<Button-1>', makeFocused, add='')
@@ -675,7 +675,6 @@ class App:
         self._label_33.configure(text='Teams')
         self._label_33.pack(side='top')
         self._entry_Teams1 = ttk.Combobox(self._lframe_2)
-
         self._entry_Teams1.configure(textvariable=self.entry_Teams_val)
         self._entry_Teams1.pack(fill='x', side='top')
         self._entry_Teams1.bind('<Button-1>', makeFocused, add='')
@@ -686,7 +685,6 @@ class App:
         self._label_34.configure(text='Locations')
         self._label_34.pack(side='top')
         self._entry_Locations1 = ttk.Combobox(self._lframe_2)
-
         self._entry_Locations1.configure(textvariable=self.entry_Locations_val)
         self._entry_Locations1.pack(fill='x', side='top')
         self._entry_Locations1.bind('<Button-1>', makeFocused, add='')
@@ -701,7 +699,6 @@ class App:
         self._label_4.configure(text='Number')
         self._label_4.pack(side='top')
         self._entry_Number1 = ttk.Combobox(self._frame_5)
-
         self._entry_Number1.configure(textvariable=self.entry_Number_val, width='10')
         self._entry_Number1.pack(side='top')
         self._entry_Number1.bind('<Button-1>', makeFocused, add='')
@@ -712,7 +709,6 @@ class App:
         self._label_8.configure(text='AlternateNumber')
         self._label_8.pack(side='top')
         self._entry_AlternateNumber1 = ttk.Combobox(self._frame_5)
-
         self._entry_AlternateNumber1.configure(textvariable=self.entry_AlternateNumber_val, width='10')
         self._entry_AlternateNumber1.pack(side='top')
         self._entry_AlternateNumber1.bind('<Button-1>', makeFocused, add='')
@@ -722,32 +718,31 @@ class App:
         self._label_5 = tk.Label(self._frame_5)
         self._label_5.configure(text='Count')
         self._label_5.pack(side='top')
-        self._entry_Count1 = ttk.Combobox(self._frame_5)
-
-        self._entry_Count1.configure(textvariable=self.entry_Count_val, width='10')
-        self._entry_Count1.pack(side='top')
-        self._entry_Count1.bind('<Button-1>', makeFocused, add='')
-        self._entry_Count1.bind('<Double-Button-1>', self.makeEditable, add='')
-        self._entry_Count1.bind('<FocusOut>', onFocusOut, add='')
-        self._entry_Count1.bind('<Return>', makeReadOnly, add='')
-        self._label_9 = tk.Label(self._frame_5)
-        self._label_9.configure(text='AlternateCount')
-        self._label_9.pack(side='top')
         self._entry_AlternateCount1 = ttk.Combobox(self._frame_5)
-
-        self._entry_AlternateCount1.configure(textvariable=self.entry_AlternateCount_val, width='10')
+        self.entry_AlternateCount_val = tk.IntVar(value='')
+        self._entry_AlternateCount1.configure(textvariable=self.entry_AlternateCount_val, values='-1', width='10')
         self._entry_AlternateCount1.pack(side='top')
         self._entry_AlternateCount1.bind('<Button-1>', makeFocused, add='')
         self._entry_AlternateCount1.bind('<Double-Button-1>', self.makeEditable, add='')
         self._entry_AlternateCount1.bind('<FocusOut>', onFocusOut, add='')
         self._entry_AlternateCount1.bind('<Return>', makeReadOnly, add='')
-
+        self._label_9 = tk.Label(self._frame_5)
+        self._label_9.configure(text='AlternateCount')
+        self._label_9.pack(side='top')
+        self._entry_Count1 = ttk.Combobox(self._frame_5)
+        self.entry_Count_val = tk.IntVar(value='')
+        self._entry_Count1.configure(textvariable=self.entry_Count_val, values='-1', width='10')
+        self._entry_Count1.pack(side='top')
+        self._entry_Count1.bind('<Button-1>', makeFocused, add='')
+        self._entry_Count1.bind('<Double-Button-1>', self.makeEditable, add='')
+        self._entry_Count1.bind('<FocusOut>', onFocusOut, add='')
+        self._entry_Count1.bind('<Return>', makeReadOnly, add='')
         self._label_6 = tk.Label(self._frame_5)
         self._label_6.configure(text='Volume')
         self._label_6.pack(side='top')
         self._entry_Volume1 = ttk.Combobox(self._frame_5)
-
-        self._entry_Volume1.configure(textvariable=self.entry_Volume_val, width='10')
+        self.entry_Volume_val = tk.IntVar(value='')
+        self._entry_Volume1.configure(textvariable=self.entry_Volume_val, values='-1', width='10')
         self._entry_Volume1.pack(side='top')
         self._entry_Volume1.bind('<Button-1>', makeFocused, add='')
         self._entry_Volume1.bind('<Double-Button-1>', self.makeEditable, add='')
@@ -757,7 +752,7 @@ class App:
         self._label_27.configure(text='PageCount')
         self._label_27.pack(side='top')
         self._entry_PageCount1 = ttk.Combobox(self._frame_5)
-
+        self.entry_PageCount_val = tk.IntVar(value='')
         self._entry_PageCount1.configure(textvariable=self.entry_PageCount_val, width='10')
         self._entry_PageCount1.pack(side='top')
         self._entry_PageCount1.bind('<Button-1>', makeFocused, add='')
@@ -768,7 +763,7 @@ class App:
         self._label_12.configure(text='Year')
         self._label_12.pack(side='top')
         self._entry_Year1 = ttk.Combobox(self._frame_5)
-
+        self.entry_Year_val = tk.IntVar(value='')
         self._entry_Year1.configure(textvariable=self.entry_Year_val, width='10')
         self._entry_Year1.pack(side='top')
         self._entry_Year1.bind('<Button-1>', makeFocused, add='')
@@ -779,7 +774,7 @@ class App:
         self._label_13.configure(text='Month')
         self._label_13.pack(side='top')
         self._entry_Month1 = ttk.Combobox(self._frame_5)
-
+        self.entry_Month_val = tk.IntVar(value='')
         self._entry_Month1.configure(textvariable=self.entry_Month_val, width='10')
         self._entry_Month1.pack(side='top')
         self._entry_Month1.bind('<Button-1>', makeFocused, add='')
@@ -790,7 +785,7 @@ class App:
         self._label_14.configure(text='Day')
         self._label_14.pack(side='top')
         self._entry_Day1 = ttk.Combobox(self._frame_5)
-
+        self.entry_Day_val = tk.IntVar(value='')
         self._entry_Day1.configure(textvariable=self.entry_Day_val, width='10')
         self._entry_Day1.pack(side='top')
         self._entry_Day1.bind('<Button-1>', makeFocused, add='')
@@ -801,7 +796,6 @@ class App:
         self._label_29.configure(text='Format')
         self._label_29.pack(side='top')
         self._entry_Format1 = ttk.Combobox(self._frame_5)
-
         self._entry_Format1.configure(textvariable=self.entry_Format_val, width='10')
         self._entry_Format1.pack(side='top')
         self._entry_Format1.bind('<Button-1>', makeFocused, add='')
@@ -812,7 +806,6 @@ class App:
         self._label_28.configure(text='LanguageISO')
         self._label_28.pack(side='top')
         self._entry_LanguageISO1 = ttk.Combobox(self._frame_5)
-
         self._entry_LanguageISO1.configure(textvariable=self.entry_LanguageISO_val, width='10')
         self._entry_LanguageISO1.pack(side='top')
         self._entry_LanguageISO1.bind('<Button-1>', makeFocused, add='')
@@ -822,9 +815,9 @@ class App:
         self._label_30 = tk.Label(self._frame_5)
         self._label_30.configure(text='BlackAndWhite')
         self._label_30.pack(side='top')
-
-        self._entry_BlackAndWhite = tk.OptionMenu(self._frame_5, self.entry_BlackAndWhite_val, *ComicInfo.YesNo.list(),
-                                                  command=None)
+        self.__tkvar = tk.StringVar(value='Unknown')
+        __values = ['Yes', 'No']
+        self._entry_BlackAndWhite = tk.OptionMenu(self._frame_5, self.__tkvar, 'Unknown', *__values, command=None)
         self._entry_BlackAndWhite.pack(side='top')
         self._entry_BlackAndWhite.bind('<Button-1>', makeFocused, add='')
         self._entry_BlackAndWhite.bind('<Double-Button-1>', self.makeEditable, add='')
@@ -833,7 +826,8 @@ class App:
         self._label_31 = tk.Label(self._frame_5)
         self._label_31.configure(text='Manga')
         self._label_31.pack(side='top')
-        self._entry_Manga = tk.OptionMenu(self._frame_5, self.entry_Manga_val, *ComicInfo.Manga.list(), command=None)
+        __values = ['No', 'Yes', 'YesAndRightToLeft']
+        self._entry_Manga = tk.OptionMenu(self._frame_5, self.__tkvar, 'Unknown', *__values, command=None)
         self._entry_Manga.pack(side='top')
         self._entry_Manga.bind('<Button-1>', makeFocused, add='')
         self._entry_Manga.bind('<Double-Button-1>', self.makeEditable, add='')
@@ -843,7 +837,6 @@ class App:
         self._label_37.configure(text='StoryArcNumber')
         self._label_37.pack(side='top')
         self._entry_StoryArcNumber1 = ttk.Combobox(self._frame_5)
-
         self._entry_StoryArcNumber1.configure(textvariable=self.entry_StoryArcNumber_val, width='10')
         self._entry_StoryArcNumber1.pack(side='top')
         self._entry_StoryArcNumber1.bind('<Button-1>', makeFocused, add='')
@@ -855,29 +848,16 @@ class App:
         self._panedwindow_1.add(self._frame_5)
         self._panedwindow_1.configure(borderwidth='30', handlesize='1', height='0', proxyrelief='raised')
         self._panedwindow_1.configure(sashpad='10', sashrelief='raised', sashwidth='7', showhandle='false')
-        self._panedwindow_1.pack(expand='true', fill='both', padx='10', pady='10', side='top')
-        self._frame_3 = tk.Frame(self.frame_1)
-        self._button_1 = tk.Button(self._frame_3)
-        self._button_1.configure(text='Open', command=self._open_files, width=10)
-        self._button_1.grid(column='0', row='0', sticky=tk.W + tk.E)
-        self._button_2 = tk.Button(self._frame_3, command=self.do_save_UI)
-        self._button_2.configure(text='Save', width=10)
-        self._button_2.grid(column=1, row=0, sticky=tk.W + tk.E)
-        self._button_3 = tk.Button(self._frame_3)
-        self._button_3.configure(text='Remove ComicInfo', width=16)
-        self._button_3.grid(column='0', row=1)
-        self._button_4 = tk.Button(self._frame_3)
-        self._button_4.configure(default='disabled', state='disabled', text='Fetch Online', width=16)
-        self._button_4.grid(column=2, row=1)
-        self._button_5 = tk.Button(self._frame_3)
-        self._button_5.configure(text='Clear', command=self._clearUI, width=10)
-        self._button_5.grid(column='2', row='0', sticky=tk.W + tk.E)
-        self._progressBarFrame = tk.Frame(self._frame_3)
-        self._progressBarFrame.grid(column=0, row=3, columnspan=3)
-        self._frame_3.configure(height='200', width='200')
-        self._frame_3.pack(side='top')
-        self.frame_1.configure(height='200', width='200')
-        self.frame_1.grid(column='0', row='0')
+        self._panedwindow_1.grid(row='0', sticky='nsew')
+        self.frame_3.configure(height='200', width='200')
+        self.frame_3.pack(side='top')
+        self.frame_3.grid_anchor('center')
+        self.scrolledframe_2.configure(usemousewheel=True)
+        self.scrolledframe_2.pack(expand='true', fill='both', side='top')
+        self.frame_1.configure(height='600', width='200')
+        self.frame_1.pack(anchor='center', expand='true', fill='both', side='top')
+
+        # scrollbarx
 
         # MAIN FRAME
         # self._frame_5_statusInfo = tk.Frame(self.frame_1,bg="grey")
