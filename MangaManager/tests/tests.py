@@ -95,8 +95,7 @@ class ComicInfoTester(unittest.TestCase):
 initial_dir_count = 0
 
 
-class TaggerCbzControllerTester(unittest.TestCase):
-
+class MetadataEditorTests(unittest.TestCase):
     def setUp(self) -> None:
         self.initial_dir_count = len(os.listdir(os.path.dirname(test_path)))
         first_file_chapter = ""

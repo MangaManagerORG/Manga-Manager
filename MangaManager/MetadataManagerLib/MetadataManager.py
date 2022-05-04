@@ -1046,23 +1046,33 @@ class App:
                 widgetvar = widgets_var_tuple[0]
                 comicinfo_atr_get = widgets_var_tuple[1]()
                 comicinfo_atr_set = widgets_var_tuple[2]
+
+                # If any field is '' it should keep original value
+                try:  # IntVars do not accept "" as value. If its excepts keep original value
+                    value = widgetvar.get()
+                    if value == "":
+                        continue
+
+                except tk.TclError:
+                    continue
+
+                # If no ui keep whatever is on the stringvar/intvar
                 if not self.widgets_obj:
                     comicinfo_atr_set(widgetvar.get())
                     continue
-                if isinstance(widgetvar, tk.StringVar) and widgetvar.get() == "-1":
-                    comicinfo_atr_set("")
-                    continue
-                elif isinstance(widgetvar, tk.IntVar) and widgetvar.get():
-                    if str(widgetvar) == "Number":
-                        ...
-                        # TODO check how this works this is giving me issues
-                    # If the value in the ui is set to -1 this means to clear the tag and set it to default
-                    if str(widgetvar) == "PageCount" and widgetvar.get() == -1:  # Pagecount default is not -1 but 0
-                        comicinfo_atr_set(0)
-                    elif widgetvar.get() == -1:
-                        comicinfo_atr_set(-1)
 
-                comicinfo_atr_set(widgetvar.get())
+                # If value is -1 clear the field
+                elif widgetvar.get() in ("-1", -1):
+                    if isinstance(widgetvar, tk.StringVar):
+                        comicinfo_atr_set("")
+                    elif str(widgetvar) == "PageCount":  # Pagecount default is not -1 but 0
+                        comicinfo_atr_set(0)
+                    else:
+                        comicinfo_atr_set(-1)
+                # Modify field with whatever is on the stringvar/intvar
+                else:
+                    comicinfo_atr_set(widgetvar.get())
+
             modified_loadedComicInfo, keep_original_value = comicObj, keep_original_value
             modified_loadedComicInfo_list.append(modified_loadedComicInfo)
         self.loadedComicInfo_list = modified_loadedComicInfo_list
