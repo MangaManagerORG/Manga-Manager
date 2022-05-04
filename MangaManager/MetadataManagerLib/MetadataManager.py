@@ -395,22 +395,27 @@ class App:
         # build ui
         self.frame_1 = tk.Frame(master)
         self._frame_3 = tk.Frame(self.frame_1)
-        self._button_2 = tk.Button(self._frame_3)
-        self._button_2.configure(text='Save', width='10')
-        self._button_2.grid(column='0', row='0', sticky='ew')
+
         self._button_1 = tk.Button(self._frame_3)
-        self._button_1.configure(text='Open', width='10')
+        self._button_1.configure(text='Open', command=self._open_files, width='10')
         self._button_1.grid(column='1', row='0', sticky='ew')
+
+        self._button_2 = tk.Button(self._frame_3)
+        self._button_2.configure(text='Save', command=self.do_save_UI, width='10')
+        self._button_2.grid(column='0', row='0', sticky='ew')
+
         self._button_3 = tk.Button(self._frame_3)
-        self._button_3.configure(justify='center', text='Remove ComicInfo')
+        self._button_3.configure(text='Remove ComicInfo', command=self.deleteComicInfo, justify='center', )
         self._button_3.grid(column='0', row='1', sticky='w')
+
         self._button_4 = tk.Button(self._frame_3)
-        self._button_4.configure(justify='center', state='disabled', text='Fetch Online')
+        self._button_4.configure(state='disabled', text='Fetch Online', justify='center')
         self._button_4.grid(column='1', columnspan='3', row='1', sticky='e')
+
         self._button_5 = tk.Button(self._frame_3)
-        self._button_5.configure(text='Clear', width='10')
+        self._button_5.configure(text='Clear', command=self._clearUI, width='10')
         self._button_5.grid(column='2', row='0', sticky='ew')
-        self._button_5.configure(command=self._clearUI)
+
         self._frame_3.configure(height='200', width='200')
         self._frame_3.pack(side='top')
         self._frame_3.columnconfigure('0', weight='1')
@@ -884,6 +889,9 @@ class App:
         # self._files_controller.grid(row=2, column=1)
         # Main widget
         self.mainwindow = self.frame_1
+        self._progressBarFrame = tk.Frame(self.frame_1)
+        self._progressBarFrame.configure(height='70', width='200', background="red")
+        self._progressBarFrame.pack(anchor='center', side='top')
 
         self.widgets_obj = [
             self._entry_Title,
