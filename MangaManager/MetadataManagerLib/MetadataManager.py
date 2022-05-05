@@ -188,15 +188,7 @@ else:
             ComicInfoObject.set_StoryArcNumber]
 
 
-    def _get_widgets_var_zip(widgets_variable_list, comicInfoObj: ComicInfo.ComicInfo, widgets_object_list=None):
-        getters_array = get_gettersArray(comicInfoObj)
-        setters_array = get_settersArray(comicInfoObj)
-        if widgets_object_list:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
-            return zip(widgets_variable_list, getters_array,
-                       setters_array, widgets_object_list)
-        else:
-            return zip(widgets_variable_list, getters_array,
-                       setters_array)
+
 
 
 class App:
@@ -352,6 +344,16 @@ class App:
         self.entry_Day_val.set(-1)
 
         self.input_1_summary_obj.set("")
+
+    def _get_widgets_var_zip(self, widgets_variable_list, comicInfoObj: ComicInfo.ComicInfo, widgets_object_list=None):
+        getters_array = get_gettersArray(comicInfoObj)
+        setters_array = get_settersArray(comicInfoObj)
+        if widgets_object_list:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
+            return zip(widgets_variable_list, getters_array,
+                       setters_array, widgets_object_list)
+        else:
+            return zip(widgets_variable_list, getters_array,
+                       setters_array)
 
     def makeEditable(self, event: tk.Event = None):
         pass
@@ -958,7 +960,7 @@ class App:
                                                    )
         for file in covers_path_list:
             self.selected_filenames.append(file.name)
-            self.create_loadedComicInfo_list()
+        self.create_loadedComicInfo_list()
         # self._label_28_statusinfo.configure(text="Successfuly loaded")
 
     def create_loadedComicInfo_list(self, cli_selected_files: list[str] = None):
@@ -983,7 +985,7 @@ class App:
                 else:
                     raise Exception("No files selected")
             else:
-                logger.debug("Selected files UI:" + "".join(self.selected_filenames))
+                logger.debug("Selected files UI:\n    " + "\n    ".join(self.selected_filenames))
                 for file_path in self.selected_filenames:
                     loaded_ComIinf = self.load_comicinfo_xml(file_path)
 
@@ -1008,7 +1010,7 @@ class App:
             logger.debug(f"parsing UI to ComicInfo: '{comicObj.path}'")
 
             # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
-            widgets_var_zip = _get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
+            widgets_var_zip = self._get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
 
 
             if self.widgets_obj:
@@ -1029,7 +1031,7 @@ class App:
                 else:
                     logger.info("Proceeding with saving. Unset fields will retain original values")
                 logger.info("Before loop")
-            widgets_var_zip = _get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
+            widgets_var_zip = self._get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
             for widgets_var_tuple in widgets_var_zip:
                 widgetvar = widgets_var_tuple[0]
                 comicinfo_atr_get = widgets_var_tuple[1]()
@@ -1201,7 +1203,7 @@ class App:
         loadedInfo = LoadedComicInfo(cbz_path, comicinfo, comicinfo)
         logger.debug("comicinfo was read and a LoadedComicInfo was created")
 
-        widgets_var_zip = _get_widgets_var_zip(
+        widgets_var_zip = self._get_widgets_var_zip(
             self.widgets_var, loadedInfo.comicInfoObj, self.widgets_obj)
         # Load the comic info into our StringVar(s) and IntVar(s), so they can be modified in the ui
         for widgets_var_tuple in widgets_var_zip:
@@ -1211,9 +1213,9 @@ class App:
             # logger.debug(f"Processing '{widgetvar}' | Value: {widgetvar.get()} | ComicInfo Value: {comicinfo_atr_get}")
             # field is empty. Skipping
 
-            logger.info(str(widgetvar))
-            logger.info(str(widgetvar))
-            logger.info(str(widgetvar))
+            # logger.info(str(widgetvar))
+            # logger.info(str(widgetvar))
+            # logger.info(str(widgetvar))
 
             if widgetvar.get() != comicinfo_atr_get:
                 if not self.widgets_obj:
@@ -1225,37 +1227,35 @@ class App:
                     widget = widgets_var_tuple[3]
 
                     logger.debug(f"Processing {widgetvar}")
-                    if isinstance(widgetvar, models.LongText):
+                    if isinstance(widgetvar, models.LongText) and comicinfo_atr_get:
                         widgetvar.set(comicinfo_atr_get)
                         continue
-                    if isinstance(widget, tk.OptionMenu):
+                    elif isinstance(widget, tk.OptionMenu) and widgetvar.get() != comicinfo_atr_get:
                         widgetvar.set(comicinfo_atr_get)
                         continue
                     widget_list = list(widget['values'])
                     # logger.error(widget['values'])
-                    if comicinfo_atr_get not in widget_list:  # check duplicate
+                    if not widget['values']:  # There's no loaded data for this field. Set first read value as input
+                        widget['values'] = (comicinfo_atr_get,)
+                        widget_list = list(widget['values'])
+                        widget['values'] = widget_list
+                        widgetvar.set(comicinfo_atr_get)
+                        logger.debug(
+                            f"Loaded new value for tag '{widgetvar}' as input value")
 
-                        if not widget['values']:
-                            widget['values'] = (comicinfo_atr_get,)
-                            widget_list = list(widget['values'])
-                        else:
-                            widget_list.append(comicinfo_atr_get)
-                            widget['values'] = widget_list  # += (widgetvar.get(),)  # add option
-                            logger.debug(
-                                f"Appended new value for tag '{widgetvar}'")
-                        if len(widget_list) == 1:
-                            widgetvar.set(comicinfo_atr_get)
-                            logger.debug(
-                                f"Loaded new value for tag '{widgetvar}'")
-                        elif isinstance(widget, tk.OptionMenu):
-                            widgetvar.set("Unknown")
-                        elif isinstance(widgetvar, tk.StringVar):
-                            widgetvar.set("")
-                        elif isinstance(widgetvar, tk.IntVar):
-                            if str(widgetvar) == "PageCount":
-                                widgetvar.set(0)
-                            else:
-                                widgetvar.set(-1)
+                    else:
+                        if comicinfo_atr_get not in widget_list:  # There's items in the field but this value not present. # Clear input value
+
+                            if isinstance(widget, tk.OptionMenu):
+                                widgetvar.set("Unknown")
+                            elif isinstance(widgetvar, tk.StringVar):
+                                widgetvar.set(-50)
+                            logger.debug(f"Cleared input values for tag {widgetvar}. There's conflict")
+
+                        # if len(widget_list) == 1:
+                        #     widgetvar.set(comicinfo_atr_get)
+                        #     logger.debug(
+                        #         f"Loaded new value for tag '{widgetvar}'")
 
                     # Ignored values: Volume, number
 
