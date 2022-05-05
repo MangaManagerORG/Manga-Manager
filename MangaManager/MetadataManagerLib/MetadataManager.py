@@ -28,9 +28,9 @@ else:
     from tkinter import messagebox as mb
     from tkinter import ttk
     from tkinter.scrolledtext import ScrolledText
-    from ScrolledFrame import ScrolledFrame
-    from lxml.etree import XMLSyntaxError
 
+    from lxml.etree import XMLSyntaxError
+    from CommonLib.ScrolledFrame import ScrolledFrame
     from CommonLib.ProgressBarWidget import ProgressBar
     from . import ComicInfo
     from . import models
@@ -537,8 +537,8 @@ class App:
         self._label_39 = tk.Label(self.frame_2)
         self._label_39.configure(text='AgeRating')
         self._label_39.pack(side='top')
-        self._entry_AgeRating1 = ttk.Combobox(self.frame_2)
-        self._entry_AgeRating1.configure(textvariable=self.entry_AgeRating_val)
+        self._entry_AgeRating1 = tk.OptionMenu(self.frame_2, self.entry_AgeRating_val, *ComicInfo.AgeRating.list())
+        # self._entry_AgeRating1.configure(textvariable=)
         self._entry_AgeRating1.pack(fill='both', side='top')
         self._entry_AgeRating1.bind('<Button-1>', makeFocused, add='')
         self._entry_AgeRating1.bind('<Double-Button-1>', self.makeEditable, add='')
