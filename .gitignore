@@ -18,3 +18,5 @@ undo.json
 /MangaManager/logs/MangaManager.log
 /releases
 /testing/
+.pytest_cache
+*.log*

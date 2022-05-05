@@ -892,7 +892,7 @@ class App:
         # Main widget
         self.mainwindow = self.frame_1
         self._progressBarFrame = tk.Frame(self.frame_1)
-        self._progressBarFrame.configure(height='70', width='200', background="red")
+        self._progressBarFrame.configure(height='70', width='200')
         self._progressBarFrame.pack(anchor='center', side='top')
 
         self.widgets_obj = [

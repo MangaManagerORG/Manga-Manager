@@ -1,9 +1,0 @@
-[
-  "tests.py::CbzControllerTester::test_append",
-  "tests.py::CbzControllerTester::test_delete",
-  "tests.py::CbzControllerTester::test_overwrite",
-  "tests.py::MyTestCase::test_append",
-  "tests.py::MyTestCase::test_delete",
-  "tests.py::MyTestCase::test_overwrite",
-  "tests.py::MyTestCase::test_something"
-]
