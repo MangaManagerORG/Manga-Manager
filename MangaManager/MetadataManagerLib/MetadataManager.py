@@ -1248,12 +1248,15 @@ class App:
 
                     else:
                         if comicinfo_atr_get not in widget_list:  # There's items in the field but this value not present. # Clear input value
-
                             if isinstance(widget, tk.OptionMenu):
                                 widgetvar.set(ComicInfo.Manga.UNKNOWN)
                             elif isinstance(widgetvar, tk.StringVar):
                                 widgetvar.set(-2)
                             logger.debug(f"Cleared input values for tag {widgetvar}. There's conflict")
+                            if comicinfo_atr_get:
+                                widget_list = list(widget['values'])
+                                widget_list.append(comicinfo_atr_get)
+                                widget['values'] = widget_list
 
                         # if len(widget_list) == 1:
                         #     widgetvar.set(comicinfo_atr_get)
