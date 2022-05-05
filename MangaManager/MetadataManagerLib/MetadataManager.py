@@ -1059,6 +1059,9 @@ class App:
                         comicinfo_atr_set(0)
                     else:
                         comicinfo_atr_set(-1)
+                # If value is -2 keep current
+                elif widgetvar.get() in ("-2", -2):
+                    continue
                 # Modify field with whatever is on the stringvar/intvar
                 else:
                     comicinfo_atr_set(widgetvar.get())
@@ -1247,9 +1250,9 @@ class App:
                         if comicinfo_atr_get not in widget_list:  # There's items in the field but this value not present. # Clear input value
 
                             if isinstance(widget, tk.OptionMenu):
-                                widgetvar.set("Unknown")
+                                widgetvar.set(ComicInfo.Manga.UNKNOWN)
                             elif isinstance(widgetvar, tk.StringVar):
-                                widgetvar.set(-50)
+                                widgetvar.set(-2)
                             logger.debug(f"Cleared input values for tag {widgetvar}. There's conflict")
 
                         # if len(widget_list) == 1:
