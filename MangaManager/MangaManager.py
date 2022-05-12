@@ -3,6 +3,7 @@ import argparse
 import logging
 import os
 import pathlib
+import platform
 import sys
 import tkinter as tk
 from logging.handlers import RotatingFileHandler
@@ -110,7 +111,11 @@ def main():
     print(selection)
 
     root = tk.Tk()
-    root.state('zoomed')
+    if platform.system() == "Linux":
+        root.attributes('-zoomed', True)
+    elif platform.system() == "Windows":
+        root.state('zoomed')
+
     # root.geometry("%dx%d" % (root.winfo_width(), root.winfo_height()))
     # root.geometry("")
     # if selection == 3:
