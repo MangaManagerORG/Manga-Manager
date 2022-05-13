@@ -1,4 +1,5 @@
 # Manga Manager
+# Note. Latest Release is quite outdated. It's better to clone.
 
 ## Min required version: Python 3.9
 
