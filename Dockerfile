@@ -25,6 +25,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     # Makes python3 callable by just running "python" on Ubuntu :) (optional)
     ln -s /usr/bin/python3 /usr/bin/python && \
+    rm requirements.txt && \
     chmod -R +x /app
 
 COPY /docker-root /
