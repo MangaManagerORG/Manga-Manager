@@ -1,4 +1,4 @@
-FROM lsiobase/rdesktop-web:jammy
+FROM ghcr.io/linuxserver/baseimage-rdesktop-web:jammy
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV UID=1000
@@ -14,18 +14,27 @@ COPY --chown=$UID:$GID [ "/MangaManager", "/app" ]
 
 # Setup Dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends python3-tk python3-pip && \
+    apt-get install -y --no-install-recommends \
+    python3-tk \
+    python3-pip \
+    mousepad \
+    xfce4-terminal \
+    xfce4 \
+    xubuntu-default-settings \
+    xubuntu-icon-theme && \
     # python3 -m pip install --upgrade pip && \
     # python3 -m pip install --upgrade Pillow && \
     # python3 -m pip install --upgrade lxml && \
     # python3 -m pip install --upgrade requests && \
     # python3 -m pip install --upgrade six && \
     pip install -r requirements.txt && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
+    apt-get autoclean && \
+    rm -rf \
+    /var/lib/apt/lists/* \
+    /var/tmp/* \
+    /tmp/* && \
     # Makes python3 callable by just running "python" on Ubuntu :) (optional)
     ln -s /usr/bin/python3 /usr/bin/python && \
-    rm requirements.txt && \
     chmod -R +x /app
 
 COPY /docker-root /
