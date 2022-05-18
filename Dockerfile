@@ -15,13 +15,14 @@ COPY --chown=$UID:$GID [ "/MangaManager", "/app" ]
 # Setup Dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    ## For Ubuntu Focal:
+    software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get install -y --no-install-recommends \
+    python3.9
+    ## END of Ubuntu Focal specific deps
     python3-tk \
     python3-pip && \
-    # python3 -m pip install --upgrade pip && \
-    # python3 -m pip install --upgrade Pillow && \
-    # python3 -m pip install --upgrade lxml && \
-    # python3 -m pip install --upgrade requests && \
-    # python3 -m pip install --upgrade six && \
     pip install -r requirements.txt && \
     apt-get autoclean && \
     rm -rf \
