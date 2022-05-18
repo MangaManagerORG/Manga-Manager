@@ -19,7 +19,7 @@ RUN apt-get update && \
     software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt-get install -y --no-install-recommends \
-    python3.9
+    python3.9 \
     ## END of Ubuntu Focal specific deps
     python3-tk \
     python3-pip && \
