@@ -1,4 +1,4 @@
-FROM lscr.io/linuxserver/webtop:ubuntu-openbox
+FROM ghcr.io/linuxserver/baseimage-rdesktop-web:jammy
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV UID=1000
@@ -15,12 +15,6 @@ COPY --chown=$UID:$GID [ "/MangaManager", "/app" ]
 # Setup Dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    ## For Ubuntu Focal:
-    software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get install -y --no-install-recommends \
-    python3.9 \
-    ## END of Ubuntu Focal specific deps
     python3-tk \
     python3-pip && \
     pip install -r requirements.txt && \
