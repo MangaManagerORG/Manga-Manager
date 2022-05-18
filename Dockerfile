@@ -1,4 +1,4 @@
-FROM ghcr.io/linuxserver/baseimage-rdesktop-web:jammy
+FROM lscr.io/linuxserver/webtop:ubuntu-openbox
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV UID=1000
