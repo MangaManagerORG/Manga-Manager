@@ -28,8 +28,8 @@ RUN apt-get update && \
     /var/lib/apt/lists/* \
     /var/tmp/* \
     /tmp/* && \
-    # Makes python3 callable by just running "python" on Ubuntu :) (optional)
-    ln -s /usr/bin/python3 /usr/bin/python && \
+    # Try making python3 callable by just running "python" on Ubuntu :) (optional)
+    ln -s /usr/bin/python3 /usr/bin/python || true && \
     chmod -R +x /app
 
 COPY /docker-root /
