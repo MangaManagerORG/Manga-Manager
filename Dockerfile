@@ -16,12 +16,7 @@ COPY --chown=$UID:$GID [ "/MangaManager", "/app" ]
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python3-tk \
-    python3-pip \
-    mousepad \
-    xfce4-terminal \
-    xfce4 \
-    xubuntu-default-settings \
-    xubuntu-icon-theme && \
+    python3-pip && \
     # python3 -m pip install --upgrade pip && \
     # python3 -m pip install --upgrade Pillow && \
     # python3 -m pip install --upgrade lxml && \
