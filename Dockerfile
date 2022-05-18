@@ -23,7 +23,10 @@ RUN apt-get update && \
     xubuntu-icon-theme \
     # Python
     python3-tk \
-    python3-pip && \
+    python3-pip \
+    # Branding & Customization
+    xfpanel-switch && \
+    # Manga Manager Dependencies
     pip install -r requirements.txt && \
     # Cleanup
     apt-get autoclean && \
@@ -36,9 +39,12 @@ RUN apt-get update && \
     chmod -R +x /app
 
 COPY /docker-root /
+RUN xfce4-panel-profiles load /defaults/panel-profile.tar.bz2
 
 
 WORKDIR /app
 
 EXPOSE 3000
 VOLUME /manga
+VOLUME /covers
+VOLUME /config
