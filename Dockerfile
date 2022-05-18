@@ -15,9 +15,17 @@ COPY --chown=$UID:$GID [ "/MangaManager", "/app" ]
 # Setup Dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    # Desktop Environment
+    mousepad \
+    xfce4-terminal \
+    xfce4 \
+    xubuntu-default-settings \
+    xubuntu-icon-theme \
+    # Python
     python3-tk \
     python3-pip && \
     pip install -r requirements.txt && \
+    # Cleanup
     apt-get autoclean && \
     rm -rf \
     /var/lib/apt/lists/* \
