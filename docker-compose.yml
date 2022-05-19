@@ -26,6 +26,10 @@ services:
       - PGID=1000
       # Background Stuff:
       - TITLE="Manga Manager"
+      # This is the home directory (landing) for the file manager
+      # of the Web UI overlay, handy e.g. when you want to quickly
+      # bring in a cover from your PC to the covers folder.
+      - FM_HOME="/covers"
       # OPTIONAL:
       - UMASK=022
       - TZ=Europe/Berlin

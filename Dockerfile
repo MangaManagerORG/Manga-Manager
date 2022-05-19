@@ -39,6 +39,7 @@ RUN apt-get update && \
     chmod -R +x /app
 
 COPY /docker-root /
+RUN chmod -R +x /config/Desktop
 
 
 WORKDIR /app
