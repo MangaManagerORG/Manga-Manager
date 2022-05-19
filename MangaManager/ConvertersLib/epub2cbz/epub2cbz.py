@@ -1,11 +1,16 @@
 import logging
 import os
+import platform
 import re
 import tempfile
 import tkinter as tk
 import zipfile
 from pathlib import Path
-from tkinter import filedialog
+
+if platform.system() == "Linux":
+    from tkfilebrowser import askopenfilenames as askopenfiles
+else:
+    from tkinter.filedialog import askopenfiles
 from tkinter.ttk import Style, Progressbar
 
 # from CommonLib import webp_converter as convert_to_webp
@@ -157,8 +162,8 @@ class App:
     def _select_files(self):
 
         self.epubsPathList = list[str]()
-        files_IO = filedialog.askopenfiles(title="Select .epubs files to extract to .cbz",
-                                           filetypes=(("epub Files", ".epub"),))
+        files_IO = askopenfiles(title="Select .epubs files to extract to .cbz",
+                                filetypes=(("epub Files", ".epub"),))
         for file in files_IO:
             self.epubsPathList.append(file.name)
             displayed_file_path = f"...{file.name[-65:]}"
@@ -208,7 +213,7 @@ class App:
         self._initialized_UI = True
 
     def _change_out_folder(self):
-        self.output_folder = filedialog.askdirectory()
+        self.output_folder = askdirectory()
         self.label_4.configure(text="Selected folder:\n" + self.output_folder)
 
     def run(self):

@@ -24,7 +24,12 @@ else:
     import os
     import pathlib
     import tkinter as tk
-    from tkinter import filedialog
+    import platform
+
+    if platform.system() == "Linux":
+        from tkfilebrowser import askopenfilenames as askopenfiles
+    else:
+        from tkinter.filedialog import askopenfiles
     from tkinter import messagebox as mb
     from tkinter import ttk
     from tkinter.scrolledtext import ScrolledText
@@ -954,10 +959,10 @@ class App:
         self._clearUI()
 
         self.selected_filenames = list[str]()
-        covers_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
-                                                   filetypes=(("CBZ Files", ".cbz"),)
-                                                   # ("Zip files", ".zip"))
-                                                   )
+        covers_path_list = askopenfiles(initialdir=launch_path, title="Select file to apply cover",
+                                        filetypes=(("CBZ Files", ".cbz"),)
+                                        # ("Zip files", ".zip"))
+                                        )
         for file in covers_path_list:
             self.selected_filenames.append(file.name)
         self.create_loadedComicInfo_list()
