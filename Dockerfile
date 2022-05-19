@@ -38,8 +38,11 @@ RUN apt-get update && \
     ln -s /usr/bin/python3 /usr/bin/python || true && \
     chmod -R +x /app
 
+# Setup environment & branding/customization
 COPY /docker-root /
-RUN chmod -R +x /config/Desktop
+RUN \
+    chmod -R +x /config/Desktop && \
+    chmod -R +x /config/.config/xfce4/panel
 
 
 WORKDIR /app
