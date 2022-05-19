@@ -23,9 +23,7 @@ RUN apt-get update && \
     xubuntu-icon-theme \
     # Python
     python3-tk \
-    python3-pip \
-    # Branding & Customization
-    xfpanel-switch && \
+    python3-pip && \
     # Manga Manager Dependencies
     pip install -r requirements.txt && \
     # Cleanup
