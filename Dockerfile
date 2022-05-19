@@ -39,7 +39,6 @@ RUN apt-get update && \
     chmod -R +x /app
 
 COPY /docker-root /
-# RUN xfce4-panel-profiles load /defaults/panel-profile.tar.bz2
 
 
 WORKDIR /app

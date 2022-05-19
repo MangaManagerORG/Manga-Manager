@@ -1,1 +1,2 @@
 startxfce4
+xfce4-panel-profiles load /defaults/panel-profile.tar.bz2
