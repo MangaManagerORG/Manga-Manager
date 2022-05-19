@@ -32,7 +32,8 @@ Min required version: Python 3.9
 This suite of applications can be run using Docker!
 In the repo's root you can find a docker-compose.yml to use or derive
 your docker run command from. Truly essential is to expose
-port 3000 and map the volumes for manga and covers. If you want persistent
+port `3000` and map the volumes for `/manga` and `/covers`. If you want persistent
+environment settings for the Desktop Environment also map `/config`.
 
 ![Screenshot-1](/project-docs/screenshot-1.png)
 
