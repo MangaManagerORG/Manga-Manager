@@ -55,6 +55,7 @@ from MangaManager.MetadataManagerLib import MetadataManager, models
 from MangaManager.MetadataManagerLib.cbz_handler import *
 from MangaManager.VolumeManager import VolumeManager
 from MangaManager.VolumeManager.models import ChapterFileNameData
+from MangaManager.MetadataManagerLib import ComicInfo
 
 
 class TestsMetadataManager(unittest.TestCase):
