@@ -1,0 +1,38 @@
+# This Docker is based on Linuxserver.io's Webtop Base Image.
+# For information about more available options to use, please
+# refer to this page: https://docs.linuxserver.io/images/docker-webtop
+#
+# SECURITY ADVISORY: Do not expose this passwordless sudo container
+# to the public. If you want to use this remotely use a VPN.
+# Should you need to login at any point, the default user's credentials are:
+# USER: abc   PASS: abc
+
+version: "3.4"
+
+services:
+  manga-manager:
+    image: ghcr.io/glassedsilver/manga-manager-dockerized:master
+    ports:
+      # Web UI
+      - "3000:3000"
+      # OPTIONAL: RDP Port for browser-less connection
+      # - "3389:3389"
+    volumes:
+      - ./manga:/manga
+      - ./covers:/covers
+      - ./config:/config
+    environment:
+      - PUID=1000
+      - PGID=1000
+      # Background Stuff:
+      - TITLE="Manga Manager"
+      # OPTIONAL:
+      - UMASK=022
+      - TZ=Europe/Berlin
+      - KEYBOARD=en-us-qwerty
+      # Specify a subfolder to use with reverse proxies, i.e.: /subfolder/
+      - SUBFOLDER=/
+    # You need this setting if your Docker version is below 20.10.10
+    # See: https://docs.linuxserver.io/faq#jammy
+    # security_opt:
+    #   - seccomp=unconfined
