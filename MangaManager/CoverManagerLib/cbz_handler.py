@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class SetCover:
-    def __init__(self, process_values: cover_process_item_info, conver_to_webp=False):
+    def __init__(self, process_values: cover_process_item_info, convert_to_webp=False):
         self.values = process_values
-        self.conver_to_webp = conver_to_webp
+        self.conver_to_webp = convert_to_webp
 
         v = process_values
         self.oldZipFilePath = v.zipFilePath
