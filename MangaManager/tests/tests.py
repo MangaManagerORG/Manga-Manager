@@ -5,16 +5,17 @@ import tkinter as tk
 import unittest
 from zipfile import ZipFile
 
-# Epub2Cbz
 from ConvertersLib.epub2cbz import epub2cbz
-from MangaManager.CoverManagerLib.cbz_handler import SetCover
-from MangaManager.CoverManagerLib.models import cover_process_item_info
-# Manga Tagger
-from MangaManager.MetadataManagerLib import MetadataManager
-from MangaManager.MetadataManagerLib.cbz_handler import *
+from CoverManagerLib.cbz_handler import SetCover
+from CoverManagerLib.models import cover_process_item_info
 # Volume Manager
 from MangaManager.VolumeManager import VolumeManager
 from MangaManager.VolumeManager.models import ChapterFileNameData
+# Manga Tagger
+from MetadataManagerLib import MetadataManager
+from MetadataManagerLib.cbz_handler import *
+
+# Epub2Cbz
 
 # Cover Manager
 comicinfo_23 = """
@@ -63,15 +64,16 @@ comicinfo_24 = """
    <Notes>Scraped metadata from AniList and MyAnimeList (using Jikan API) on 2021-12-24 12:38 PM EST</Notes>
 </ComicInfo>
 """
-path_23 = r"./Sample CBZ Chapter 23.cbz"
-path_24 = r"./Sample CBZ Chapter 24.cbz"
-sample_cover = r"./SAMPLE_COVER.jpg"
+path_23 = r"tests/Sample CBZ Chapter 23.cbz"
+path_24 = r"tests/Sample CBZ Chapter 24.cbz"
+sample_cover = r"tests/SAMPLE_COVER.jpg"
 test_path = path_23
 test_path = test_path
 sample_cover = sample_cover
 
 original_cleanup_var1 = ""
 final_cleanup_var1 = ""
+
 
 class ComicInfoTester(unittest.TestCase):
     """
@@ -295,7 +297,6 @@ class CoversCbzControllerTester(unittest.TestCase):
             cover_format="jpg",
             coverDelete=True
 
-
         )
         SetCover(values_to_process)
 
@@ -312,7 +313,7 @@ class CoversCbzControllerTester(unittest.TestCase):
     def test_zcount_leftover_files(self):
         final_dir_count = len(os.listdir(os.path.dirname(test_path)))
         print(f"Asserting {initial_dir_count} vs {final_dir_count}, delta 1")
-        self.assertEqual(initial_dir_count,final_dir_count)
+        self.assertEqual(initial_dir_count, final_dir_count)
 
 
 initial_dir_count = 0
@@ -321,7 +322,7 @@ initial_dir_count = 0
 class VolumeManagerTester(unittest.TestCase):
 
     def test_rename(self):
-        def get_newFilename(files:list[str],volumeNumber)-> str:
+        def get_newFilename(files: list[str], volumeNumber) -> str:
             for cbz_path in files:
                 filepath = cbz_path
                 filename = os.path.basename(filepath)
@@ -345,7 +346,6 @@ class VolumeManagerTester(unittest.TestCase):
                     "  ", " ")
                 return newFile_Name
 
-
         #  Prepare and save original values to later assert
         global original_cleanup_var1
         original_cleanup_var1 = test_path
@@ -353,18 +353,16 @@ class VolumeManagerTester(unittest.TestCase):
         global final_dir_count
         initial_dir_count = len(os.listdir(os.path.dirname(test_path)))
 
-        random_vol_number = random.randint(1,500)
+        random_vol_number = random.randint(1, 500)
         test_path_dir = os.path.dirname(test_path)
 
-        new_fileName_toAssert = get_newFilename([test_path],random_vol_number)
+        new_fileName_toAssert = get_newFilename([test_path], random_vol_number)
         aseert_name = os.path.basename(new_fileName_toAssert)
         global final_cleanup_var1
         final_cleanup_var1 = new_fileName_toAssert
 
-
         with zipfile.ZipFile(test_path, 'r') as zin:
             initial_dir_count = len(zin.namelist())
-
 
         #  Proceed with testing
         root = tk.Tk()
