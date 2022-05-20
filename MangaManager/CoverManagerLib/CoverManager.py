@@ -1,10 +1,10 @@
 
 import logging
 import os
+import platform
 import re
 import tkinter as tk
 from itertools import cycle
-from tkinter import filedialog
 from tkinter import messagebox as mb
 from tkinter import ttk
 
@@ -13,6 +13,11 @@ from PIL import ImageTk, Image, UnidentifiedImageError
 from CommonLib.ProgressBarWidget import ProgressBar
 from .cbz_handler import SetCover
 from .models import cover_process_item_info
+
+if platform.system() == "Linux":
+    from tkfilebrowser import askopenfilenames as askopenfiles
+else:
+    from tkinter.filedialog import askopenfiles
 
 logger = logging.getLogger(__name__)
 
@@ -189,7 +194,7 @@ class App:
 
     def opencovers(self):
         """
-        Open tki nter.askopenfilename all covers that are going to be placed inside each chapter and loads iter cycle
+        Open tkinter.askopenfilename all covers that are going to be placed inside each chapter and loads iter cycle
         """
 
         def show_first_cover(cls):
@@ -200,12 +205,14 @@ class App:
             cls.image = ImageTk.PhotoImage(image)
             cls.canvas_image = cls._canvas1_coverimage.create_image(0, 0, anchor=tk.NW, image=cls.image)
             cls._label_coverimagetitle.configure(text=os.path.basename(cls.thiselem.name))
+
         logger.debug("Selecting covers")
 
         self._button3_load_images.configure(text="Loading...", state="disabled")
-        covers_path_list = filedialog.askopenfiles(initialdir=launch_path,
-                                                   title="Open all covers you want to work with:"
-                                                   )
+
+        covers_path_list = askopenfiles(initialdir=launch_path,
+                                        title="Open all covers you want to work with:"
+                                        )
         self.licycle = cycle(covers_path_list)
         try:
             self.nextelem = next(self.licycle)
@@ -266,9 +273,9 @@ class App:
                 title = "Select files to overwrite cover"
             else:
                 title = "Select file to apply cover"
-        cbzs_path_list = filedialog.askopenfiles(initialdir=launch_path, title=title,
-                                                 filetypes=(("CBZ Files", ".cbz"),)
-                                                 )
+        cbzs_path_list = askopenfiles(initialdir=launch_path, title=title,
+                                      filetypes=(("CBZ Files", ".cbz"),)
+                                      )
 
         image = Image.open(image_path)
         image = image.resize((40, 60), Image.ANTIALIAS)

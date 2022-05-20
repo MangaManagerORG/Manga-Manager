@@ -1,12 +1,16 @@
 import io
 import logging
 import os
+import platform
 import re
 import tkinter as tk
-from tkinter import filedialog
 from tkinter import messagebox as mb
 from tkinter import ttk
 
+if platform.system() == "Linux":
+    from tkfilebrowser import askopenfilenames as askopenfiles
+else:
+    from tkinter.filedialog import askopenfiles
 from lxml.etree import XMLSyntaxError
 from typing.io import IO
 
@@ -213,9 +217,9 @@ class App:
     def _open_files(self):
 
         logger.debug("inside openfiles")
-        self.cbz_files_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
-                                                           filetypes=(("CBZ Files", ".cbz"),)
-                                                           )
+        self.cbz_files_path_list = askopenfiles(initialdir=launch_path, title="Select file to apply cover",
+                                                filetypes=(("CBZ Files", ".cbz"),)
+                                                )
         if not self.cbz_files_path_list:
             # self.tool_volumesetter()
             self._label_4_selected_files_val.set(f"Selected 0 files.")

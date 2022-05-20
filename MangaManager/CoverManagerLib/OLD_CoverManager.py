@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 import logging
 import os
+import platform
 import re
 import tkinter
 import tkinter as tk
 from itertools import cycle
-from tkinter import filedialog
+
+if platform.system() == "Linux":
+    from tkfilebrowser import askopenfilenames as askopenfiles
+else:
+    from tkinter.filedialog import askopenfiles
 from tkinter import messagebox as mb
 from tkinter import ttk
 
@@ -188,9 +193,9 @@ class App:
         logger.debug("Selecting covers")
 
         self.button3_load_images.configure(text="Loading...", state="disabled")
-        covers_path_list = filedialog.askopenfiles(initialdir=launch_path,
-                                                   title="Open all covers you want to work with:"
-                                                   )
+        covers_path_list = askopenfiles(initialdir=launch_path,
+                                        title="Open all covers you want to work with:"
+                                        )
         self.licycle = cycle(covers_path_list)
         try:
             self.nextelem = next(self.licycle)
@@ -250,9 +255,9 @@ class App:
                 title = "Select files to overwrite cover"
             else:
                 title = "Select file to apply cover"
-        cbzs_path_list = filedialog.askopenfiles(initialdir=launch_path, title=title,
-                                                 filetypes=(("CBZ Files", ".cbz"),)
-                                                 )
+        cbzs_path_list = askopenfiles(initialdir=launch_path, title=title,
+                                      filetypes=(("CBZ Files", ".cbz"),)
+                                      )
 
         image = Image.open(image_path)
         image = image.resize((40, 60), Image.ANTIALIAS)
