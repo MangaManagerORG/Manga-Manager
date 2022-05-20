@@ -48,4 +48,3 @@ WORKDIR /app
 EXPOSE 3000
 VOLUME /manga
 VOLUME /covers
-VOLUME /config

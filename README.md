@@ -35,6 +35,9 @@ your docker run command from. Truly essential is to expose
 port `3000` and map the volumes for `/manga` and `/covers`. If you want persistent
 environment settings for the Desktop Environment also map `/config`.
 
+The stable releases are built from the master branch of this repo,
+nightlies are built from the develop branch.
+
 ![Screenshot-1](/project-docs/screenshot-1.png)
 
 ![Screenshot-2](/project-docs/screenshot-2.png)
