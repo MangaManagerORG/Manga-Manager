@@ -1,5 +1,5 @@
 # Manga Manager
-
+[![Python tests](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml)
 ## Min required version: Python 3.9
 
 ## What is Manga Manager
