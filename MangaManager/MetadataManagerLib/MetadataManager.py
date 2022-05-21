@@ -205,7 +205,9 @@ class App:
         self.widgets_obj = []
         self.spinbox_4_chapter_var_isModified = False
         self.spinbox_3_volume_var_isModified = False
-        self.warning_metadataNotFound = disable_metadata_notFound_warning
+        self.disable_metadata_notFound_warning = disable_metadata_notFound_warning
+
+        self.warning_metadataNotFound = False
         self.selected_filenames = []
         self.loadedComicInfo_list = list[LoadedComicInfo]()
 
@@ -1177,7 +1179,9 @@ class App:
         # Load ComicInfo.xml to Class
         try:
             # raise CorruptedComicInfo(cbz_path)
-            comicinfo = ReadComicInfo(cbz_path).to_ComicInfo(print_xml=False)
+            comicinfo = ReadComicInfo(cbz_path,
+                                      ignore_empty_metadata=self.disable_metadata_notFound_warning).to_ComicInfo(
+                print_xml=False)
         except NoMetadataFileFound:
             logger.warning(f"Metadata file 'ComicInfo.xml' not found inside {cbz_path}\n"
                            f"One will be created when saving changes to file.\n"
