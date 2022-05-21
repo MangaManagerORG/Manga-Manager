@@ -1,5 +1,5 @@
 # Manga Manager
-[![Python tests](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml)
+[![Python tests](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml) [![Build & publish Docker Images](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Build_Docker_Images.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Build_Docker_Images.yml)
 ## Min required version: Python 3.9
 
 ## What is Manga Manager
@@ -30,13 +30,10 @@ Min required version: Python 3.9
 ## Docker
 
 This suite of applications can be run using Docker!
-In the repo's root you can find a docker-compose.yml to use or derive
-your docker run command from. Truly essential is to expose
-port `3000` and map the volumes for `/manga` and `/covers`. If you want persistent
-environment settings for the Desktop Environment also map `/config`.
-
-The stable releases are built from the master branch of this repo,
-nightlies are built from the develop branch.
+In the repo's root you can find a docker-compose.yml to use or derive your docker run command from. Truly essential is
+to expose port `3000` and map the volumes for `/manga` and `/covers`.
+[Watch the docker-compose.yml template at the wiki](https://github.com/ThePromidius/Manga-Manager/wiki/Docker#docker-composeyml)
+The stable releases are built from the master branch of this repo, nightlies are built from the develop branch.
 
 ![Screenshot-1](/project-docs/screenshot-1.png)
 
