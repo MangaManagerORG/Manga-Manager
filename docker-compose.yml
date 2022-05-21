@@ -11,7 +11,7 @@ version: "3.4"
 
 services:
   manga-manager:
-    image: ghcr.io/glassedsilver/manga-manager-dockerized:master
+    image: thepromidius/manga-manager
     ports:
       # Web UI
       - "3000:3000"
