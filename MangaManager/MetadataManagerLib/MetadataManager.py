@@ -367,7 +367,7 @@ class App:
 
     def start_ui(self):
         master = self.master
-
+        self.master.title("Metadata Manager")
         def makeReadOnly(event: tk.Event = None):
             # # <Return>
             # if event.widget.cget('state') == "disabled":

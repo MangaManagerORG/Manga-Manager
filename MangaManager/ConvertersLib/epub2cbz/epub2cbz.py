@@ -174,6 +174,7 @@ class App:
 
     def start_ui(self):
         # build ui
+        self.master.title("Epub2Cbz Converter")
         self.frame_1 = tk.Frame(self.master)
 
         self.label_1 = tk.Label(self.frame_1)

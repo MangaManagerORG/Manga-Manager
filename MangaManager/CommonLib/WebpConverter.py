@@ -402,6 +402,7 @@ else:
             # self.run()
 
         def start_ui(self):
+            self.master.title("Webp Converter")
             # build ui
             self.frame_1 = tk.Frame(self.master)
 

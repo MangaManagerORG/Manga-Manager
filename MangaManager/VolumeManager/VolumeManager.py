@@ -83,7 +83,7 @@ class App:
             self._spinbox_1_volume_number_val.set(-1)
 
     def start_ui(self):
-
+        self._master.title("Volume Manager")
         self._frame_1_title = tk.Frame(self._master, container='false')
         # Must keep :
         self._validate_spinbox = (self._frame_1_title.register(self._ValidateIfNum), '%s', '%S')  # Validates spinbox
