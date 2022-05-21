@@ -20,7 +20,6 @@ services:
     volumes:
       - ./manga:/manga
       - ./covers:/covers
-      - ./config:/config
     environment:
       - PUID=1000
       - PGID=1000
