@@ -68,7 +68,12 @@ else:
     from CommonLib.HelperFunctions import get_estimated_time, get_elapsed_time
     import tkinter as tk
 
-    from tkinter import filedialog
+    import platform
+
+    if platform.system() == "Linux":
+        from tkfilebrowser import askopenfilenames as askopenfiles
+    else:
+        from tkinter.filedialog import askopenfiles
     from tkinter.ttk import Style, Progressbar
 
 current_time = time.time()
@@ -386,8 +391,8 @@ else:
         def _select_files(self):
 
             self.epubsPathList = list[str]()
-            files_IO = filedialog.askopenfiles(title="Select .cbz files to convert its content to .webp",
-                                               filetypes=(("epub Files", ".cbz"),))
+            files_IO = askopenfiles(title="Select .cbz files to convert its content to .webp",
+                                    filetypes=(("epub Files", ".cbz"),))
             for file in files_IO:
                 self.cbzFilePathList.append(file.name)
                 displayed_file_path = f"...{file.name[-65:]}"

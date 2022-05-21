@@ -1,6 +1,8 @@
 # Manga Manager
 
-![Screenshot-3](/project-docs/screenshot-3.png)
+[![Python tests](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml)
+
+## Min required version: Python 3.9
 
 ## What is Manga Manager
 
@@ -20,8 +22,7 @@ These are the tools available
   webp
   - [CLI command](https://github.com/ThePromidius/Manga-Manager/wiki/Metadata-Manager#cli---copy-command) - Used to
     batch convert files to Webp
-- [Epub to CBZ](https://github.com/ThePromidius/Manga-Manager/wiki/EPUB-to-CBZ-converter) - Moves the images of a epub
-  to a cbz file. (Metadata does not get copied yet)
+- [Epub to CBZ](https://github.com/ThePromidius/Manga-Manager/wiki/EPUB-to-CBZ-converter) - Moves the images of a epub to a cbz file. (Metadata does not get copied yet)
 
 ## Requirements
 
@@ -45,3 +46,4 @@ nightlies are built from the develop branch.
 ### Art attribution
 
 Wallpaper Photo by [Ian Valerio](https://unsplash.com/@iangvalerio?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/s/photos/anime?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText)
+

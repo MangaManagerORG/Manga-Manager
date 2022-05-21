@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from tkinter import Text, INSERT, END
-if __name__.startswith("MetadataManagerLib"):
+if __name__.startswith("MetadataManagerLib") or __name__.startswith("MangaManager.MetadataManagerLib"):
     from . import ComicInfo
 else:
     import ComicInfo

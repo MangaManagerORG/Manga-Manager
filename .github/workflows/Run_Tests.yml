@@ -1,0 +1,32 @@
+# This workflow file will install Python dependencies,
+# create a desktop, joystick, and test the application's GUI on multiple versions of Python
+
+name: Python tests
+
+on: push
+
+
+jobs:
+  build:
+    env:
+      DISPLAY: ":99.0"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.9', '3.10' ]
+    name: Python ${{ matrix.python-version }} sample
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - run: pip install -r requirements.txt
+      - run: sudo apt install xvfb
+      - name: Start xvfb
+        run: |
+          Xvfb :99 -screen 0 1920x1080x24 &disown
+      - name: Run the tests
+        run: |
+          cd MangaManager
+          python3 -m unittest discover -s tests -t ..
