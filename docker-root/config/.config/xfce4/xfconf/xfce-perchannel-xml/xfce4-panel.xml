@@ -86,7 +86,7 @@
       </property>
     </property>
     <property name="plugin-2" type="string" value="tasklist">
-      <property name="grouping" type="uint" value="1"/>
+      <property name="grouping" type="uint" value="0"/>
     </property>
     <property name="plugin-20" type="string" value="launcher">
       <property name="items" type="array">
