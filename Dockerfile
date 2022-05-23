@@ -40,8 +40,7 @@ RUN apt-get update && \
 COPY /docker-root /
 RUN \
     chmod -R +x /config/Desktop && \
-    chmod -R +x /config/.config/xfce4/panel \
-    chown -R abc:abc /app
+    chmod -R +x /config/.config/xfce4/panel
 
 
 WORKDIR /app
