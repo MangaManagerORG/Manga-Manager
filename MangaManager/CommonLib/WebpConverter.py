@@ -390,7 +390,7 @@ else:
 
         def _select_files(self):
 
-            self.epubsPathList = list[str]()
+            self.clear_queue()
             files_IO = askopenfiles(title="Select .cbz files to convert its content to .webp",
                                     filetypes=(("epub Files", ".cbz"),))
             for file in files_IO:
@@ -400,6 +400,15 @@ else:
                 self.listbox_1.yview_moveto(1)
 
             # self.run()
+
+        def clear_queue(self):
+            self.epubsPathList = list[str]()
+            try:
+                logger.debug(" Try to clear treeview")
+                self.listbox_1.delete(0, tk.END)
+                logger.info("Cleared queue")
+            except Exception as e:
+                logger.error("Can't clear treeview", exc_info=e)
 
         def start_ui(self):
             self.master.title("Webp Converter")
@@ -413,10 +422,18 @@ else:
             self.label_2.configure(font='{SUBTITLE} 12 {}',
                                    text='This script converts the images to .webp format.')
             self.label_2.grid(column='0', row='1')
-            self.button_1 = tk.Button(self.frame_1)
+
+            self.button_box = tk.Frame(self.frame_1)
+            self.button_box.grid(column='0', row='2')
+
+            self.button_1 = tk.Button(self.button_box)
             self.button_1.configure(text='Load .cbz files')
-            self.button_1.grid(column='0', row='2')
+            self.button_1.grid(column='0', row='0')
             self.button_1.configure(command=self._select_files)
+            self.button_3 = tk.Button(self.button_box)
+            self.button_3.configure(compound='top', font='TkTextFont', text='Clear Queue')
+            self.button_3.grid(column='1', row='0', sticky='ew')
+            self.button_3.configure(command=self.clear_queue)
             self.label_3 = tk.Label(self.frame_1)
             self.label_3.configure(text='Selected files:')
             self.label_3.grid(column='0', row='3')
