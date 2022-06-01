@@ -359,12 +359,9 @@ class App:
     def _get_widgets_var_zip(self, widgets_variable_list, comicInfoObj: ComicInfo.ComicInfo, widgets_object_list=None):
         getters_array = get_gettersArray(comicInfoObj)
         setters_array = get_settersArray(comicInfoObj)
-        if widgets_object_list:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
-            return zip(widgets_variable_list, getters_array,
-                       setters_array, widgets_object_list)
-        else:
-            return zip(widgets_variable_list, getters_array,
-                       setters_array)
+        # if widgets_object_list:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
+        return zip(widgets_variable_list, getters_array,
+                   setters_array, widgets_object_list + [None] * len(widgets_variable_list))
 
     def makeEditable(self, event: tk.Event = None):
         pass
@@ -972,6 +969,7 @@ class App:
         try:
             if not self.selected_filenames:
                 if cli_selected_files:
+                    self.selected_filenames = cli_selected_files
                     for file in cli_selected_files:
                         try:
                             loaded_ComIinf = self.load_comicinfo_xml(file)
@@ -1058,22 +1056,23 @@ class App:
             widgetvar = widgets_var_tuple[0]
             comicinfo_atr_get = widgets_var_tuple[1]()
             comicinfo_atr_set = widgets_var_tuple[2]
+            widget = widgets_var_tuple[3]
             if widgetvar.get() != comicinfo_atr_get:
-                if not self.widgets_obj:
-
-                    if len(self.loadedComicInfo_list) > 1:
-                        # widgetvar.set(-2)
-                        if "OptionMenu" in str(widgetvar):
-                            widgetvar.set(-2)
-                        elif isinstance(widgetvar, tk.StringVar):
-                            widgetvar.set("-2")
-                        elif isinstance(widgetvar, tk.IntVar):
-                            widgetvar.set(-2)
-                        elif isinstance(widgetvar, models.LongText):
-                            widgetvar.set("-2")
-                    else:
-                        widgetvar.set(comicinfo_atr_get)
-                    continue
+                # if not self.widgets_obj:
+                #
+                #     if len(self.loadedComicInfo_list) > 1:
+                #         # widgetvar.set(-2)
+                #         if "OptionMenu" in str(widgetvar):
+                #             widgetvar.set(-2)
+                #         elif isinstance(widgetvar, tk.StringVar):
+                #             widgetvar.set("-2")
+                #         elif isinstance(widgetvar, tk.IntVar):
+                #             widgetvar.set(-2)
+                #         elif isinstance(widgetvar, models.LongText):
+                #             widgetvar.set("-2")
+                #     else:
+                #         widgetvar.set(comicinfo_atr_get)
+                #     continue
                 try:
                     logger.debug(f"Processing {widgetvar}")
 
@@ -1082,7 +1081,6 @@ class App:
                         widgetvar.set(comicinfo_atr_get)
                         continue
 
-                    widget = widgets_var_tuple[3]
                     # If multiple files check if the value is already loaded and mark field as -2
                     # If the summary doesn't match set it to -2 to keep each.
                     if isinstance(widgetvar, models.LongText):
@@ -1096,39 +1094,45 @@ class App:
                         else:
                             widgetvar.set("-2")
                     # If its an option menu and they won't match keep original values
-                    elif isinstance(widget, tk.OptionMenu):
+                    elif "OptionMenu" in str(widgetvar):
                         widgetvar.set("-2")
                     # Else if its IntVar or StringVar
                     else:
-                        # Make a list with current loaded values
-                        widget_list = list(widget['values'])
-
-                        # If there's no loaded data for this field. Set first read value as input:
-                        if not widget['values']:
-                            widget['values'] = (comicinfo_atr_get,)
-                            widget_list = list(widget['values'])
-                            widget['values'] = widget_list
-                            # widgetvar.set(comicinfo_atr_get)
-                            widgetvar.set(-2)
-                            logger.debug(
-                                f"Loaded new value for tag '{widgetvar}' as input value")
-
-                        # There's values loaded in the list and this value not present.
-                        # Clear input value and add new value to list:
-                        elif comicinfo_atr_get not in widget_list:
+                        if widget == None:
                             if isinstance(widgetvar, tk.StringVar):
                                 widgetvar.set("-2")
                             elif isinstance(widgetvar, tk.IntVar):
                                 widgetvar.set(-2)
-                            logger.debug(f"Cleared input values for tag {widgetvar}. There's conflict")
-                            if comicinfo_atr_get:
-                                widget_list = list(widget['values'])
-                                widget_list.append(comicinfo_atr_get)
-                                widget['values'] = widget_list
-
-                        # Else There's values but new value is already in the list
                         else:
-                            continue
+                            # Make a list with current loaded values
+                            widget_list = list(widget['values'])
+
+                            # If there's no loaded data for this field. Set first read value as input:
+                            if not widget['values']:
+                                widget['values'] = (comicinfo_atr_get,)
+                                widget_list = list(widget['values'])
+                                widget['values'] = widget_list
+                                # widgetvar.set(comicinfo_atr_get)
+                                widgetvar.set(-2)
+                                logger.debug(
+                                    f"Loaded new value for tag '{widgetvar}' as input value")
+
+                            # There's values loaded in the list and this value not present.
+                            # Clear input value and add new value to list:
+                            elif comicinfo_atr_get not in widget_list:
+                                if isinstance(widgetvar, tk.StringVar):
+                                    widgetvar.set("-2")
+                                elif isinstance(widgetvar, tk.IntVar):
+                                    widgetvar.set(-2)
+                                logger.debug(f"Cleared input values for tag {widgetvar}. There's conflict")
+                                if comicinfo_atr_get:
+                                    widget_list = list(widget['values'])
+                                    widget_list.append(comicinfo_atr_get)
+                                    widget['values'] = widget_list
+
+                            # Else There's values but new value is already in the list
+                            else:
+                                continue
 
                     # Ignored values: Volume, number
 

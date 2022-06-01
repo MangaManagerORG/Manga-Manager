@@ -287,7 +287,6 @@ class MetadataManagerTester(unittest.TestCase):
     def test_replace_file(self):
         """The number of files read in the output cbz must be the same as in the input (check needed to not end up
         with empty unreadable files """
-        import tkinter as tk
         first_file_chapter = ""
         second_file_chapter = ""
 
@@ -299,7 +298,8 @@ class MetadataManagerTester(unittest.TestCase):
         number_files_preprocess_2 = opened_cbz.total_files
         opened_cbz = 0  # reset so file gets closed
 
-        random_int = random.random()
+        random_int = random.random() + random.randint(1, 40)
+        random_int_comRating = random.randint(0, 5)
         root = tk.Tk()
         app: MetadataManager.App = MetadataManager.App(root)
         app.create_loadedComicInfo_list(test_files)
@@ -312,10 +312,11 @@ class MetadataManagerTester(unittest.TestCase):
             elif str(widget_var) == "OptionMenu_AgeRating":
                 widget_var.set(ComicInfo.AgeRating.RATING_PENDING)
             elif str(widget_var) == "CommunityRating":
-                widget_var.set(int(random_int))
+                widget_var.set(int(random_int_comRating))
             elif isinstance(widget_var, tk.StringVar):
                 widget_var.set(f"This is: {str(widget_var)} modified randint:{random_int}")
-
+            elif isinstance(widget_var, tk.IntVar):
+                widget_var.set(int(random_int))
             # else:
             #     widget_var.set(random_int)
         app.input_1_summary_obj.set(f"This is the summary_{random_int}")
@@ -323,44 +324,136 @@ class MetadataManagerTester(unittest.TestCase):
         # Chapter number must be kept when handling multiple files they can't be the same.
 
         app.do_save_UI()
+        for file_counter, test_file_path in enumerate(test_files):
 
-        opened_cbz = ReadComicInfo(test_files[0])
-        number_files_postprocess = opened_cbz.total_files
-        xml_postprocess = opened_cbz.to_ComicInfo()
-        if not first_file_chapter:
-            first_file_chapter = xml_postprocess.get_Number()
+            opened_cbz = ReadComicInfo(test_file_path)
+            number_files_postprocess = opened_cbz.total_files
+            xml_postprocess = opened_cbz.to_ComicInfo()
+            print(f"Asserting second file {number_files_preprocess_2} vs {number_files_postprocess}, delta 1")
+            self.assertAlmostEqual(number_files_preprocess_2, number_files_postprocess, delta=1)
 
-        # self.assertAlmostEqual(number_files_preprocess, number_files_postprocess)
-        print(f"Asserting first file {number_files_preprocess_1} vs {number_files_postprocess}, delta 1")
-        self.assertAlmostEqual(number_files_preprocess_1, number_files_postprocess, delta=1)
+            print(f"Random assertion values")
+            app: MetadataManager.App = MetadataManager.App(root)
+            app.create_loadedComicInfo_list([test_file_path])
+            # for i in range(7):
+            #     with self.subTest(i=i):
+            for i, widget_var in enumerate(app.widgets_var):
+                with self.subTest(f"F:{file_counter} - {str(widget_var)}"):
+                    if str(widget_var) == "OptionMenu_BlackWhite":
+                        print("    ┣━━	Assert OptionMenu_BlackWhite")
+                        # widget_var.set(ComicInfo.YesNo.YES)
+                    elif str(widget_var) == "OptionMenu_Manga":
+                        print("    ┣━━	Assert OptionMenu_Manga")
+                        self.assertEqual(widget_var.get(), ComicInfo.Manga.YES_AND_RIGHT_TO_LEFT)
+                    elif str(widget_var) == "OptionMenu_AgeRating":
+                        print("    ┣━━	Assert OptionMenu_AgeRating")
+                        self.assertEqual(widget_var.get(), ComicInfo.AgeRating.RATING_PENDING)
+                    elif isinstance(widget_var, models.LongText):
+                        print("    ┣━━	Assert LongText")
+                        self.assertEqual(widget_var.get(), f"This is the summary_{random_int}")
+                    elif str(widget_var) == "CommunityRating":
+                        print("    ┣━━	Assert CommunityRating")
+                        self.assertEqual(int(widget_var.get()), int(random_int_comRating))
+                    elif isinstance(widget_var, tk.StringVar):
+                        print(
+                            f"    ┣━━	Assert {str(widget_var)}:\n    ┃   ┗━━ 'This is: {str(widget_var)} modified randint:{random_int}' vs '{widget_var.get()}'\n    ┃")
+                        self.assertEqual(widget_var.get(), f"This is: {str(widget_var)} modified randint:{random_int}")
+                    elif isinstance(widget_var, tk.IntVar):
+                        print(
+                            f"    ┣━━	Assert {str(widget_var)}:\n    ┃   ┗━━ '{widget_var.get()}' vs '{int(random_int)}'\n    ┃")
+                        self.assertEqual(int(widget_var.get()), int(random_int))
+                        # else:
+                    #     self.assertEqual(widget_var.get(), random_int)
 
-        opened_cbz = ReadComicInfo(test_files[1])
-        number_files_postprocess = opened_cbz.total_files
-        xml_postprocess = opened_cbz.to_ComicInfo()
-        print(f"Asserting second file {number_files_preprocess_2} vs {number_files_postprocess}, delta 1")
-        self.assertAlmostEqual(number_files_preprocess_2, number_files_postprocess, delta=1)
+    def test_conflict(self):
+        """
+        Files with random values. Modified values should be applied to all files while retaining original non-modified values
+        """
+        random_values = []
+        # Create random values for each field
 
-        print(f"Random assertion values")
-        app: MetadataManager.App = MetadataManager.App(root)
-        app.create_loadedComicInfo_list(test_files)
-        for i in range(7):
-            with self.subTest(i=i):
-                widget_var = app.widgets_var[random.randint(0, len(app.widgets_var))]
+        for i, test_file_path in enumerate(self.test_files_names):
+            random_value = random.random() + random.randint(1, 40)
+            root = tk.Tk()
+            app: MetadataManager.App = MetadataManager.App(root)
+            app.create_loadedComicInfo_list([test_file_path])
+
+            for widget_var in app.widgets_var:
                 if str(widget_var) == "OptionMenu_BlackWhite":
                     widget_var.set(ComicInfo.YesNo.YES)
                 elif str(widget_var) == "OptionMenu_Manga":
-                    self.assertEqual(widget_var.get(), ComicInfo.Manga.YES_AND_RIGHT_TO_LEFT)
+                    widget_var.set(ComicInfo.Manga.YES_AND_RIGHT_TO_LEFT)
                 elif str(widget_var) == "OptionMenu_AgeRating":
-                    self.assertEqual(widget_var.get(), ComicInfo.AgeRating.RATING_PENDING)
+                    widget_var.set(ComicInfo.AgeRating.RATING_PENDING)
                 elif isinstance(widget_var, models.LongText):
-                    self.assertEqual(widget_var.get(), f"This is the summary_{random_int}")
+                    widget_var.set(f"This is the summary_{random_value}")
                 elif str(widget_var) == "CommunityRating":
-                    self.assertEqual(int(widget_var.get()), int(random_int))
+                    widget_var.set(int(random_value))
                 elif isinstance(widget_var, tk.StringVar):
-                    self.assertEqual(widget_var.get(), f"This is: {str(widget_var)} modified randint:{random_int}")
+                    widget_var.set(f"This is: {str(widget_var)} modified randint:{random_value}")
+                elif isinstance(widget_var, tk.IntVar):
+                    widget_var.set(int(random_value))
+            app.do_save_UI()
 
-                # else:
-                #     self.assertEqual(widget_var.get(), random_int)
+            random_values.append(random_value)
+
+        # Load all files at once
+
+        modified_value = random.random() + random.randint(1, 40)
+        root = tk.Tk()
+        app: MetadataManager.App = MetadataManager.App(root)
+        app.create_loadedComicInfo_list(self.test_files_names)
+
+        app.entry_Volume_val.set(int(modified_value))
+        app.entry_Series_val.set(f"This is: {str(app.entry_Series_val)} modified randint:{modified_value}")
+        app.entry_Count_val.set(int(modified_value))
+        app.do_save_UI()
+
+        for i, test_file_path in enumerate(self.test_files_names):
+            print("Asserting second file 5 vs 6, delta 2")
+            self.assertAlmostEqual(5, 6, delta=1)
+            print(f"Random assertion values")
+            self.assertTrue(True)
+            root = tk.Tk()
+            app: MetadataManager.App = MetadataManager.App(root)
+            app.create_loadedComicInfo_list([test_file_path])
+            random_value = random_values[i]
+            print(
+                f"\n┃ #####\n┃ ##### Starting subtests\n┃ #####\n┃ Random values:{random_values[-1]}\n┃ Current file: {i}\n┕━━━┓")
+            for widget_var in app.widgets_var:
+                with self.subTest(f"Subtest - File:{i} - {str(widget_var)}"):
+                    if str(widget_var) == "Volume" or str(widget_var) == "Count":
+                        print(
+                            f"    ┣━━	Assert MODIFIED {str(widget_var)}:\n    ┃   ┗━━ 'This is: '{widget_var.get()}' vs '{int(modified_value)}'\n    ┃")
+                        self.assertEqual(int(widget_var.get()), int(modified_value))
+                    elif str(widget_var) == "Series":
+                        print(
+                            f"    ┣━━	Assert MODIFIED {str(widget_var)}:\n    ┃   ┗━━ 'This is: {str(widget_var)} modified randint:{modified_value}' vs '{widget_var.get()}'\n    ┃")
+                        self.assertEqual(widget_var.get(),
+                                         f"This is: {str(widget_var)} modified randint:{modified_value}")
+                    elif str(widget_var) == "OptionMenu_BlackWhite":
+                        print("    ┣━━	Assert OptionMenu_BlackWhite")
+                    elif str(widget_var) == "OptionMenu_Manga":
+                        print("    ┣━━	Assert OptionMenu_Manga")
+                        self.assertEqual(widget_var.get(), ComicInfo.Manga.YES_AND_RIGHT_TO_LEFT)
+                    elif str(widget_var) == "OptionMenu_AgeRating":
+                        print("    ┣━━	Assert OptionMenu_AgeRating")
+                        self.assertEqual(widget_var.get(), ComicInfo.AgeRating.RATING_PENDING)
+                    elif isinstance(widget_var, models.LongText):
+                        print("    ┣━━	Assert LongText")
+                        self.assertEqual(f"This is the summary_{random_value}", widget_var.get())
+                    elif str(widget_var) == "CommunityRating":
+                        print("    ┣━━	Assert CommunityRating")
+                        self.assertEqual(int(widget_var.get()), int(random_value))
+                    elif isinstance(widget_var, tk.StringVar):
+                        print(
+                            f"    ┣━━	Assert {str(widget_var)}:\n    ┃   ┗━━ 'This is: {str(widget_var)} modified randint:{random_value}' vs '{widget_var.get()}'\n    ┃")
+                        self.assertEqual(f"This is: {str(widget_var)} modified randint:{random_value}",
+                                         widget_var.get())
+                    elif isinstance(widget_var, tk.IntVar):
+                        print(
+                            f"    ┣━━	Assert {str(widget_var)}:\n    ┃   ┗━━ '{widget_var.get()}' vs '{int(random_value)}'\n    ┃")
+                        self.assertEqual(widget_var.get(), int(random_value))
 
 
 class VolumeManagerTester(unittest.TestCase):
