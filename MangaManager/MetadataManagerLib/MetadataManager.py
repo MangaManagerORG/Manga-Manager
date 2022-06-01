@@ -242,7 +242,8 @@ class App:
         self.entry_Format_val = tk.StringVar(value='', name="Format")
         self.entry_LanguageISO_val = tk.StringVar(value='', name="LanguageISO")
         # self.__tkvar = tk.StringVar(value='Unknown')
-        self.entry_StoryArcNumber_val = tk.StringVar(value="", name="StoryArcNumber")
+        self.entry_StoryArcNumber_val = tk.StringVar(value='', name="StoryArcNumber")
+        self.entry_StoryArcNumber_val = tk.StringVar(value='', name="StoryArc")
         self.input_1_summary_obj = models.LongText(name="summary")
         self.entry_BlackAndWhite_val = tk.StringVar(name="OptionMenu_BlackWhite", value="Unknown")
         self.entry_Manga_val = tk.StringVar(name="OptionMenu_Manga", value="Unknown")
@@ -273,7 +274,6 @@ class App:
             self.entry_CommunityRating_val,
             self.entry_ScanInformation_val,
             self.entry_StoryArc_val,
-
             self.entry_Writer_val,
             self.entry_Inker_val,
             self.entry_Colorist_val,
@@ -286,7 +286,6 @@ class App:
             self.entry_Characters_val,
             self.entry_Teams_val,
             self.entry_Locations_val,
-
             self.entry_Number_val,
             self.entry_AlternateNumber_val,
             self.entry_Count_val,
@@ -300,8 +299,8 @@ class App:
             self.entry_LanguageISO_val,
             self.entry_BlackAndWhite_val,
             self.entry_Manga_val,
-            self.entry_StoryArcNumber_val
-
+            self.entry_StoryArcNumber_val,
+            "Dummy"
         ]
 
     def initialize_StringVars(self):
@@ -339,7 +338,7 @@ class App:
         self.entry_Format_val.set('')
         self.entry_LanguageISO_val.set('')
         # self.__tkvar.set('Unknown')
-        self.entry_StoryArcNumber_val.set("")
+        self.entry_StoryArcNumber_val.set('')
         self.entry_BlackAndWhite_val.set("Unknown")
         self.entry_Manga_val.set("Unknown")
         self.entry_Count_val.set(-1)
@@ -349,18 +348,20 @@ class App:
         self.entry_Year_val.set(-1)
         self.entry_Month_val.set(-1)
         self.entry_Day_val.set(-1)
+        self.input_1_summary_obj.clear()
+        try:
 
-        self.input_1_summary_obj.set("")
+            self.input_1_summary_obj.linked_text_field = self.tkinterscrolledtext_1
+        except Exception as e:
+            print(e)
+        self.input_1_summary_obj.clear()
 
     def _get_widgets_var_zip(self, widgets_variable_list, comicInfoObj: ComicInfo.ComicInfo, widgets_object_list=None):
         getters_array = get_gettersArray(comicInfoObj)
         setters_array = get_settersArray(comicInfoObj)
-        if widgets_object_list:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
-            return zip(widgets_variable_list, getters_array,
-                       setters_array, widgets_object_list)
-        else:
-            return zip(widgets_variable_list, getters_array,
-                       setters_array)
+        # if widgets_object_list:  # Initializing UI is optional. If there is no ui then there's no widgets neither.
+        return zip(widgets_variable_list, getters_array,
+                   setters_array, widgets_object_list + [None] * len(widgets_variable_list))
 
     def makeEditable(self, event: tk.Event = None):
         pass
@@ -733,7 +734,6 @@ class App:
         self._label_5.configure(text='Count')
         self._label_5.pack(side='top')
         self._entry_AlternateCount1 = ttk.Combobox(self._frame_5)
-        self.entry_AlternateCount_val = tk.IntVar(value='')
         self._entry_AlternateCount1.configure(textvariable=self.entry_AlternateCount_val, values='-1', width='10')
         self._entry_AlternateCount1.pack(side='top')
         self._entry_AlternateCount1.bind('<Button-1>', makeFocused, add='')
@@ -744,7 +744,6 @@ class App:
         self._label_9.configure(text='AlternateCount')
         self._label_9.pack(side='top')
         self._entry_Count1 = ttk.Combobox(self._frame_5)
-        self.entry_Count_val = tk.IntVar(value='')
         self._entry_Count1.configure(textvariable=self.entry_Count_val, values='-1', width='10')
         self._entry_Count1.pack(side='top')
         self._entry_Count1.bind('<Button-1>', makeFocused, add='')
@@ -755,7 +754,6 @@ class App:
         self._label_6.configure(text='Volume')
         self._label_6.pack(side='top')
         self._entry_Volume1 = ttk.Combobox(self._frame_5)
-        self.entry_Volume_val = tk.IntVar(value='')
         self._entry_Volume1.configure(textvariable=self.entry_Volume_val, values='-1', width='10')
         self._entry_Volume1.pack(side='top')
         self._entry_Volume1.bind('<Button-1>', makeFocused, add='')
@@ -766,7 +764,6 @@ class App:
         self._label_27.configure(text='PageCount')
         self._label_27.pack(side='top')
         self._entry_PageCount1 = ttk.Combobox(self._frame_5)
-        self.entry_PageCount_val = tk.IntVar(value='')
         self._entry_PageCount1.configure(textvariable=self.entry_PageCount_val, width='10')
         self._entry_PageCount1.pack(side='top')
         self._entry_PageCount1.bind('<Button-1>', makeFocused, add='')
@@ -777,7 +774,6 @@ class App:
         self._label_12.configure(text='Year')
         self._label_12.pack(side='top')
         self._entry_Year1 = ttk.Combobox(self._frame_5)
-        self.entry_Year_val = tk.IntVar(value='')
         self._entry_Year1.configure(textvariable=self.entry_Year_val, width='10')
         self._entry_Year1.pack(side='top')
         self._entry_Year1.bind('<Button-1>', makeFocused, add='')
@@ -788,7 +784,6 @@ class App:
         self._label_13.configure(text='Month')
         self._label_13.pack(side='top')
         self._entry_Month1 = ttk.Combobox(self._frame_5)
-        self.entry_Month_val = tk.IntVar(value='')
         self._entry_Month1.configure(textvariable=self.entry_Month_val, width='10')
         self._entry_Month1.pack(side='top')
         self._entry_Month1.bind('<Button-1>', makeFocused, add='')
@@ -799,7 +794,6 @@ class App:
         self._label_14.configure(text='Day')
         self._label_14.pack(side='top')
         self._entry_Day1 = ttk.Combobox(self._frame_5)
-        self.entry_Day_val = tk.IntVar(value='')
         self._entry_Day1.configure(textvariable=self.entry_Day_val, width='10')
         self._entry_Day1.pack(side='top')
         self._entry_Day1.bind('<Button-1>', makeFocused, add='')
@@ -975,6 +969,7 @@ class App:
         try:
             if not self.selected_filenames:
                 if cli_selected_files:
+                    self.selected_filenames = cli_selected_files
                     for file in cli_selected_files:
                         try:
                             loaded_ComIinf = self.load_comicinfo_xml(file)
@@ -1003,167 +998,6 @@ class App:
                     # self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
         except CancelComicInfoLoad:
             self.loadedComicInfo_list = []
-
-    def _parseUI_toComicInfo(self):
-        """
-        Modifies every ComicInfo loaded with values from the UI
-        :return: True if all LoadedComicInfo were updated. If any error or saving is cancelled returns False
-        """
-
-        modified_loadedComicInfo_list = []
-        # modified_loadedComicInfo_XML_list = list[str]()
-        keep_original_value = None
-        for comicObj in self.loadedComicInfo_list:
-            logger.debug(f"parsing UI to ComicInfo: '{comicObj.path}'")
-
-            # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
-            widgets_var_zip = self._get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
-
-
-            if self.widgets_obj:
-                noSelectionCheck = [str(widgets_var_tuple[0]) for widgets_var_tuple in
-                                    [i for i in widgets_var_zip if
-                                     not isinstance(i[3],
-                                                    tk.OptionMenu) and not isinstance(
-                                         i[3], models.LongText)] if
-                                    (not list(widgets_var_tuple[3]['values']) and not widgets_var_tuple[0].get())]
-                if noSelectionCheck and keep_original_value is None:
-                    keep_original_value = mb.askokcancel("Fields not selected",
-                                                         message=f"There are conflics in your selection.\n"
-                                                                 f"Ignore if you want the following fields to keep it's original value.\n"
-                                                                 f"{', '.join(noSelectionCheck)}\n\nContinue?")
-                    if not keep_original_value:
-                        raise CancelComicInfoSave()
-                    logger.info("Proceeding with saving. Unset fields will retain original values")
-                else:
-                    logger.info("Proceeding with saving. Unset fields will retain original values")
-                logger.info("Before loop")
-            widgets_var_zip = self._get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
-            for widgets_var_tuple in widgets_var_zip:
-                widgetvar = widgets_var_tuple[0]
-                comicinfo_atr_get = widgets_var_tuple[1]()
-                comicinfo_atr_set = widgets_var_tuple[2]
-
-                # If any field is '' it should keep original value
-                try:  # IntVars do not accept "" as value. If its excepts keep original value
-                    value = widgetvar.get()
-                    if value == "":
-                        continue
-
-                except tk.TclError:
-                    continue
-
-                # If no ui keep whatever is on the stringvar/intvar
-                if not self.widgets_obj:
-                    comicinfo_atr_set(widgetvar.get())
-                    continue
-
-                # If value is -1 clear the field
-                elif widgetvar.get() in ("-1", -1):
-                    if isinstance(widgetvar, tk.StringVar):
-                        comicinfo_atr_set("")
-                    elif str(widgetvar) == "PageCount":  # Pagecount default is not -1 but 0
-                        comicinfo_atr_set(0)
-                    else:
-                        comicinfo_atr_set(-1)
-                # If value is -2 keep current
-                elif widgetvar.get() in ("-2", -2):
-                    continue
-                # Modify field with whatever is on the stringvar/intvar
-                else:
-                    comicinfo_atr_set(widgetvar.get())
-
-            modified_loadedComicInfo, keep_original_value = comicObj, keep_original_value
-            modified_loadedComicInfo_list.append(modified_loadedComicInfo)
-        self.loadedComicInfo_list = modified_loadedComicInfo_list
-
-    def _saveComicInfo(self):
-        progressBar = ProgressBar(self._initialized_UI, self._progressBarFrame if self._initialized_UI else None,
-                                  total=len(self.loadedComicInfo_list))
-        for loadedComicObj in self.loadedComicInfo_list:
-            logger.info(f"[Processing] Starting processing to save data to file {loadedComicObj.path}")
-
-            try:
-                WriteComicInfo(loadedComicObj).to_file()
-                progressBar.increaseCount()
-            except FileExistsError as e:
-                if self._initialized_UI:
-                    mb.showwarning(f"[ERROR] File already exists",
-                                   f"Trying to create:\n`{str(e.filename2)}` but already exists\n\nException:\n{e}")
-
-                logger.error("[ERROR] File already exists\n"
-                             f"Trying to create:\n`{str(e.filename2)}` but already exists\nException:\n{e}")
-                progressBar.increaseError()
-                if not self._initialized_UI:
-                    raise e
-                else:
-                    continue
-            except PermissionError as e:
-                if self._initialized_UI:
-                    mb.showerror("[ERROR] Permission Error",
-                                 "Can't access the file because it's being used by a different process\n\n"
-                                 f"Exception:\n{e}")
-
-                logger.error("[ERROR] Permission Error"
-                             "Can't access the file because it's being used by a different process\n"
-                             f"Exception:\n{str(e)}")
-                progressBar.increaseError()
-                if not self._initialized_UI:
-                    raise e
-                else:
-                    continue
-            except FileNotFoundError as e:
-                if self._initialized_UI:
-                    mb.showerror("[ERROR] File Not Found",
-                                 "Can't access the file because it's being used by a different process\n\n"
-                                 f"Exception:\n{str(e)}")
-
-                logger.error("[ERROR] File Not Found\n"
-                             "Can't access the file because it's being used by a different process\n"
-                             f"Exception:\n{str(e)}")
-                progressBar.increaseError()
-                if not self._initialized_UI:
-                    raise e
-                else:
-                    continue
-            except Exception as e:
-                if self._initialized_UI:
-                    mb.showerror("Something went wrong", "Error processing. Check logs.")
-                logger.critical("Exception Processing", e)
-                progressBar.increaseError()
-                raise e
-            progressBar.updatePB()
-
-    def deleteComicInfo(self):
-        """
-        Deletes all ComicInfo.xml from the selected files
-        """
-        if self._initialized_UI:
-            answer = mb.askokcancel("Warning", "This will remove 'ComicInfo.xml' file from the selected files")
-            if answer:
-                for loadedComicObj in self.loadedComicInfo_list:
-                    logger.info("Processing delete")
-                    WriteComicInfo(loadedComicObj).delete()
-        else:
-            for loadedComicObj in self.loadedComicInfo_list:
-                logger.info("Processing delete")
-                WriteComicInfo(loadedComicObj).delete()
-
-    def do_save_UI(self):
-        try:
-            self._parseUI_toComicInfo()
-            self._saveComicInfo()
-        except CancelComicInfoSave:
-            logger.info("Cancelled Saving")
-        except Exception as e:
-            raise e
-
-    def _clearUI(self):
-        self.initialize_StringVars()
-        for widget in self.widgets_obj:
-            if isinstance(widget, ttk.Combobox):
-                widget['values'] = []
-        self.loadedComicInfo_list = []
 
     def load_comicinfo_xml(self, cbz_path) -> LoadedComicInfo:
         """
@@ -1222,62 +1056,245 @@ class App:
             widgetvar = widgets_var_tuple[0]
             comicinfo_atr_get = widgets_var_tuple[1]()
             comicinfo_atr_set = widgets_var_tuple[2]
-            # logger.debug(f"Processing '{widgetvar}' | Value: {widgetvar.get()} | ComicInfo Value: {comicinfo_atr_get}")
-            # field is empty. Skipping
-
-            # logger.info(str(widgetvar))
-            # logger.info(str(widgetvar))
-            # logger.info(str(widgetvar))
-
+            widget = widgets_var_tuple[3]
             if widgetvar.get() != comicinfo_atr_get:
-                if not self.widgets_obj:
-                    widgetvar.set(comicinfo_atr_get)
-                    continue
+                # if not self.widgets_obj:
+                #
+                #     if len(self.loadedComicInfo_list) > 1:
+                #         # widgetvar.set(-2)
+                #         if "OptionMenu" in str(widgetvar):
+                #             widgetvar.set(-2)
+                #         elif isinstance(widgetvar, tk.StringVar):
+                #             widgetvar.set("-2")
+                #         elif isinstance(widgetvar, tk.IntVar):
+                #             widgetvar.set(-2)
+                #         elif isinstance(widgetvar, models.LongText):
+                #             widgetvar.set("-2")
+                #     else:
+                #         widgetvar.set(comicinfo_atr_get)
+                #     continue
                 try:
-                    if not self.widgets_obj:
-                        continue
-                    widget = widgets_var_tuple[3]
-
                     logger.debug(f"Processing {widgetvar}")
-                    if isinstance(widgetvar, models.LongText) and comicinfo_atr_get:
-                        widgetvar.set(comicinfo_atr_get)
-                        continue
-                    elif isinstance(widget, tk.OptionMenu) and widgetvar.get() != comicinfo_atr_get:
-                        widgetvar.set(comicinfo_atr_get)
-                        continue
-                    widget_list = list(widget['values'])
-                    # logger.error(widget['values'])
-                    if not widget['values']:  # There's no loaded data for this field. Set first read value as input
-                        widget['values'] = (comicinfo_atr_get,)
-                        widget_list = list(widget['values'])
-                        widget['values'] = widget_list
-                        widgetvar.set(comicinfo_atr_get)
-                        logger.debug(
-                            f"Loaded new value for tag '{widgetvar}' as input value")
 
+                    # If only one file is selected load whatever is on the file
+                    if len(self.selected_filenames) == 1:
+                        widgetvar.set(comicinfo_atr_get)
+                        continue
+
+                    # If multiple files check if the value is already loaded and mark field as -2
+                    # If the summary doesn't match set it to -2 to keep each.
+                    if isinstance(widgetvar, models.LongText):
+                        # If the current loaded summary is empty load it.
+                        if widgetvar.get() == "":
+                            widgetvar.set(comicinfo_atr_get)
+                        # # If the current loaded summary is not empty and current value is empty keep loaded one
+                        # elif widgetvar.get() != "" and not comicinfo_atr_get:
+                        #     continue
+                        # If both summaries don't match set to -2 to keep both
+                        else:
+                            widgetvar.set("-2")
+                    # If its an option menu and they won't match keep original values
+                    elif "OptionMenu" in str(widgetvar):
+                        widgetvar.set("-2")
+                    # Else if its IntVar or StringVar
                     else:
-                        if comicinfo_atr_get not in widget_list:  # There's items in the field but this value not present. # Clear input value
-                            if isinstance(widget, tk.OptionMenu):
-                                widgetvar.set(ComicInfo.Manga.UNKNOWN)
-                            elif isinstance(widgetvar, tk.StringVar):
+                        if widget == None:
+                            if isinstance(widgetvar, tk.StringVar):
+                                widgetvar.set("-2")
+                            elif isinstance(widgetvar, tk.IntVar):
                                 widgetvar.set(-2)
-                            logger.debug(f"Cleared input values for tag {widgetvar}. There's conflict")
-                            if comicinfo_atr_get:
-                                widget_list = list(widget['values'])
-                                widget_list.append(comicinfo_atr_get)
-                                widget['values'] = widget_list
+                        else:
+                            # Make a list with current loaded values
+                            widget_list = list(widget['values'])
 
-                        # if len(widget_list) == 1:
-                        #     widgetvar.set(comicinfo_atr_get)
-                        #     logger.debug(
-                        #         f"Loaded new value for tag '{widgetvar}'")
+                            # If there's no loaded data for this field. Set first read value as input:
+                            if not widget['values']:
+                                widget['values'] = (comicinfo_atr_get,)
+                                widget_list = list(widget['values'])
+                                widget['values'] = widget_list
+                                # widgetvar.set(comicinfo_atr_get)
+                                widgetvar.set(-2)
+                                logger.debug(
+                                    f"Loaded new value for tag '{widgetvar}' as input value")
+
+                            # There's values loaded in the list and this value not present.
+                            # Clear input value and add new value to list:
+                            elif comicinfo_atr_get not in widget_list:
+                                if isinstance(widgetvar, tk.StringVar):
+                                    widgetvar.set("-2")
+                                elif isinstance(widgetvar, tk.IntVar):
+                                    widgetvar.set(-2)
+                                logger.debug(f"Cleared input values for tag {widgetvar}. There's conflict")
+                                if comicinfo_atr_get:
+                                    widget_list = list(widget['values'])
+                                    widget_list.append(comicinfo_atr_get)
+                                    widget['values'] = widget_list
+
+                            # Else There's values but new value is already in the list
+                            else:
+                                continue
 
                     # Ignored values: Volume, number
 
                 except Exception as e:
                     logger.error("Exception found", exc_info=e)
 
+            # else: Values are the same we do nothing.
         return loadedInfo
+
+    def _parseUI_toComicInfo(self):
+        """
+        Modifies every ComicInfo loaded with values from the UI
+        :return: True if all LoadedComicInfo were updated. If any error or saving is cancelled returns False
+        """
+
+        modified_loadedComicInfo_list = []
+        # modified_loadedComicInfo_XML_list = list[str]()
+        keep_original_value = None
+        for comicObj in self.loadedComicInfo_list:
+            logger.debug(f"parsing UI to ComicInfo: '{comicObj.path}'")
+
+            # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
+            widgets_var_zip = self._get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
+
+
+            if self.widgets_obj:
+                # noSelectionCheck is a list of every field that is not manually changed. They will keep original value
+                noSelectionCheck = [str(widgets_var_tuple[0]) for widgets_var_tuple in
+                                    [i for i in widgets_var_zip if
+                                     not isinstance(i[3],
+                                                    tk.OptionMenu) and not isinstance(i[3], models.LongText)] if
+                                    (not list(widgets_var_tuple[3]['values']) and not widgets_var_tuple[0].get())]
+                if noSelectionCheck and keep_original_value is None:
+                    keep_original_value = mb.askokcancel("Fields not selected",
+                                                         message=f"There are conflics in your selection.\n"
+                                                                 f"Ignore if you want the following fields to keep it's original value.\n"
+                                                                 f"{', '.join(noSelectionCheck)}\n\nContinue?")
+                    if not keep_original_value:
+                        raise CancelComicInfoSave()
+                    logger.info("Proceeding with saving. Unset fields will retain original values")
+                else:
+                    logger.info("Proceeding with saving. Unset fields will retain original values")
+                logger.info("Before loop")
+            widgets_var_zip = self._get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
+            for widgets_var_tuple in widgets_var_zip:
+                widgetvar = widgets_var_tuple[0]
+                comicinfo_atr_get = widgets_var_tuple[1]()
+                comicinfo_atr_set = widgets_var_tuple[2]
+
+                # If any field is '' it should keep original value
+                try:  # IntVars do not accept "" as value. If its excepts keep original value
+                    value = widgetvar.get()
+                    if value == "":
+                        continue
+
+                except tk.TclError:
+                    continue
+
+                # If no ui keep whatever is on the stringvar/intvar
+                # if not self.widgets_obj:
+                #     comicinfo_atr_set(widgetvar.get())
+                #     continue
+
+                # If value is -1 clear the field
+                if widgetvar.get() in ("-1", -1):
+                    if isinstance(widgetvar, tk.StringVar) or isinstance(widgetvar, models.LongText):
+                        comicinfo_atr_set("")
+                    elif str(widgetvar) == "PageCount":  # Pagecount default is not -1 but 0
+                        comicinfo_atr_set(0)
+                    else:
+                        comicinfo_atr_set(-1)
+
+                # If value is -2 keep current
+                elif widgetvar.get() in ("-2", -2):
+                    continue
+
+                # Else modify field with whatever is on the stringvar/intvar
+                else:
+                    comicinfo_atr_set(widgetvar.get())
+
+            modified_loadedComicInfo, keep_original_value = comicObj, keep_original_value
+            modified_loadedComicInfo_list.append(modified_loadedComicInfo)
+        self.loadedComicInfo_list = modified_loadedComicInfo_list
+
+    def _saveComicInfo(self):
+        progressBar = ProgressBar(self._initialized_UI, self._progressBarFrame if self._initialized_UI else None,
+                                  total=len(self.loadedComicInfo_list))
+        for loadedComicObj in self.loadedComicInfo_list:
+            logger.info(f"[Processing] Starting processing to save data to file {loadedComicObj.path}")
+            try:
+                WriteComicInfo(loadedComicObj).to_file()
+                progressBar.increaseCount()
+            except FileExistsError as e:
+                logger.error("[ERROR] File already exists\n"
+                             f"Trying to create:\n`{str(e.filename2)}` but already exists\nException:\n{e}")
+                progressBar.increaseError()
+                if self._initialized_UI:
+                    mb.showwarning(f"[ERROR] File already exists",
+                                   f"Trying to create:\n`{str(e.filename2)}` but already exists\n\nException:\n{e}")
+                else:
+                    raise e
+            except PermissionError as e:
+                logger.error("[ERROR] Permission Error"
+                             "Can't access the file because it's being used by a different process\n"
+                             f"Exception:\n{str(e)}")
+                progressBar.increaseError()
+                if self._initialized_UI:
+                    mb.showerror("[ERROR] Permission Error",
+                                 "Can't access the file because it's being used by a different process\n\n"
+                                 f"Exception:\n{e}")
+                else:
+                    raise e
+            except FileNotFoundError as e:
+                logger.error("[ERROR] File Not Found\n"
+                             "Can't access the file because it's being used by a different process\n"
+                             f"Exception:\n{str(e)}")
+                progressBar.increaseError()
+                if self._initialized_UI:
+                    mb.showerror("[ERROR] File Not Found",
+                                 "Can't access the file because it's being used by a different process\n\n"
+                                 f"Exception:\n{str(e)}")
+                else:
+                    raise e
+            except Exception as e:
+                if self._initialized_UI:
+                    mb.showerror("Something went wrong", "Error processing. Check logs.")
+                logger.critical("Exception Processing", e)
+                progressBar.increaseError()
+                raise e
+            progressBar.updatePB()
+
+    def deleteComicInfo(self):
+        """
+        Deletes all ComicInfo.xml from the selected files
+        """
+        if self._initialized_UI:
+            answer = mb.askokcancel("Warning", "This will remove 'ComicInfo.xml' file from the selected files")
+            if answer:
+                for loadedComicObj in self.loadedComicInfo_list:
+                    logger.info("Processing delete")
+                    WriteComicInfo(loadedComicObj).delete()
+        else:
+            for loadedComicObj in self.loadedComicInfo_list:
+                logger.info("Processing delete")
+                WriteComicInfo(loadedComicObj).delete()
+
+    def do_save_UI(self):
+        try:
+            self._parseUI_toComicInfo()
+            self._saveComicInfo()
+        except CancelComicInfoSave:
+            logger.info("Cancelled Saving")
+        except Exception as e:
+            raise e
+
+    def _clearUI(self):
+        self.initialize_StringVars()
+        for widget in self.widgets_obj:
+            if isinstance(widget, ttk.Combobox):
+                widget['values'] = []
+        self.loadedComicInfo_list = []
+
 
 
 class AppCli:
