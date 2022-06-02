@@ -340,7 +340,7 @@ else:
                 self._supported_formats = self.overrideSupportedFormat
                 # logger.info("Processing...")
                 try:
-                    self._process()
+                    self._process(cbzFilepath, tmpfd)
 
                     os.remove(self.zipFilePath)
                     os.rename(self._tmpname, self.zipFilePath)
@@ -366,9 +366,9 @@ else:
                 # _printProgressBar(i + 1, l, prefix=f"Progress:", suffix='Complete', length=50)
             logger.info("Completed processing for all selected files")
 
-        def _process(self):
-            with zipfile.ZipFile(self.zipFilePath, 'r') as zin:
-                with zipfile.ZipFile(self._tmpname, 'w') as zout:
+        def _process(self, cbzFilepath, tmp_path):
+            with zipfile.ZipFile(cbzFilepath, 'r') as zin:
+                with zipfile.ZipFile(tmp_path, 'w') as zout:
                     for zipped_file in zin.infolist():
                         # logger.debug(f"Processing file {zipped_file.filename}")
                         file_format = re.findall(r"(?i)\.[a-z]+$", zipped_file.filename)
@@ -402,7 +402,7 @@ else:
             # self.run()
 
         def clear_queue(self):
-            self.epubsPathList = list[str]()
+            self.cbzFilePathList = list[str]()
             try:
                 logger.debug(" Try to clear treeview")
                 self.listbox_1.delete(0, tk.END)
