@@ -340,7 +340,7 @@ else:
                 self._supported_formats = self.overrideSupportedFormat
                 # logger.info("Processing...")
                 try:
-                    self._process(cbzFilepath, tmpfd)
+                    self._process(cbzFilepath, self._tmpname)
 
                     os.remove(self.zipFilePath)
                     os.rename(self._tmpname, self.zipFilePath)
