@@ -197,7 +197,7 @@ else:
 
 
 class App:
-    def __init__(self, master: tk.Tk = None, disable_metadata_notFound_warning=False):
+    def __init__(self, master: tk.Toplevel = None, disable_metadata_notFound_warning=False):
         self.master = master
         # self.master.eval('tk::PlaceWindow . center')
         self.highlighted_changes = []
@@ -1109,7 +1109,7 @@ class App:
                         widgetvar.set("-2")
                     # Else if its IntVar or StringVar
                     else:
-                        if widget == None:
+                        if widget is None:
                             if isinstance(widgetvar, tk.StringVar):
                                 widgetvar.set("-2")
                             elif isinstance(widgetvar, tk.IntVar):

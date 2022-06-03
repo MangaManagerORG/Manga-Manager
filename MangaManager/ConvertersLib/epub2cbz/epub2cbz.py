@@ -18,8 +18,9 @@ from tkinter.ttk import Style, Progressbar
 logger = logging.getLogger(__name__)
 
 
+# noinspection PyUnboundLocalVariable
 class App:
-    def __init__(self, master: tk.Tk, epubsPathList: list[str] = None, convert_to_webp=False, ):
+    def __init__(self, master: tk.Toplevel, epubsPathList: list[str] = None, convert_to_webp=False, ):
         """
         If there are epubsPathList; start() must be called manually
 
@@ -118,10 +119,12 @@ class App:
                 logger.error(f"Error processing file '{epubPath}': {str(e)}",e)
                 processed_errors += 1
                 try:
+                    # noinspection PyUnboundLocalVariable
                     os.remove(tmpname)
                 except UnboundLocalError: # we just want to make sure there are no leftover files
                     pass
             if self._initialized_UI:
+                # noinspection PyUnboundLocalVariable
                 pb_root.update()
                 percentage = ((processed_counter + processed_errors) / total) * 100
                 style.configure('text.Horizontal.TProgressbar',

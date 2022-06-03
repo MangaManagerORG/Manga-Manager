@@ -101,7 +101,7 @@ class ToolS(enum.Enum):
     WEBP = 5
 
 
-class MangaManager():
+class MangaManager:
     def __init__(self):
         ...
 
@@ -153,58 +153,12 @@ class MangaManager():
             root2.state('zoomed')
 
         selApp = tools[tool.value - 1]
-        # logger = selApp.loggerCall()
-        app = selApp.App(root2)
-        app.start_ui()
-        app.run()
+        subapp = selApp.App(root2)
+        subapp.start_ui()
+        subapp.run()
 
     def run(self):
         self.mainwindow.mainloop()
-
-
-# def main():
-# selected_tool = False
-# #
-# # self.frame_1 = tk.Frame(master)
-# # self.button_2 = tk.Button(self.frame_1)
-# # self.img_COVER_EDITOR = tk.PhotoImage(file='COVER_EDITOR.png')
-# # self.button_2.configure(image=self.img_COVER_EDITOR, text='button_2')
-# # #
-# # print("Select Tool")
-# # print("1 - Cover Setter")
-# # print("2 - Manga Tagger")
-# # print("3 - Volume Setter")
-# # print("4 - Epub to CBZ converter")
-# # print("5 - Webp Converter")
-# # args = parser.parse_args()
-# # if not args.default_selected_tool:
-# #     while not selected_tool:
-# #         selection = input("Select Number >")
-# #         try:
-# #             selection = int(selection)
-# #         except:
-# #             print("Wrong input. Select the number of the tool")
-# #         selected_tool = True
-# # else:
-# #     selection = args.default_selected_tool
-# # print(selection)
-#
-# root = tk.Toplevel(self.root())
-# if platform.system() == "Linux":
-#     root.attributes('-zoomed', True)
-# elif platform.system() == "Windows":
-#     root.state('zoomed')
-#
-# # root.geometry("%dx%d" % (root.winfo_width(), root.winfo_height()))
-# # root.geometry("")
-# # if selection == 3:
-# #     print("Not implemented yet")
-#
-# selApp = tools[selection - 1]
-# # logger = selApp.loggerCall()
-# app = selApp.App(root)
-# app.start_ui()
-# app.run()
 
 
 if __name__ == "__main__":

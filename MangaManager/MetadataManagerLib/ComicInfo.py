@@ -178,6 +178,7 @@ except ModulenotfoundExp_ as exp:
             pass
 
 
+    # noinspection PyCompatibility,PyUnboundLocalVariable
     class GeneratedsSuper(GeneratedsSuperSuper):
         __hash__ = object.__hash__
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
@@ -911,6 +912,7 @@ def raise_parse_error(node, msg):
     raise GDSParseError(msg)
 
 
+# noinspection PyUnboundLocalVariable
 class MixedContainer:
     # Constants for category:
     CategoryNone = 0
@@ -2485,6 +2487,7 @@ class ComicPageInfo(GeneratedsSuper):
         pass
 
     def _hasContent(self):
+        # noinspection PyUnreachableCode
         if (
 
         ):

@@ -26,7 +26,7 @@ launch_path = ""
 
 
 class App:
-    def __init__(self, master: tk.Tk):
+    def __init__(self, master: tk.Toplevel):
         self.deleteCoverFilePath = f"{ScriptDir}/DELETE_COVER.jpg"
         self.recoverCoverFilePath = f"{ScriptDir}/RECOVER_COVER.jpg"
         self.master = master
