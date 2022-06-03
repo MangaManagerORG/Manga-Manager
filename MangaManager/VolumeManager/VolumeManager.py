@@ -28,6 +28,7 @@ ScriptDir = os.path.dirname(__file__)
 
 def parse_fileName(filepath, volume_to_apply):
     filename = os.path.basename(filepath)
+    file_regex_finds = None
     regexSearch = re.findall(r"(?i)(.*)((?:Chapter|CH)(?:\.|\s)[0-9]+[.]*[0-9]*)(\.[a-z]{3})", filename)
     if regexSearch:
         r = regexSearch[0]
@@ -46,7 +47,7 @@ def parse_fileName(filepath, volume_to_apply):
     return file_regex_finds
 
 class App:
-    def __init__(self, master: tk.Tk = None):
+    def __init__(self, master: tk.Toplevel = None):
         self._master = master
         self._checkbutton_1_settings_val = tk.BooleanVar(value=True)  # Auto increase volume number
         self._checkbutton_2_settings_val = tk.BooleanVar(value=False)  # Open FIle Selector dialog after processing

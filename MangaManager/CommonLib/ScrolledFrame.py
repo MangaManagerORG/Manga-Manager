@@ -111,6 +111,7 @@ class ApplicationLevelBindManager(object):
         return on_mousewheel
 
 
+# noinspection PyUnresolvedReferences
 class ScrolledFrame(ttk.Frame):
     VERTICAL = 'vertical'
     HORIZONTAL = 'horizontal'
@@ -118,6 +119,7 @@ class ScrolledFrame(ttk.Frame):
     _framecls = ttk.Frame
     _sbarcls = ttk.Scrollbar
 
+    # noinspection PyMissingConstructor
     def __init__(self, master=None, **kw):
         self.scrolltype = kw.pop('scrolltype', self.VERTICAL)
         self.usemousewheel = tk.getboolean(kw.pop('usemousewheel', False))

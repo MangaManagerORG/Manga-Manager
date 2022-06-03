@@ -207,8 +207,7 @@ if __name__ == '__main__':
                 """
 
                 :param interval:
-                :param function:
-                :param iteration:
+                :param total:
                 """
                 self._timer = None
                 self.interval = interval
@@ -270,9 +269,10 @@ if __name__ == '__main__':
     app.iterate_files()
     # app = WebpConverter(filenames)
 else:
+    # noinspection PyUnboundLocalVariable
     class App:
         # TODO: Add UI
-        def __init__(self, master: tk.Tk, overrideSupportedFormat=supportedFormats):
+        def __init__(self, master: tk.Toplevel, overrideSupportedFormat=supportedFormats):
             """
             :param master: tkinter integration
             :param overrideSupportedFormat: Override these formats to include any that is supported by PIL
