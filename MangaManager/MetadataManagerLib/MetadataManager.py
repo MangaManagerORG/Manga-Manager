@@ -808,6 +808,14 @@ class App:
         self._label_29.pack(side='top')
         self._entry_Format1 = ttk.Combobox(self._frame_5)
         self._entry_Format1.configure(textvariable=self.entry_Format_val, width='10')
+        for tag in ("Special", "Reference", "Director's Cut", "Box Set", "Annual", "Anthology", "Epilogue",
+                    "One-Shot", "Prologue", "TPB", "Trade Paper Back", "Omnibus", "Compendium", "Absolute",
+                    "Graphic Novel", "GN", "FCB"):
+            if tag not in self._entry_Format1['values']:
+                widget_list = list(self._entry_Format1['values'])
+                widget_list.append(tag)
+                self._entry_Format1['values'] = widget_list
+
         self._entry_Format1.pack(side='top')
         self._entry_Format1.bind('<Button-1>', makeFocused, add='')
         self._entry_Format1.bind('<Double-Button-1>', self.makeEditable, add='')
