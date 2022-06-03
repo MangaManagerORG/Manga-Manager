@@ -1,4 +1,4 @@
-name: Build & publish Docker Images
+name: Build Docker
 
 on:
   schedule:
@@ -9,7 +9,7 @@ env:
   IMAGE_NAME: "thepromidius/manga-manager"
 jobs:
   docker_dev:
-    name: Build Nightly Docker if Develop push
+    name: Nightly Build
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
     steps:
@@ -28,7 +28,7 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_NAME }}:nightly
   docker_stable:
-    name: Build Stable Docker if Main push
+    name: Stable Build
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
