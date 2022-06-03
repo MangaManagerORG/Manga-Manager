@@ -166,10 +166,14 @@ class WriteComicInfo:
                 6. Deletes file provided
                 7. Renames tempfile to the same name that was deleted previously
                 """
-        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self._zipFilePath))
-        os.close(tmpfd)
+
         backup_isdone = False
         with zipfile.ZipFile(self._zipFilePath, 'r') as zin:
+            if not "Old_ComicInfo.xml.bak" in zin.namelist():
+                logger.debug(f"[Restore] Skipping restore. No ComicInfo.xml present")
+                return
+            tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self._zipFilePath))
+            os.close(tmpfd)
             with zipfile.ZipFile(tmpname, 'w') as zout:
                 for item in zin.infolist():
                     logger.debug(f"[Restore Backup] Iterating: {item.filename}")
