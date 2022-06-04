@@ -24,12 +24,8 @@ else:
     import os
     import pathlib
     import tkinter as tk
-    import platform
 
-    if platform.system() == "Linux":
-        from tkfilebrowser import askopenfilenames as askopenfiles
-    else:
-        from tkinter.filedialog import askopenfiles
+    from tkinter.filedialog import askopenfiles
     from tkinter import messagebox as mb
     from tkinter import ttk
     from tkinter.scrolledtext import ScrolledText

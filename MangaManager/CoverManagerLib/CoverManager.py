@@ -1,23 +1,18 @@
 
 import logging
 import os
-import platform
 import re
 import tkinter as tk
 from itertools import cycle
 from tkinter import messagebox as mb
 from tkinter import ttk
+from tkinter.filedialog import askopenfiles
 
 from PIL import ImageTk, Image, UnidentifiedImageError
 
 from CommonLib.ProgressBarWidget import ProgressBar
 from .cbz_handler import SetCover
 from .models import cover_process_item_info
-
-if platform.system() == "Linux":
-    from tkfilebrowser import askopenfilenames as askopenfiles
-else:
-    from tkinter.filedialog import askopenfiles
 
 logger = logging.getLogger(__name__)
 

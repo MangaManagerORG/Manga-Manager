@@ -3,4 +3,3 @@ Pillow==9.0.1
 requests==2.26.0
 six==1.16.0
 protobuf==3.19.4
-tkfilebrowser==2.3.2

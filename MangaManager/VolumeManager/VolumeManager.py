@@ -2,16 +2,12 @@ import io
 import logging
 import os
 import pathlib
-import platform
 import re
 import tkinter as tk
 from tkinter import messagebox as mb
 from tkinter import ttk
+from tkinter.filedialog import askopenfiles
 
-if platform.system() == "Linux":
-    from tkfilebrowser import askopenfilenames as askopenfiles
-else:
-    from tkinter.filedialog import askopenfiles
 from lxml.etree import XMLSyntaxError
 from typing.io import IO
 

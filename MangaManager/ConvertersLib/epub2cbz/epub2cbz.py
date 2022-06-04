@@ -1,16 +1,12 @@
 import logging
 import os
-import platform
 import re
 import tempfile
 import tkinter as tk
 import zipfile
 from pathlib import Path
 
-if platform.system() == "Linux":
-    from tkfilebrowser import askopenfilenames as askopenfiles
-else:
-    from tkinter.filedialog import askopenfiles
+from tkinter.filedialog import askopenfiles
 from tkinter.ttk import Style, Progressbar
 
 # from CommonLib import webp_converter as convert_to_webp

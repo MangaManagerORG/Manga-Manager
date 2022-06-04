@@ -68,12 +68,7 @@ else:
     from CommonLib.HelperFunctions import get_estimated_time, get_elapsed_time
     import tkinter as tk
 
-    import platform
-
-    if platform.system() == "Linux":
-        from tkfilebrowser import askopenfilenames as askopenfiles
-    else:
-        from tkinter.filedialog import askopenfiles
+    from tkinter.filedialog import askopenfiles
     from tkinter.ttk import Style, Progressbar
 
 current_time = time.time()
