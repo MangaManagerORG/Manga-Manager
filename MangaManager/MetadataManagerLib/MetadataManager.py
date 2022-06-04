@@ -48,9 +48,7 @@ else:
     #   - Add info message if nothing is loaded into UI because comicinfo not exist and one will be created
     #   - Add successfully loaded window/message somewhere
 
-    isDocker = os.getenv('TITLE') == "Manga Manager"
-
-    if os.path.exists("/manga") and isDocker:
+    if os.path.exists("/manga"):
         launch_path = "/manga"
     else:
         launch_path = ""

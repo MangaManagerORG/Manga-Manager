@@ -23,13 +23,12 @@ logger = logging.getLogger(__name__)
 
 ScriptDir = os.path.dirname(__file__)
 
-isDocker = os.getenv('TITLE') == "Manga Manager"
 
-if os.path.exists("/manga") and isDocker:
+if os.path.exists("/manga"):
     manga_launch_path = "/manga"
 else:
     manga_launch_path = ""
-if os.path.exists("/covers") and isDocker:
+if os.path.exists("/covers"):
     cover_launch_path = "/covers"
 else:
     cover_launch_path = ""
