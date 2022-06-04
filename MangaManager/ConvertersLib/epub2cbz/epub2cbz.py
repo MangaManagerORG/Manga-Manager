@@ -6,7 +6,7 @@ import tkinter as tk
 import zipfile
 from pathlib import Path
 
-from tkinter.filedialog import askopenfiles
+from tkinter.filedialog import askopenfiles, askdirectory
 from tkinter.ttk import Style, Progressbar
 
 # from CommonLib import webp_converter as convert_to_webp
@@ -161,7 +161,7 @@ class App:
     def _select_files(self):
 
         self.epubsPathList = list[str]()
-        files_IO = askopenfiles(title="Select .epubs files to extract to .cbz",
+        files_IO = askopenfiles(parent=self.master, title="Select .epubs files to extract to .cbz",
                                 filetypes=(("epub Files", ".epub"),))
         for file in files_IO:
             self.epubsPathList.append(file.name)

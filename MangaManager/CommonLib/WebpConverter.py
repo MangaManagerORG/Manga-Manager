@@ -386,7 +386,7 @@ else:
         def _select_files(self):
 
             self.clear_queue()
-            files_IO = askopenfiles(title="Select .cbz files to convert its content to .webp",
+            files_IO = askopenfiles(parent=self.master, title="Select .cbz files to convert its content to .webp",
                                     filetypes=(("epub Files", ".cbz"),))
             for file in files_IO:
                 self.cbzFilePathList.append(file.name)
@@ -439,9 +439,11 @@ else:
             self.button_2.configure(text='Process')
             self.button_2.grid(column='0', row='5')
             self.button_2.configure(command=self.start)
-            self.frame_1.configure(height='200', padx='50', pady='50', width='200')
-            self.frame_1.grid(column='0', row='0')
-            self.frame_1.rowconfigure('2', pad='20')
+
+            self.frame_1.configure(height='200', padx='60', pady='60', width='200')
+            self.frame_1.pack(anchor='center', expand='true', fill='both', side='top')
+            self.frame_1.grid_anchor('center')
+
             self._progressbar_frame = tk.Frame(self.frame_1)
             self._progressbar_frame.grid(column=0, row=6)
 

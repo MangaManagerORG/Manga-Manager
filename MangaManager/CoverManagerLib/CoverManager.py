@@ -214,20 +214,20 @@ class App:
 
         self._button3_load_images.configure(text="Loading...", state="disabled")
 
-        covers_path_list = askopenfiles(initialdir=cover_launch_path,
+        covers_path_list = askopenfiles(parent=self.master, initialdir=cover_launch_path,
                                         title="Open all covers you want to work with:"
                                         )
         self.licycle = cycle(covers_path_list)
         try:
             self.nextelem = next(self.licycle)
-        except StopIteration:
+        except StopIteration as e:
             # self.button3_load_images.configure(text="Select covers")
-            mb.showwarning("No file selected", "No images were selected.")
+            mb.showwarning("No file selected", "No images were selected.", parent=self.master)
             self.image = None
             self._button3_load_images.configure(text="Select covers", state="normal")
             self._button3_load_images.grid()
             logger.error("No images were selected when asked for")
-            raise
+            raise e
         self.prevelem = None
         self.enableButtons(self._frame_coversetter)
         try:
@@ -236,7 +236,8 @@ class App:
             show_first_cover(self)
 
         except UnidentifiedImageError as e:
-            mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
+            mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file",
+                         parent=self.master)
             logger.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
             self._button3_load_images.configure(text="Select covers", state="normal")
             self._button3_load_images.grid()
@@ -253,7 +254,8 @@ class App:
             self._label_coverimagetitle.configure(text=os.path.basename(self.thiselem.name))
 
         except UnidentifiedImageError as e:
-            mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file")
+            mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file",
+                         parent=self.master)
             logger.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
 
     def add_file_to_list(self, delete=False, recover=False):
@@ -277,7 +279,7 @@ class App:
                 title = "Select files to overwrite cover"
             else:
                 title = "Select file to apply cover"
-        cbzs_path_list = askopenfiles(initialdir=manga_launch_path, title=title,
+        cbzs_path_list = askopenfiles(parent=self.master, initialdir=manga_launch_path, title=title,
                                       filetypes=(("CBZ Files", ".cbz"),)
                                       )
 
@@ -339,28 +341,29 @@ class App:
             for file in self.covers_path_in_confirmation[item]:
                 logger.info(f"Starting processing for file: {item}")
                 try:
-                    SetCover(file, conver_to_webp=convert_images)
+                    SetCover(file, convert_to_webp=convert_images)
                     # label_progress_text.set(
                     #     f"Processed: {processed_counter}/{total} - {processed_errors} errors"
                     #     f" - Elapsed time: {get_elapsed_time}")
                     progressBar.increaseCount()
                 except FileExistsError as e:
                     mb.showwarning(f"[ERROR] File already exists",
-                                   f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}")
+                                   f"Trying to create:\n`{e.filename2}` but already exists\n\nException:\n{e}",
+                                   parent=self.master)
                     progressBar.increaseError()
                     continue
                 except PermissionError as e:
                     mb.showerror("Can't access the file because it's being used by a different process",
-                                 f"Exception:{e}")
+                                 f"Exception:{e}", parent=self.master)
                     progressBar.increaseError()
                     continue
                 except FileNotFoundError as e:
                     mb.showerror("Can't access the file because it's being used by a different process",
-                                 f"Exception:{e}")
+                                 f"Exception:{e}", parent=self.master)
                     progressBar.increaseError()
                     continue
                 except Exception as e:
-                    mb.showerror("Something went wrong", "Error processing. Check logs.")
+                    mb.showerror("Something went wrong", "Error processing. Check logs.", parent=self.master)
                     logger.critical("Exception Processing", e)
                     progressBar.increaseError()
                 progressBar.updatePB()

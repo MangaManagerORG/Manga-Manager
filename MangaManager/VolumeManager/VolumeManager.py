@@ -47,7 +47,7 @@ def parse_fileName(filepath, volume_to_apply):
 
 class App:
     def __init__(self, master: tk.Toplevel = None):
-        self._master = master
+        self.master = master
         self._checkbutton_1_settings_val = tk.BooleanVar(value=True)  # Auto increase volume number
         self._checkbutton_2_settings_val = tk.BooleanVar(value=False)  # Open FIle Selector dialog after processing
         self._checkbutton_3_settings_val = tk.BooleanVar(value=False)  # Automatic preview
@@ -83,8 +83,8 @@ class App:
             self._spinbox_1_volume_number_val.set(-1)
 
     def start_ui(self):
-        self._master.title("Volume Manager")
-        self._frame_1_title = tk.Frame(self._master, container='false')
+        self.master.title("Volume Manager")
+        self._frame_1_title = tk.Frame(self.master, container='false')
         # Must keep :
         self._validate_spinbox = (self._frame_1_title.register(self._ValidateIfNum), '%s', '%S')  # Validates spinbox
 
@@ -191,10 +191,8 @@ class App:
         self._frame_1_title.grid(column='0', padx='25', pady='25', row='1', sticky='ew')
         self._frame_1_title.grid_propagate(0)
 
-
-
-        self._master.rowconfigure('1', weight='0')
-        self._master.columnconfigure('0', pad='25', weight='1')
+        self.master.rowconfigure('1', weight='0')
+        self.master.columnconfigure('0', pad='25', weight='1')
 
         # Main widget
         self.mainwindow = self._frame_1_title
@@ -208,7 +206,7 @@ class App:
         self._treeview_1.tag_configure('monospace', font=('courier',10))
         self._initialized_UI = True
     def run(self):
-        self._master.mainloop()
+        self.master.mainloop()
 
     # UI Controllers
     def _ValidateIfNum(self, s, S):  # Spinbox validator
@@ -237,7 +235,8 @@ class App:
     def _open_files(self):
 
         logger.debug("inside openfiles")
-        self.cbz_files_path_list = askopenfiles(initialdir=launch_path, title="Select file to apply cover",
+        self.cbz_files_path_list = askopenfiles(parent=self.master, initialdir=launch_path,
+                                                title="Select file to apply cover",
                                                 filetypes=(("CBZ Files", ".cbz"),)
                                                 )
         if not self.cbz_files_path_list:
@@ -373,12 +372,13 @@ class App:
                     progressBar.increaseCount()
                 except PermissionError as e:
                     if self._initialized_UI:
-                        mb.showerror("Can't access the file because it's being used by a different process")
+                        mb.showerror("Can't access the file because it's being used by a different process",
+                                     parent=self.master)
                     logger.error("Can't access the file because it's being used by a different process")
                     progressBar.increaseError()
                 except FileNotFoundError as e:
                     if self._initialized_UI:
-                        mb.showerror("Can't access the file because it's was not found")
+                        mb.showerror("Can't access the file because it's was not found", parent=self.master)
                     logger.error("Can't access the file because it's being used by a different process")
                     progressBar.increaseError()
                 except Exception as e:

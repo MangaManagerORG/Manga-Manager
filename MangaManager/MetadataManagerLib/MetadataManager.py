@@ -965,7 +965,7 @@ class App:
         self._clearUI()
 
         self.selected_filenames = list[str]()
-        covers_path_list = askopenfiles(initialdir=launch_path, title="Select file to apply cover",
+        covers_path_list = askopenfiles(parent=self.master, initialdir=launch_path, title="Select file to apply cover",
                                         filetypes=(("CBZ Files", ".cbz"),)
                                         # ("Zip files", ".zip"))
                                         )
@@ -995,7 +995,9 @@ class App:
                             continue
                     # self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
                 else:
-                    raise Exception("No files selected")
+                    if self._initialized_UI:
+                        mb.showwarning("No file selected", "No files were selected.", parent=self.master)
+                    raise NoFilesSelected()
             else:
                 logger.debug("Selected files UI:\n    " + "\n    ".join(self.selected_filenames))
                 for file_path in self.selected_filenames:
@@ -1008,6 +1010,8 @@ class App:
                     # self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
         except CancelComicInfoLoad:
             self.loadedComicInfo_list = []
+        except NoFilesSelected:
+            logger.warning("No files selected.")
 
     def load_comicinfo_xml(self, cbz_path) -> LoadedComicInfo:
         """
@@ -1034,13 +1038,14 @@ class App:
                 mb.showwarning("Warning reading ComicInfo",
                                f"ComicInfo.xml was not found inside: {cbz_path}\n"
                                f"One will be created when saving changes to file.\n"
-                               f"This applies to all selected files")
+                               f"This applies to all selected files", parent=self.master)
                 self.warning_metadataNotFound = True
             comicinfo = ComicInfo.ComicInfo()
         except XMLSyntaxError as e:
             logger.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
             mb.showerror("Error reading ComicInfo", "Error loading file."
-                                                    f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e))
+                                                    f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e),
+                         parent=self.master)
             raise e
 
         except CorruptedComicInfo as e:
@@ -1050,7 +1055,7 @@ class App:
                                      f"Failed to load metadata from file:\n{cbz_path}\n\n"
                                      "ComicInfo.xml file was found but seems corrupted.\n"
                                      "A fix was attempted but it failed.\n\n"
-                                     "Continue loading?")
+                                     "Continue loading?", parent=self.master)
                 if answer:
                     return
                 else:
@@ -1179,7 +1184,8 @@ class App:
                     keep_original_value = mb.askokcancel("Fields not selected",
                                                          message=f"There are conflics in your selection.\n"
                                                                  f"Ignore if you want the following fields to keep it's original value.\n"
-                                                                 f"{', '.join(noSelectionCheck)}\n\nContinue?")
+                                                                 f"{', '.join(noSelectionCheck)}\n\nContinue?",
+                                                         parent=self.master)
                     if not keep_original_value:
                         raise CancelComicInfoSave()
                     logger.info("Proceeding with saving. Unset fields will retain original values")
@@ -1241,7 +1247,8 @@ class App:
                 progressBar.increaseError()
                 if self._initialized_UI:
                     mb.showwarning(f"[ERROR] File already exists",
-                                   f"Trying to create:\n`{str(e.filename2)}` but already exists\n\nException:\n{e}")
+                                   f"Trying to create:\n`{str(e.filename2)}` but already exists\n\nException:\n{e}",
+                                   parent=self.master)
                 else:
                     raise e
             except PermissionError as e:
@@ -1252,7 +1259,7 @@ class App:
                 if self._initialized_UI:
                     mb.showerror("[ERROR] Permission Error",
                                  "Can't access the file because it's being used by a different process\n\n"
-                                 f"Exception:\n{e}")
+                                 f"Exception:\n{e}", parent=self.master)
                 else:
                     raise e
             except FileNotFoundError as e:
@@ -1263,12 +1270,12 @@ class App:
                 if self._initialized_UI:
                     mb.showerror("[ERROR] File Not Found",
                                  "Can't access the file because it's being used by a different process\n\n"
-                                 f"Exception:\n{str(e)}")
+                                 f"Exception:\n{str(e)}", parent=self.master)
                 else:
                     raise e
             except Exception as e:
                 if self._initialized_UI:
-                    mb.showerror("Something went wrong", "Error processing. Check logs.")
+                    mb.showerror("Something went wrong", "Error processing. Check logs.", parent=self.master)
                 logger.critical("Exception Processing", e)
                 progressBar.increaseError()
                 raise e
@@ -1279,7 +1286,8 @@ class App:
         Deletes all ComicInfo.xml from the selected files
         """
         if self._initialized_UI:
-            answer = mb.askokcancel("Warning", "This will remove 'ComicInfo.xml' file from the selected files")
+            answer = mb.askokcancel("Warning", "This will remove 'ComicInfo.xml' file from the selected files",
+                                    parent=self.master)
             if answer:
                 for loadedComicObj in self.loadedComicInfo_list:
                     logger.info("Processing delete")
