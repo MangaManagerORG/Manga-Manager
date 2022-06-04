@@ -183,21 +183,23 @@ class MangaManager:
         self.settings = dict()
 
         # Library path
-        if loaded_settings.get("library_folder_path"):
+        if os.getenv("LIBRARY_FOLDER_PATH") is not None:
+            self.settings["library_folder_path"] = os.getenv("LIBRARY_FOLDER_PATH")
+        elif loaded_settings.get("library_folder_path"):
             self.settings["library_folder_path"] = loaded_settings.get("library_folder_path")
+        elif os.path.exists("/manga"):
+            self.settings["library_folder_path"] = "/manga"
         else:
-            if os.path.exists("/manga"):
-                self.settings["library_folder_path"] = "/manga"
-            else:
-                self.settings["library_folder_path"] = ""
+            self.settings["library_folder_path"] = ""
 
-        if loaded_settings.get("cover_folder_path"):
+        if os.getenv("COVER_FOLDER_PATH") is not None:
+            self.settings["cover_folder_path"] = os.getenv("COVER_FOLDER_PATH")
+        elif loaded_settings.get("cover_folder_path"):
             self.settings["cover_folder_path"] = loaded_settings.get("cover_folder_path")
+        elif os.path.exists("/covers"):
+            self.settings["cover_folder_path"] = "/covers"
         else:
-            if os.path.exists("/covers"):
-                self.settings["cover_folder_path"] = "/covers"
-            else:
-                self.settings["cover_folder_path"] = ""
+            self.settings["cover_folder_path"] = ""
 
 
 if __name__ == "__main__":
