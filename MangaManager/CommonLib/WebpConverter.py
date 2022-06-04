@@ -267,7 +267,7 @@ else:
     # noinspection PyUnboundLocalVariable
     class App:
         # TODO: Add UI
-        def __init__(self, master: tk.Toplevel, overrideSupportedFormat=supportedFormats):
+        def __init__(self, master: tk.Toplevel, overrideSupportedFormat=supportedFormats, settings=None):
             """
             :param master: tkinter integration
             :param overrideSupportedFormat: Override these formats to include any that is supported by PIL
@@ -278,6 +278,8 @@ else:
                 self.master = master
             self.cbzFilePathList = list[str]()
             self.overrideSupportedFormat = overrideSupportedFormat
+
+            self.settings = settings
 
         def start(self):
 
@@ -386,7 +388,9 @@ else:
         def _select_files(self):
 
             self.clear_queue()
-            files_IO = askopenfiles(parent=self.master, title="Select .cbz files to convert its content to .webp",
+            files_IO = askopenfiles(parent=self.master,
+                                    initialdir=self.settings.get("library_folder_path"),
+                                    title="Select .cbz files to convert its content to .webp",
                                     filetypes=(("epub Files", ".cbz"),))
             for file in files_IO:
                 self.cbzFilePathList.append(file.name)

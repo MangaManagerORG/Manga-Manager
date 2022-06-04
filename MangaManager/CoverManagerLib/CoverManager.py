@@ -1,4 +1,3 @@
-
 import logging
 import os
 import re
@@ -19,18 +18,9 @@ logger = logging.getLogger(__name__)
 ScriptDir = os.path.dirname(__file__)
 
 
-if os.path.exists("/manga"):
-    manga_launch_path = "/manga"
-else:
-    manga_launch_path = ""
-if os.path.exists("/covers"):
-    cover_launch_path = "/covers"
-else:
-    cover_launch_path = ""
-
-
 class App:
-    def __init__(self, master: tk.Toplevel):
+    def __init__(self, master: tk.Toplevel, settings=None):
+        self.settings = settings
         self.deleteCoverFilePath = f"{ScriptDir}/DELETE_COVER.jpg"
         self.recoverCoverFilePath = f"{ScriptDir}/RECOVER_COVER.jpg"
         self.master = master
@@ -214,7 +204,7 @@ class App:
 
         self._button3_load_images.configure(text="Loading...", state="disabled")
 
-        covers_path_list = askopenfiles(parent=self.master, initialdir=cover_launch_path,
+        covers_path_list = askopenfiles(parent=self.master, initialdir=self.settings.get("cover_folder_path"),
                                         title="Open all covers you want to work with:"
                                         )
         self.licycle = cycle(covers_path_list)
@@ -279,7 +269,8 @@ class App:
                 title = "Select files to overwrite cover"
             else:
                 title = "Select file to apply cover"
-        cbzs_path_list = askopenfiles(parent=self.master, initialdir=manga_launch_path, title=title,
+        cbzs_path_list = askopenfiles(parent=self.master, initialdir=self.settings.get("library_folder_path"),
+                                      title=title,
                                       filetypes=(("CBZ Files", ".cbz"),)
                                       )
 

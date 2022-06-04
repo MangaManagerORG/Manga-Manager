@@ -44,10 +44,6 @@ else:
     #   - Add info message if nothing is loaded into UI because comicinfo not exist and one will be created
     #   - Add successfully loaded window/message somewhere
 
-    if os.path.exists("/manga"):
-        launch_path = "/manga"
-    else:
-        launch_path = ""
 
     ScriptDir = os.path.dirname(__file__)
     PROJECT_PATH = pathlib.Path(__file__).parent
@@ -196,7 +192,7 @@ else:
 
 
 class App:
-    def __init__(self, master: tk.Toplevel = None, disable_metadata_notFound_warning=False):
+    def __init__(self, master: tk.Toplevel = None, disable_metadata_notFound_warning=False, settings=None):
         self.master = master
         # self.master.eval('tk::PlaceWindow . center')
         self.highlighted_changes = []
@@ -205,6 +201,7 @@ class App:
         self.spinbox_4_chapter_var_isModified = False
         self.spinbox_3_volume_var_isModified = False
         self.disable_metadata_notFound_warning = disable_metadata_notFound_warning
+        self.settings = settings
 
         self.warning_metadataNotFound = False
         self.selected_filenames = []
@@ -965,7 +962,8 @@ class App:
         self._clearUI()
 
         self.selected_filenames = list[str]()
-        covers_path_list = askopenfiles(parent=self.master, initialdir=launch_path, title="Select file to apply cover",
+        covers_path_list = askopenfiles(parent=self.master, initialdir=self.settings.get("library_folder_path"),
+                                        title="Select file to apply cover",
                                         filetypes=(("CBZ Files", ".cbz"),)
                                         # ("Zip files", ".zip"))
                                         )

@@ -46,8 +46,9 @@ def parse_fileName(filepath, volume_to_apply):
     return file_regex_finds
 
 class App:
-    def __init__(self, master: tk.Toplevel = None):
+    def __init__(self, master: tk.Toplevel = None, settings=None):
         self.master = master
+        self.settings = settings
         self._checkbutton_1_settings_val = tk.BooleanVar(value=True)  # Auto increase volume number
         self._checkbutton_2_settings_val = tk.BooleanVar(value=False)  # Open FIle Selector dialog after processing
         self._checkbutton_3_settings_val = tk.BooleanVar(value=False)  # Automatic preview
@@ -205,6 +206,7 @@ class App:
         self._button_4_clearqueue.configure(state="disabled")
         self._treeview_1.tag_configure('monospace', font=('courier',10))
         self._initialized_UI = True
+
     def run(self):
         self.master.mainloop()
 
@@ -235,7 +237,7 @@ class App:
     def _open_files(self):
 
         logger.debug("inside openfiles")
-        self.cbz_files_path_list = askopenfiles(parent=self.master, initialdir=launch_path,
+        self.cbz_files_path_list = askopenfiles(parent=self.master, initialdir=self.settings.get("library_folder_path"),
                                                 title="Select file to apply cover",
                                                 filetypes=(("CBZ Files", ".cbz"),)
                                                 )
