@@ -19,7 +19,11 @@ from CommonLib.ProgressBarWidget import ProgressBar
 from .errors import NoFilesSelected
 from .models import ChapterFileNameData
 
-launch_path = ""
+isDocker = os.getenv('TITLE') == "Manga Manager"
+if os.path.exists("/manga") and isDocker:
+    launch_path = "/manga"
+else:
+    launch_path = ""
 
 logger = logging.getLogger(__name__)
 

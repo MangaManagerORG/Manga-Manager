@@ -163,6 +163,7 @@ class MangaManager:
 
 if __name__ == "__main__":
     master_root = tk.Tk()
+    master_root.title("Manga Manager")
     app = MangaManager()
     app.start_ui(master_root)
     app.run()

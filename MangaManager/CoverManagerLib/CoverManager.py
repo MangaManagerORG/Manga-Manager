@@ -22,7 +22,17 @@ else:
 logger = logging.getLogger(__name__)
 
 ScriptDir = os.path.dirname(__file__)
-launch_path = ""
+
+isDocker = os.getenv('TITLE') == "Manga Manager"
+
+if os.path.exists("/manga") and isDocker:
+    manga_launch_path = "/manga"
+else:
+    manga_launch_path = ""
+if os.path.exists("/covers") and isDocker:
+    cover_launch_path = "/covers"
+else:
+    cover_launch_path = ""
 
 
 class App:
@@ -210,7 +220,7 @@ class App:
 
         self._button3_load_images.configure(text="Loading...", state="disabled")
 
-        covers_path_list = askopenfiles(initialdir=launch_path,
+        covers_path_list = askopenfiles(initialdir=cover_launch_path,
                                         title="Open all covers you want to work with:"
                                         )
         self.licycle = cycle(covers_path_list)
@@ -273,7 +283,7 @@ class App:
                 title = "Select files to overwrite cover"
             else:
                 title = "Select file to apply cover"
-        cbzs_path_list = askopenfiles(initialdir=launch_path, title=title,
+        cbzs_path_list = askopenfiles(initialdir=manga_launch_path, title=title,
                                       filetypes=(("CBZ Files", ".cbz"),)
                                       )
 
