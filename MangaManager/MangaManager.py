@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import enum
+import json
 import logging
 import os
 import pathlib
@@ -54,6 +55,7 @@ parser.add_argument(
     action="store_const", dest="default_selected_tool", const=5
 )
 
+
 def is_dir_path(path):
     if os.path.isdir(path):
         return path
@@ -67,7 +69,7 @@ def is_dir_path(path):
 
 parser.add_argument(
     '-p', '--path',
-    type=is_dir_path,dest="active_dir_path")
+    type=is_dir_path, dest="active_dir_path")
 
 
 # </Arguments parser>
@@ -79,6 +81,7 @@ logging.getLogger('PIL').setLevel(logging.WARNING)
 # formatter = logging.Formatter()
 
 PROJECT_PATH = pathlib.Path(__file__).parent
+SETTING_PATH = pathlib.Path(PROJECT_PATH, "settings.json")
 rotating_file_handler = RotatingFileHandler(f"{PROJECT_PATH}/logs/MangaManager.log", maxBytes=5725760,
                                             backupCount=2)
 logging.basicConfig(level=logging.DEBUG,
@@ -101,9 +104,18 @@ class ToolS(enum.Enum):
     WEBP = 5
 
 
+def _create_settings():
+    return {
+        "library_folder_path": None,
+        "cover_folder_path": None
+    }
+
+
 class MangaManager:
+    settings = None
+
     def __init__(self):
-        ...
+        self._loadSettings()
 
     def start_ui(self, master: tkinter.Tk = None):
         # build ui
@@ -153,16 +165,46 @@ class MangaManager:
             root2.state('zoomed')
 
         selApp = tools[tool.value - 1]
-        subapp = selApp.App(root2)
+        subapp = selApp.App(root2, settings=self.settings)
         subapp.start_ui()
         subapp.run()
 
     def run(self):
         self.mainwindow.mainloop()
 
+    def _loadSettings(self):
+        if Path(SETTING_PATH).exists():
+            with open(SETTING_PATH, 'r') as settings_json:
+                loaded_settings = json.load(settings_json)
+        else:
+            with open(SETTING_PATH, 'w+') as settings_json:
+                loaded_settings = _create_settings()
+                json.dump(loaded_settings, settings_json, indent=4)
+        self.settings = dict()
+
+        # Library path
+        if os.getenv("LIBRARY_FOLDER_PATH") is not None:
+            self.settings["library_folder_path"] = os.getenv("LIBRARY_FOLDER_PATH")
+        elif loaded_settings.get("library_folder_path"):
+            self.settings["library_folder_path"] = loaded_settings.get("library_folder_path")
+        elif os.path.exists("/manga"):
+            self.settings["library_folder_path"] = "/manga"
+        else:
+            self.settings["library_folder_path"] = ""
+
+        if os.getenv("COVER_FOLDER_PATH") is not None:
+            self.settings["cover_folder_path"] = os.getenv("COVER_FOLDER_PATH")
+        elif loaded_settings.get("cover_folder_path"):
+            self.settings["cover_folder_path"] = loaded_settings.get("cover_folder_path")
+        elif os.path.exists("/covers"):
+            self.settings["cover_folder_path"] = "/covers"
+        else:
+            self.settings["cover_folder_path"] = ""
+
 
 if __name__ == "__main__":
     master_root = tk.Tk()
+    master_root.title("Manga Manager")
     app = MangaManager()
     app.start_ui(master_root)
     app.run()

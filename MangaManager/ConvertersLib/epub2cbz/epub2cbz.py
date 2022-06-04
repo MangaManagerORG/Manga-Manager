@@ -1,16 +1,12 @@
 import logging
 import os
-import platform
 import re
 import tempfile
 import tkinter as tk
 import zipfile
 from pathlib import Path
 
-if platform.system() == "Linux":
-    from tkfilebrowser import askopenfilenames as askopenfiles
-else:
-    from tkinter.filedialog import askopenfiles
+from tkinter.filedialog import askopenfiles, askdirectory
 from tkinter.ttk import Style, Progressbar
 
 # from CommonLib import webp_converter as convert_to_webp
@@ -20,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 # noinspection PyUnboundLocalVariable
 class App:
-    def __init__(self, master: tk.Toplevel, epubsPathList: list[str] = None, convert_to_webp=False, ):
+    def __init__(self, master: tk.Toplevel, epubsPathList: list[str] = None, convert_to_webp=False, settings=None):
         """
         If there are epubsPathList; start() must be called manually
 
@@ -34,7 +30,9 @@ class App:
             master = tk.Tk()
         self.master = master
         self.epubsPathList = epubsPathList
+        self.settings = settings
         self._initialized_UI = False
+
         if not epubsPathList:
             self._initialized_UI = True
             self.start_ui()
@@ -165,7 +163,8 @@ class App:
     def _select_files(self):
 
         self.epubsPathList = list[str]()
-        files_IO = askopenfiles(title="Select .epubs files to extract to .cbz",
+        files_IO = askopenfiles(parent=self.master, initialdir=self.settings.get("library_folder_path"),
+                                title="Select .epubs files to extract to .cbz",
                                 filetypes=(("epub Files", ".epub"),))
         for file in files_IO:
             self.epubsPathList.append(file.name)
@@ -217,7 +216,7 @@ class App:
         self._initialized_UI = True
 
     def _change_out_folder(self):
-        self.output_folder = askdirectory()
+        self.output_folder = askdirectory(parent=self.master, initialdir=self.settings.get("library_folder_path"))
         self.label_4.configure(text="Selected folder:\n" + self.output_folder)
 
     def run(self):

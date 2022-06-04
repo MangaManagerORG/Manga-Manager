@@ -2,16 +2,12 @@ import io
 import logging
 import os
 import pathlib
-import platform
 import re
 import tkinter as tk
 from tkinter import messagebox as mb
 from tkinter import ttk
+from tkinter.filedialog import askopenfiles
 
-if platform.system() == "Linux":
-    from tkfilebrowser import askopenfilenames as askopenfiles
-else:
-    from tkinter.filedialog import askopenfiles
 from lxml.etree import XMLSyntaxError
 from typing.io import IO
 
@@ -19,7 +15,10 @@ from CommonLib.ProgressBarWidget import ProgressBar
 from .errors import NoFilesSelected
 from .models import ChapterFileNameData
 
-launch_path = ""
+if os.path.exists("/manga"):
+    launch_path = "/manga"
+else:
+    launch_path = ""
 
 logger = logging.getLogger(__name__)
 
@@ -47,8 +46,9 @@ def parse_fileName(filepath, volume_to_apply):
     return file_regex_finds
 
 class App:
-    def __init__(self, master: tk.Toplevel = None):
-        self._master = master
+    def __init__(self, master: tk.Toplevel = None, settings=None):
+        self.master = master
+        self.settings = settings
         self._checkbutton_1_settings_val = tk.BooleanVar(value=True)  # Auto increase volume number
         self._checkbutton_2_settings_val = tk.BooleanVar(value=False)  # Open FIle Selector dialog after processing
         self._checkbutton_3_settings_val = tk.BooleanVar(value=False)  # Automatic preview
@@ -84,8 +84,8 @@ class App:
             self._spinbox_1_volume_number_val.set(-1)
 
     def start_ui(self):
-        self._master.title("Volume Manager")
-        self._frame_1_title = tk.Frame(self._master, container='false')
+        self.master.title("Volume Manager")
+        self._frame_1_title = tk.Frame(self.master, container='false')
         # Must keep :
         self._validate_spinbox = (self._frame_1_title.register(self._ValidateIfNum), '%s', '%S')  # Validates spinbox
 
@@ -192,10 +192,8 @@ class App:
         self._frame_1_title.grid(column='0', padx='25', pady='25', row='1', sticky='ew')
         self._frame_1_title.grid_propagate(0)
 
-
-
-        self._master.rowconfigure('1', weight='0')
-        self._master.columnconfigure('0', pad='25', weight='1')
+        self.master.rowconfigure('1', weight='0')
+        self.master.columnconfigure('0', pad='25', weight='1')
 
         # Main widget
         self.mainwindow = self._frame_1_title
@@ -208,8 +206,9 @@ class App:
         self._button_4_clearqueue.configure(state="disabled")
         self._treeview_1.tag_configure('monospace', font=('courier',10))
         self._initialized_UI = True
+
     def run(self):
-        self._master.mainloop()
+        self.master.mainloop()
 
     # UI Controllers
     def _ValidateIfNum(self, s, S):  # Spinbox validator
@@ -238,7 +237,8 @@ class App:
     def _open_files(self):
 
         logger.debug("inside openfiles")
-        self.cbz_files_path_list = askopenfiles(initialdir=launch_path, title="Select file to apply cover",
+        self.cbz_files_path_list = askopenfiles(parent=self.master, initialdir=self.settings.get("library_folder_path"),
+                                                title="Select file to apply cover",
                                                 filetypes=(("CBZ Files", ".cbz"),)
                                                 )
         if not self.cbz_files_path_list:
@@ -374,12 +374,13 @@ class App:
                     progressBar.increaseCount()
                 except PermissionError as e:
                     if self._initialized_UI:
-                        mb.showerror("Can't access the file because it's being used by a different process")
+                        mb.showerror("Can't access the file because it's being used by a different process",
+                                     parent=self.master)
                     logger.error("Can't access the file because it's being used by a different process")
                     progressBar.increaseError()
                 except FileNotFoundError as e:
                     if self._initialized_UI:
-                        mb.showerror("Can't access the file because it's was not found")
+                        mb.showerror("Can't access the file because it's was not found", parent=self.master)
                     logger.error("Can't access the file because it's being used by a different process")
                     progressBar.increaseError()
                 except Exception as e:
