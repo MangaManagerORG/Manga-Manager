@@ -202,6 +202,7 @@ class App:
         self.spinbox_3_volume_var_isModified = False
         self.disable_metadata_notFound_warning = disable_metadata_notFound_warning
         self.settings = settings
+        self.last_folder = ""
 
         self.warning_metadataNotFound = False
         self.selected_filenames = []
@@ -962,12 +963,21 @@ class App:
         self._clearUI()
 
         self.selected_filenames = list[str]()
-        covers_path_list = askopenfiles(parent=self.master, initialdir=self.settings.get("library_folder_path"),
-                                        title="Select file to apply cover",
-                                        filetypes=(("CBZ Files", ".cbz"),)
-                                        # ("Zip files", ".zip"))
-                                        )
-        for file in covers_path_list:
+        if not self.last_folder:
+            initial_dir = self.settings.get("library_folder_path")
+        else:
+            initial_dir = self.last_folder
+
+        cbzs_path_list = askopenfiles(parent=self.master, initialdir=initial_dir,
+                                      title="Select file to apply cover",
+                                      filetypes=(("CBZ Files", ".cbz"),)
+                                      # ("Zip files", ".zip"))
+                                      )
+
+        selected_parent_folder = os.path.dirname(cbzs_path_list[0].name)
+        if self.last_folder != selected_parent_folder or not self.last_folder:
+            self.last_folder = selected_parent_folder
+        for file in cbzs_path_list:
             self.selected_filenames.append(file.name)
         self.create_loadedComicInfo_list()
         # self._label_28_statusinfo.configure(text="Successfuly loaded")

@@ -62,6 +62,7 @@ class App:
         self._spinbox_1_volume_number_val_prev = tk.IntVar(value=-1)
         self._spinbox_1_volume_number_val.trace(mode='w', callback=self.validateIntVar)
         self._initialized_UI = False
+        self.last_folder = ""
 
     def validateIntVar(self, *args):
         try:
@@ -237,10 +238,20 @@ class App:
     def _open_files(self):
 
         logger.debug("inside openfiles")
-        self.cbz_files_path_list = askopenfiles(parent=self.master, initialdir=self.settings.get("library_folder_path"),
+
+        if not self.last_folder:
+            initial_dir = self.settings.get("library_folder_path")
+        else:
+            initial_dir = self.last_folder
+
+        self.cbz_files_path_list = askopenfiles(parent=self.master, initialdir=initial_dir,
                                                 title="Select file to apply cover",
                                                 filetypes=(("CBZ Files", ".cbz"),)
                                                 )
+
+        selected_parent_folder = os.path.dirname(self.cbz_files_path_list[0].name)
+        if self.last_folder != selected_parent_folder or not self.last_folder:
+            self.last_folder = selected_parent_folder
         if not self.cbz_files_path_list:
             # self.tool_volumesetter()
             self._label_4_selected_files_val.set(f"Selected 0 files.")
