@@ -350,7 +350,7 @@ class App:
 
             self.input_1_summary_obj.linked_text_field = self.tkinterscrolledtext_1
         except Exception as e:
-            print(e)
+            pass
         self.input_1_summary_obj.clear()
 
     def _get_widgets_var_zip(self, widgets_variable_list, comicInfoObj: ComicInfo.ComicInfo, widgets_object_list=None):

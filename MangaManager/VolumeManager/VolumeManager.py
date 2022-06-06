@@ -412,7 +412,6 @@ class App:
                     cominfo_app = taggerApp(disable_metadata_notFound_warning=True)
                     cominfo_app.create_loadedComicInfo_list([item.complete_new_path])
                     cominfo_app.entry_Volume_val.set(item.volume)
-                    vol_val = cominfo_app.entry_Volume_val.get()
 
                     cominfo_app.do_save_UI()
                     progressBar.increaseCount()
