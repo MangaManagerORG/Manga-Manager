@@ -105,9 +105,11 @@ class CoverManagerTester(unittest.TestCase):
             self.test_files_names.append(os.path.abspath(out_tmp_zipname))
             self.temp_folder = tempfile.mkdtemp()
             print(f"     Creating: {out_tmp_zipname}")  # , self._testMethodName)
+
             with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
                 for i in range(1, 6):
                     zf.writestr(f"{str(i).zfill(3)}.jpg", imgByteArr)
+
         image.save("Test_4_sample_cover.jpg", format=image.format)
         self.test_files_names.append(os.path.abspath("Test_4_sample_cover.jpg"))
         self.sample_cover = os.path.abspath("Test_4_sample_cover.jpg")
@@ -464,6 +466,7 @@ class VolumeManagerTester(unittest.TestCase):
         image = Image.new('RGB', size=(20, 20), color=(255, 73, 95))
         image.format = "JPEG"
         imgByteArr = io.BytesIO()
+        self.random_series_name = f"Test_{random.randint(1, 6000)}"
         image.save(imgByteArr, format=image.format)
         imgByteArr = imgByteArr.getvalue()
         for ai in range(1, 7):  # Create 7 archives.cbz
@@ -471,9 +474,15 @@ class VolumeManagerTester(unittest.TestCase):
             self.test_files_names.append(os.path.abspath(out_tmp_zipname))
             self.temp_folder = tempfile.mkdtemp()
             print(f"     Creating: {out_tmp_zipname}")  # , self._testMethodName)
+            cinfo = ComicInfo.ComicInfo()
+            cinfo.set_Series(self.random_series_name)
+            export_io = io.StringIO()
+            cinfo.export(export_io, 0)
+            _export_io = export_io.getvalue()
             with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
                 for i in range(1, 6):
                     zf.writestr(f"{str(i).zfill(3)}.jpg", imgByteArr)
+                zf.writestr("ComicInfo.xml", _export_io)
         self.initial_dir_count = len(os.listdir(os.getcwd()))
 
     def tearDown(self) -> None:
@@ -540,6 +549,9 @@ class VolumeManagerTester(unittest.TestCase):
         # final_dir_count = len(os.listdir(os.path.dirname(test_path)))
         print(f"Asserting leftover files {initial_dir_count} vs {final_dir_count}")
         self.assertEqual(initial_dir_count, (final_dir_count - 1))
+
+        print("Asserting series name is kept")
+        self.assertEqual(self.random_series_name, app.get_Series())
 
     def test_addVolume_and_rename(self):
 

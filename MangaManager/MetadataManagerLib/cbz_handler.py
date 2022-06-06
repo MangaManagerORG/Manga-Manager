@@ -51,7 +51,7 @@ class ReadComicInfo:
         Reads a cbz o zip file and returns the a ComicInfo class from the ComicInfo.xml file.
         If ComicInfo not present returns none
         """
-        if self.ignore_empty_metadata:
+        if self.ignore_empty_metadata and not self.xmlString:
             logger.debug("returning comicinfo")
             return ComicInfo.ComicInfo()
         print_xml = False if print_xml else True

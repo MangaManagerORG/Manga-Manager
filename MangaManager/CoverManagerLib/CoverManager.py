@@ -31,6 +31,7 @@ class App:
         self.checkbox2_settings_val = tk.BooleanVar(value=False)
         self.covers_path_in_confirmation = {}
         self._initialized_UI = False
+        self.last_folder = ""
 
     def start_ui(self):
         # build ui
@@ -269,11 +270,19 @@ class App:
                 title = "Select files to overwrite cover"
             else:
                 title = "Select file to apply cover"
-        cbzs_path_list = askopenfiles(parent=self.master, initialdir=self.settings.get("library_folder_path"),
+
+        if not self.last_folder:
+            initial_dir = self.settings.get("library_folder_path")
+        else:
+            initial_dir = self.last_folder
+        cbzs_path_list = askopenfiles(parent=self.master, initialdir=initial_dir,
                                       title=title,
                                       filetypes=(("CBZ Files", ".cbz"),)
                                       )
-
+        if cbzs_path_list:
+            selected_parent_folder = os.path.dirname(cbzs_path_list[0].name)
+            if self.last_folder != selected_parent_folder or not self.last_folder:
+                self.last_folder = selected_parent_folder
         image = Image.open(image_path)
         image = image.resize((40, 60), Image.ANTIALIAS)
         self.image_in_confirmation = ImageTk.PhotoImage(image)
