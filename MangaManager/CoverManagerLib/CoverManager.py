@@ -279,9 +279,10 @@ class App:
                                       title=title,
                                       filetypes=(("CBZ Files", ".cbz"),)
                                       )
-        selected_parent_folder = os.path.dirname(cbzs_path_list[0].name)
-        if self.last_folder != selected_parent_folder or not self.last_folder:
-            self.last_folder = selected_parent_folder
+        if cbzs_path_list:
+            selected_parent_folder = os.path.dirname(cbzs_path_list[0].name)
+            if self.last_folder != selected_parent_folder or not self.last_folder:
+                self.last_folder = selected_parent_folder
         image = Image.open(image_path)
         image = image.resize((40, 60), Image.ANTIALIAS)
         self.image_in_confirmation = ImageTk.PhotoImage(image)

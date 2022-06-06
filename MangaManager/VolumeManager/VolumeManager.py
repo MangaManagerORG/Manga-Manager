@@ -249,12 +249,13 @@ class App:
                                                 filetypes=(("CBZ Files", ".cbz"),)
                                                 )
 
-        selected_parent_folder = os.path.dirname(self.cbz_files_path_list[0].name)
-        if self.last_folder != selected_parent_folder or not self.last_folder:
-            self.last_folder = selected_parent_folder
+
         if not self.cbz_files_path_list:
             # self.tool_volumesetter()
             self._label_4_selected_files_val.set(f"Selected 0 files.")
+            selected_parent_folder = os.path.dirname(self.cbz_files_path_list[0].name)
+            if self.last_folder != selected_parent_folder or not self.last_folder:
+                self.last_folder = selected_parent_folder
         else:
             self._label_4_selected_files_val.set(f"Selected {len(self.cbz_files_path_list)} files")
         # self.enableButtons(self.frame_volumesetter)

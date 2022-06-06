@@ -973,10 +973,10 @@ class App:
                                       filetypes=(("CBZ Files", ".cbz"),)
                                       # ("Zip files", ".zip"))
                                       )
-
-        selected_parent_folder = os.path.dirname(cbzs_path_list[0].name)
-        if self.last_folder != selected_parent_folder or not self.last_folder:
-            self.last_folder = selected_parent_folder
+        if cbzs_path_list:
+            selected_parent_folder = os.path.dirname(cbzs_path_list[0].name)
+            if self.last_folder != selected_parent_folder or not self.last_folder:
+                self.last_folder = selected_parent_folder
         for file in cbzs_path_list:
             self.selected_filenames.append(file.name)
         self.create_loadedComicInfo_list()
