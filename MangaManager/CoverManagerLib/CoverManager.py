@@ -154,7 +154,7 @@ class App:
         self._button5_delete_covers = tk.Button(self._controller_buttons_frame)
         self._button5_delete_covers.configure(text='Delete covers')
         self._button5_delete_covers.grid(column='0', pady='5', row='4', sticky='ew')
-        self._button5_delete_covers.configure(command=self.add_file_to_list)
+        self._button5_delete_covers.configure(command=self._deleteCover)
         self._button6_reselect_covers = tk.Button(self._controller_buttons_frame)
         self._button6_reselect_covers.configure(text='Select new set of covers')
         self._button6_reselect_covers.grid(column='0', pady='5', row='5', sticky='ew')
