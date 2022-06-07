@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=python /app/MangaManager.py --webpConverter
+Exec=python /app/MangaManager.pyw --webpConverter
 Icon=image-x-generic
 StartupNotify=true
 Terminal=false

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=python /app/MangaManager.py --tagger
+Exec=python /app/MangaManager.pyw --tagger
 Icon=easytag
 StartupNotify=true
 Terminal=false

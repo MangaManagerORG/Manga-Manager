@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=python /app/MangaManager.py --volume
+Exec=python /app/MangaManager.pyw --volume
 Icon=application-x-mobipocket-ebook
 StartupNotify=true
 Terminal=false

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=python /app/MangaManager.py --cover
+Exec=python /app/MangaManager.pyw --cover
 Icon=color-picker
 StartupNotify=true
 Terminal=false

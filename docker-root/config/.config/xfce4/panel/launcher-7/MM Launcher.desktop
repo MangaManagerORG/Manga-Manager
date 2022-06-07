@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=python /app/MangaManager.py
+Exec=python /app/MangaManager.pyw
 Icon=
 StartupNotify=true
 Terminal=true
