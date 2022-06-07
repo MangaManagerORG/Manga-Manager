@@ -35,7 +35,7 @@ class App:
 
         if not epubsPathList:
             self._initialized_UI = True
-            self.start_ui()
+            # self.start_ui()
 
     def start(self):
         if not self.epubsPathList:
@@ -200,9 +200,7 @@ class App:
         self.button_2.configure(text='Process')
         self.button_2.grid(column='0', row='5')
         self.button_2.configure(command=self.start)
-        self.frame_1.configure(height='200', padx='50', pady='50', width='200')
-        self.frame_1.grid(column='0', row='0')
-        self.frame_1.rowconfigure('2', pad='20')
+
         self._progressbar_frame = tk.Frame(self.frame_1)
         self._progressbar_frame.grid(column=0, row=6)
         self.button_2 = tk.Button(self.frame_1)
@@ -212,6 +210,10 @@ class App:
         self.label_4 = tk.Label(self.frame_1)
         self.label_4.configure(text='Selected folder:\nfile_path/epub2cbz/')
         self.label_4.grid(column='0', row=8)
+
+        self.frame_1.configure(height='200', padx='60', pady='60', width='200')
+        self.frame_1.pack(anchor='center', expand='true', fill='both', side='top')
+        self.frame_1.grid_anchor('center')
 
         self._initialized_UI = True
 

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=python /app/MangaManager.py --epub2cbz
+Exec=python /app/MangaManager.pyw --epub2cbz
 Icon=application-epub+zip
 StartupNotify=true
 Terminal=false
