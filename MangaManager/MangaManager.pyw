@@ -7,7 +7,6 @@ import os
 import pathlib
 import platform
 import sys
-import tkinter
 import tkinter as tk
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -18,8 +17,14 @@ from CoverManagerLib import CoverManager
 from MetadataManagerLib import MetadataManager
 from VolumeManager import VolumeManager
 
-# <Arguments parser>
 
+# <Arguments parser>
+class ToolS(enum.Enum):
+    COVER = 1
+    METADATA = 2
+    VOLUME = 3
+    EPUB2CBZ = 4
+    WEBP = 5
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '-d', '--debug',
@@ -30,29 +35,29 @@ parser.add_argument(
 parser.add_argument(
     '--cover',
     help="Launches Cover Manager tool",
-    action="store_const", dest="default_selected_tool", const=1,
+    action="store_const", dest="default_selected_tool", const=ToolS.COVER,
     default=0)
 
 parser.add_argument(
     '--tagger',
     help="Launches Manga Tagger tool",
-    action="store_const", dest="default_selected_tool", const=2
+    action="store_const", dest="default_selected_tool", const=ToolS.METADATA
 )
 
 parser.add_argument(
     '--volume',
     help="Launches volume Manager tool",
-    action="store_const", dest="default_selected_tool", const=3
+    action="store_const", dest="default_selected_tool", const=ToolS.VOLUME
 )
 parser.add_argument(
     '--epub2cbz',
     help="Launches volume Manager tool",
-    action="store_const", dest="default_selected_tool", const=4
+    action="store_const", dest="default_selected_tool", const=ToolS.EPUB2CBZ
 )
 parser.add_argument(
     '--webpConverter',
     help="Launches volume Manager tool",
-    action="store_const", dest="default_selected_tool", const=5
+    action="store_const", dest="default_selected_tool", const=ToolS.WEBP
 )
 
 
@@ -96,14 +101,6 @@ images_path = pathlib.Path(PROJECT_PATH, "Icons")
 tools = [CoverManager, MetadataManager, VolumeManager, epub2cbz, WebpConverter]
 
 
-class ToolS(enum.Enum):
-    COVER = 1
-    METADATA = 2
-    VOLUME = 3
-    EPUB2CBZ = 4
-    WEBP = 5
-
-
 def _create_settings():
     return {
         "library_folder_path": None,
@@ -111,15 +108,48 @@ def _create_settings():
     }
 
 
+def load_settings():
+    if Path(SETTING_PATH).exists():
+        with open(SETTING_PATH, 'r') as settings_json:
+            loaded_settings = json.load(settings_json)
+    else:
+        with open(SETTING_PATH, 'w+') as settings_json:
+            loaded_settings = _create_settings()
+            json.dump(loaded_settings, settings_json, indent=4)
+
+    settings = dict()
+    # Library path
+    if os.getenv("LIBRARY_FOLDER_PATH") is not None:
+        settings["library_folder_path"] = os.getenv("LIBRARY_FOLDER_PATH")
+    elif loaded_settings.get("library_folder_path"):
+        settings["library_folder_path"] = loaded_settings.get("library_folder_path")
+    elif os.path.exists("/manga"):
+        settings["library_folder_path"] = "/manga"
+    else:
+        settings["library_folder_path"] = ""
+
+    if os.getenv("COVER_FOLDER_PATH") is not None:
+        settings["cover_folder_path"] = os.getenv("COVER_FOLDER_PATH")
+    elif loaded_settings.get("cover_folder_path"):
+        settings["cover_folder_path"] = loaded_settings.get("cover_folder_path")
+    elif os.path.exists("/covers"):
+        settings["cover_folder_path"] = "/covers"
+    else:
+        settings["cover_folder_path"] = ""
+
+    return settings
+
+
 class MangaManager:
     settings = None
 
-    def __init__(self):
-        self._loadSettings()
+    def __init__(self, master: tk.Tk):
+        self.master = master
+        self.settings = load_settings()
 
-    def start_ui(self, master: tkinter.Tk = None):
+    def start_ui(self):
         # build ui
-        self.frame_1 = tk.Frame(master)
+        self.frame_1 = tk.Frame(self.master)
         self.button_cover_editor = tk.Button(self.frame_1)
         self.img_COVER_EDITOR = tk.PhotoImage(file=Path(images_path, 'cover_editor_half_size.png'))
         self.button_cover_editor.configure(image=self.img_COVER_EDITOR, text='Cover Editor',
@@ -155,7 +185,7 @@ class MangaManager:
         self.frame_1.grid_anchor('center')
 
         # Main widget
-        self.mainwindow = master
+        self.mainwindow = self.master
 
     def execute(self, tool: ToolS):
         root2 = tk.Toplevel(self.mainwindow)
@@ -172,39 +202,25 @@ class MangaManager:
     def run(self):
         self.mainwindow.mainloop()
 
-    def _loadSettings(self):
-        if Path(SETTING_PATH).exists():
-            with open(SETTING_PATH, 'r') as settings_json:
-                loaded_settings = json.load(settings_json)
-        else:
-            with open(SETTING_PATH, 'w+') as settings_json:
-                loaded_settings = _create_settings()
-                json.dump(loaded_settings, settings_json, indent=4)
-        self.settings = dict()
-
-        # Library path
-        if os.getenv("LIBRARY_FOLDER_PATH") is not None:
-            self.settings["library_folder_path"] = os.getenv("LIBRARY_FOLDER_PATH")
-        elif loaded_settings.get("library_folder_path"):
-            self.settings["library_folder_path"] = loaded_settings.get("library_folder_path")
-        elif os.path.exists("/manga"):
-            self.settings["library_folder_path"] = "/manga"
-        else:
-            self.settings["library_folder_path"] = ""
-
-        if os.getenv("COVER_FOLDER_PATH") is not None:
-            self.settings["cover_folder_path"] = os.getenv("COVER_FOLDER_PATH")
-        elif loaded_settings.get("cover_folder_path"):
-            self.settings["cover_folder_path"] = loaded_settings.get("cover_folder_path")
-        elif os.path.exists("/covers"):
-            self.settings["cover_folder_path"] = "/covers"
-        else:
-            self.settings["cover_folder_path"] = ""
-
 
 if __name__ == "__main__":
-    master_root = tk.Tk()
-    master_root.title("Manga Manager")
-    app = MangaManager()
-    app.start_ui(master_root)
-    app.run()
+    args = parser.parse_args()
+
+    if not args.default_selected_tool:
+        master_root = tk.Tk()
+        master_root.title("Manga Manager")
+
+        app = MangaManager(master_root)
+        app.start_ui()
+        app.run()
+    else:
+        root = tk.Tk()
+        if platform.system() == "Linux":
+            root.attributes('-zoomed', True)
+        elif platform.system() == "Windows":
+            root.state('zoomed')
+
+        selApp = tools[args.default_selected_tool.value - 1]
+        subapp = selApp.App(root, settings=load_settings())
+        subapp.start_ui()
+        subapp.run()
