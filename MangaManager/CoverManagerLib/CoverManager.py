@@ -334,7 +334,7 @@ class App:
             logger.info(f"Added to the processing queue -> {os.path.basename(iterated_file_path)} ")
 
             # Adding file is done. Just adding visual feedback in UI
-            displayed_file_path = f"...{os.path.basename(iterated_file_path)[-47:]}"
+            displayed_file_path = f"...{os.path.basename(iterated_file_path)[-63:]}"
             overwrite_displayedval = self.do_overwrite_first.get() if not delete else "Delete"
             self._treeview1.insert(parent='', index='end', image=self.image_in_confirmation, tags='monospace',
                                    values=(displayed_file_path, overwrite_displayedval))
