@@ -68,7 +68,7 @@ else:
     from CommonLib.HelperFunctions import get_estimated_time, get_elapsed_time
     import tkinter as tk
 
-    from tkinter import filedialog
+    from tkinter.filedialog import askopenfiles
     from tkinter.ttk import Style, Progressbar
 
 current_time = time.time()
@@ -202,8 +202,7 @@ if __name__ == '__main__':
                 """
 
                 :param interval:
-                :param function:
-                :param iteration:
+                :param total:
                 """
                 self._timer = None
                 self.interval = interval
@@ -265,9 +264,10 @@ if __name__ == '__main__':
     app.iterate_files()
     # app = WebpConverter(filenames)
 else:
+    # noinspection PyUnboundLocalVariable
     class App:
         # TODO: Add UI
-        def __init__(self, master: tk.Tk, overrideSupportedFormat=supportedFormats):
+        def __init__(self, master: tk.Toplevel, overrideSupportedFormat=supportedFormats, settings=None):
             """
             :param master: tkinter integration
             :param overrideSupportedFormat: Override these formats to include any that is supported by PIL
@@ -278,6 +278,8 @@ else:
                 self.master = master
             self.cbzFilePathList = list[str]()
             self.overrideSupportedFormat = overrideSupportedFormat
+
+            self.settings = settings
 
         def start(self):
 
@@ -335,7 +337,7 @@ else:
                 self._supported_formats = self.overrideSupportedFormat
                 # logger.info("Processing...")
                 try:
-                    self._process()
+                    self._process(cbzFilepath, self._tmpname)
 
                     os.remove(self.zipFilePath)
                     os.rename(self._tmpname, self.zipFilePath)
@@ -361,9 +363,9 @@ else:
                 # _printProgressBar(i + 1, l, prefix=f"Progress:", suffix='Complete', length=50)
             logger.info("Completed processing for all selected files")
 
-        def _process(self):
-            with zipfile.ZipFile(self.zipFilePath, 'r') as zin:
-                with zipfile.ZipFile(self._tmpname, 'w') as zout:
+        def _process(self, cbzFilepath, tmp_path):
+            with zipfile.ZipFile(cbzFilepath, 'r') as zin:
+                with zipfile.ZipFile(tmp_path, 'w') as zout:
                     for zipped_file in zin.infolist():
                         # logger.debug(f"Processing file {zipped_file.filename}")
                         file_format = re.findall(r"(?i)\.[a-z]+$", zipped_file.filename)
@@ -385,9 +387,11 @@ else:
 
         def _select_files(self):
 
-            self.epubsPathList = list[str]()
-            files_IO = filedialog.askopenfiles(title="Select .cbz files to convert its content to .webp",
-                                               filetypes=(("epub Files", ".cbz"),))
+            self.clear_queue()
+            files_IO = askopenfiles(parent=self.master,
+                                    initialdir=self.settings.get("library_folder_path"),
+                                    title="Select .cbz files to convert its content to .webp",
+                                    filetypes=(("epub Files", ".cbz"),))
             for file in files_IO:
                 self.cbzFilePathList.append(file.name)
                 displayed_file_path = f"...{file.name[-65:]}"
@@ -396,7 +400,17 @@ else:
 
             # self.run()
 
+        def clear_queue(self):
+            self.cbzFilePathList = list[str]()
+            try:
+                logger.debug(" Try to clear treeview")
+                self.listbox_1.delete(0, tk.END)
+                logger.info("Cleared queue")
+            except Exception as e:
+                logger.error("Can't clear treeview", exc_info=e)
+
         def start_ui(self):
+            self.master.title("Webp Converter")
             # build ui
             self.frame_1 = tk.Frame(self.master)
 
@@ -407,10 +421,18 @@ else:
             self.label_2.configure(font='{SUBTITLE} 12 {}',
                                    text='This script converts the images to .webp format.')
             self.label_2.grid(column='0', row='1')
-            self.button_1 = tk.Button(self.frame_1)
+
+            self.button_box = tk.Frame(self.frame_1)
+            self.button_box.grid(column='0', row='2')
+
+            self.button_1 = tk.Button(self.button_box)
             self.button_1.configure(text='Load .cbz files')
-            self.button_1.grid(column='0', row='2')
+            self.button_1.grid(column='0', row='0')
             self.button_1.configure(command=self._select_files)
+            self.button_3 = tk.Button(self.button_box)
+            self.button_3.configure(compound='top', font='TkTextFont', text='Clear Queue')
+            self.button_3.grid(column='1', row='0', sticky='ew')
+            self.button_3.configure(command=self.clear_queue)
             self.label_3 = tk.Label(self.frame_1)
             self.label_3.configure(text='Selected files:')
             self.label_3.grid(column='0', row='3')
@@ -421,9 +443,11 @@ else:
             self.button_2.configure(text='Process')
             self.button_2.grid(column='0', row='5')
             self.button_2.configure(command=self.start)
-            self.frame_1.configure(height='200', padx='50', pady='50', width='200')
-            self.frame_1.grid(column='0', row='0')
-            self.frame_1.rowconfigure('2', pad='20')
+
+            self.frame_1.configure(height='200', padx='60', pady='60', width='200')
+            self.frame_1.pack(anchor='center', expand='true', fill='both', side='top')
+            self.frame_1.grid_anchor('center')
+
             self._progressbar_frame = tk.Frame(self.frame_1)
             self._progressbar_frame.grid(column=0, row=6)
 

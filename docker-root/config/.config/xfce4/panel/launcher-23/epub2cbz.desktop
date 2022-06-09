@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Exec=python /app/MangaManager.pyw --epub2cbz
+Icon=application-epub+zip
+StartupNotify=true
+Terminal=false
+Categories=Utility;X-XFCE;X-Xfce-Toplevel;
+OnlyShowIn=XFCE;
+Name=ePub2CBZ Converter
+Comment=Manga Manager ePub2CBZ Converter
+Keywords=run;command;application;program;finder;search;launcher;everything;spotlight;sherlock;applesearch;unity dash;krunner;synapse;ulauncher;launchy;gnome do;pie;apwal;recoll;alfred;quicksilver;tracker;beagle;kupfer;
+X-XFCE-Source=file:///usr/share/applications/xfce4-run.desktop
+Path=/manga

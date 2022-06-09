@@ -51,7 +51,7 @@ class ReadComicInfo:
         Reads a cbz o zip file and returns the a ComicInfo class from the ComicInfo.xml file.
         If ComicInfo not present returns none
         """
-        if self.ignore_empty_metadata:
+        if self.ignore_empty_metadata and not self.xmlString:
             logger.debug("returning comicinfo")
             return ComicInfo.ComicInfo()
         print_xml = False if print_xml else True
@@ -80,7 +80,7 @@ class WriteComicInfo:
         _oldZipFilePath = self._zipFilePath
 
         # new_zipFilePath = '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$", _zipFilePath)[0])
-        logger.debug(f"[WriteComicInfo] -  {self._zipFilePath}")
+        logger.debug(f"[Write] -  {self._zipFilePath}")
         # os.rename(_zipFilePath, new_zipFilePath)
         export_io = io.StringIO()
         try:
@@ -101,10 +101,13 @@ class WriteComicInfo:
                 6. Deletes file provided
                 7. Renames tempfile to the same name that was deleted previously
                 """
-        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self._zipFilePath))
-        os.close(tmpfd)
         backup_isdone = False
         with zipfile.ZipFile(self._zipFilePath, 'r') as zin:
+            if not "ComicInfo.xml" in zin.namelist():
+                logger.debug(f"[Backup] Skipping backup. No ComicInfo.xml present")
+                return
+            tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self._zipFilePath))
+            os.close(tmpfd)
             with zipfile.ZipFile(tmpname, 'w') as zout:
                 for item in zin.infolist():
                     logger.debug(f"[Backup] Iterating: {item.filename}")
@@ -129,8 +132,17 @@ class WriteComicInfo:
             os.remove(tmpname)
             raise e
 
-    def to_file(self):
-        self._backup()
+    def to_file(self, skip_backup=False, skip_if_comicinfo_is_present=False):
+        comicinfo_is_present = False
+        with zipfile.ZipFile(self._zipFilePath, 'r') as zin:
+            if "ComicInfo.xml" in zin.namelist():
+                comicinfo_is_present = True
+                logger.debug("[Write] Skipped appending ComicInfo.xml to the file")
+        if comicinfo_is_present:
+            if not skip_backup:
+                self._backup()
+        if comicinfo_is_present and skip_if_comicinfo_is_present:
+            return
         with zipfile.ZipFile(self._zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
             # We finally append our new ComicInfo file
             zf.writestr("ComicInfo.xml", self._export_io)
@@ -154,10 +166,14 @@ class WriteComicInfo:
                 6. Deletes file provided
                 7. Renames tempfile to the same name that was deleted previously
                 """
-        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self._zipFilePath))
-        os.close(tmpfd)
+
         backup_isdone = False
         with zipfile.ZipFile(self._zipFilePath, 'r') as zin:
+            if not "Old_ComicInfo.xml.bak" in zin.namelist():
+                logger.debug(f"[Restore] Skipping restore. No ComicInfo.xml present")
+                return
+            tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self._zipFilePath))
+            os.close(tmpfd)
             with zipfile.ZipFile(tmpname, 'w') as zout:
                 for item in zin.infolist():
                     logger.debug(f"[Restore Backup] Iterating: {item.filename}")

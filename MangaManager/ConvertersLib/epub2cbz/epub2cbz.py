@@ -5,7 +5,8 @@ import tempfile
 import tkinter as tk
 import zipfile
 from pathlib import Path
-from tkinter import filedialog
+
+from tkinter.filedialog import askopenfiles, askdirectory
 from tkinter.ttk import Style, Progressbar
 
 # from CommonLib import webp_converter as convert_to_webp
@@ -13,8 +14,9 @@ from tkinter.ttk import Style, Progressbar
 logger = logging.getLogger(__name__)
 
 
+# noinspection PyUnboundLocalVariable
 class App:
-    def __init__(self, master: tk.Tk, epubsPathList: list[str] = None, convert_to_webp=False, ):
+    def __init__(self, master: tk.Toplevel, epubsPathList: list[str] = None, convert_to_webp=False, settings=None):
         """
         If there are epubsPathList; start() must be called manually
 
@@ -28,10 +30,12 @@ class App:
             master = tk.Tk()
         self.master = master
         self.epubsPathList = epubsPathList
+        self.settings = settings
         self._initialized_UI = False
+
         if not epubsPathList:
             self._initialized_UI = True
-            self.start_ui()
+            # self.start_ui()
 
     def start(self):
         if not self.epubsPathList:
@@ -113,10 +117,12 @@ class App:
                 logger.error(f"Error processing file '{epubPath}': {str(e)}",e)
                 processed_errors += 1
                 try:
+                    # noinspection PyUnboundLocalVariable
                     os.remove(tmpname)
                 except UnboundLocalError: # we just want to make sure there are no leftover files
                     pass
             if self._initialized_UI:
+                # noinspection PyUnboundLocalVariable
                 pb_root.update()
                 percentage = ((processed_counter + processed_errors) / total) * 100
                 style.configure('text.Horizontal.TProgressbar',
@@ -157,8 +163,9 @@ class App:
     def _select_files(self):
 
         self.epubsPathList = list[str]()
-        files_IO = filedialog.askopenfiles(title="Select .epubs files to extract to .cbz",
-                                           filetypes=(("epub Files", ".epub"),))
+        files_IO = askopenfiles(parent=self.master, initialdir=self.settings.get("library_folder_path"),
+                                title="Select .epubs files to extract to .cbz",
+                                filetypes=(("epub Files", ".epub"),))
         for file in files_IO:
             self.epubsPathList.append(file.name)
             displayed_file_path = f"...{file.name[-65:]}"
@@ -169,6 +176,7 @@ class App:
 
     def start_ui(self):
         # build ui
+        self.master.title("Epub2Cbz Converter")
         self.frame_1 = tk.Frame(self.master)
 
         self.label_1 = tk.Label(self.frame_1)
@@ -192,9 +200,7 @@ class App:
         self.button_2.configure(text='Process')
         self.button_2.grid(column='0', row='5')
         self.button_2.configure(command=self.start)
-        self.frame_1.configure(height='200', padx='50', pady='50', width='200')
-        self.frame_1.grid(column='0', row='0')
-        self.frame_1.rowconfigure('2', pad='20')
+
         self._progressbar_frame = tk.Frame(self.frame_1)
         self._progressbar_frame.grid(column=0, row=6)
         self.button_2 = tk.Button(self.frame_1)
@@ -205,10 +211,14 @@ class App:
         self.label_4.configure(text='Selected folder:\nfile_path/epub2cbz/')
         self.label_4.grid(column='0', row=8)
 
+        self.frame_1.configure(height='200', padx='60', pady='60', width='200')
+        self.frame_1.pack(anchor='center', expand='true', fill='both', side='top')
+        self.frame_1.grid_anchor('center')
+
         self._initialized_UI = True
 
     def _change_out_folder(self):
-        self.output_folder = filedialog.askdirectory()
+        self.output_folder = askdirectory(parent=self.master, initialdir=self.settings.get("library_folder_path"))
         self.label_4.configure(text="Selected folder:\n" + self.output_folder)
 
     def run(self):

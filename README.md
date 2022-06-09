@@ -1,5 +1,5 @@
 # Manga Manager
-[![Python tests](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml)
+[![Python tests](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml) [![Build & publish Docker Images](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Build_Docker_Images.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Build_Docker_Images.yml)
 ## Min required version: Python 3.9
 
 ## What is Manga Manager
@@ -21,4 +21,24 @@ These are the tools available
   - [CLI command](https://github.com/ThePromidius/Manga-Manager/wiki/Metadata-Manager#cli---copy-command) - Used to
     batch convert files to Webp
 - [Epub to CBZ](https://github.com/ThePromidius/Manga-Manager/wiki/EPUB-to-CBZ-converter) - Moves the images of a epub
-  to a cbz file. (Metadata does not get copied yet) 
+  to a cbz file. (Metadata does not get copied yet)
+
+## Requirements
+
+Min required version: Python 3.9
+
+## Docker
+
+This suite of applications can be run using Docker!
+In the repo's root you can find a docker-compose.yml to use or derive your docker run command from. Truly essential is
+to expose port `3000` and map the volumes for `/manga` and `/covers`.
+[Watch the docker-compose.yml template at the wiki](https://github.com/ThePromidius/Manga-Manager/wiki/Docker#docker-composeyml)
+The stable releases are built from the master branch of this repo, nightlies are built from the develop branch.
+
+![Screenshot-1](/project-docs/screenshot-1.png)
+
+![Screenshot-2](/project-docs/screenshot-2.png)
+
+### Art attribution
+
+Wallpaper Photo by [Ian Valerio](https://unsplash.com/@iangvalerio?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/s/photos/anime?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText)

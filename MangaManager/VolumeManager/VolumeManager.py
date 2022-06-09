@@ -1,11 +1,12 @@
 import io
 import logging
 import os
+import pathlib
 import re
 import tkinter as tk
-from tkinter import filedialog
 from tkinter import messagebox as mb
 from tkinter import ttk
+from tkinter.filedialog import askopenfiles
 
 from lxml.etree import XMLSyntaxError
 from typing.io import IO
@@ -14,16 +15,40 @@ from CommonLib.ProgressBarWidget import ProgressBar
 from .errors import NoFilesSelected
 from .models import ChapterFileNameData
 
-launch_path = ""
+if os.path.exists("/manga"):
+    launch_path = "/manga"
+else:
+    launch_path = ""
 
 logger = logging.getLogger(__name__)
 
 ScriptDir = os.path.dirname(__file__)
 
 
+def parse_fileName(filepath, volume_to_apply):
+    filename = os.path.basename(filepath)
+    file_regex_finds = None
+    regexSearch = re.findall(r"(?i)(.*)((?:Chapter|CH)(?:\.|\s)[0-9]+[.]*[0-9]*)(\.[a-z]{3})", filename)
+    if regexSearch:
+        r = regexSearch[0]
+        file_regex_finds: ChapterFileNameData = ChapterFileNameData(name=r[0], chapterinfo=r[1],
+                                                                    afterchapter=r[2], fullpath=filepath,
+                                                                    volume=volume_to_apply)
+    else:
+        # Todo: add warning no ch/chapter detected and using last int as ch identifier
+        regexSearch = re.findall(r"(?i)(.*\s)([0-9]+[.]*[0-9]*)(\.[a-z]{3}$)",
+                                 filename)  # TODO: this regex must be improved yo cover more test cases
+        if regexSearch:
+            r = regexSearch[0]
+            file_regex_finds: ChapterFileNameData = ChapterFileNameData(name=r[0], chapterinfo=r[1],
+                                                                        afterchapter=r[2], fullpath=filepath,
+                                                                        volume=volume_to_apply)
+    return file_regex_finds
+
 class App:
-    def __init__(self, master: tk.Tk = None):
-        self._master = master
+    def __init__(self, master: tk.Toplevel = None, settings=None):
+        self.master = master
+        self.settings = settings
         self._checkbutton_1_settings_val = tk.BooleanVar(value=True)  # Auto increase volume number
         self._checkbutton_2_settings_val = tk.BooleanVar(value=False)  # Open FIle Selector dialog after processing
         self._checkbutton_3_settings_val = tk.BooleanVar(value=False)  # Automatic preview
@@ -37,6 +62,7 @@ class App:
         self._spinbox_1_volume_number_val_prev = tk.IntVar(value=-1)
         self._spinbox_1_volume_number_val.trace(mode='w', callback=self.validateIntVar)
         self._initialized_UI = False
+        self.last_folder = ""
 
     def validateIntVar(self, *args):
         try:
@@ -59,8 +85,8 @@ class App:
             self._spinbox_1_volume_number_val.set(-1)
 
     def start_ui(self):
-
-        self._frame_1_title = tk.Frame(self._master, container='false')
+        self.master.title("Volume Manager")
+        self._frame_1_title = tk.Frame(self.master, container='false')
         # Must keep :
         self._validate_spinbox = (self._frame_1_title.register(self._ValidateIfNum), '%s', '%S')  # Validates spinbox
 
@@ -167,10 +193,8 @@ class App:
         self._frame_1_title.grid(column='0', padx='25', pady='25', row='1', sticky='ew')
         self._frame_1_title.grid_propagate(0)
 
-
-
-        self._master.rowconfigure('1', weight='0')
-        self._master.columnconfigure('0', pad='25', weight='1')
+        self.master.rowconfigure('1', weight='0')
+        self.master.columnconfigure('0', pad='25', weight='1')
 
         # Main widget
         self.mainwindow = self._frame_1_title
@@ -183,8 +207,9 @@ class App:
         self._button_4_clearqueue.configure(state="disabled")
         self._treeview_1.tag_configure('monospace', font=('courier',10))
         self._initialized_UI = True
+
     def run(self):
-        self._master.mainloop()
+        self.master.mainloop()
 
     # UI Controllers
     def _ValidateIfNum(self, s, S):  # Spinbox validator
@@ -213,13 +238,25 @@ class App:
     def _open_files(self):
 
         logger.debug("inside openfiles")
-        self.cbz_files_path_list = filedialog.askopenfiles(initialdir=launch_path, title="Select file to apply cover",
-                                                           filetypes=(("CBZ Files", ".cbz"),)
-                                                           )
+
+        if not self.last_folder:
+            initial_dir = self.settings.get("library_folder_path")
+        else:
+            initial_dir = self.last_folder
+
+        self.cbz_files_path_list = askopenfiles(parent=self.master, initialdir=initial_dir,
+                                                title="Select file to apply cover",
+                                                filetypes=(("CBZ Files", ".cbz"),)
+                                                )
+
+
         if not self.cbz_files_path_list:
             # self.tool_volumesetter()
             self._label_4_selected_files_val.set(f"Selected 0 files.")
         else:
+            selected_parent_folder = os.path.dirname(self.cbz_files_path_list[0].name)
+            if self.last_folder != selected_parent_folder or not self.last_folder:
+                self.last_folder = selected_parent_folder
             self._label_4_selected_files_val.set(f"Selected {len(self.cbz_files_path_list)} files")
         # self.enableButtons(self.frame_volumesetter)
 
@@ -254,29 +291,16 @@ class App:
             else:
                 filepath = cbz_path
                 logger.debug(f"[Preview] Adding ' {filepath}' to list")
-            filename = os.path.basename(filepath)
-            regexSearch = re.findall(r"(?i)(.*)((?:Chapter|CH)(?:\.|\s)[0-9]+[.]*[0-9]*)(\.[a-z]{3})", filename)
-            if regexSearch:
-                r = regexSearch[0]
-                file_regex_finds: ChapterFileNameData = ChapterFileNameData(name=r[0], chapterinfo=r[1],
-                                                                            afterchapter=r[2], fullpath=filepath,
-                                                                            volume=volume_to_apply)
-            else:
-                # Todo: add warning no ch/chapter detected and using last int as ch identifier
-                regexSearch = re.findall(r"(?i)(.*\s)([0-9]+[.]*[0-9]*)(\.[a-z]{3}$)",
-                                         filename)  # TODO: this regex must be improved yo cover more test cases
-                if regexSearch:
-                    r = regexSearch[0]
-                    file_regex_finds: ChapterFileNameData = ChapterFileNameData(name=r[0], chapterinfo=r[1],
-                                                                                afterchapter=r[2], fullpath=filepath,
-                                                                                volume=volume_to_apply)
+
+            file_regex_finds = parse_fileName(filepath, volume_to_apply)
             new_file_path = os.path.dirname(filepath)
             if self.checkbutton_4_5_settings_val.get():
                 newFile_Name = "Filename won't be modified. Vol will be added to ComicInfo.xml"
                 file_regex_finds.complete_new_path = filepath
             else:
-                newFile_Name = f"{new_file_path}/{file_regex_finds.name} Vol.{str(volume_to_apply).zfill(2)} {file_regex_finds.chapterinfo}{file_regex_finds.afterchapter}".replace(
-                    "  ", " ")
+                newFile_Name = str(pathlib.Path(new_file_path,
+                                                f"{file_regex_finds.name} Vol.{volume_to_apply} {file_regex_finds.chapterinfo}{file_regex_finds.afterchapter}".replace(
+                                                    "  ", " ")))
                 file_regex_finds.complete_new_path = newFile_Name
 
             self._list_filestorename.append(file_regex_finds)
@@ -362,12 +386,13 @@ class App:
                     progressBar.increaseCount()
                 except PermissionError as e:
                     if self._initialized_UI:
-                        mb.showerror("Can't access the file because it's being used by a different process")
+                        mb.showerror("Can't access the file because it's being used by a different process",
+                                     parent=self.master)
                     logger.error("Can't access the file because it's being used by a different process")
                     progressBar.increaseError()
                 except FileNotFoundError as e:
                     if self._initialized_UI:
-                        mb.showerror("Can't access the file because it's was not found")
+                        mb.showerror("Can't access the file because it's was not found", parent=self.master)
                     logger.error("Can't access the file because it's being used by a different process")
                     progressBar.increaseError()
                 except Exception as e:
@@ -387,7 +412,6 @@ class App:
                     cominfo_app = taggerApp(disable_metadata_notFound_warning=True)
                     cominfo_app.create_loadedComicInfo_list([item.complete_new_path])
                     cominfo_app.entry_Volume_val.set(item.volume)
-                    vol_val = cominfo_app.entry_Volume_val.get()
 
                     cominfo_app.do_save_UI()
                     progressBar.increaseCount()

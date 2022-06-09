@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Exec=python /app/MangaManager.pyw
+Icon=
+StartupNotify=true
+Terminal=true
+Categories=Utility;X-XFCE;X-Xfce-Toplevel;
+OnlyShowIn=XFCE;
+Name=Manga Manager
+Comment=Manga Manager Launcher (Terminal)
+Keywords=run;command;application;program;finder;search;launcher;everything;spotlight;sherlock;applesearch;unity dash;krunner;synapse;ulauncher;launchy;gnome do;pie;apwal;recoll;alfred;quicksilver;tracker;beagle;kupfer;
+X-XFCE-Source=file:///usr/share/applications/xfce4-run.desktop
+Path=/app

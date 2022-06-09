@@ -20,3 +20,4 @@ undo.json
 /testing/
 .pytest_cache
 *.log*
+/.idea/webResources.xml
