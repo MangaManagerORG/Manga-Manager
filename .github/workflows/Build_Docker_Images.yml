@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: '41 11 * * 3'
   push:
-    branches: [ main, develop, test ]
+    branches: [ master, develop, test ]
 env:
   IMAGE_NAME: "thepromidius/manga-manager"
 jobs:
@@ -30,7 +30,7 @@ jobs:
   docker_stable:
     name: Stable Build
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
