@@ -6,9 +6,9 @@ import requests
 
 url = "https://api.mangadex.org"
 
-manga_id = "28c77530-dfa1-4b05-8ec3-998960ba24d4"
+manga_id = import("Mangadex Manga ID Here: ")
 if __name__ == '__main__':
-    data = {"manga[]": [manga_id], "includes[]": ["manga"]}
+    data = {"manga[]": [manga_id], "includes[]": ["manga"], "limit":50}
     r = requests.get(url + "/cover", params=data)
 
     r_json = r.json()
