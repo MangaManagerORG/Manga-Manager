@@ -59,7 +59,25 @@ folder_to_scan = r"D:\Descargas\ANIME\Htorrent\FAKKU_COLLECTION\FAKKU Unlimited 
 
 # folder_to_scan = r"D:\Descargas\ANIME\Htorrent\FAKKU_COLLECTION\TEST"
 # data_file = input("Data json file\n> ")
+def cleanFilename(sourcestring, removestring=" %:/,.\\[]<>*?\""):
+    """Clean a string by removing selected characters.
 
+    Creates a legal and 'clean' source string from a string by removing some
+    clutter and  characters not allowed in filenames.
+    A default set is given but the user can override the default string.
+
+    Args:
+        | sourcestring (string): the string to be cleaned.
+        | removestring (string): remove all these characters from the string (optional).
+
+    Returns:
+        | (string): A cleaned-up string.
+
+    Raises:
+        | No exception is raised.
+    """
+    # remove the undesireable characters
+    return ''.join([c for c in sourcestring if c not in removestring])
 
 def remove_text_inside_brackets(text, brackets="()[]"):
     count = [0] * (len(brackets) // 2)  # count open/close brackets
@@ -95,6 +113,13 @@ def remove_chapter(text):
     return text
 
 
+def findChapter(text):
+    r = r"(?i)(?:chapter|ch)(?:\s|\.)?(?:\s|\.)?(\d+)"
+    match = re.findall(r, text)
+    if match:
+        return match[0]
+    return match
+
 def fetchChapter(text):
     r = r"(?i)(?:chapter|ch|#)(?:\s|\.)?(?:\s|\.)?(\d+)"
     return re.findall(r, text)
@@ -111,6 +136,9 @@ def main():
     for root, dirs, files in os.walk(scanPath):
         for file in files:
             file_path = os.path.join(root, file)
+            if not os.path.exists(file_path):
+                logger.info(f"Skipping {file_path}, doesn't exist")
+                continue
             try:
                 if not file.endswith(".cbz"):
                     continue
@@ -137,6 +165,8 @@ def main():
 
                     if re.match(r"(?i)_([0-9]+) - ", file_name):
                         comicinfo.set_Number(re.findall(r"_([0-9]+) - ", file_name)[0])
+                    elif findChapter(file_name):
+                        comicinfo.set_Number(findChapter(file_name))
                     elif re.match(r"(?i)ch.(?:\s|.|)([0-9]+)", file_name):
                         comicinfo.set_Number(re.findall(r"_([0-9]+) - ", file_name)[0])
                     elif re.match(r"(?i)ch.(?:\s|.|)([0-9]+-[0-9]+)", file_name):
@@ -190,6 +220,18 @@ def main():
                                 if magazine_match[2]:
                                     comicinfo.set_Number("0")
                                     logger.debug(f"Set Number:0")
+                            else:
+                                comicinfo.set_Number("0")
+
+                                re.findall(r"(\d{4})", magazine)
+                                magazine_name = re.sub("\s\s+", " ",
+                                                       remove_chapter(remove_text_inside_brackets(magazine)))
+                                comicinfo.set_Series(magazine_name)
+                                comicinfo.set_Number("0")
+
+                                volume = re.findall(r"(\d{4})", magazine)
+                                if volume:
+                                    comicinfo.set_Volume(volume[0])
                         else:
                             chapter = fetchChapter(magazine)
                             if chapter:
@@ -200,9 +242,6 @@ def main():
                                 comicinfo.set_Volume(volume[0])
                                 logger.debug(f"Set Volume: {volume[0]}")
 
-                            magazine_name = re.sub("\s\s+", " ", remove_chapter(remove_text_inside_brackets(magazine)))
-                            comicinfo.set_Series(magazine_name)
-                            logger.debug(f"Set Series: {magazine_name}")
 
                     comicinfo.set_Publisher(json_data.get("Publisher"))
 
@@ -248,16 +287,48 @@ def main():
                         MetadataManagerLib.models.LoadedComicInfo(file_path, comicInfo=comicinfo)).to_file(
                         skip_backup=False, skip_if_comicinfo_is_present=False)
                     logger.debug("[Write] New ComicInfo.xml added to the file after backup")
+
+                parent_folder = pathlib.Path(scanPath, cleanFilename(comicinfo.get_Series().strip()))
+                parent_folder = parent_folder.resolve(strict=False)
+
+                print("New parent folder:" + str(parent_folder))
+                parent_folder.mkdir(exist_ok=True, parents=True)
+                try:
+                    parent_folder.mkdir(exist_ok=True, parents=True)
+                except OSError as e:
+                    if not "WinError 123" in str(e):
+                        raise e
+                    parent_folder = pathlib.Path(scanPath, cleanFilename(str(comicinfo.get_Series()).strip()))
+                    parent_folder = parent_folder.resolve(strict=False)
+                    parent_folder.mkdir(exist_ok=True, parents=True)
+                counter = 0
+                try:
+                    shutil.move(file_path, parent_folder)
+                except shutil.Error as e:
+                    if f"Destination path '{file_path}' already exists" == str(e):
+                        successful = False
+                        while not successful:
+                            counter += 1
+                            new_file_path = file_path.strip(".cbz") + str(counter) + ".cbz"
+                            print(file_path)
+                            print(new_file_path)
+                            shutil.move(file_path, parent_folder.joinpath(new_file_path))
+
+
             except PermissionError as e:
                 logger.error(e)
 
                 os.makedirs(Path(os.path.dirname(scanPath), "PermissionError_Files"), exist_ok=True)
-                shutil.move(file_path, Path(os.path.dirname(scanPath), "PermissionError_Files"))
+                # shutil.move(file_path, Path(os.path.dirname(scanPath), "PermissionError_Files"))
+            except FileNotFoundError as e:
+                raise e
+                print(f"File not found: {file_path}")
+                logger.error(f"File not found: {file_path}")
             except Exception as e:
                 logger.error(e)
                 # print(e)
                 raise e
-
+        break
 
 if __name__ == '__main__':
     main()
