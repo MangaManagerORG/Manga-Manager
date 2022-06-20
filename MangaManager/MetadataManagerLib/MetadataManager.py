@@ -1235,7 +1235,10 @@ class App:
 
                 # Else modify field with whatever is on the stringvar/intvar
                 else:
-                    comicinfo_atr_set(widgetvar.get())
+                    variable = widgetvar.get()
+                    if "{title}" in str(widgetvar.get()):
+                        variable = variable.replace("{title}", comicObj.comicInfoObj.get_Title())
+                    comicinfo_atr_set(variable)
 
             modified_loadedComicInfo, keep_original_value = comicObj, keep_original_value
             modified_loadedComicInfo_list.append(modified_loadedComicInfo)
