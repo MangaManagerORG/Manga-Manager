@@ -41,4 +41,5 @@ if __name__ == '__main__':
         filename, file_extension = os.path.splitext(cover_filename)
         image_url = f"https://mangadex.org/covers/{manga_id}/{cover_filename}"
         print(image_url)
-        urllib.request.urlretrieve(image_url, pathlib.Path(directory, f"Cover_Vol.{str(cover_volume).zfill(2)}_{cover_loc}{file_extension}")
+        urllib.request.urlretrieve(image_url, pathlib.Path(directory,
+                                                           f"Cover_Vol.{str(cover_volume).zfill(2)}_{cover_loc}{file_extension}"))
