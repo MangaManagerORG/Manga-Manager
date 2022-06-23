@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 import tkinter as tk
 from itertools import cycle
 from tkinter import messagebox as mb
@@ -318,12 +317,13 @@ class App:
 
         for iterated_file_path in cbzs_path_list:
             iterated_file_path = iterated_file_path.name
-            file_format = re.findall(r"(?i)\.[a-z]+$", image_path)[0]
+            filename, file_format = os.path.splitext(image_path)
+            # file_format = re.findall(r"(?i)\.[a-z]+$", image_path)[0]
             tmp_info = cover_process_item_info(
                 cbz_file=iterated_file_path,
                 cover_path=image_path,
                 cover_name=os.path.basename(image_path),
-                cover_format=file_format,
+                cover_format=file_format,  # Must include the extension dot '.ext'
                 coverDelete=option_delete,
                 coverRecover=option_recover,
                 coverOverwrite=option_overwrite
@@ -395,8 +395,8 @@ class App:
                     progressBar.increaseError()
                     continue
                 except Exception as e:
+                    logger.error("Exception Processing", e)
                     mb.showerror("Something went wrong", "Error processing. Check logs.", parent=self.master)
-                    logger.critical("Exception Processing", e)
                     progressBar.increaseError()
                 progressBar.updatePB()
         self.covers_path_in_confirmation = {}  # clear queue

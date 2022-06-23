@@ -107,11 +107,10 @@ def _printProgressBar(total, prefix='', suffix='', decimals=1, length=100, fill=
 
 
 def getNewWebpFormatName(currentName: str) -> str:
-    file_format = re.findall(r"(?i)\.[a-z]+$", currentName)
-    if file_format:
-        file_format = file_format[0]
-        file_name = currentName.replace(file_format, "")
-        return file_name + ".webp"
+    filename, file_format = os.path.splitext(currentName)
+    if filename.endswith("."):
+        filename = filename.strip(".")
+    return filename + ".webp"
 
 
 def convertToWebp(open_zipped_file) -> bytes:
