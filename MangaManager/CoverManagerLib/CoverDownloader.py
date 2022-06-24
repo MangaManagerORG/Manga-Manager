@@ -1,28 +1,30 @@
+import logging
 import os
+import pathlib
 import urllib.request
-from pprint import pprint
 
 import requests
 
+logger = logging.getLogger(__name__)
+ScriptDir = os.path.dirname(__file__)
+
 url = "https://api.mangadex.org"
 
-import pathlib
-directory = input("Folder Name Here: ")
-parent_dir = "/Users/trent/MangaManager"
-path = os.path.join(parent_dir, directory)
-os.mkdir(path)
-
-manga_id = input("Mangadex Manga ID Here: ")
 if __name__ == '__main__':
-    data = {"manga[]": [manga_id], "includes[]": ["manga"], "limit":50}
-    r = requests.get(url + "/cover", params=data)
+    directory = input("Folder Name Here: ")  # The folder of the cover
+    parent_dir = os.getcwd()  # Returs the folder where manga-manager folder is as base path change this to set base path
+
+    path = os.path.join(parent_dir, directory)
+
+    os.mkdir(path)
+    manga_id = input("Mangadex Manga ID Here: ")
+
+    data = {"manga[]": [manga_id], "includes[]": ["manga"], "limit": 50}
+    r = requests.get(f"{url}/cover", params=data)
 
     r_json = r.json()
-    pprint(r_json)
 
-    print("\nfirst cover:\n")
-
-    for i, cover_data in enumerate(r_json.get("data")):
+    for cover_data in r_json.get("data"):
         data = {"includes[]": ["cover_art"],
                 "order": {
                     "createdAt": "asc",
@@ -41,5 +43,43 @@ if __name__ == '__main__':
         filename, file_extension = os.path.splitext(cover_filename)
         image_url = f"https://mangadex.org/covers/{manga_id}/{cover_filename}"
         print(image_url)
-        urllib.request.urlretrieve(image_url, pathlib.Path(directory,
-                                                           f"Cover_Vol.{str(cover_volume).zfill(2)}_{cover_loc}{file_extension}"))
+        urllib.request.urlretrieve(image_url,
+                                   pathlib.Path(directory,
+                                                f"Cover_Vol.{str(cover_volume).zfill(2)}_{cover_loc}{file_extension}"))
+
+else:  # Called from cover manager
+
+    import tkinter as tk
+
+
+    class App:
+        def __init__(self, master: tk.Toplevel, settings=None):
+            self.master = master
+            self.settings = settings
+
+        def start_ui(self):
+            # build ui
+            self.frame_1 = tk.Frame(self.master)
+            self.frame_3 = tk.Frame(self.frame_1)
+            self.label_1 = tk.Label(self.frame_3)
+            self.label_1.configure(text='INSERT MANGADEX MANGA ID / URL')
+            self.label_1.pack(side='top')
+            self.entry_1 = tk.Entry(self.frame_3)
+            self.entry_1.configure(width='80')
+            self.entry_1.pack(side='top')
+            self.button_1 = tk.Button(self.frame_3)
+            self.button_1.configure(text='Download Covers to:')
+            self.button_1.pack(side='top')
+            self.label_2 = tk.Label(self.frame_3)
+            self.label_2.configure(text=str(pathlib.Path(self.settings.get('cover_folder_path'), '<Manga Name>')))
+            self.label_2.pack(side='top')
+            self.frame_3.configure(height='400', width='400')
+            self.frame_3.pack(padx='50', pady='50', side='top')
+            self.frame_1.configure(height='600', width='600')
+            self.frame_1.pack(anchor='center', expand='true', fill='both', side='top')
+
+            # Main widget
+            self.mainwindow = self.frame_1
+
+        def run(self):
+            self.master.mainloop()

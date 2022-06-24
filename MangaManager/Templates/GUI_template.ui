@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='utf-8'?>
+<interface version="1.2">
+  <object class="tk.Frame" id="frame_1">
+    <property name="height">600</property>
+    <property name="width">200</property>
+    <layout manager="pack">
+      <property name="anchor">center</property>
+      <property name="expand">true</property>
+      <property name="fill">both</property>
+      <property name="side">top</property>
+    </layout>
+    <child>
+      <object class="tk.Frame" id="_frame_3">
+        <property name="height">200</property>
+        <property name="width">200</property>
+        <layout manager="pack">
+          <property name="side">top</property>
+        </layout>
+        <containerlayout manager="grid">
+          <property type="col" id="0" name="weight">1</property>
+          <property type="col" id="1" name="weight">10</property>
+          <property type="col" id="2" name="weight">1</property>
+          <property type="col" id="3" name="pad">20</property>
+        </containerlayout>
+        <child>
+          <object class="tk.Button" id="_button_2">
+            <property name="text" translatable="yes">Save</property>
+            <property name="width">10</property>
+            <layout manager="grid">
+              <property name="column">0</property>
+              <property name="row">0</property>
+              <property name="sticky">ew</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Button" id="_button_1">
+            <property name="text" translatable="yes">Open</property>
+            <property name="width">10</property>
+            <layout manager="grid">
+              <property name="column">1</property>
+              <property name="row">0</property>
+              <property name="sticky">ew</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Button" id="_button_3">
+            <property name="justify">center</property>
+            <property name="text" translatable="yes">Remove ComicInfo</property>
+            <layout manager="grid">
+              <property name="column">0</property>
+              <property name="row">1</property>
+              <property name="sticky">w</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Button" id="_button_4">
+            <property name="justify">center</property>
+            <property name="state">disabled</property>
+            <property name="text" translatable="yes">Fetch Online</property>
+            <layout manager="grid">
+              <property name="column">1</property>
+              <property name="columnspan">3</property>
+              <property name="row">1</property>
+              <property name="sticky">e</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Button" id="_button_5">
+            <property name="command" type="command" cbtype="simple">_clearUI</property>
+            <property name="text" translatable="yes">Clear</property>
+            <property name="width">10</property>
+            <layout manager="grid">
+              <property name="column">2</property>
+              <property name="row">0</property>
+              <property name="sticky">ew</property>
+            </layout>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="pygubu.builder.widgets.scrolledframe" id="scrolledframe_2">
+        <property name="scrolltype">both</property>
+        <property name="usemousewheel">true</property>
+        <layout manager="pack">
+          <property name="expand">true</property>
+          <property name="fill">both</property>
+          <property name="side">top</property>
+        </layout>
+        <child>
+          <object class="tk.Frame" id="frame_3">
+            <property name="height">200</property>
+            <property name="width">200</property>
+            <layout manager="pack">
+              <property name="side">top</property>
+            </layout>
+            <containerlayout manager="grid">
+              <property name="anchor">center</property>
+            </containerlayout>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
