@@ -37,3 +37,10 @@ def get_estimated_time(start_time: float, processed_files: int, total_files: int
         return f"{int(round(minutes, 0))} minutes and {int(round(seconds, 0))} seconds"
     except ZeroDivisionError:
         return f"{int(round(0, 0))} minutes and {int(round(0, 0))} seconds"
+
+
+def create_settings():
+    return {
+        "library_folder_path": None,
+        "cover_folder_path": None
+    }

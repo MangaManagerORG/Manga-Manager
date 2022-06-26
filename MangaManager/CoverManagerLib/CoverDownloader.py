@@ -5,6 +5,10 @@ import urllib.request
 
 import requests
 
+from CommonLib.ProgressBarWidget import ProgressBar
+from CommonLib.HelperFunctions import create_settings
+from CoverManagerLib.errors import UrlNotFound
+
 logger = logging.getLogger(__name__)
 ScriptDir = os.path.dirname(__file__)
 

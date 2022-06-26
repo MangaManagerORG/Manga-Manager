@@ -14,10 +14,10 @@ class NoCoverFile(FileNotFoundError):
     def __init__(self,coverFilePath):
         super().__init__(f'Cover image file path not provided or image not found: {coverFilePath}')
 
-# class NoMetadataFileFound(Exception):
-#     """
-#     Exception raised when not enough data is given to create a Metadata object.
-#     """
-#
-#     def __init__(self, cbz_path):
-#         super().__init__('ComicInfo.xml not found.')
+class UrlNotFound(Exception):
+    """
+    Exception raised when api returns 400 status code
+    """
+
+    def __init__(self, requestUrl):
+        super().__init__(f'Url {requestUrl} not found')
