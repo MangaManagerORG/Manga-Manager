@@ -46,12 +46,18 @@ class App:
         self.button_1.configure(text='Download Covers to:', command=self._process)
         self.button_1.pack(side='top')
         self.label_2 = tk.Label(self.frame_3)
-        self.label_2.configure(text=str(pathlib.Path(self.settings.get('cover_folder_path'), '<Manga Name>')))
-        self.label_2.pack(side='top')
+        self.label_2.configure(text=str(pathlib.Path((self.settings.get('cover_folder_path') or os.getcwd()),
+                                                     '<Manga Name Folder>')))
+        self.label_2.pack(pady="10 30", side='top')
 
         self.button_2 = tk.Button(self.frame_3)
         self.button_2.configure(text="Change output folder", command=self.set_output_folder)
-        self.button_2.pack()
+        self.button_2.pack(side='top')
+
+        # self.button_3 = tk.Button(self.frame_3)
+        # self.button_3.configure(text="Open output folder", command=self.open_output_folder)
+        # self.button_3.pack(side="top")
+
 
         self._progressbar_frame = tk.Frame(self.frame_3)
         self._progressbar_frame.configure(height='160', width='390')
@@ -80,10 +86,16 @@ class App:
 
         elif self._initialized_UI:
             if not output_folder:
-                self.settings["cover_folder_path"] = askdirectory(initialdir=self.settings.get("cover_folder_path"))
+                self.settings["cover_folder_path"] = askdirectory(parent=self.master,initialdir=self.settings.get("cover_folder_path"))
             self.label_2.configure(text=str(pathlib.Path(self.settings.get('cover_folder_path'), '<Manga Name>')))
         else:
             self.settings["cover_folder_path"] = ""
+    #
+    # def open_output_folder(self):
+    #     print(f"'{(self.settings.get('cover_folder_path') or os.getcwd())}'")
+    #     os.system(f"start '{(self.settings.get('cover_folder_path') or os.getcwd())}'")
+    #
+
     def _process(self):
         if self._initialized_UI:
             manga_id = self.parse_mangadex_id(self.entry_1.get())
