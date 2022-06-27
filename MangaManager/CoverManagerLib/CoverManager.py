@@ -10,6 +10,7 @@ from PIL import ImageTk, Image, UnidentifiedImageError
 
 from CommonLib.ProgressBarWidget import ProgressBar
 from CommonLib.ScrolledFrame import ScrolledFrame
+from .CoverDownloader import App as CoverDownloaderApp
 from .cbz_handler import SetCover
 from .models import cover_process_item_info
 
@@ -159,9 +160,14 @@ class App:
         self._button6_reselect_covers.grid(column='0', pady='5', row='5', sticky='ew')
         self._button6_reselect_covers.configure(command=self.opencovers)
         self._button_8_recover = tk.Button(self._controller_buttons_frame)
-        self._button_8_recover.configure(text='Recover covers')
+        self._button_8_recover.configure(text='Recover covers', command=self.recover)
         self._button_8_recover.grid(column='0', row='6', sticky='ew')
-        self._button_8_recover.configure(command=self.recover)
+
+        self._button_9_downloadCover = tk.Button(self._controller_buttons_frame, text="Download Covers")
+        self._button_9_downloadCover.configure(text='Download Covers')
+        self._button_9_downloadCover.grid(column='0', row='7', sticky='ew')
+        self._button_9_downloadCover.configure(command=self._downloadCovers)
+
         self._controller_buttons_frame.configure(height='200', highlightbackground='grey', highlightcolor='grey',
                                                  highlightthickness='1')
         self._controller_buttons_frame.configure(padx='10', pady='10', width='200')
@@ -242,7 +248,7 @@ class App:
             self._button3_load_images.configure(text="Select covers", state="normal")
             self._button3_load_images.grid()
             logger.error("No images were selected when asked for")
-            raise e
+            return
         self.prevelem = None
         enableButtons(self._frame_coversetter)
         try:
@@ -439,6 +445,12 @@ class App:
     def recover(self):
         """Recovers OldCover_xxx.ext.bak to its original name"""
         self.add_file_to_list(recover=True)
+
+    def _downloadCovers(self):
+        download_window = tk.Toplevel(self.master)
+        subapp = CoverDownloaderApp(download_window, settings=self.settings)
+        subapp.start_ui()
+        subapp.run()
 
     def _handle_click(self, event):
         """

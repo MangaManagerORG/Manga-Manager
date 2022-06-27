@@ -12,6 +12,7 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 from CommonLib import WebpConverter
+from CommonLib.HelperFunctions import create_settings
 from ConvertersLib.epub2cbz import epub2cbz
 from CoverManagerLib import CoverManager
 from MetadataManagerLib import MetadataManager
@@ -101,12 +102,6 @@ images_path = pathlib.Path(PROJECT_PATH, "Icons")
 tools = [CoverManager, MetadataManager, VolumeManager, epub2cbz, WebpConverter]
 
 
-def _create_settings():
-    return {
-        "library_folder_path": None,
-        "cover_folder_path": None
-    }
-
 
 def load_settings():
     if Path(SETTING_PATH).exists():
@@ -114,7 +109,7 @@ def load_settings():
             loaded_settings = json.load(settings_json)
     else:
         with open(SETTING_PATH, 'w+') as settings_json:
-            loaded_settings = _create_settings()
+            loaded_settings = create_settings()
             json.dump(loaded_settings, settings_json, indent=4)
 
     settings = dict()

@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='utf-8'?>
+<interface version="1.2">
+  <object class="tk.Frame" id="frame_1">
+    <property name="height">600</property>
+    <property name="width">600</property>
+    <layout manager="pack">
+      <property name="anchor">center</property>
+      <property name="expand">true</property>
+      <property name="fill">both</property>
+      <property name="side">top</property>
+    </layout>
+    <child>
+      <object class="tk.Frame" id="frame_3">
+        <property name="height">400</property>
+        <property name="width">400</property>
+        <layout manager="pack">
+          <property name="padx">50</property>
+          <property name="pady">50</property>
+          <property name="side">top</property>
+        </layout>
+        <containerlayout manager="pack">
+          <property name="anchor">center</property>
+        </containerlayout>
+        <child>
+          <object class="tk.Label" id="label_1">
+            <property name="text" translatable="yes">INSERT MANGADEX MANGA ID / URL</property>
+            <layout manager="pack">
+              <property name="side">top</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Entry" id="entry_1">
+            <property name="width">80</property>
+            <layout manager="pack">
+              <property name="side">top</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Button" id="button_1">
+            <property name="text" translatable="yes">Download Covers to:</property>
+            <layout manager="pack">
+              <property name="side">top</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Label" id="label_2">
+            <property name="text" translatable="yes">N/A</property>
+            <layout manager="pack">
+              <property name="side">top</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Frame" id="_progressbar_frame">
+            <property name="height">160</property>
+            <property name="width">390</property>
+            <layout manager="pack">
+              <property name="anchor">e</property>
+              <property name="expand">true</property>
+              <property name="fill">both</property>
+              <property name="padx">30</property>
+              <property name="pady">15</property>
+              <property name="side">right</property>
+            </layout>
+            <child>
+              <object class="ttk.Progressbar" id="progressbar_1">
+                <property name="length">400</property>
+                <property name="orient">horizontal</property>
+                <layout manager="grid">
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                  <property name="sticky">ew</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="tk.Label" id="label_3">
+                <property name="justify">right</property>
+                <property name="relief">flat</property>
+                <property name="text" translatable="yes">################################################
+                  GET elapsed time
+                </property>
+                <layout manager="grid">
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                  <property name="sticky">e</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
