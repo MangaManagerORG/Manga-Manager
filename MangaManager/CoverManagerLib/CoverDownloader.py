@@ -5,7 +5,7 @@ import urllib.request
 
 import requests
 
-from CommonLib.HelperFunctions import create_settings, cleanFilename
+from CommonLib.HelperFunctions import create_settings, cleanFilename, check_url_isImage
 from CommonLib.ProgressBarWidget import ProgressBar
 from CoverManagerLib.errors import UrlNotFound
 
@@ -78,11 +78,12 @@ class App:
         if output_folder:
             self.settings["cover_folder_path"] = output_folder
 
-        if self._initialized_UI:
+        elif self._initialized_UI:
             if not output_folder:
                 self.settings["cover_folder_path"] = askdirectory(initialdir=self.settings.get("cover_folder_path"))
             self.label_2.configure(text=str(pathlib.Path(self.settings.get('cover_folder_path'), '<Manga Name>')))
-
+        else:
+            self.settings["cover_folder_path"] = ""
     def _process(self):
         if self._initialized_UI:
             manga_id = self.parse_mangadex_id(self.entry_1.get())
@@ -99,7 +100,7 @@ class App:
             value = value.replace("https://mangadex.org/title/", "").split("/")[0]
         return value
 
-    def download_covers(self, manga_id, forceOverwrite=False):
+    def download_covers(self, manga_id, forceOverwrite=False, test_run=False):
         """
         Downloads the covers from manga_id from mangadex.
         If the cover is already downloaded it won't re-download
@@ -107,6 +108,7 @@ class App:
         :param manga_id: The manga id only.
         :param cover_folder: The folder where the series folder will be created.
         :param forceOverwrite: If existing covers should be re-downloaded and overwritten
+        :param test_run: Value to make a dry run where it asserts that each cover url is valid
         :return:
         """
 
@@ -121,13 +123,16 @@ class App:
         cover_attributes = r_json.get("data")[0].get("relationships")[0].get("attributes")
 
         ja_title = list(filter(lambda p: p.get("ja-ro"),
-                               cover_attributes.get("altTitles")))[0].get("ja-ro")
+                               cover_attributes.get("altTitles")))
+        if ja_title:
+            ja_title = ja_title[0].get("ja-ro")
 
         normalized_manga_name = (ja_title or cover_attributes.get("title").get("en"))
 
         destination_dirpath = pathlib.Path(self.settings.get('cover_folder_path'), cleanFilename(
             normalized_manga_name))  # The covers get stored in their own series folder inside the covers directory
-        destination_dirpath.mkdir(parents=True, exist_ok=True)
+        if not test_run:
+            destination_dirpath.mkdir(parents=True, exist_ok=True)
         total = len(r_json.get("data"))
         self.progressbar = ProgressBar(self._initialized_UI, self._progressbar_frame, total)
 
@@ -142,10 +147,14 @@ class App:
 
                 destination_filename = f"Cover_Vol.{str(cover_volume).zfill(2)}_{cover_loc}{file_extension}"
                 destination_filepath = pathlib.Path(destination_dirpath, destination_filename)
-                if not destination_filepath.exists() or forceOverwrite:
+                if (not destination_filepath.exists() or forceOverwrite) and not test_run:
                     image_url = f"https://mangadex.org/covers/{manga_id}/{cover_filename}"
                     urllib.request.urlretrieve(image_url, destination_filepath)
                     logger.debug(f"Downloaded {destination_filename}")
+                elif test_run:
+                    image_url = f"https://mangadex.org/covers/{manga_id}/{cover_filename}"
+                    print(f"Asserting if valid url: '{image_url}' ")
+                    return check_url_isImage(image_url)
                 else:
                     logger.info(f"Skipped 'https://mangadex.org/covers/{manga_id}/{cover_filename}' -> Already exists")
                 self.progressbar.increaseCount()
