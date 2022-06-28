@@ -89,9 +89,10 @@ class SetCover:
                 backup_isdone = False
                 for item in zin.infolist():
                     # Fix the filename if it has 2 dots due to bug
-                    filename, file_format = os.path.splitext(item.filename)
-                    if filename.endswith("."):
-                        filename = filename.strip(".") + file_format
+                    filename = item.filename
+                    tmp_filename, file_format = os.path.splitext(item.filename)
+                    if tmp_filename.endswith("."):
+                        filename = tmp_filename.strip(".") + file_format
 
                     # Delete existing "OldCover_00.ext.bak file
                     if item.filename.startswith("OldCover_"):
