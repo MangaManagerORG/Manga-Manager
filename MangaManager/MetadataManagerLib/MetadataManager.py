@@ -251,6 +251,12 @@ class App:
         self.entry_Year_val = tk.IntVar(value=-1, name="Year")
         self.entry_Month_val = tk.IntVar(value=-1, name="Month")
         self.entry_Day_val = tk.IntVar(value=-1, name="Day")
+
+        self.global_genres_add_val = tk.StringVar(value='')
+        self.global_genres_remove_val = tk.StringVar(value='')
+        self.global_tags_add_val = tk.StringVar(value='')
+        self.global_tags_remove_val = tk.StringVar(value='')
+
         try:
             self.input_1_summary_obj.linked_text_field = self.tkinterscrolledtext_1
         except:
@@ -499,26 +505,54 @@ class App:
         self._entry_Notes1.bind('<Double-Button-1>', self.makeEditable, add='')
         self._entry_Notes1.bind('<FocusOut>', onFocusOut, add='')
         self._entry_Notes1.bind('<Return>', makeReadOnly, add='')
+
         self._label_24 = tk.Label(self.frame_2)
         self._label_24.configure(text='Genre')
         self._label_24.pack(side='top')
-        self._entry_Genre1 = ttk.Combobox(self.frame_2)
+        self.frame_5 = tk.Frame(self.frame_2)
+        self._entry_Genre1 = ttk.Combobox(self.frame_5)
+
         self._entry_Genre1.configure(textvariable=self.entry_Genre_val)
-        self._entry_Genre1.pack(fill='both', side='top')
-        self._entry_Genre1.bind('<Button-1>', makeFocused, add='')
-        self._entry_Genre1.bind('<Double-Button-1>', self.makeEditable, add='')
-        self._entry_Genre1.bind('<FocusOut>', onFocusOut, add='')
-        self._entry_Genre1.bind('<Return>', makeReadOnly, add='')
+        self._entry_Genre1.pack(fill='both', pady='2', side='top')
+        self._label_52 = tk.Label(self.frame_5)
+        self._label_52.configure(text='Global add genres')
+        self._label_52.pack(side='left')
+        self._entry_Genres_Global_Add = tk.Entry(self.frame_5)
+
+        self._entry_Genres_Global_Add.configure(textvariable=self.global_genres_add_val)
+        self._entry_Genres_Global_Add.pack(expand='true', fill='x', padx='5', side='left')
+        self._entry_Genres_Global_Remove = tk.Entry(self.frame_5)
+
+        self._entry_Genres_Global_Remove.configure(textvariable=self.global_genres_remove_val)
+        self._entry_Genres_Global_Remove.pack(expand='true', fill='x', padx='5', side='right')
+        self.label_51 = tk.Label(self.frame_5)
+        self.label_51.configure(text='Global remove genres')
+        self.label_51.pack(side='right')
+        self.frame_5.pack(anchor='center', expand='true', fill='both', side='top')
         self._label_25 = tk.Label(self.frame_2)
-        self._label_25.configure(text='Tags')
+        self._label_25.configure(pady='5', text='Tags')
         self._label_25.pack(side='top')
-        self._entry_Tags1 = ttk.Combobox(self.frame_2)
+        self._frame_6_Tags = tk.Frame(self.frame_2)
+        self._entry_Tags1 = ttk.Combobox(self._frame_6_Tags)
+
         self._entry_Tags1.configure(textvariable=self.entry_Tags_val)
-        self._entry_Tags1.pack(fill='both', side='top')
-        self._entry_Tags1.bind('<Button-1>', makeFocused, add='')
-        self._entry_Tags1.bind('<Double-Button-1>', self.makeEditable, add='')
-        self._entry_Tags1.bind('<FocusOut>', onFocusOut, add='')
-        self._entry_Tags1.bind('<Return>', makeReadOnly, add='')
+        self._entry_Tags1.pack(expand='true', fill='both', pady='2', side='top')
+        self._label_50 = tk.Label(self._frame_6_Tags)
+        self._label_50.configure(text='Global add tags')
+        self._label_50.pack(side='left')
+        self._entry_Tags_Global_Add = tk.Entry(self._frame_6_Tags)
+
+        self._entry_Tags_Global_Add.configure(textvariable=self.global_tags_add_val)
+        self._entry_Tags_Global_Add.pack(expand='true', fill='x', padx='5', side='left')
+        self._entry_Tags_Global_Remove = tk.Entry(self._frame_6_Tags)
+
+        self._entry_Tags_Global_Remove.configure(textvariable=self.global_tags_remove_val)
+        self._entry_Tags_Global_Remove.pack(expand='true', fill='x', padx='5', side='right')
+        self._label_53 = tk.Label(self._frame_6_Tags)
+        self._label_53.configure(text='Global remove tags')
+        self._label_53.pack(side='right')
+        self._frame_6_Tags.pack(anchor='center', expand='true', fill='both', side='top')
+
         self._label_26 = tk.Label(self.frame_2)
         self._label_26.configure(text='Web')
         self._label_26.pack(side='top')
@@ -1236,6 +1270,45 @@ class App:
                 # Else modify field with whatever is on the stringvar/intvar
                 else:
                     comicinfo_atr_set(widgetvar.get())
+            tags_list = comicObj.comicInfoObj.get_Tags()
+            if tags_list:
+                tags_list = tags_list.split(",")
+            genres_list = comicObj.comicInfoObj.get_Genre()
+            if genres_list:
+                genres_list = genres_list.split(",")
+            append_tags = self.global_tags_add_val.get()
+            if append_tags:
+                append_tags = append_tags.split(",")
+            remove_tags = self.global_tags_remove_val.get()
+            if remove_tags:
+                remove_tags = remove_tags.split(",")
+            append_genres = self.global_genres_add_val.get()
+            if append_genres:
+                append_genres = append_genres.split(",")
+            remove_genres = self.global_genres_remove_val.get()
+            if remove_genres:
+                remove_genres = remove_genres.split(",")
+            # Global tags/genres
+            if append_tags:
+                for tag in append_tags:
+                    if tag not in tags_list:
+                        tags_list.append(tag)
+            if remove_tags:
+                for tag in remove_tags:
+                    if tag in tags_list:
+                        tags_list.remove(tag)
+
+            if append_genres:
+                for genre in append_genres:
+                    if genre not in genres_list:
+                        genres_list.append(genre)
+            if remove_genres:
+                for genre in remove_genres:
+                    if genre in genres_list:
+                        genres_list.remove(genre)
+
+            comicObj.comicInfoObj.set_Tags(",".join(tags_list))
+            comicObj.comicInfoObj.set_Genre(",".join(genres_list))
 
             modified_loadedComicInfo, keep_original_value = comicObj, keep_original_value
             modified_loadedComicInfo_list.append(modified_loadedComicInfo)
