@@ -69,7 +69,9 @@ class ComicInfoClassTester(unittest.TestCase):
         # @classmethod
         # def list(cls):
         #     return list(map(lambda c: c.value, cls))
+        print("Assert AgeRating has list method:")
         self.assertTrue(ComicInfo.AgeRating.list())
+        print("Assert ComicPageType has list method:")
         self.assertTrue(ComicInfo.ComicPageType.list())
         ComicInfo.parseString(comicinfo_23, silence=True, print_warnings=False, doRecover=True)
 
@@ -279,3 +281,67 @@ class MetadataManagerTester(unittest.TestCase):
                         print(
                             f"    ┣━━	Assert {str(widget_var)}:\n    ┃   ┗━━ '{widget_var.get()}' vs '{int(random_value)}'\n    ┃")
                         self.assertEqual(widget_var.get(), int(random_value))
+
+
+class GlobalTagsGenres(unittest.TestCase):
+    def setUp(self) -> None:
+        self.loadedComicInfo_list = []
+        print("\n", self._testMethodName)
+        print("Setup:")
+        self.genres = ["Genre_1, Genre_2, Genre_3, Common_genre_4",
+                       "Genre_4, Genre_5, Genre_6",
+                       "Genre_7, Genre_8, Genre_9, Common_genre_4",
+                       "Genre_10, Genre_11, Genre_12",
+                       "Genre_13, Genre_14, Genre_15, Common_genre_4"]
+        self.tags = ["Tag_1, Tag_2, Tag_3",
+                     "Tag_4, Tag_5, Tag_6, Common_tag_4",
+                     "Tag_7, Tag_8, Tag_9",
+                     "Tag_10, Tag_11, Tag_12, Common_tag_4",
+                     "Tag_13, Tag_14, Tag_15"]
+
+        self.common_tag = "Common_tag_1, Common_tag_2, Common_tag_3"
+        self.common_genre = "Common_genre_1, Common_genre_2, Common_genre_3"
+
+        for ai in range(3):
+            cinfo = ComicInfo.ComicInfo()
+            cinfo.set_Genre(self.genres[ai])
+            cinfo.set_Tags(self.tags[ai])
+            self.loadedComicInfo_list.append(LoadedComicInfo("", cinfo))
+
+            self.initial_dir_count = len(os.listdir(os.getcwd()))
+
+    #
+    def test_Append_Global(self):
+        root = tk.Tk()
+        app: MetadataManager.App = MetadataManager.App(root)
+        app.loadedComicInfo_list = self.loadedComicInfo_list
+
+        app.global_tags_add_val.set(self.common_tag)
+        app.global_genres_add_val.set(self.common_genre)
+        app._parseUI_toComicInfo()
+
+        print("Assert that all common tags are present in all the loaded cinfo")
+        for loadedCinfo in app.loadedComicInfo_list:
+            for tag in self.common_tag.split(","):
+                self.assertTrue(tag in loadedCinfo.comicInfoObj.get_Tags())
+            for genre in self.common_genre.split(","):
+                self.assertTrue(genre in loadedCinfo.comicInfoObj.get_Genre())
+
+    def test_Remove_Global(self):
+        root = tk.Tk()
+        app: MetadataManager.App = MetadataManager.App(root)
+        app.loadedComicInfo_list = self.loadedComicInfo_list
+
+        # app.global_tags_add_val.set(self.common_tag)
+        # app.global_genres_add_val.set(self.common_genre)
+        # app._parseUI_toComicInfo()
+        app.global_tags_remove_val.set("Common_genre_4, Genre_1, Genre_8")
+        app.global_genres_remove_val.set("Common_tag_4, Tag_1, Tag_8")
+        app._parseUI_toComicInfo()
+
+        print("Assert that all common tags are removed from all the loaded cinfo")
+        for loadedCinfo in app.loadedComicInfo_list:
+            for tag in "Common_genre_4, Genre_1, Genre_8".split(","):
+                self.assertFalse(tag in loadedCinfo.comicInfoObj.get_Tags())
+            for genre in "Common_tag_4, Tag_1, Tag_8".split(","):
+                self.assertFalse(genre in loadedCinfo.comicInfoObj.get_Genre())
