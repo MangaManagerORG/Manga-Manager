@@ -421,6 +421,12 @@ class App:
         self._button_3.configure(text='Remove ComicInfo', command=self.deleteComicInfo, justify='center', )
         self._button_3.grid(column='0', row='1', sticky='w')
 
+        self._button_recover = tk.Button(self._frame_3)
+        self._button_recover.configure(text='Recover ComicInfo', command=self.restoreComicInfo, justify='center', )
+        self._button_recover.grid(column='1', row='1', sticky='w')
+
+        # restoreComicInfo
+
         self._button_4 = tk.Button(self._frame_3)
         self._button_4.configure(state='disabled', text='Fetch Online', justify='center')
         self._button_4.grid(column='1', columnspan='3', row='1', sticky='e')
@@ -1377,6 +1383,15 @@ class App:
             for loadedComicObj in self.loadedComicInfo_list:
                 logger.info("Processing delete")
                 WriteComicInfo(loadedComicObj).delete()
+
+    def restoreComicInfo(self):
+        """
+        Deletes all ComicInfo.xml from the selected files
+        """
+        if self._initialized_UI:
+            for loadedComicObj in self.loadedComicInfo_list:
+                logger.info("Processing delete")
+                WriteComicInfo(loadedComicObj).restore()
 
     def do_save_UI(self):
         try:
