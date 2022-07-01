@@ -1251,10 +1251,10 @@ class App:
                 # Else modify field with whatever is on the stringvar/intvar
                 else:
                     comicinfo_atr_set(widgetvar.get())
-            tags_list = comicObj.comicInfoObj.get_Tags()
+            tags_list = (comicObj.comicInfoObj.get_Tags() or list())
             if tags_list:
                 tags_list = tags_list.split(",")
-            genres_list = comicObj.comicInfoObj.get_Genre()
+            genres_list = (comicObj.comicInfoObj.get_Genre() or list())
             if genres_list:
                 genres_list = genres_list.split(",")
             append_tags = self.global_tags_add_val.get()
