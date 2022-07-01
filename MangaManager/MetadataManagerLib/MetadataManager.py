@@ -913,32 +913,6 @@ class App:
         self.frame_1.configure(height='600', width='200')
         self.frame_1.pack(anchor='center', expand='true', fill='both', side='top')
 
-        # scrollbarx
-
-        # MAIN FRAME
-        # self._frame_5_statusInfo = tk.Frame(self.frame_1,bg="grey")
-
-        # self._frame_5_statusInfo.grid(row=4, column=1, sticky=tk.W)
-        # # column=0, row=0,sticky="nesw")
-        # master.rowconfigure('0', minsize='0')
-        # master.columnconfigure('0', minsize='0', uniform='None')
-
-        # # File Controller - Read,Save
-        # self._files_controller = tk.Frame(self.frame_1)
-        # self.button2_openfile = tk.Button(self._files_controller, text="Open", command=self._open_files, width=15)
-        # self.button2_openfile.grid(column=0, row=0)
-        # # self.button3_read = tk.Button(self._files_controller, text="Read",
-        # # command=self.create_loadedComicInfo_list, width=15)
-        # # self.button3_read.grid(column=1, row=3, pady="5 10", columnspan=2)
-        # self.button4_save = tk.Button(self._files_controller, text="Save", command=self.do_save_UI, width=15)
-        # self.button4_save.grid(column=1, row=0)
-        # self.button4_save = tk.Button(self._files_controller, text="Remove ComicInfo.xml", command=self.deleteComicInfo,
-        #                               width=20)
-        # self.button4_save.grid(column=3, row=0)
-        # # self.__tkvar.set('Age Rating')
-        # self._files_controller.configure(pady=5)
-        # self._files_controller.grid(row=2, column=1)
-        # Main widget
         self.mainwindow = self.frame_1
         self._progressBarFrame = tk.Frame(self.frame_1)
         self._progressBarFrame.configure(height='70', width='200')
@@ -1073,6 +1047,7 @@ class App:
         """
         logger.info(f"loading file: '{cbz_path}'")
         # Load ComicInfo.xml to Class
+        self._lockButtons()
         try:
             # raise CorruptedComicInfo(cbz_path)
             comicinfo = ReadComicInfo(cbz_path,
@@ -1095,7 +1070,6 @@ class App:
                                                     f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e),
                          parent=self.master)
             raise e
-
         except CorruptedComicInfo as e:
             logger.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
             if self._initialized_UI:
@@ -1203,6 +1177,7 @@ class App:
                     logger.error("Exception found", exc_info=e)
 
             # else: Values are the same we do nothing.
+        self._unlockButtons()
         return loadedInfo
 
     def _parseUI_toComicInfo(self):
@@ -1210,7 +1185,7 @@ class App:
         Modifies every ComicInfo loaded with values from the UI
         :return: True if all LoadedComicInfo were updated. If any error or saving is cancelled returns False
         """
-
+        self._lockButtons()
         modified_loadedComicInfo_list = []
         # modified_loadedComicInfo_XML_list = list[str]()
         keep_original_value = None
@@ -1319,8 +1294,9 @@ class App:
             modified_loadedComicInfo, keep_original_value = comicObj, keep_original_value
             modified_loadedComicInfo_list.append(modified_loadedComicInfo)
         self.loadedComicInfo_list = modified_loadedComicInfo_list
-
+        self._unlockButtons()
     def _saveComicInfo(self):
+        self._lockButtons()
         progressBar = ProgressBar(self._initialized_UI, self._progressBarFrame if self._initialized_UI else None,
                                   total=len(self.loadedComicInfo_list))
         for loadedComicObj in self.loadedComicInfo_list:
@@ -1367,33 +1343,49 @@ class App:
                 progressBar.increaseError()
                 raise e
             progressBar.updatePB()
+        self._unlockButtons()
 
     def deleteComicInfo(self):
         """
         Deletes all ComicInfo.xml from the selected files
         """
-        if self._initialized_UI:
-            answer = mb.askokcancel("Warning", "This will remove 'ComicInfo.xml' file from the selected files",
-                                    parent=self.master)
-            if answer:
+        try:
+            if self._initialized_UI:
+                answer = mb.askokcancel("Warning", "This will remove 'ComicInfo.xml' file from the selected files",
+                                        parent=self.master)
+                if answer:
+                    for loadedComicObj in self.loadedComicInfo_list:
+                        logger.info("Processing delete")
+                        WriteComicInfo(loadedComicObj).delete()
+            else:
                 for loadedComicObj in self.loadedComicInfo_list:
                     logger.info("Processing delete")
                     WriteComicInfo(loadedComicObj).delete()
-        else:
-            for loadedComicObj in self.loadedComicInfo_list:
-                logger.info("Processing delete")
-                WriteComicInfo(loadedComicObj).delete()
+        except Exception as e:
+            logger.error(e)
+            self._unlockButtons()
+            raise e
+        self._unlockButtons()
 
     def restoreComicInfo(self):
         """
         Deletes all ComicInfo.xml from the selected files
         """
-        if self._initialized_UI:
-            for loadedComicObj in self.loadedComicInfo_list:
-                logger.info("Processing delete")
-                WriteComicInfo(loadedComicObj).restore()
+        self._lockButtons()
+        try:
+            if self._initialized_UI:
+                for loadedComicObj in self.loadedComicInfo_list:
+                    logger.info("Processing delete")
+                    WriteComicInfo(loadedComicObj).restore()
+
+        except Exception as e:
+            logger.error(e)
+            self._unlockButtons()
+            raise e
+        self._unlockButtons()
 
     def do_save_UI(self):
+        self._lockButtons()
         try:
             self._parseUI_toComicInfo()
             self._saveComicInfo()
@@ -1401,16 +1393,36 @@ class App:
             logger.info("Cancelled Saving")
         except Exception as e:
             raise e
+        self._unlockButtons()
 
     def _clearUI(self):
+        self._lockButtons()
         self.initialize_StringVars()
         for widget in self.widgets_obj:
             if isinstance(widget, ttk.Combobox):
                 widget['values'] = []
         self.loadedComicInfo_list = []
+        self._unlockButtons()
 
+    def _lockButtons(self):
+        if not self._initialized_UI:
+            return
+        self._button_1.configure(state="disabled")
+        self._button_2.configure(state="disabled")
+        self._button_3.configure(state="disabled")
+        # self._button_4.configure(state="disabled")
+        self._button_5.configure(state="disabled")
+        self._button_recover.configure(state="disabled")
 
-
+    def _unlockButtons(self):
+        if not self._initialized_UI:
+            return
+        self._button_1.configure(state="normal")
+        self._button_2.configure(state="normal")
+        self._button_3.configure(state="normal")
+        # self._button_4.configure(state="normal")
+        self._button_5.configure(state="normal")
+        self._button_recover.configure(state="normal")
 class AppCli:
 
     def __init__(self):
