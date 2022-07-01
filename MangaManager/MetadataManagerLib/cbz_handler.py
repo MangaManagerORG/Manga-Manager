@@ -183,6 +183,8 @@ class WriteComicInfo:
                     elif item.filename == "Old_ComicInfo.xml.bak":
                         # Rename this file back to ComicInfo.xml hence restoring the metadata
                         zout.writestr(item.filename.replace("Old_", "").replace(".bak", ""), zin.read(item.filename))
+                        # Keep a copy of the backup just in case. High chance it's unnecessary
+                        zout.writestr(item.filename, zin.read(item.filename))
                         continue
                     else:
                         # Write the rest of the files as they are
