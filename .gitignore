@@ -21,3 +21,4 @@ undo.json
 .pytest_cache
 *.log*
 /.idea/webResources.xml
+/MangaManager/settings.json

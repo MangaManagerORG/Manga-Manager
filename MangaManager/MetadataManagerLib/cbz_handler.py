@@ -170,7 +170,7 @@ class WriteComicInfo:
         backup_isdone = False
         with zipfile.ZipFile(self._zipFilePath, 'r') as zin:
             if not "Old_ComicInfo.xml.bak" in zin.namelist():
-                logger.debug(f"[Restore] Skipping restore. No ComicInfo.xml present")
+                logger.debug(f"[Restore] Skipping restore for '{self._zipFilePath}'. No ComicInfo.xml present")
                 return
             tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self._zipFilePath))
             os.close(tmpfd)
@@ -178,10 +178,13 @@ class WriteComicInfo:
                 for item in zin.infolist():
                     logger.debug(f"[Restore Backup] Iterating: {item.filename}")
                     if item.filename == "ComicInfo.xml":
-                        # Skip this file we want to overwrite it to restore the backup
+                        # Skip this file. We want to overwrite it to restore the backup
                         continue
                     elif item.filename == "Old_ComicInfo.xml.bak":
+                        # Rename this file back to ComicInfo.xml hence restoring the metadata
                         zout.writestr(item.filename.replace("Old_", "").replace(".bak", ""), zin.read(item.filename))
+                        # Keep a copy of the backup just in case. High chance it's unnecessary
+                        zout.writestr(item.filename, zin.read(item.filename))
                         continue
                     else:
                         # Write the rest of the files as they are

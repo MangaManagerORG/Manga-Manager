@@ -58,7 +58,6 @@ class App:
         # self.button_3.configure(text="Open output folder", command=self.open_output_folder)
         # self.button_3.pack(side="top")
 
-
         self._progressbar_frame = tk.Frame(self.frame_3)
         self._progressbar_frame.configure(height='160', width='390')
 
@@ -86,7 +85,8 @@ class App:
 
         elif self._initialized_UI:
             if not output_folder:
-                self.settings["cover_folder_path"] = askdirectory(parent=self.master,initialdir=self.settings.get("cover_folder_path"))
+                self.settings["cover_folder_path"] = askdirectory(parent=self.master,
+                                                                  initialdir=self.settings.get("cover_folder_path"))
             self.label_2.configure(text=str(pathlib.Path(self.settings.get('cover_folder_path'), '<Manga Name>')))
         else:
             self.settings["cover_folder_path"] = ""

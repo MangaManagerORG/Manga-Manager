@@ -81,14 +81,18 @@ parser.add_argument(
 # </Arguments parser>
 
 
-# <Logger>
+# Setup Logger
 logger = logging.getLogger()
 logging.getLogger('PIL').setLevel(logging.WARNING)
 # formatter = logging.Formatter()
 
 PROJECT_PATH = pathlib.Path(__file__).parent
 SETTING_PATH = pathlib.Path(PROJECT_PATH, "settings.json")
-rotating_file_handler = RotatingFileHandler(f"{PROJECT_PATH}/logs/MangaManager.log", maxBytes=5725760,
+LOGS_PATH = pathlib.Path(f"{PROJECT_PATH}/logs/")
+LOGS_PATH.mkdir(parents=True, exist_ok=True)
+LOGFILE_PATH = pathlib.Path(LOGS_PATH, "MangaManager.log")
+
+rotating_file_handler = RotatingFileHandler(LOGFILE_PATH, maxBytes=5725760,
                                             backupCount=2)
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -97,10 +101,10 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 logger.debug('DEBUG LEVEL - MAIN MODULE')
 logger.info('INFO LEVEL - MAIN MODULE')
-# </Logger>
+
+
 images_path = pathlib.Path(PROJECT_PATH, "Icons")
 tools = [CoverManager, MetadataManager, VolumeManager, epub2cbz, WebpConverter]
-
 
 
 def load_settings():

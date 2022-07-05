@@ -251,6 +251,12 @@ class App:
         self.entry_Year_val = tk.IntVar(value=-1, name="Year")
         self.entry_Month_val = tk.IntVar(value=-1, name="Month")
         self.entry_Day_val = tk.IntVar(value=-1, name="Day")
+
+        self.global_genres_add_val = tk.StringVar(value='')
+        self.global_genres_remove_val = tk.StringVar(value='')
+        self.global_tags_add_val = tk.StringVar(value='')
+        self.global_tags_remove_val = tk.StringVar(value='')
+
         try:
             self.input_1_summary_obj.linked_text_field = self.tkinterscrolledtext_1
         except:
@@ -415,6 +421,12 @@ class App:
         self._button_3.configure(text='Remove ComicInfo', command=self.deleteComicInfo, justify='center', )
         self._button_3.grid(column='0', row='1', sticky='w')
 
+        self._button_recover = tk.Button(self._frame_3)
+        self._button_recover.configure(text='Recover ComicInfo', command=self.restoreComicInfo, justify='center', )
+        self._button_recover.grid(column='1', row='1', sticky='w')
+
+        # restoreComicInfo
+
         self._button_4 = tk.Button(self._frame_3)
         self._button_4.configure(state='disabled', text='Fetch Online', justify='center')
         self._button_4.grid(column='1', columnspan='3', row='1', sticky='e')
@@ -499,26 +511,54 @@ class App:
         self._entry_Notes1.bind('<Double-Button-1>', self.makeEditable, add='')
         self._entry_Notes1.bind('<FocusOut>', onFocusOut, add='')
         self._entry_Notes1.bind('<Return>', makeReadOnly, add='')
+
         self._label_24 = tk.Label(self.frame_2)
         self._label_24.configure(text='Genre')
         self._label_24.pack(side='top')
-        self._entry_Genre1 = ttk.Combobox(self.frame_2)
+        self.frame_5 = tk.Frame(self.frame_2)
+        self._entry_Genre1 = ttk.Combobox(self.frame_5)
+
         self._entry_Genre1.configure(textvariable=self.entry_Genre_val)
-        self._entry_Genre1.pack(fill='both', side='top')
-        self._entry_Genre1.bind('<Button-1>', makeFocused, add='')
-        self._entry_Genre1.bind('<Double-Button-1>', self.makeEditable, add='')
-        self._entry_Genre1.bind('<FocusOut>', onFocusOut, add='')
-        self._entry_Genre1.bind('<Return>', makeReadOnly, add='')
+        self._entry_Genre1.pack(fill='both', pady='2', side='top')
+        self._label_52 = tk.Label(self.frame_5)
+        self._label_52.configure(text='Global add genres')
+        self._label_52.pack(side='left')
+        self._entry_Genres_Global_Add = tk.Entry(self.frame_5)
+
+        self._entry_Genres_Global_Add.configure(textvariable=self.global_genres_add_val)
+        self._entry_Genres_Global_Add.pack(expand='true', fill='x', padx='5', side='left')
+        self._entry_Genres_Global_Remove = tk.Entry(self.frame_5)
+
+        self._entry_Genres_Global_Remove.configure(textvariable=self.global_genres_remove_val)
+        self._entry_Genres_Global_Remove.pack(expand='true', fill='x', padx='5', side='right')
+        self.label_51 = tk.Label(self.frame_5)
+        self.label_51.configure(text='Global remove genres')
+        self.label_51.pack(side='right')
+        self.frame_5.pack(anchor='center', expand='true', fill='both', side='top')
         self._label_25 = tk.Label(self.frame_2)
-        self._label_25.configure(text='Tags')
+        self._label_25.configure(pady='5', text='Tags')
         self._label_25.pack(side='top')
-        self._entry_Tags1 = ttk.Combobox(self.frame_2)
+        self._frame_6_Tags = tk.Frame(self.frame_2)
+        self._entry_Tags1 = ttk.Combobox(self._frame_6_Tags)
+
         self._entry_Tags1.configure(textvariable=self.entry_Tags_val)
-        self._entry_Tags1.pack(fill='both', side='top')
-        self._entry_Tags1.bind('<Button-1>', makeFocused, add='')
-        self._entry_Tags1.bind('<Double-Button-1>', self.makeEditable, add='')
-        self._entry_Tags1.bind('<FocusOut>', onFocusOut, add='')
-        self._entry_Tags1.bind('<Return>', makeReadOnly, add='')
+        self._entry_Tags1.pack(expand='true', fill='both', pady='2', side='top')
+        self._label_50 = tk.Label(self._frame_6_Tags)
+        self._label_50.configure(text='Global add tags')
+        self._label_50.pack(side='left')
+        self._entry_Tags_Global_Add = tk.Entry(self._frame_6_Tags)
+
+        self._entry_Tags_Global_Add.configure(textvariable=self.global_tags_add_val)
+        self._entry_Tags_Global_Add.pack(expand='true', fill='x', padx='5', side='left')
+        self._entry_Tags_Global_Remove = tk.Entry(self._frame_6_Tags)
+
+        self._entry_Tags_Global_Remove.configure(textvariable=self.global_tags_remove_val)
+        self._entry_Tags_Global_Remove.pack(expand='true', fill='x', padx='5', side='right')
+        self._label_53 = tk.Label(self._frame_6_Tags)
+        self._label_53.configure(text='Global remove tags')
+        self._label_53.pack(side='right')
+        self._frame_6_Tags.pack(anchor='center', expand='true', fill='both', side='top')
+
         self._label_26 = tk.Label(self.frame_2)
         self._label_26.configure(text='Web')
         self._label_26.pack(side='top')
@@ -873,32 +913,6 @@ class App:
         self.frame_1.configure(height='600', width='200')
         self.frame_1.pack(anchor='center', expand='true', fill='both', side='top')
 
-        # scrollbarx
-
-        # MAIN FRAME
-        # self._frame_5_statusInfo = tk.Frame(self.frame_1,bg="grey")
-
-        # self._frame_5_statusInfo.grid(row=4, column=1, sticky=tk.W)
-        # # column=0, row=0,sticky="nesw")
-        # master.rowconfigure('0', minsize='0')
-        # master.columnconfigure('0', minsize='0', uniform='None')
-
-        # # File Controller - Read,Save
-        # self._files_controller = tk.Frame(self.frame_1)
-        # self.button2_openfile = tk.Button(self._files_controller, text="Open", command=self._open_files, width=15)
-        # self.button2_openfile.grid(column=0, row=0)
-        # # self.button3_read = tk.Button(self._files_controller, text="Read",
-        # # command=self.create_loadedComicInfo_list, width=15)
-        # # self.button3_read.grid(column=1, row=3, pady="5 10", columnspan=2)
-        # self.button4_save = tk.Button(self._files_controller, text="Save", command=self.do_save_UI, width=15)
-        # self.button4_save.grid(column=1, row=0)
-        # self.button4_save = tk.Button(self._files_controller, text="Remove ComicInfo.xml", command=self.deleteComicInfo,
-        #                               width=20)
-        # self.button4_save.grid(column=3, row=0)
-        # # self.__tkvar.set('Age Rating')
-        # self._files_controller.configure(pady=5)
-        # self._files_controller.grid(row=2, column=1)
-        # Main widget
         self.mainwindow = self.frame_1
         self._progressBarFrame = tk.Frame(self.frame_1)
         self._progressBarFrame.configure(height='70', width='200')
@@ -1033,6 +1047,7 @@ class App:
         """
         logger.info(f"loading file: '{cbz_path}'")
         # Load ComicInfo.xml to Class
+        self._lockButtons()
         try:
             # raise CorruptedComicInfo(cbz_path)
             comicinfo = ReadComicInfo(cbz_path,
@@ -1055,7 +1070,6 @@ class App:
                                                     f"Can't loadComicInfo.xml from file: {cbz_path}\n\n" + str(e),
                          parent=self.master)
             raise e
-
         except CorruptedComicInfo as e:
             logger.error(f"There was an error loading ComicInfo.xml from file: {cbz_path}", exc_info=e)
             if self._initialized_UI:
@@ -1163,6 +1177,7 @@ class App:
                     logger.error("Exception found", exc_info=e)
 
             # else: Values are the same we do nothing.
+        self._unlockButtons()
         return loadedInfo
 
     def _parseUI_toComicInfo(self):
@@ -1170,7 +1185,7 @@ class App:
         Modifies every ComicInfo loaded with values from the UI
         :return: True if all LoadedComicInfo were updated. If any error or saving is cancelled returns False
         """
-
+        self._lockButtons()
         modified_loadedComicInfo_list = []
         # modified_loadedComicInfo_XML_list = list[str]()
         keep_original_value = None
@@ -1180,26 +1195,26 @@ class App:
             # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
             widgets_var_zip = self._get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
 
+            # if self.widgets_obj:
+            #     # noSelectionCheck is a list of every field that is not manually changed. They will keep original value
+            #     noSelectionCheck = [str(widgets_var_tuple[0]) for widgets_var_tuple in
+            #                         [i for i in widgets_var_zip if
+            #                          not isinstance(i[3],
+            #                                         tk.OptionMenu) and not isinstance(i[3], models.LongText)] if
+            #                         (not list(widgets_var_tuple[3]['values']) and not widgets_var_tuple[0].get())]
+            #     if noSelectionCheck and keep_original_value is None:
+            #         keep_original_value = mb.askokcancel("Fields not selected",
+            #                                              message=f"There are conflics in your selection.\n"
+            #                                                      f"Ignore if you want the following fields to keep it's original value.\n"
+            #                                                      f"{', '.join(noSelectionCheck)}\n\nContinue?",
+            #                                              parent=self.master)
+            #         if not keep_original_value:
+            #             raise CancelComicInfoSave()
+            #         logger.info("Proceeding with saving. Unset fields will retain original values")
+            #     else:
+            #         logger.info("Proceeding with saving. Unset fields will retain original values")
+            # logger.info("Before loop")
 
-            if self.widgets_obj:
-                # noSelectionCheck is a list of every field that is not manually changed. They will keep original value
-                noSelectionCheck = [str(widgets_var_tuple[0]) for widgets_var_tuple in
-                                    [i for i in widgets_var_zip if
-                                     not isinstance(i[3],
-                                                    tk.OptionMenu) and not isinstance(i[3], models.LongText)] if
-                                    (not list(widgets_var_tuple[3]['values']) and not widgets_var_tuple[0].get())]
-                if noSelectionCheck and keep_original_value is None:
-                    keep_original_value = mb.askokcancel("Fields not selected",
-                                                         message=f"There are conflics in your selection.\n"
-                                                                 f"Ignore if you want the following fields to keep it's original value.\n"
-                                                                 f"{', '.join(noSelectionCheck)}\n\nContinue?",
-                                                         parent=self.master)
-                    if not keep_original_value:
-                        raise CancelComicInfoSave()
-                    logger.info("Proceeding with saving. Unset fields will retain original values")
-                else:
-                    logger.info("Proceeding with saving. Unset fields will retain original values")
-                logger.info("Before loop")
             widgets_var_zip = self._get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
             for widgets_var_tuple in widgets_var_zip:
                 widgetvar = widgets_var_tuple[0]
@@ -1236,12 +1251,52 @@ class App:
                 # Else modify field with whatever is on the stringvar/intvar
                 else:
                     comicinfo_atr_set(widgetvar.get())
+            tags_list = (comicObj.comicInfoObj.get_Tags() or list())
+            if tags_list:
+                tags_list = tags_list.split(",")
+            genres_list = (comicObj.comicInfoObj.get_Genre() or list())
+            if genres_list:
+                genres_list = genres_list.split(",")
+            append_tags = self.global_tags_add_val.get()
+            if append_tags:
+                append_tags = append_tags.split(",")
+            remove_tags = self.global_tags_remove_val.get()
+            if remove_tags:
+                remove_tags = remove_tags.split(",")
+            append_genres = self.global_genres_add_val.get()
+            if append_genres:
+                append_genres = append_genres.split(",")
+            remove_genres = self.global_genres_remove_val.get()
+            if remove_genres:
+                remove_genres = remove_genres.split(",")
+            # Global tags/genres
+            if append_tags:
+                for tag in append_tags:
+                    if tag not in tags_list:
+                        tags_list.append(tag)
+            if remove_tags:
+                for tag in remove_tags:
+                    if tag in tags_list:
+                        tags_list.remove(tag)
+
+            if append_genres:
+                for genre in append_genres:
+                    if genre not in genres_list:
+                        genres_list.append(genre)
+            if remove_genres:
+                for genre in remove_genres:
+                    if genre in genres_list:
+                        genres_list.remove(genre)
+
+            comicObj.comicInfoObj.set_Tags(",".join(tags_list))
+            comicObj.comicInfoObj.set_Genre(",".join(genres_list))
 
             modified_loadedComicInfo, keep_original_value = comicObj, keep_original_value
             modified_loadedComicInfo_list.append(modified_loadedComicInfo)
         self.loadedComicInfo_list = modified_loadedComicInfo_list
-
+        self._unlockButtons()
     def _saveComicInfo(self):
+        self._lockButtons()
         progressBar = ProgressBar(self._initialized_UI, self._progressBarFrame if self._initialized_UI else None,
                                   total=len(self.loadedComicInfo_list))
         for loadedComicObj in self.loadedComicInfo_list:
@@ -1288,24 +1343,49 @@ class App:
                 progressBar.increaseError()
                 raise e
             progressBar.updatePB()
+        self._unlockButtons()
 
     def deleteComicInfo(self):
         """
         Deletes all ComicInfo.xml from the selected files
         """
-        if self._initialized_UI:
-            answer = mb.askokcancel("Warning", "This will remove 'ComicInfo.xml' file from the selected files",
-                                    parent=self.master)
-            if answer:
+        try:
+            if self._initialized_UI:
+                answer = mb.askokcancel("Warning", "This will remove 'ComicInfo.xml' file from the selected files",
+                                        parent=self.master)
+                if answer:
+                    for loadedComicObj in self.loadedComicInfo_list:
+                        logger.info("Processing delete")
+                        WriteComicInfo(loadedComicObj).delete()
+            else:
                 for loadedComicObj in self.loadedComicInfo_list:
                     logger.info("Processing delete")
                     WriteComicInfo(loadedComicObj).delete()
-        else:
-            for loadedComicObj in self.loadedComicInfo_list:
-                logger.info("Processing delete")
-                WriteComicInfo(loadedComicObj).delete()
+        except Exception as e:
+            logger.error(e)
+            self._unlockButtons()
+            raise e
+        self._unlockButtons()
+
+    def restoreComicInfo(self):
+        """
+        Deletes all ComicInfo.xml from the selected files
+        """
+        self._lockButtons()
+        try:
+            if self._initialized_UI:
+                for loadedComicObj in self.loadedComicInfo_list:
+                    logger.info("Processing delete")
+                    WriteComicInfo(loadedComicObj).restore()
+
+        except Exception as e:
+            logger.error(e)
+            self._unlockButtons()
+            raise e
+        self._unlockButtons()
 
     def do_save_UI(self):
+        self._lockButtons()
         try:
             self._parseUI_toComicInfo()
             self._saveComicInfo()
@@ -1313,16 +1393,36 @@ class App:
             logger.info("Cancelled Saving")
         except Exception as e:
             raise e
+        self._unlockButtons()
 
     def _clearUI(self):
+        self._lockButtons()
         self.initialize_StringVars()
         for widget in self.widgets_obj:
             if isinstance(widget, ttk.Combobox):
                 widget['values'] = []
         self.loadedComicInfo_list = []
+        self._unlockButtons()
 
+    def _lockButtons(self):
+        if not self._initialized_UI:
+            return
+        self._button_1.configure(state="disabled")
+        self._button_2.configure(state="disabled")
+        self._button_3.configure(state="disabled")
+        # self._button_4.configure(state="disabled")
+        self._button_5.configure(state="disabled")
+        self._button_recover.configure(state="disabled")
 
-
+    def _unlockButtons(self):
+        if not self._initialized_UI:
+            return
+        self._button_1.configure(state="normal")
+        self._button_2.configure(state="normal")
+        self._button_3.configure(state="normal")
+        # self._button_4.configure(state="normal")
+        self._button_5.configure(state="normal")
+        self._button_recover.configure(state="normal")
 class AppCli:
 
     def __init__(self):
