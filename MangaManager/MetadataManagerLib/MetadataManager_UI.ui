@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <interface version="1.2">
   <object class="tk.Frame" id="frame_1">
-    <property name="height">600</property>
-    <property name="width">200</property>
+    <property name="height">200</property>
+    <property name="width">600</property>
     <layout manager="pack">
       <property name="anchor">center</property>
       <property name="expand">true</property>
@@ -278,6 +278,7 @@
                         </child>
                         <child>
                           <object class="tk.Label" id="_label_24">
+                            <property name="pady">5</property>
                             <property name="text" translatable="yes">Genre</property>
                             <layout manager="pack">
                               <property name="side">top</property>
@@ -285,20 +286,70 @@
                           </object>
                         </child>
                         <child>
-                          <object class="ttk.Combobox" id="_entry_Genre1">
-                            <property name="textvariable">string:entry_Genre_val</property>
-                            <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add=""/>
-                            <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add=""/>
-                            <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add=""/>
-                            <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add=""/>
+                          <object class="tk.Frame" id="frame_5">
                             <layout manager="pack">
+                              <property name="anchor">center</property>
+                              <property name="expand">true</property>
                               <property name="fill">both</property>
                               <property name="side">top</property>
                             </layout>
+                            <child>
+                              <object class="ttk.Combobox" id="_entry_Genre1">
+                                <property name="textvariable">string:entry_Genre_val</property>
+                                <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add=""/>
+                                <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add=""/>
+                                <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add=""/>
+                                <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add=""/>
+                                <layout manager="pack">
+                                  <property name="fill">both</property>
+                                  <property name="pady">2</property>
+                                  <property name="side">top</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="tk.Label" id="_label_52">
+                                <property name="text" translatable="yes">Global add genres</property>
+                                <layout manager="pack">
+                                  <property name="side">left</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="tk.Entry" id="_entry_Genres_Global_Add">
+                                <property name="textvariable">string:global_genres_add_val</property>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">x</property>
+                                  <property name="padx">5</property>
+                                  <property name="side">left</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="tk.Entry" id="_entry_Genres_Global_Remove">
+                                <property name="textvariable">string:global_genres_remove_val</property>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">x</property>
+                                  <property name="padx">5</property>
+                                  <property name="side">right</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="tk.Label" id="label_51">
+                                <property name="text" translatable="yes">Global remove genres</property>
+                                <layout manager="pack">
+                                  <property name="side">right</property>
+                                </layout>
+                              </object>
+                            </child>
                           </object>
                         </child>
                         <child>
                           <object class="tk.Label" id="_label_25">
+                            <property name="pady">5</property>
                             <property name="text" translatable="yes">Tags</property>
                             <layout manager="pack">
                               <property name="side">top</property>
@@ -306,16 +357,66 @@
                           </object>
                         </child>
                         <child>
-                          <object class="ttk.Combobox" id="_entry_Tags1">
-                            <property name="textvariable">string:entry_Tags_val</property>
-                            <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add=""/>
-                            <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add=""/>
-                            <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add=""/>
-                            <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add=""/>
+                          <object class="tk.Frame" id="_frame_6_Tags">
                             <layout manager="pack">
+                              <property name="anchor">center</property>
+                              <property name="expand">true</property>
                               <property name="fill">both</property>
                               <property name="side">top</property>
                             </layout>
+                            <child>
+                              <object class="ttk.Combobox" id="_entry_Tags1">
+                                <property name="textvariable">string:entry_Tags_val</property>
+                                <bind sequence="&lt;Button-1&gt;" handler="makeFocused" add=""/>
+                                <bind sequence="&lt;Double-Button-1&gt;" handler="makeEditable" add=""/>
+                                <bind sequence="&lt;FocusOut&gt;" handler="onFocusOut" add=""/>
+                                <bind sequence="&lt;Return&gt;" handler="makeReadOnly" add=""/>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">both</property>
+                                  <property name="pady">2</property>
+                                  <property name="side">top</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="tk.Label" id="_label_50">
+                                <property name="text" translatable="yes">Global add tags</property>
+                                <layout manager="pack">
+                                  <property name="side">left</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="tk.Entry" id="_entry_Tags_Global_Add">
+                                <property name="textvariable">string:global_tags_add_val</property>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">x</property>
+                                  <property name="padx">5</property>
+                                  <property name="side">left</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="tk.Entry" id="_entry_Tags_Global_Remove">
+                                <property name="textvariable">string:global_tags_remove_val</property>
+                                <layout manager="pack">
+                                  <property name="expand">true</property>
+                                  <property name="fill">x</property>
+                                  <property name="padx">5</property>
+                                  <property name="side">right</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="tk.Label" id="_label_53">
+                                <property name="text" translatable="yes">Global remove tags</property>
+                                <layout manager="pack">
+                                  <property name="side">right</property>
+                                </layout>
+                              </object>
+                            </child>
                           </object>
                         </child>
                         <child>
