@@ -910,6 +910,17 @@ class App:
         self.frame_3.grid_anchor('center')
         self.scrolledframe_2.configure(usemousewheel=True)
         self.scrolledframe_2.pack(expand='true', fill='both', side='top')
+
+        self.frame_8_tooltip = tk.Frame(self.frame_1)
+
+        self._label_tooltip = tk.Label(self.frame_8_tooltip, text="""
+                            -1 : Clears the field on every selected file
+                            -2 : Keeps the value of each file
+        Anything else : Gets applied to all files""", justify="left")
+        self._label_tooltip.pack()
+
+        self.frame_8_tooltip.pack()
+
         self.frame_1.configure(height='600', width='200')
         self.frame_1.pack(anchor='center', expand='true', fill='both', side='top')
 
