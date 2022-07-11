@@ -1457,7 +1457,7 @@ class AppCli:
 
         list_of_choices = ["numeration", "volume", "chapter"]
         parser.add_argument("--keep",
-                            help="Should the modified file keep the numbering (volume and number)",
+                            help="Should the modified file keep the numbering (volume, chapter number or both)",
                             choices=list_of_choices,
                             dest="arg_keep_value")
         self.args = parser.parse_args()
