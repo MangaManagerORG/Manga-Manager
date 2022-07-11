@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import copy
+
 if __name__ == '__main__':
     import logging
     import os.path
@@ -1440,7 +1442,7 @@ class AppCli:
 
         **AppCli.copyFrom** The path to the origin file to copy from\n
         **AppCli.copyTo** The path to the destination paths\n
-        **AppCli.keepNumeration** boolean Whether to keep numeration from destination path or remove when pasting\n
+        **AppCli.keepNumeration** 3 options {'numeration','volume','chapter'}Whether to keep numeration from destination path or remove when pasting\n
         """
         parser = argparse.ArgumentParser()
 
@@ -1450,8 +1452,14 @@ class AppCli:
         parser.add_argument("--copyto", type=is_dir_path, help="The path of the files to modify."
                                                                " (Accepts shell-style wildcards)",
                             metavar="<path>", nargs="+")
-        parser.add_argument("--keepNumeration", action="store_true",
-                            help="Should the modified file keep the numbering (volume and number)")
+
+        # parser = argparse.ArgumentParser(description='some description')
+
+        list_of_choices = ["numeration", "volume", "chapter"]
+        parser.add_argument("--keep",
+                            help="Should the modified file keep the numbering (volume and number)",
+                            choices=list_of_choices,
+                            dest="arg_keep_value")
         self.args = parser.parse_args()
         from glob import glob
         if self.args.copyfrom:
@@ -1462,7 +1470,8 @@ class AppCli:
             else:
                 selected_files = glob(self.args.copyto)
             self.selected_files = selected_files
-        self.keepNumeration = self.args.keepNumeration
+
+        self.keepNumeration = self.args.arg_keep_value
 
     def loadFiles(self) -> tuple[list[LoadedComicInfo], LoadedComicInfo | None]:
         """
@@ -1495,13 +1504,21 @@ class AppCli:
             cbz_handler.WriteComicInfo(loadedComicInfo).to_file()
             logger.debug(f"Saved {os.path.basename(loadedComicInfo.path)}")
 
-    def copyCInfo(self, ):
+    def copyCInfo(self):
         if not self.loadedComicInfo_List:
             raise NoComicInfoLoaded()
         if not self.origin_LoadedcInfo:
             raise NoComicInfoLoaded(": No comicinfo to copy from selected")
         for loadedInfo in self.loadedComicInfo_List:
-            loadedInfo.comicInfoObj = self.origin_LoadedcInfo.comicInfoObj
+            newCInfo = copy.copy(self.origin_LoadedcInfo.comicInfoObj)
+            if self.keepNumeration == "numeration":
+                newCInfo.set_Volume(loadedInfo.comicInfoObj.get_Volume())
+                newCInfo.set_Number(loadedInfo.comicInfoObj.get_Number())
+            elif self.keepNumeration == "volume":
+                newCInfo.set_Volume(loadedInfo.comicInfoObj.get_Volume())
+            elif self.keepNumeration == "chapter":
+                newCInfo.set_Number(loadedInfo.comicInfoObj.get_Number())
+            loadedInfo.comicInfoObj = newCInfo
 
 
 if __name__ == '__main__':
