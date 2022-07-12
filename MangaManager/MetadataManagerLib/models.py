@@ -15,6 +15,12 @@ class LoadedComicInfo:
     comicInfoObj: ComicInfo.ComicInfo
     originalComicObj: ComicInfo.ComicInfo = None
 
+    # Used for merge
+    chapter = None
+    parsed_chapter = None
+    parsed_part = None
+    parsed_order = None
+
     def __init__(self, path, comicInfo, original=None):
         self.path = path
         self.comicInfoObj = comicInfo

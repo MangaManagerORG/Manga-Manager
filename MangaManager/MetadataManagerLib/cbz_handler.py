@@ -198,3 +198,36 @@ class WriteComicInfo:
             logger.error("[Restore Backup] Permission error. Clearing temp files...", exc_info=e)
             os.remove(tmpname)
             raise e
+
+
+class MergeChapter:
+
+    def __init__(self, ordered_loadedComicInfo: list[LoadedComicInfo], output_filename,
+                 output_metadata: ComicInfo.ComicInfo = None):
+        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(ordered_loadedComicInfo[0].path))
+        os.close(tmpfd)
+        counter = 1
+        with zipfile.ZipFile(tmpname, 'w') as zout:
+            for loadedComicInfo in ordered_loadedComicInfo:
+                with zipfile.ZipFile(loadedComicInfo.path, 'r') as zin:
+                    # if not "ComicInfo.xml" in zin.namelist():
+                    for item in zin.infolist():
+                        new_filename = f"Ch.0{loadedComicInfo.chapter}/{item.filename}"
+
+                        # Write the rest of the files as they are
+                        zout.writestr(new_filename, zin.read(item.filename))
+                        logger.debug(f"[Merge] Adding '{item.filename}' as {new_filename} to the new tempfile")
+                        counter += 1
+            if output_metadata:
+                export_io = io.StringIO()
+                try:
+                    loadedComicInfo.comicInfoObj.export(export_io, 0)
+                    export_io = export_io.getvalue()
+                    # We finally append our new ComicInfo file
+                    zout.writestr("ComicInfo.xml", export_io)
+                    logger.debug("[Merge] New ComicInfo.xml added to the file")
+                except AttributeError as e:
+                    logger.info(f"Attribute error :{str(e)}")
+                    # raise e
+
+        os.rename(tmpname, output_filename)

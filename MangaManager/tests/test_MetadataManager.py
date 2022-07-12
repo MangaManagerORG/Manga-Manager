@@ -52,6 +52,7 @@ comicinfo_24 = """
 """
 
 from MetadataManagerLib import MetadataManager, models
+from MetadataManagerLib import MergeChapterFiles
 from MetadataManagerLib.cbz_handler import *
 
 
@@ -345,3 +346,85 @@ class GlobalTagsGenres(unittest.TestCase):
                 self.assertFalse(tag in loadedCinfo.comicInfoObj.get_Tags())
             for genre in "Common_tag_4, Tag_1, Tag_8".split(","):
                 self.assertFalse(genre in loadedCinfo.comicInfoObj.get_Genre())
+
+
+class MergeChapterFilesTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.total_single_file_count = 0
+        self.test_files_names = []
+        print("\n", self._testMethodName)
+        print("Setup:")
+        random_chapters = [2, 2, 2, 4, 6, 6]
+        parts = [".2", "", ".1", ".2", "", ".1"]
+        for i in range(len(random_chapters)):
+            chapter = random_chapters[i]
+            part = parts[i]
+            out_tmp_zipname = f"Test_{i}_Ch.{chapter}{part}.cbz"
+            self.test_files_names.append(out_tmp_zipname)
+            self.temp_folder = tempfile.mkdtemp()
+            print(f"     Creating: {out_tmp_zipname}")  # , self._testMethodName)
+            with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
+                for i in range(5):
+                    image = Image.new('RGB', size=(20, 20), color=(255, 73, 95))
+                    image.format = "JPEG"
+                    # file = tempfile.NamedTemporaryFile(suffix=f'.jpg', prefix=str(i).zfill(3), dir=self.temp_folder)
+                    imgByteArr = io.BytesIO()
+                    image.save(imgByteArr, format=image.format)
+                    imgByteArr = imgByteArr.getvalue()
+                    zf.writestr(os.path.basename(f"{str(i).zfill(3)}.jpg"), imgByteArr)
+                    self.total_single_file_count += 1
+                cinfo = ComicInfo.ComicInfo()
+                cinfo.set_Number(f"{chapter}{part}")
+
+                export_io = io.StringIO()
+                try:
+                    cinfo.export(export_io, 0)
+                    export_io = export_io.getvalue()
+                    zf.writestr("ComicInfo.xml", export_io)
+                    self.total_single_file_count += 1
+                except AttributeError as e:
+                    logger.info(f"Attribute error :{str(e)}")
+                    raise e
+
+    def tearDown(self) -> None:
+        print("Teardown:")
+        # input("press to delete test files")
+        for filename in self.test_files_names:
+            print(f"     Deleting: {filename}")  # , self._testMethodName)
+            if not filename.startswith("Test"):
+                print("Wait debug point")
+            try:
+                os.remove(filename)
+            except Exception as e:
+                print(e)
+
+    def test_merge(self):
+        print("test")
+        ordered_loaded_list = list[LoadedComicInfo]()
+        for file in self.test_files_names:
+            ordered_loaded_list.append(LoadedComicInfo(file, None))
+
+        app = MergeChapterFiles.MergeChapterFiles(ordered_loaded_list)
+        app.parse_chapters()
+        app.order_chapters()
+        # for ordered in app.
+        # self.assertTrue(False)
+        print(f"Assert first position: {app.loadedComicInfo_list[0].path.startswith('Test_1')}")
+        self.assertTrue(app.loadedComicInfo_list[0].path.startswith("Test_1"))
+
+        print(f"Assert second position:: {app.loadedComicInfo_list[1].path.startswith('Test_2')}")
+        self.assertTrue(app.loadedComicInfo_list[1].path.startswith("Test_2"))
+
+        print(f"Assert third position:: {app.loadedComicInfo_list[2].path.startswith('Test_0')}")
+        self.assertTrue(app.loadedComicInfo_list[2].path.startswith("Test_0"))
+
+        app.group_chapters()
+        self.assertTrue(len(app.grouped_chapters[2]) == 3)
+        self.assertTrue(len(app.grouped_chapters[4]) == 1)
+        self.assertTrue(len(app.grouped_chapters[6]) == 2)
+
+        chapter_dict = app.grouped_chapters
+        for chapter in chapter_dict:
+            output_name = f"'Some series Ch.{chapter}.cbz"
+            self.test_files_names.append(output_name)
+            cbz_handler = MergeChapter(chapter_dict[chapter], output_name)

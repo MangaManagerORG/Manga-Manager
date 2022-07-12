@@ -1192,29 +1192,6 @@ class App:
         for comicObj in self.loadedComicInfo_list:
             logger.debug(f"parsing UI to ComicInfo: '{comicObj.path}'")
 
-            # Load the comic info into our StringVar and IntVar, so they can be modified in the ui
-            widgets_var_zip = self._get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
-
-            # if self.widgets_obj:
-            #     # noSelectionCheck is a list of every field that is not manually changed. They will keep original value
-            #     noSelectionCheck = [str(widgets_var_tuple[0]) for widgets_var_tuple in
-            #                         [i for i in widgets_var_zip if
-            #                          not isinstance(i[3],
-            #                                         tk.OptionMenu) and not isinstance(i[3], models.LongText)] if
-            #                         (not list(widgets_var_tuple[3]['values']) and not widgets_var_tuple[0].get())]
-            #     if noSelectionCheck and keep_original_value is None:
-            #         keep_original_value = mb.askokcancel("Fields not selected",
-            #                                              message=f"There are conflics in your selection.\n"
-            #                                                      f"Ignore if you want the following fields to keep it's original value.\n"
-            #                                                      f"{', '.join(noSelectionCheck)}\n\nContinue?",
-            #                                              parent=self.master)
-            #         if not keep_original_value:
-            #             raise CancelComicInfoSave()
-            #         logger.info("Proceeding with saving. Unset fields will retain original values")
-            #     else:
-            #         logger.info("Proceeding with saving. Unset fields will retain original values")
-            # logger.info("Before loop")
-
             widgets_var_zip = self._get_widgets_var_zip(self.widgets_var, comicObj.comicInfoObj, self.widgets_obj)
             for widgets_var_tuple in widgets_var_zip:
                 widgetvar = widgets_var_tuple[0]
@@ -1295,6 +1272,7 @@ class App:
             modified_loadedComicInfo_list.append(modified_loadedComicInfo)
         self.loadedComicInfo_list = modified_loadedComicInfo_list
         self._unlockButtons()
+
     def _saveComicInfo(self):
         self._lockButtons()
         progressBar = ProgressBar(self._initialized_UI, self._progressBarFrame if self._initialized_UI else None,
