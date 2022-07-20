@@ -1129,14 +1129,36 @@ class AgeRating(str, Enum):
     def list(cls):
         return list(map(lambda c: c.value, cls))
 
+    @classmethod
+    def get_max_value(cls, value) -> int:
+        _values = {
+            cls.UNKNOWN: 0,
+            cls.RATING_PENDING: 1,
+            cls.EARLY_CHILDHOOD: 2,
+            cls.EVERYONE: 3,
+            cls.G: 4,
+            cls.EVERYONE_10: 5,
+            cls.PG: 6,
+            cls.KIDSTO_ADULTS: 7,
+            cls.TEEN: 8,
+            cls.MA_15: 9,
+            cls.MATURE_17: 10,
+            cls.M: 11,
+            cls.R_18: 12,
+            cls.ADULTS_ONLY_18: 13,
+            cls.X_18: 14
+        }
+        return _values.get(value)
+
+
 class ComicPageType(str, Enum):
-    FRONT_COVER='FrontCover'
-    INNER_COVER='InnerCover'
-    ROUNDUP='Roundup'
-    STORY='Story'
-    ADVERTISMENT='Advertisment'
-    EDITORIAL='Editorial'
-    LETTERS='Letters'
+    FRONT_COVER = 'FrontCover'
+    INNER_COVER = 'InnerCover'
+    ROUNDUP = 'Roundup'
+    STORY = 'Story'
+    ADVERTISMENT = 'Advertisment'
+    EDITORIAL = 'Editorial'
+    LETTERS = 'Letters'
     PREVIEW='Preview'
     BACK_COVER='BackCover'
     OTHER='Other'
