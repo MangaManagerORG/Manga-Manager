@@ -453,9 +453,9 @@ class MergeChapterFilesTest(unittest.TestCase):
         self.assertTrue(app.loadedComicInfo_list[2].path.startswith("Test_0"))
 
         app.group_chapters()
-        self.assertTrue(len(app.grouped_chapters[2]) == 3)
-        self.assertTrue(len(app.grouped_chapters[4]) == 1)
-        self.assertTrue(len(app.grouped_chapters[6]) == 2)
+        self.assertEqual(3, len(app.grouped_chapters[2]))
+        self.assertEqual(1, len(app.grouped_chapters[4]))
+        self.assertEqual(2, len(app.grouped_chapters[6]))
 
         chapter_dict = app.grouped_chapters
         for chapter in chapter_dict:

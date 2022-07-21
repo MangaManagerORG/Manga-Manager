@@ -23,6 +23,45 @@ else:
     from .models import LoadedComicInfo
 
 
+def _get_getters(ComicInfoObject: ComicInfo.ComicInfo):
+    """TODO:
+                    (ComicInfoObject.get_Summary, ComicInfoObject.set_Summary),
+                (ComicInfoObject.get_AgeRating, ComicInfoObject.set_AgeRating),
+                (ComicInfoObject.get_Count, ComicInfoObject.set_Count),
+                (ComicInfoObject.get_AlternateCount, ComicInfoObject.set_AlternateCount),
+                (ComicInfoObject.get_Number, ComicInfoObject.set_Number),
+                (ComicInfoObject.get_Volume, ComicInfoObject.set_Volume),
+                (ComicInfoObject.get_PageCount, ComicInfoObject.set_PageCount),
+                (ComicInfoObject.get_Year, ComicInfoObject.set_Year),
+                (ComicInfoObject.get_Month, ComicInfoObject.set_Month),
+                (ComicInfoObject.get_Day, ComicInfoObject.set_Day),
+                (ComicInfoObject.get_BlackAndWhite, ComicInfoObject.set_BlackAndWhite),
+                (ComicInfoObject.get_Manga, ComicInfoObject.set_Manga),
+
+
+
+    :param ComicInfoObject:
+    :return:
+    """
+    return [
+        (ComicInfoObject.get_Title, ComicInfoObject.set_Title),
+        (ComicInfoObject.get_Series, ComicInfoObject.set_Series),
+        (ComicInfoObject.get_LocalizedSeries, ComicInfoObject.set_LocalizedSeries),
+        (ComicInfoObject.get_SeriesSort, ComicInfoObject.set_SeriesSort),
+        (ComicInfoObject.get_AlternateSeries, ComicInfoObject.set_AlternateSeries),
+        (ComicInfoObject.get_Notes, ComicInfoObject.set_Notes),
+        (ComicInfoObject.get_Web, ComicInfoObject.set_Web),
+        (ComicInfoObject.get_SeriesGroup, ComicInfoObject.set_SeriesGroup),
+        (ComicInfoObject.get_CommunityRating, ComicInfoObject.set_CommunityRating),
+        (ComicInfoObject.get_ScanInformation, ComicInfoObject.set_ScanInformation),
+        (ComicInfoObject.get_StoryArc, ComicInfoObject.set_StoryArc),
+        (ComicInfoObject.get_AlternateNumber, ComicInfoObject.set_AlternateNumber),
+        (ComicInfoObject.get_Format, ComicInfoObject.set_Format),
+        (ComicInfoObject.get_LanguageISO, ComicInfoObject.set_LanguageISO),
+        (ComicInfoObject.get_StoryArcNumber, ComicInfoObject.set_StoryArcNumber)
+    ]
+
+
 def _read_metadata(loadedComicInfo) -> ComicInfo.ComicInfo:
     """
     Reads comicinfo without extracting the zip
@@ -144,146 +183,39 @@ class MergeMetadata:
             ComicInfoObject.set_Genre(",".join(parsed_genres))
         self.output_cInfo.set_Genre(",".join(parsed_genres))
 
-    def return_one(self):
+    def _other_fields(self):
+        """(If the first file has the tag filled, thats the one will be in the output).
+        File ch_1 has series: 'Serie_1'
+        File ch_2 has series: 'Serie_2'
+        Per sorting, file chapter 1 value will be output. -> series will be 'Serie_1'
+Merges the following tags:
+Title, Series, get_LocalizedSeries, SeriesSort, get_AlternateSeries, Notes, Web, SeriesGroup ,get_CommunityRating ,get_ScanInformation ,StoryArc ,get_AlternateNumber ,Format ,LanguageISO ,StoryArcNumber
+        """
+        new_etters = _get_getters(self.output_cInfo)
+        for loadedComicInfo in self.loadedComicInfo_list:
+            ComicInfoObject = loadedComicInfo.comicInfoObj
+            output_etters = _get_getters(ComicInfoObject)
+            for item in zip(new_etters, output_etters):
+                loadedInfo_etters = item[0]
+                loadedInfo_get = loadedInfo_etters[0]
+                # loadedInfo_set = loadedInfo_etters[1] # NOT used
+
+                output_etters_field = item[1]
+                output_field_get = output_etters_field[0]
+                output_field_set = output_etters_field[0]
+
+                if not output_field_get():
+                    if loadedInfo_get():
+                        output_field_set(loadedInfo_get())
+
+    def return_one(self) -> ComicInfo.ComicInfo:
         """
         Returs one single comicinfo.
         Tags, Genre and people merge must be called before this if desired
         :return:
         """
 
-        new_etters = zip(
-            [
-                self.output_cInfo.get_Title,
-                self.output_cInfo.get_Series,
-                self.output_cInfo.get_LocalizedSeries,
-                self.output_cInfo.get_SeriesSort,
-                self.output_cInfo.get_AlternateSeries,
-                self.output_cInfo.get_Summary,
-                self.output_cInfo.get_Notes,
-                self.output_cInfo.get_Web,
-                self.output_cInfo.get_SeriesGroup,
-                self.output_cInfo.get_AgeRating,
-                self.output_cInfo.get_CommunityRating,
-                self.output_cInfo.get_ScanInformation,
-                self.output_cInfo.get_StoryArc,
-                self.output_cInfo.get_Number,
-                self.output_cInfo.get_AlternateNumber,
-                self.output_cInfo.get_Count,
-                self.output_cInfo.get_AlternateCount,
-                self.output_cInfo.get_Volume,
-                self.output_cInfo.get_PageCount,
-                self.output_cInfo.get_Year,
-                self.output_cInfo.get_Month,
-                self.output_cInfo.get_Day,
-                self.output_cInfo.get_Format,
-                self.output_cInfo.get_LanguageISO,
-                self.output_cInfo.get_BlackAndWhite,
-                self.output_cInfo.get_Manga,
-                self.output_cInfo.get_StoryArcNumber
-            ],
-            [
-                self.output_cInfo.set_Title,
-                self.output_cInfo.set_Series,
-                self.output_cInfo.set_LocalizedSeries,
-                self.output_cInfo.set_SeriesSort,
-                self.output_cInfo.set_AlternateSeries,
-                self.output_cInfo.set_Summary,
-                self.output_cInfo.set_Notes,
-                self.output_cInfo.set_Genre,
-                self.output_cInfo.set_Tags,
-                self.output_cInfo.set_Web,
-                self.output_cInfo.set_SeriesGroup,
-                self.output_cInfo.set_AgeRating,
-                self.output_cInfo.set_CommunityRating,
-                self.output_cInfo.set_ScanInformation,
-                self.output_cInfo.set_StoryArc,
-                self.output_cInfo.set_Number,
-                self.output_cInfo.set_AlternateNumber,
-                self.output_cInfo.set_Count,
-                self.output_cInfo.set_AlternateCount,
-                self.output_cInfo.set_Volume,
-                self.output_cInfo.set_PageCount,
-                self.output_cInfo.set_Year,
-                self.output_cInfo.set_Month,
-                self.output_cInfo.set_Day,
-                self.output_cInfo.set_Format,
-                self.output_cInfo.set_LanguageISO,
-                self.output_cInfo.set_BlackAndWhite,
-                self.output_cInfo.set_Manga,
-                self.output_cInfo.set_StoryArcNumber]
-        )
-        for loadedComicInfo in self.loadedComicInfo_list:
-            ComicInfoObject = loadedComicInfo.comicInfoObj
-            etters = zip(
-                [
-                    ComicInfoObject.get_Title,
-                    ComicInfoObject.get_Series,
-                    ComicInfoObject.get_LocalizedSeries,
-                    ComicInfoObject.get_SeriesSort,
-                    ComicInfoObject.get_AlternateSeries,
-                    ComicInfoObject.get_Summary,
-                    ComicInfoObject.get_Notes,
-                    ComicInfoObject.get_Web,
-                    ComicInfoObject.get_SeriesGroup,
-                    ComicInfoObject.get_AgeRating,
-                    ComicInfoObject.get_CommunityRating,
-                    ComicInfoObject.get_ScanInformation,
-                    ComicInfoObject.get_StoryArc,
-                    ComicInfoObject.get_Number,
-                    ComicInfoObject.get_AlternateNumber,
-                    ComicInfoObject.get_Count,
-                    ComicInfoObject.get_AlternateCount,
-                    ComicInfoObject.get_Volume,
-                    ComicInfoObject.get_PageCount,
-                    ComicInfoObject.get_Year,
-                    ComicInfoObject.get_Month,
-                    ComicInfoObject.get_Day,
-                    ComicInfoObject.get_Format,
-                    ComicInfoObject.get_LanguageISO,
-                    ComicInfoObject.get_BlackAndWhite,
-                    ComicInfoObject.get_Manga,
-                    ComicInfoObject.get_StoryArcNumber
-                ],
-                [
-                    ComicInfoObject.set_Title,
-                    ComicInfoObject.set_Series,
-                    ComicInfoObject.set_LocalizedSeries,
-                    ComicInfoObject.set_SeriesSort,
-                    ComicInfoObject.set_AlternateSeries,
-                    ComicInfoObject.set_Summary,
-                    ComicInfoObject.set_Notes,
-                    ComicInfoObject.set_Web,
-                    ComicInfoObject.set_SeriesGroup,
-                    ComicInfoObject.set_AgeRating,
-                    ComicInfoObject.set_CommunityRating,
-                    ComicInfoObject.set_ScanInformation,
-                    ComicInfoObject.set_StoryArc,
-                    ComicInfoObject.set_Number,
-                    ComicInfoObject.set_AlternateNumber,
-                    ComicInfoObject.set_Count,
-                    ComicInfoObject.set_AlternateCount,
-                    ComicInfoObject.set_Volume,
-                    ComicInfoObject.set_PageCount,
-                    ComicInfoObject.set_Year,
-                    ComicInfoObject.set_Month,
-                    ComicInfoObject.set_Day,
-                    ComicInfoObject.set_Format,
-                    ComicInfoObject.set_LanguageISO,
-                    ComicInfoObject.set_BlackAndWhite,
-                    ComicInfoObject.set_Manga,
-                    ComicInfoObject.set_StoryArcNumber]
-            )
-            for item in new_etters:
-                old_etters = next(etters)
-                new_getter = item[0]
-                new_setter = item[1]
-                old_getter = old_etters[0]
-                old_setter = old_etters[1]
-
-                if not new_getter():
-                    if old_getter():
-                        new_setter(old_getter())
-
+        # Volume and number processing
         export_io = io.StringIO()
         self.output_cInfo.export(export_io, 0)
         # output_cInfo.set_Number()
@@ -304,11 +236,12 @@ class MergeMetadata:
             ComicInfoObject.set_AgeRating(highest_enum)
         self.output_cInfo.set_AgeRating(highest_enum)
 
-    def merge_all_into_one(self):
+    def merge_all_into_one(self) -> ComicInfo.ComicInfo:
         self.people()
         self.tags()
         self.genres()
         self.ageRating()
+        return self.return_one()
 
     def extract(self) -> list[LoadedComicInfo]:
         return self.loadedComicInfo_list

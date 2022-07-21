@@ -175,3 +175,20 @@ class CoverManagerTester(unittest.TestCase):
         final_dir_count = len(os.listdir(os.path.dirname(self.test_files_names[0])))
         print(f"Asserting {self.initial_dir_count} vs {final_dir_count}")
         self.assertEqual(self.initial_dir_count, final_dir_count)
+
+
+class CoverManagerTester_CBZ_handler(unittest.TestCase):
+    """
+    This test checks the functionality of cbz_handler
+    """
+
+    class zin:
+        filelist = None
+
+        def __init__(self):
+            ...
+
+        def infolist(self):
+            """Return a list of class ZipInfo instances for files in the
+            archive."""
+            return self.filelist
