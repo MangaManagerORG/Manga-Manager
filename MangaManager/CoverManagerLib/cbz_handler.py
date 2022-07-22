@@ -11,11 +11,50 @@ from .models import cover_process_item_info
 logger = logging.getLogger(__name__)
 
 
+def is_folder(name: str, folders_list):
+    if name.split("/")[0] + "/" in folders_list:
+        return True
+    else:
+        return False
+
+
+class _SingleCoverBackup:
+
+    def __init__(self, zin, zout, doConvertWebp=False):
+        self.zin = zin
+        self.zout = zout
+        self.doConvertWebp = doConvertWebp
+    def single_cover(self, filename):
+        if self.doConvertWebp:
+            newname = f"OldCover_{getNewWebpFormatName(filename)}.bak"
+            with self.zin.open(filename) as open_zipped_file:
+                self.zout.writestr(newname, convertToWebp(open_zipped_file))
+                logger.debug(
+                    f"[SetCover][Backup] Adding backup '{filename}' as '{newname}' to the new tempfile")
+        else:
+            newname = f"OldCover_{filename}.bak"
+            self.zout.writestr(newname, self.zin.read(filename))
+            logger.debug(
+                f"[SetCover][Backup] Adding backup '{filename}' as '{newname}' to the new tempfile")
+
+    def add_image(self,filename):
+
+        if self.doConvertWebp and filename.endswith(supportedFormats):
+            with self.zin.open(filename) as open_zipped_file:
+                self.zout.writestr(getNewWebpFormatName(filename), convertToWebp(open_zipped_file))
+            logger.debug(
+                f"[SetCover][Backup] Adding '{filename}' as '{getNewWebpFormatName(filename)}' to the new tempfile")
+        else:
+            self.zout.writestr(filename, self.zin.read(filename))
+            logger.debug(f"[SetCover][Backup] Adding '{filename}' back to the new tempfile")
+
+
 class SetCover:
     def __init__(self, process_values: cover_process_item_info, convert_to_webp=False):
         self.values = process_values
-        self.conver_to_webp = convert_to_webp
-
+        self.convert_to_webp = convert_to_webp
+        if self.values.coverFileFormat.startswith("."):
+            self.values.coverFileFormat = self.values.coverFileFormat.strip(".")
         v = process_values
         self.oldZipFilePath = v.zipFilePath
         # new_zipFilePath = '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$", v.zipFilePath)[0])
@@ -60,176 +99,56 @@ class SetCover:
 
 
         """
-
         tmpname = self.temp_file
-
-        # backup_isdone = False
-
-        def is_folder(name: str, folders_list):
-            if name.split("/")[0] + "/" in folders_list:
-                return True
-            else:
-                return False
-
-        cover_is_000 = False
-
-
         with zipfile.ZipFile(self.values.zipFilePath, 'r') as zin:
             with zipfile.ZipFile(tmpname, 'w') as zout:
-                processed_files = []
-                # old_cover_filename = [v for v in zin.namelist() if v.startswith("OldCover_")]  # Find "OldCover_ file
+                backup = _SingleCoverBackup(zin, zout, self.convert_to_webp)
+
+                file_list = zin.namelist()
+                forced_cover = [v for v in zin.namelist() if re.match(r"(?i).*cover.*", v)]
+
+                cover_matches_000_pattern = [v for v in zin.namelist() if
+                                             v.startswith("00000.") or re.match(r"(?i)^0*\.\.?[a-z]+$", v)]
+
+                old_cover = [v for v in zin.namelist() if
+                             v.startswith("OldCover_") or re.match(r"(?i)^0*\.\.?[a-z]+$", v)]
                 folders_list = [v for v in zin.namelist() if v.endswith("/")]  # Notes all folders to not process them.
-                # for item in zin.infolist():
-                cover_matches = [v for v in zin.namelist() if
-                                 v.startswith("00000.") or re.match(r"(?i)^0*\.\.?[a-z]+$", v) or re.match(
-                                     r"(?i).*cover.*", v)]
-                if cover_matches:
-                    logger.info("[SetCover][Backup] Found 0000 file")
-                    cover_is_000 = True
-                backup_isdone = False
-                for item in zin.infolist():
-                    # Fix the filename if it has 2 dots due to bug
-                    filename = item.filename
-                    tmp_filename, file_format = os.path.splitext(item.filename)
-                    if tmp_filename.endswith("."):
-                        filename = tmp_filename.strip(".") + file_format
+                is_cover_backed = False
 
-                    # Delete existing "OldCover_00.ext.bak file
-                    if item.filename.startswith("OldCover_"):
-                        continue
-                    # If it's folder we copy as it is
-                    if is_folder(item.filename, folders_list):  # We write any inner folders as is
-                        if self.conver_to_webp:
-                            with zin.open(item.filename) as open_zipped_file:
-                                zout.writestr(getNewWebpFormatName(filename), convertToWebp(open_zipped_file))
-                        else:
-                            zout.writestr(filename, zin.read(item.filename))
-                        continue
+                # Backup any filename that has "cover" in it. If multiple, it selects the first one provided
+                if forced_cover and not is_cover_backed:
+                    forced_cover_filename = forced_cover[0]
+                    # Proceed to back up the cover as OldCover_{}.bak
+                    backup.single_cover(forced_cover_filename)
+                    file_list.remove(forced_cover_filename)
+                    is_cover_backed = True
 
-                    if item.filename in cover_matches:  # This file is a potential cover
+                # Backup any cover that follows the pattern 0000.ext
+                elif cover_matches_000_pattern and not is_cover_backed:
+                    forced_cover_filename = cover_matches_000_pattern[0]
+                    # Proceed to back up the cover as OldCover_00000.ext.bak
+                    backup.single_cover(forced_cover_filename)
+                    file_list.remove(forced_cover_filename)
+                    is_cover_backed = True
 
-                        # If cover is backed up this is not cover
-                        if backup_isdone:
-                            if item.filename in processed_files:
-                                continue
-                            # File is marked as possible cover but cover is backed up. This is not cover, adding to file
-                            if self.conver_to_webp:
-                                with zin.open(item.filename) as open_zipped_file:
-                                    zout.writestr(getNewWebpFormatName(filename), convertToWebp(open_zipped_file))
-                                    logger.debug(
-                                        f"[SetCover][Backup] Adding '{getNewWebpFormatName(filename)}' to the new tempfile")
-                            else:
-                                zout.writestr(filename, zin.read(item.filename))
-                                logger.debug(f"[SetCover][Backup] Adding '{filename}' to the new tempfile")
-                            continue
+                # No ".*cover.*" and no 000.ext file so backup first image found if overwrite or delete is true
+                elif not is_cover_backed and (self.values.coverDelete or self.values.coverOverwrite):
+                    for file in file_list:
+                        # Check that file is an image.
+                        # Any additional file (comicinfo, other backups) should never be treated as cover
+                        if file.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif')) is not None:
+                            forced_cover_filename = file
+                            break
+                    # Proceed to back up the cover as OldCover_00000.ext.bak
+                    backup.single_cover(forced_cover_filename)
+                    file_list.remove(forced_cover_filename)
+                    is_cover_backed = True
 
-                        # If there exists 0*.ext.
-                        if re.match(r"(?i)^0*\.\.?[a-z]+$", item.filename):
-                            # This file name matches r"0*.ext"
-                            if self.conver_to_webp:
-                                newname = f"OldCover_{getNewWebpFormatName(filename)}.bak"
-                                with zin.open(item.filename) as open_zipped_file:
-                                    zout.writestr(newname, convertToWebp(open_zipped_file))
-                                    logger.debug(
-                                        f"[SetCover][Backup] Adding backup '{item.filename}' to the new tempfile as '{newname}'")
-                            else:
-                                newname = f"OldCover_{filename}.bak"
-                                zout.writestr(newname, zin.read(item.filename))
-                                logger.debug(
-                                    f"[SetCover][Backup] Adding backup '{item.filename}' to the new tempfile as '{newname}'")
-                            backup_isdone = True
-                            processed_files.append(item.filename)
-                            continue
-
-                    # Find 001.ext
-                    if re.match(r"(?i)^0*1\.\.?[a-z]+$", item.filename) and (
-                            self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
-
-                        if self.conver_to_webp:
-                            newname = f"OldCover_{getNewWebpFormatName(filename)}.bak"
-                            with zin.open(item.filename) as open_zipped_file:
-                                zout.writestr(newname, convertToWebp(open_zipped_file))
-                        else:
-                            newname = f"OldCover_{filename}.bak"
-                            zout.writestr(newname, zin.read(item.filename))
-                        logger.info(
-                            f"[SetCover][Backup][Overwrite/Delete] Adding backup '{item.filename}' to the new tempfile as '{newname}'")
-                        backup_isdone = True
-                        processed_files.append(item.filename)
-                        continue
-                    # Find 002.ext
-                    elif re.match(r"(?i)^0*2\.[a-z]+$", item.filename) and (
-                            self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
-                        if self.conver_to_webp:
-                            newname = f"OldCover_{getNewWebpFormatName(filename)}.bak"
-                            with zin.open(item.filename) as open_zipped_file:
-                                zout.writestr(newname, convertToWebp(open_zipped_file))
-                        else:
-                            newname = f"OldCover_{filename}.bak"
-                            zout.writestr(newname, zin.read(item.filename))
-                        logger.info(
-                            f"[SetCover][Backup][Overwrite/Delete] Adding backup '{item.filename}' to the new tempfile as '{newname}'")
-                        backup_isdone = True
-                        processed_files.append(item.filename)
-                        continue
-                    # Find 003.ext
-                    elif re.match(r"(?i)^0*3\.[a-z]+$", item.filename) and (
-                            self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
-                        if self.conver_to_webp:
-                            newname = f"OldCover_{getNewWebpFormatName(filename)}.bak"
-                            with zin.open(item.filename) as open_zipped_file:
-                                zout.writestr(newname, convertToWebp(open_zipped_file))
-                        else:
-                            newname = f"OldCover_{filename}.bak"
-                            zout.writestr(newname, zin.read(item.filename))
-                        logger.info(
-                            f"[SetCover][Backup][Overwrite/Delete] Adding backup '{item.filename}' to the new tempfile as '{newname}'")
-                        backup_isdone = True
-                        processed_files.append(item.filename)
-                        continue
-                    # Find 004.ext
-                    elif re.match(r"(?i)^0*4\.[a-z]+$", item.filename) and (
-                            self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
-                        if self.conver_to_webp:
-                            newname = f"OldCover_{getNewWebpFormatName(filename)}.bak"
-                            with zin.open(item.filename) as open_zipped_file:
-                                zout.writestr(newname, convertToWebp(open_zipped_file))
-                        else:
-                            newname = f"OldCover_{filename}.bak"
-                            zout.writestr(newname, zin.read(item.filename))
-                        logger.info(
-                            f"[SetCover][Backup][Overwrite/Delete] Adding backup '{item.filename}' to the new tempfile as '{newname}'")
-                        backup_isdone = True
-                        processed_files.append(item.filename)
-                        continue
-                    # Find 00.ext
-                    elif re.match(r"(?i)^0*\.[a-z]+$", item.filename) and (
-                            self.values.coverOverwrite or self.values.coverDelete) and not backup_isdone:
-                        if self.conver_to_webp:
-                            newname = f"OldCover_{getNewWebpFormatName(filename)}.bak"
-                            with zin.open(item.filename) as open_zipped_file:
-                                zout.writestr(newname, convertToWebp(open_zipped_file))
-                        else:
-                            newname = f"OldCover_{filename}.bak"
-                            zout.writestr(newname, zin.read(item.filename))
-                        logger.info(
-                            f"[SetCover][Backup][Overwrite/Delete] Adding backup '{item.filename}' to the new tempfile as '{newname}'")
-                        backup_isdone = True
-                        processed_files.append(item.filename)
-                        continue
-
-                    # Adding file to new file.
-                    # File is not flagged as potential cover
-                    item_filename = item.filename
-                    if self.conver_to_webp and item.filename.endswith(supportedFormats):
-                        with zin.open(item.filename) as open_zipped_file:
-                            zout.writestr(getNewWebpFormatName(filename), convertToWebp(open_zipped_file))
-                        logger.debug(
-                            f"[SetCover][Backup] Adding '{getNewWebpFormatName(item.filename)}' back to the new tempfile")
-                    else:
-                        zout.writestr(item_filename, zin.read(item.filename))
-                        logger.debug(f"[SetCover][Backup] Adding '{filename}' back to the new tempfile")
-                    continue
+                # Proceed to add the files to the new file
+                for filename in file_list:
+                    # Do not save old backup
+                    if not filename.startswith("OldCover_"):
+                        backup.add_image(filename)
 
         try:
             os.remove(self.values.zipFilePath)
@@ -253,10 +172,10 @@ class SetCover:
 
         logger.debug(f"[SetCover][Append] Cover path:{values.coverFilePath} - File path:{values.zipFilePath}")
 
-        new_coverFileName = f"00000{values.coverFileFormat}"  # values.coverFormat includes the dot
+        new_coverFileName = f"00000.{values.coverFileFormat}"
 
         with zipfile.ZipFile(values.zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
-            if self.conver_to_webp:
+            if self.convert_to_webp:
                 zf.writestr(getNewWebpFormatName(new_coverFileName), convertToWebp(values.coverFilePath))
                 logger.info(f"[SetCover][append] Finished appending '{getNewWebpFormatName(new_coverFileName)}")
             else:

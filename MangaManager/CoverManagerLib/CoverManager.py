@@ -329,7 +329,7 @@ class App:
                 cbz_file=iterated_file_path,
                 cover_path=image_path,
                 cover_name=os.path.basename(image_path),
-                cover_format=file_format,  # Must include the extension dot '.ext'
+                cover_format=file_format,
                 coverDelete=option_delete,
                 coverRecover=option_recover,
                 coverOverwrite=option_overwrite
