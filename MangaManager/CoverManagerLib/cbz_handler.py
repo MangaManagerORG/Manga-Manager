@@ -60,9 +60,7 @@ class SetCover:
         self.oldZipFilePath = v.zipFilePath
         # new_zipFilePath = '{}.zip'.format(re.findall(r"(?i)(.*)(?:\.[a-z]{3})$", v.zipFilePath)[0])
 
-        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(v.zipFilePath))
-        os.close(tmpfd)
-        self.temp_file = tmpname
+        self.temp_file = None
         if v.coverRecover:
             logger.info("[SetCover] Proceeding to recover cover")
             self._recover_cover()
@@ -84,6 +82,11 @@ class SetCover:
             self._append()
             return
 
+    def _create_temp_file(self):
+        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.values.zipFilePath))
+        os.close(tmpfd)
+        self.temp_file = tmpname
+
     def _backup_cover(self):
         """
         Backup will always back up all files in any situation.
@@ -100,20 +103,27 @@ class SetCover:
 
 
         """
-        tmpname = self.temp_file
         with zipfile.ZipFile(self.values.zipFilePath, 'r') as zin:
-            with zipfile.ZipFile(tmpname, 'w') as zout:
+            # If its append mode, we can just skip this part no files is backed up only added
+
+            file_list = zin.namelist()
+            forced_cover = [v for v in zin.namelist() if re.match(r"(?i).*cover.*", v)]
+
+            cover_matches_000_pattern = [v for v in zin.namelist() if
+                                         v.startswith("00000.") or re.match(r"(?i)^0*\.\.?[a-z]+$", v)]
+
+            old_cover = [v for v in zin.namelist() if
+                         v.startswith("OldCover_") or re.match(r"(?i)^0*\.\.?[a-z]+$", v)]
+            folders_list = [v for v in zin.namelist() if v.endswith("/")]  # Notes all folders to not process them.
+
+            if not any((self.values.coverOverwrite, self.values.coverDelete, cover_matches_000_pattern)):
+                return
+
+            self._create_temp_file()
+
+            with zipfile.ZipFile(self.temp_file, 'w') as zout:
                 backup = _SingleCoverBackup(zin, zout, self.convert_to_webp)
 
-                file_list = zin.namelist()
-                forced_cover = [v for v in zin.namelist() if re.match(r"(?i).*cover.*", v)]
-
-                cover_matches_000_pattern = [v for v in zin.namelist() if
-                                             v.startswith("00000.") or re.match(r"(?i)^0*\.\.?[a-z]+$", v)]
-
-                old_cover = [v for v in zin.namelist() if
-                             v.startswith("OldCover_") or re.match(r"(?i)^0*\.\.?[a-z]+$", v)]
-                folders_list = [v for v in zin.namelist() if v.endswith("/")]  # Notes all folders to not process them.
                 is_cover_backed = False
 
                 # Backup any filename that has "cover" in it. If multiple, it selects the first one provided
@@ -153,10 +163,10 @@ class SetCover:
 
         try:
             os.remove(self.values.zipFilePath)
-            os.rename(tmpname, self.values.zipFilePath)
+            os.rename(self.temp_file, self.values.zipFilePath)
         except PermissionError as e:
             logger.error("[SetCover][Backup] Permission error. Clearing temp files...", exc_info=e)
-            os.remove(tmpname)
+            os.remove(self.temp_file)
             raise e
 
         logger.info("[SetCover][Backup] Finished backup")
@@ -209,7 +219,7 @@ class SetCover:
         This renames back OldCover_nameHere.ext.bak to nameHere.ext
         if a nameHere.ext exists, it gets overwritten
         """
-
+        self._create_temp_file()
         tmpname = self.temp_file
 
         r = r"(?i)^0*\.[a-z]{3}$"
