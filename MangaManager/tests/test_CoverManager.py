@@ -62,14 +62,17 @@ class CoverManagerTester(unittest.TestCase):
         SetCover(values_to_process)
         with zipfile.ZipFile(self.test_files_names[0], 'r') as zin:
             item_count2 = len(zin.namelist())
-        print(f"Asserting new file has original files + new cover since its appended - {item_count} vs {item_count2}")
-        self.assertEqual((item_count + 1), item_count2)
 
-        print(pathlib.Path(self.test_files_names[0]))
+        with self.subTest("New file has same files + appended cover"):
+            print(f"Asserting new file has original files + new cover since its appended"
+                  f" - {item_count} vs {item_count2}")
+            self.assertEqual((item_count + 1), item_count2)
+        # print(pathlib.Path(self.test_files_names[0]))
         # print(os.path.dirname(self.test_files_names[0]))
         final_dir_count = len(os.listdir(os.path.dirname(self.test_files_names[0])))
-        print(f"Asserting {self.initial_dir_count} vs {final_dir_count}")
-        self.assertEqual(self.initial_dir_count, final_dir_count)
+        with self.subTest("Working directory's temp files are cleaned up properly"):
+            print(f"Asserting temp files are cleaned up properly {self.initial_dir_count} vs {final_dir_count}")
+            self.assertEqual(self.initial_dir_count, final_dir_count)
 
     def test_appendCover_ShouldOverwriteFirst(self):
         # Append one image named 0000.ext
