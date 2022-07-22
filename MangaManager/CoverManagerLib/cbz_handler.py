@@ -24,6 +24,7 @@ class _SingleCoverBackup:
         self.zin = zin
         self.zout = zout
         self.doConvertWebp = doConvertWebp
+
     def single_cover(self, filename):
         if self.doConvertWebp:
             newname = f"OldCover_{getNewWebpFormatName(filename)}.bak"

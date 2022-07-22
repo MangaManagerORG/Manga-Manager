@@ -1,6 +1,5 @@
 import io
 import os
-import pathlib
 import random
 import tempfile
 import unittest
@@ -95,13 +94,19 @@ class CoverManagerTester(unittest.TestCase):
         SetCover(values_to_process)
         with zipfile.ZipFile(self.test_files_names[0], 'r') as zin:
             item_count2 = len(zin.namelist())
-        print(
-            f"Asserting new file has original files + 1. First cover should be backed up since named 0000.ext - {item_count} vs {item_count2 - 1}")
-        self.assertEqual(item_count, item_count2 - 1)
+            with self.subTest("Assert file has original files + backup"):
+                print(
+                    f"Asserting new file has original files + 1 backup."
+                    f" First cover should be backed up since named 0000.ext - {item_count} vs {item_count2 - 1}")
+                self.assertEqual(item_count, item_count2 - 1)
+            with self.subTest("Assert the backup file is in new file OldCover_0000.jpg.bak"):
+                print("Asserting the backup file is in new file OldCover_0000.jpg.bak")
+                self.assertTrue("OldCover_0000.jpg.bak" in zin.namelist())
 
-        final_dir_count = len(os.listdir(os.path.dirname(self.test_files_names[0])))
-        print(f"Asserting {self.initial_dir_count} vs {final_dir_count}")
-        self.assertEqual(self.initial_dir_count, final_dir_count)
+        with self.subTest("Assert temp files are cleaned"):
+            final_dir_count = len(os.listdir(os.path.dirname(self.test_files_names[0])))
+            print(f"Asserting {self.initial_dir_count} vs {final_dir_count}")
+            self.assertEqual(self.initial_dir_count, final_dir_count)
 
     def test_overwriteCover(self):
         # Count files in archive
@@ -178,3 +183,46 @@ class CoverManagerTester(unittest.TestCase):
         final_dir_count = len(os.listdir(os.path.dirname(self.test_files_names[0])))
         print(f"Asserting {self.initial_dir_count} vs {final_dir_count}")
         self.assertEqual(self.initial_dir_count, final_dir_count)
+
+
+class CoverManagerTester_Different_Path_1(CoverManagerTester):
+    def setUp(self) -> None:
+        self.test_files_names = []  # Simulated list of filepaths
+        print("\n", self._testMethodName)
+        print("Setup:")
+        image = Image.new('RGB', size=(20, 20), color=(255, 73, 95))
+        image.format = "JPEG"
+        imgByteArr = io.BytesIO()
+        image.save(imgByteArr, format=image.format)
+        imgByteArr = imgByteArr.getvalue()
+        for ai in range(3):  # Create 3 archives.cbz
+            out_tmp_zipname = f"Test_{ai}_{random.randint(1, 6000)}.cbz"
+            self.test_files_names.append(os.path.abspath(out_tmp_zipname))
+            self.temp_folder = tempfile.mkdtemp()
+            print(f"     Creating: {out_tmp_zipname}")  # , self._testMethodName)
+
+            with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
+                for i in range(1, 6):
+                    zf.writestr(f"Atsumare! Fushigi Kenkyu-bu_{i}.jpg", imgByteArr)
+
+        image.save("Test_4_sample_cover.jpg", format=image.format)
+        self.test_files_names.append(os.path.abspath("Test_4_sample_cover.jpg"))
+        self.sample_cover = os.path.abspath("Test_4_sample_cover.jpg")
+        self.initial_dir_count = len(os.listdir(os.getcwd()))
+
+#
+# class CoverManagerTester_CBZ_handler(unittest.TestCase):
+#     """
+#     This test checks the functionality of cbz_handler
+#     """
+#
+#     class zin:
+#         filelist = None
+#
+#         def __init__(self):
+#             ...
+#
+#         def infolist(self):
+#             """Return a list of class ZipInfo instances for files in the
+#             archive."""
+#             return self.filelist
