@@ -1,11 +1,11 @@
-import io
 import zipfile
+from operator import attrgetter
 
 if __name__ == '__main__':
     import os.path
 
     import ComicInfo
-    from cbz_handler import ReadComicInfo
+    from cbz_handler import ReadComicInfo, MergeChapter
     from models import LoadedComicInfo
     import argparse
 
@@ -46,7 +46,8 @@ def _get_getters(ComicInfoObject: ComicInfo.ComicInfo):
         (ComicInfoObject.get_AlternateNumber, ComicInfoObject.set_AlternateNumber),
         (ComicInfoObject.get_Format, ComicInfoObject.set_Format),
         (ComicInfoObject.get_LanguageISO, ComicInfoObject.set_LanguageISO),
-        (ComicInfoObject.get_StoryArcNumber, ComicInfoObject.set_StoryArcNumber)
+        (ComicInfoObject.get_StoryArcNumber, ComicInfoObject.set_StoryArcNumber),
+        (ComicInfoObject.get_Summary, ComicInfoObject.set_Summary)
     ]
 
 
@@ -67,15 +68,10 @@ def merge_singleList(out_list: list, list_to_append: str) -> list:
 
 class MergeMetadata:
     def __init__(self, loadedComicInfo_list: list[LoadedComicInfo]):
-        # merge_metadata_into_one=False,
-        # merge_people=False,
-        # merge_tags=False,
-        # merge_genres=False,
-        # merge_summary=False
-        # ):
         """
-        Every loadedCinfo must be from the first end chapter. so (1.2, 1.4) is good, (1.2, 2.3, 2.4) us not
-        :param loadedComicInfo_list: Expects aN ordered list of loadedComicInfo
+        Every loadedCinfo must be from the first the same chapter. S
+            (1.2, 1.3, 1.4) is good, (1.2, 2.3, 3.4) is not.
+        :param loadedComicInfo_list: Expects an ordered list of loadedComicInfo from the same chapter
         :param merge_metadata_into_one: If True: All metadata that can be merged will be merged 
         :param merge_people: If True: It will parse each type of people and merge them in the output file
         :param merge_tags: If True: It will parse tags and merge them in the output file 
@@ -196,11 +192,13 @@ Merges the following tags:
     StoryArcNumberm,
     Volume,
     Number,
+    Summary
 
         """
         new_etters = _get_getters(self.output_cInfo)
         min_year = min(list((loadedCinfo.comicInfoObj.Year for loadedCinfo in self.loadedComicInfo_list if
                              loadedCinfo.comicInfoObj.Year not in (0, -1))))
+        max_count = max(self.loadedComicInfo_list, key=attrgetter('comicInfoObj.Count')).comicInfoObj.get_Count()
 
         for loadedComicInfo in self.loadedComicInfo_list:
             ComicInfoObject = loadedComicInfo.comicInfoObj
@@ -223,10 +221,13 @@ Merges the following tags:
 
             self.output_cInfo.set_Volume(int(float(loadedComicInfo.comicInfoObj.get_Volume())))
 
+            loadedComicInfo.comicInfoObj.set_Count(max_count)
+            self.output_cInfo.set_Count(max_count)
+
             loadedComicInfo.comicInfoObj.set_Year(min_year)
             self.output_cInfo.set_Year(min_year)
 
-    def sumPageCount(self) -> int:
+    def sumPageCount(self):
         """
         Sets the output PageCount to be the sum of all PageCount in loadedCinfoList
         :return: [Optional] Returns the sum of PageCount
@@ -251,28 +252,30 @@ Merges the following tags:
             ComicInfoObject.set_AgeRating(highest_enum)
         self.output_cInfo.set_AgeRating(highest_enum)
 
-    def merge_all_into_one(self) -> ComicInfo.ComicInfo:
+    def merge_all_into_one(self):
         self.people()
         self.tags()
         self.genres()
         self.ageRating()
         self._other_fields()
         self.sumPageCount()
-        return self.return_one()
 
-    def return_one(self) -> ComicInfo.ComicInfo:
-        """
-        Returs one single comicinfo.
-        Tags, Genre and people merge must be called before this if desired
-        :return:
-        """
-
-        export_io = io.StringIO()
-        self.output_cInfo.export(export_io, 0)
-        print(export_io.getvalue())
+    def get_merged_cInfo(self):
         return self.output_cInfo
 
-    def extract_loaded_list(self) -> list[LoadedComicInfo]:
+    # def extract_merged(self) -> ComicInfo.ComicInfo:
+    #     """
+    #     Returs one single comicinfo.
+    #     Tags, Genre and people merge must be called before this if desired
+    #     :return:
+    #     """
+    #
+    #     # export_io = io.StringIO()
+    #     # self.output_cInfo.export(export_io, 0)
+    #     # print(export_io.getvalue())
+    #     return self.output_cInfo
+
+    def get_merged_loadedCinfo_list(self) -> list[LoadedComicInfo]:
         return self.loadedComicInfo_list
 
 
@@ -287,6 +290,8 @@ class MergeChapterFiles:
         ...
         self._initialized_UI = False
         self.loadedComicInfo_list = loadedComicInfo_list
+
+        self.merged_metadata: ComicInfo.ComicInfo = None
 
     def parse_chapters(self):
         for loadedComicInfo in self.loadedComicInfo_list:
@@ -311,17 +316,32 @@ class MergeChapterFiles:
                 self.grouped_chapters[loadedInfo.parsed_chapter] = []
             self.grouped_chapters[loadedInfo.parsed_chapter].append(loadedInfo)
 
+    def process(self):
+        for chapter in self.grouped_chapters:
+            chapter_loadedCinfo_list = self.grouped_chapters[chapter]
+            metadata_merge_app = MergeMetadata(chapter_loadedCinfo_list)
+            metadata_merge_app.merge_all_into_one()
 
-if __name__ == '__main__':
-    cinfo_1 = ComicInfo.ComicInfo()
-    cinfo_1.set_Tags("Tag_1, Tag_2")
-    cinfo_1.set_Series("Serie_1")
-    cinfo_1.set_Writer("Writer_1")
-    cinfo_2 = ComicInfo.ComicInfo()
-    cinfo_2.set_Series("Serie_2")
-    cinfo_2.set_Tags("Tag_1, Tag_3, Tag_4")
-    cinfo_2.set_Writer("Writer_2")
-    test = MergeMetadata([LoadedComicInfo("", cinfo_1), LoadedComicInfo("", cinfo_2)])
-    test.tags()
-    test.merge_all_into_one()
-    test.return_one()
+            chapter_loadedCinfo_list = metadata_merge_app.get_merged_loadedCinfo_list()
+            chapter_loadedInfo_single = metadata_merge_app.get_merged_cInfo()
+
+            new_name = f"{chapter_loadedInfo_single.get_Series()}{(f' v{str(chapter_loadedInfo_single.get_Volume()).zfill(2)}' if chapter_loadedInfo_single.get_Volume() else '')} Ch.{chapter}"
+
+            cbzHandler = MergeChapter(self.loadedComicInfo_list, output_metadata=chapter_loadedCinfo_list,
+                                      output_filename=new_name
+                                      )
+
+# if __name__ == '__main__':
+#     cinfo_1 = ComicInfo.ComicInfo()
+#     cinfo_1.set_Tags("Tag_1, Tag_2")
+#     cinfo_1.set_Series("Serie_1")
+#     cinfo_1.set_Writer("Writer_1")
+#     cinfo_2 = ComicInfo.ComicInfo()
+#     cinfo_2.set_Series("Serie_2")
+#     cinfo_2.set_Tags("Tag_1, Tag_3, Tag_4")
+#     cinfo_2.set_Writer("Writer_2")
+#     test = MergeMetadata([LoadedComicInfo("", cinfo_1), LoadedComicInfo("", cinfo_2)])
+#     test.tags()
+#     test.merge_all_into_one()
+#     test.return_one()
+#

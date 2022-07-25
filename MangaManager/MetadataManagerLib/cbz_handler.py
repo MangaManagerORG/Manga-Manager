@@ -212,22 +212,32 @@ class MergeChapter:
                 with zipfile.ZipFile(loadedComicInfo.path, 'r') as zin:
                     # if not "ComicInfo.xml" in zin.namelist():
                     for item in zin.infolist():
-                        new_filename = f"Ch.0{loadedComicInfo.chapter}/{item.filename}"
+                        new_filename = f"Ch.{str(loadedComicInfo.chapter).zfill(3)}/{item.filename}"
 
                         # Write the rest of the files as they are
                         zout.writestr(new_filename, zin.read(item.filename))
                         logger.debug(f"[Merge] Adding '{item.filename}' as {new_filename} to the new tempfile")
                         counter += 1
-            if output_metadata:
                 export_io = io.StringIO()
                 try:
                     loadedComicInfo.comicInfoObj.export(export_io, 0)
                     export_io = export_io.getvalue()
-                    # We finally append our new ComicInfo file
-                    zout.writestr("ComicInfo.xml", export_io)
-                    logger.debug("[Merge] New ComicInfo.xml added to the file")
+                    # Append old ComicInfo file
+                    new_filename = f"Ch.{str(loadedComicInfo.chapter).zfill(3)}/OLD_MERGED_ComicInfo.xml"
+                    zout.writestr(new_filename, export_io)
+                    logger.debug("[Merge] OLD_MERGED_ComicInfo added to the new file")
                 except AttributeError as e:
                     logger.info(f"Attribute error :{str(e)}")
                     # raise e
+            export_io = io.StringIO()
+            try:
+                loadedComicInfo.comicInfoObj.export(export_io, 0)
+                export_io = export_io.getvalue()
+                # We finally append our new ComicInfo file
+                zout.writestr("ComicInfo.xml", export_io)
+                logger.debug("[Merge] ComicInfo added to the new file")
+            except AttributeError as e:
+                logger.info(f"Attribute error :{str(e)}")
+                # raise e
 
         os.rename(tmpname, output_filename)
