@@ -463,9 +463,12 @@ class MergeChapterFilesTest(unittest.TestCase):
             self.test_files_names.append(output_name)
             cbz_handler = MergeChapter(chapter_dict[chapter], output_name)
 
-    def test_metadata_merge(self):
 
+class MergeMetadataTest(unittest.TestCase):
+    def test_metadata_merge(self):
         cinfo_1 = ComicInfo.ComicInfo()
+        cinfo_2 = ComicInfo.ComicInfo()
+
         cinfo_1.set_Tags("Tag_1, Tag_2")
         cinfo_1.set_Genre("Tag_1, Tag_2")
         cinfo_1.set_Series("Serie_1")
@@ -475,7 +478,17 @@ class MergeChapterFilesTest(unittest.TestCase):
         cinfo_1.set_Writer("Writer_1")
         cinfo_1.set_Inker("Inker_1, Inker_2")
 
-        cinfo_2 = ComicInfo.ComicInfo()
+        # Both cinfo must have matching chapters.
+        # MergeMetadata class only accepts a list of cinfo with same chapter but different parts.
+        # In this test both match "3"
+        cinfo_1.set_Number("3.3")
+        cinfo_1.set_Volume(1)
+
+        cinfo_1.set_Year(2000)
+
+        cinfo_1.set_PageCount(25)
+        cinfo_1.set_AlternateCount(50)
+
         cinfo_2.set_Series("Serie_2")
         cinfo_2.set_Tags("Tag_1, Tag_3, Tag_4")
         cinfo_2.set_Genre("Tag_1, Tag_3, Tag_4")
@@ -485,14 +498,26 @@ class MergeChapterFilesTest(unittest.TestCase):
         # Set Age rating test value
         cinfo_2.set_AgeRating(ComicInfo.AgeRating.M)
 
+        # Both cinfo must have matching chapters.
+        # MergeMetadata class only accepts a list of cinfo with same chapter but different parts
+        # In this test both match "3"
+        cinfo_2.set_Number("3.4")
+        cinfo_2.set_Volume(1)
+
+        cinfo_2.set_Year(2001)
+
+        cinfo_2.set_PageCount(50)
+        cinfo_2.set_AlternateCount(75)
+
         test = MergeMetadata([LoadedComicInfo("", cinfo_1), LoadedComicInfo("", cinfo_2)])
 
         test.merge_all_into_one()
         output = test.return_one()
 
         with self.subTest("Test First file series is overwritten"):
-            ...
+            print("Assert first file series is selected")
             self.assertEqual(cinfo_1.get_Series(), output.get_Series())
+
         with self.subTest("Test Tags are properly merged"):
             print("Assert Tags are properly merged")
             self.assertTrue("Tag_1" in output.get_Tags())
@@ -520,3 +545,28 @@ class MergeChapterFilesTest(unittest.TestCase):
         with self.subTest("Test Higher AgeRating is selected"):
             print("Assert Higher AgeRating is selected")
             self.assertEqual(ComicInfo.AgeRating.X_18, output.get_AgeRating())
+
+        with self.subTest("Test output number is 3 and volumes match"):
+            print("Assert output number is 3")
+            self.assertEqual(3, output.get_Number())
+            print("Assert output volume is 1")
+            self.assertEqual(1, output.get_Volume())
+
+        with self.subTest("Test dates merging"):
+            print("Assert output year is 2000")
+            self.assertEqual(2000, output.get_Year())
+
+        with self.subTest("Test PageCount and alternateCount merging"):
+            print("Assert PageCount is 75")
+            self.assertEqual(75, output.get_PageCount())
+
+            print("Assert AlternateCount is 125")
+            self.assertEqual(125, output.get_AlternateCount())
+
+        # TODO:
+        #     (ComicInfoObject.get_Summary, ComicInfoObject.set_Summary),
+        #     (ComicInfoObject.get_Count, ComicInfoObject.set_Count),
+        #     (ComicInfoObject.get_Month, ComicInfoObject.set_Month),
+        #     (ComicInfoObject.get_Day, ComicInfoObject.set_Day),
+        #     (ComicInfoObject.get_BlackAndWhite, ComicInfoObject.set_BlackAndWhite),
+        #     (ComicInfoObject.get_Manga, ComicInfoObject.set_Manga),

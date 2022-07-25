@@ -24,19 +24,7 @@ else:
 
 
 def _get_getters(ComicInfoObject: ComicInfo.ComicInfo):
-    """TODO:
-                    (ComicInfoObject.get_Summary, ComicInfoObject.set_Summary),
-                (ComicInfoObject.get_AgeRating, ComicInfoObject.set_AgeRating),
-                (ComicInfoObject.get_Count, ComicInfoObject.set_Count),
-                (ComicInfoObject.get_AlternateCount, ComicInfoObject.set_AlternateCount),
-                (ComicInfoObject.get_Number, ComicInfoObject.set_Number),
-                (ComicInfoObject.get_Volume, ComicInfoObject.set_Volume),
-                (ComicInfoObject.get_PageCount, ComicInfoObject.set_PageCount),
-                (ComicInfoObject.get_Year, ComicInfoObject.set_Year),
-                (ComicInfoObject.get_Month, ComicInfoObject.set_Month),
-                (ComicInfoObject.get_Day, ComicInfoObject.set_Day),
-                (ComicInfoObject.get_BlackAndWhite, ComicInfoObject.set_BlackAndWhite),
-                (ComicInfoObject.get_Manga, ComicInfoObject.set_Manga),
+    """
 
 
 
@@ -86,7 +74,8 @@ class MergeMetadata:
         # merge_summary=False
         # ):
         """
-        :param loadedComicInfo_list: Expects a ordered list of loadedComicInfo
+        Every loadedCinfo must be from the first end chapter. so (1.2, 1.4) is good, (1.2, 2.3, 2.4) us not
+        :param loadedComicInfo_list: Expects aN ordered list of loadedComicInfo
         :param merge_metadata_into_one: If True: All metadata that can be merged will be merged 
         :param merge_people: If True: It will parse each type of people and merge them in the output file
         :param merge_tags: If True: It will parse tags and merge them in the output file 
@@ -188,39 +177,65 @@ class MergeMetadata:
         File ch_1 has series: 'Serie_1'
         File ch_2 has series: 'Serie_2'
         Per sorting, file chapter 1 value will be output. -> series will be 'Serie_1'
+
 Merges the following tags:
-Title, Series, get_LocalizedSeries, SeriesSort, get_AlternateSeries, Notes, Web, SeriesGroup ,get_CommunityRating ,get_ScanInformation ,StoryArc ,get_AlternateNumber ,Format ,LanguageISO ,StoryArcNumber
+    Title, 
+    Series, Done
+    get_LocalizedSeries,
+    SeriesSort,
+    get_AlternateSeries,
+    Notes,
+    Web,
+    SeriesGroup,
+    CommunityRating,
+    ScanInformation,
+    StoryArc,
+    AlternateNumber,
+    Format,
+    LanguageISO,
+    StoryArcNumberm,
+    Volume,
+    Number,
+
         """
         new_etters = _get_getters(self.output_cInfo)
+        min_year = min(list((loadedCinfo.comicInfoObj.Year for loadedCinfo in self.loadedComicInfo_list if
+                             loadedCinfo.comicInfoObj.Year not in (0, -1))))
+
         for loadedComicInfo in self.loadedComicInfo_list:
             ComicInfoObject = loadedComicInfo.comicInfoObj
-            output_etters = _get_getters(ComicInfoObject)
-            for item in zip(new_etters, output_etters):
+            loaded_etters = _get_getters(ComicInfoObject)
+            for item in zip(loaded_etters, new_etters):
                 loadedInfo_etters = item[0]
                 loadedInfo_get = loadedInfo_etters[0]
                 # loadedInfo_set = loadedInfo_etters[1] # NOT used
 
                 output_etters_field = item[1]
                 output_field_get = output_etters_field[0]
-                output_field_set = output_etters_field[0]
+                output_field_set = output_etters_field[1]
 
                 if not output_field_get():
                     if loadedInfo_get():
                         output_field_set(loadedInfo_get())
 
-    def return_one(self) -> ComicInfo.ComicInfo:
-        """
-        Returs one single comicinfo.
-        Tags, Genre and people merge must be called before this if desired
-        :return:
-        """
+            loadedComicInfo.comicInfoObj.set_Number(int(float(loadedComicInfo.comicInfoObj.get_Number())))
+            self.output_cInfo.set_Number(int(float(loadedComicInfo.comicInfoObj.get_Number())))
 
-        # Volume and number processing
-        export_io = io.StringIO()
-        self.output_cInfo.export(export_io, 0)
-        # output_cInfo.set_Number()
-        print(export_io.getvalue())
-        return self.output_cInfo
+            self.output_cInfo.set_Volume(int(float(loadedComicInfo.comicInfoObj.get_Volume())))
+
+            loadedComicInfo.comicInfoObj.set_Year(min_year)
+            self.output_cInfo.set_Year(min_year)
+
+    def sumPageCount(self) -> int:
+        """
+        Sets the output PageCount to be the sum of all PageCount in loadedCinfoList
+        :return: [Optional] Returns the sum of PageCount
+        """
+        total_PageCount = sum(loadedCinfo.comicInfoObj.PageCount for loadedCinfo in self.loadedComicInfo_list)
+        self.output_cInfo.set_PageCount(total_PageCount)
+        total_AltPageCount = sum(loadedCinfo.comicInfoObj.AlternateCount for loadedCinfo in self.loadedComicInfo_list)
+        self.output_cInfo.set_AlternateCount(total_AltPageCount)
+        # return total_PageCount
 
     def ageRating(self):
         highest_value = 0
@@ -241,9 +256,23 @@ Title, Series, get_LocalizedSeries, SeriesSort, get_AlternateSeries, Notes, Web,
         self.tags()
         self.genres()
         self.ageRating()
+        self._other_fields()
+        self.sumPageCount()
         return self.return_one()
 
-    def extract(self) -> list[LoadedComicInfo]:
+    def return_one(self) -> ComicInfo.ComicInfo:
+        """
+        Returs one single comicinfo.
+        Tags, Genre and people merge must be called before this if desired
+        :return:
+        """
+
+        export_io = io.StringIO()
+        self.output_cInfo.export(export_io, 0)
+        print(export_io.getvalue())
+        return self.output_cInfo
+
+    def extract_loaded_list(self) -> list[LoadedComicInfo]:
         return self.loadedComicInfo_list
 
 
