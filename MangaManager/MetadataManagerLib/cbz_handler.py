@@ -1,5 +1,6 @@
 import io
 import os
+import pathlib
 import tempfile
 import zipfile
 
@@ -200,44 +201,67 @@ class WriteComicInfo:
             raise e
 
 
-class MergeChapter:
-
-    def __init__(self, ordered_loadedComicInfo: list[LoadedComicInfo], output_filename,
+def MergeChapter(ordered_loadedComicInfo: list[LoadedComicInfo], output_filename,
                  output_metadata: ComicInfo.ComicInfo = None):
-        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(ordered_loadedComicInfo[0].path))
-        os.close(tmpfd)
-        counter = 1
-        with zipfile.ZipFile(tmpname, 'w') as zout:
-            for loadedComicInfo in ordered_loadedComicInfo:
-                with zipfile.ZipFile(loadedComicInfo.path, 'r') as zin:
-                    # if not "ComicInfo.xml" in zin.namelist():
-                    for item in zin.infolist():
-                        new_filename = f"Ch.{str(loadedComicInfo.chapter).zfill(3)}/{item.filename}"
+    """
+    
+    :param ordered_loadedComicInfo: Ordered list of LoadedComicInfo belonging to the same chapter
+    :param output_filename: The Output.cbz filename
+    :param output_metadata: Overwrites the metadata that gets saved to the file
+    :return: Created file paths in str
+    """
+    new_filenames_list = []
+    tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(ordered_loadedComicInfo[0].path))
+    os.close(tmpfd)
+    counter = 1
+    with zipfile.ZipFile(tmpname, 'w') as zout:
+        for loadedComicInfo in ordered_loadedComicInfo:
+            with zipfile.ZipFile(loadedComicInfo.path, 'r') as zin:
+                for item in zin.infolist():
+                    # Delete any comicinfo since we are adding it as a backup later + output ComicInfo.xml
+                    if item.filename.startswith("ComicInfo.xml"):
+                        continue
+                    new_filename = f"Ch.{str(loadedComicInfo.chapter).zfill(3)}/{item.filename}"
 
-                        # Write the rest of the files as they are
-                        zout.writestr(new_filename, zin.read(item.filename))
-                        logger.debug(f"[Merge] Adding '{item.filename}' as {new_filename} to the new tempfile")
-                        counter += 1
-                export_io = io.StringIO()
-                try:
-                    loadedComicInfo.comicInfoObj.export(export_io, 0)
-                    export_io = export_io.getvalue()
-                    # Append old ComicInfo file
-                    new_filename = f"Ch.{str(loadedComicInfo.chapter).zfill(3)}/OLD_MERGED_ComicInfo.xml"
-                    zout.writestr(new_filename, export_io)
-                    logger.debug("[Merge] OLD_MERGED_ComicInfo added to the new file")
-                except AttributeError as e:
-                    logger.info(f"Attribute error :{str(e)}")
-                    # raise e
+                    # Write the rest of the files as they are
+                    zout.writestr(new_filename, zin.read(item.filename))
+                    logger.debug(f"[Merge] Adding '{item.filename}' as {new_filename} to the new tempfile")
+                    counter += 1
+
+            # Append old ComicInfo file
             export_io = io.StringIO()
             try:
-                loadedComicInfo.comicInfoObj.export(export_io, 0)
-                export_io = export_io.getvalue()
-                # We finally append our new ComicInfo file
-                zout.writestr("ComicInfo.xml", export_io)
-                logger.debug("[Merge] ComicInfo added to the new file")
+                loadedComicInfo.originalComicObj.export(export_io, 0)
+                export_io_val = export_io.getvalue()
+                new_filename = f"Ch.{str(loadedComicInfo.chapter).zfill(3)}/OLD_MERGED_ComicInfo.xml"
+                zout.writestr(new_filename, export_io_val)
+                logger.debug("[Merge] OLD_MERGED_ComicInfo added to the new file")
             except AttributeError as e:
                 logger.info(f"Attribute error :{str(e)}")
                 # raise e
 
-        os.rename(tmpname, output_filename)
+        # Save new ComicInfo to file
+        export_io = io.StringIO()
+        if output_metadata:  # Override ComicInfo that gets saved to the file
+            output_metadata.export(export_io, 0)
+        else:
+            loadedComicInfo.comicInfoObj.export(export_io, 0)
+
+        try:
+            loadedComicInfo.comicInfoObj.export(export_io, 0)
+            export_io_val = export_io.getvalue()
+            # We finally append our new ComicInfo file
+            zout.writestr("ComicInfo.xml", export_io_val)
+            logger.debug("[Merge] ComicInfo added to the new file")
+        except AttributeError as e:
+            logger.info(f"Attribute error :{str(e)}")
+            # raise e
+    try:
+        dirname = os.path.dirname(tmpname)
+        dst = pathlib.Path(dirname, output_filename.strip())
+        os.rename(tmpname, dst)
+        return str(dst)
+    except(PermissionError):
+        pass
+    except FileExistsError:
+        raise Exception()

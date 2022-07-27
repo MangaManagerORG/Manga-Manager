@@ -581,3 +581,72 @@ class Merge_ChapterFilesTest(unittest.TestCase):
 
     # TODO:
     #   Unit test where it merge actual files with their own metadata
+
+
+class Merge_FullProcessTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.chapter = list(zip([2, 2, 2, 4, 6, 6],  # Chapter number
+                                [".2", "", ".1", ".2", "", ".1"],  # Chapter part
+                                ["1", "1", "1", "2", "2", ""]  # Volume
+                                ))
+
+        self.test_files_names = []
+        self.test_loadedCInfo_list = list[LoadedComicInfo]()
+        print("\n", self._testMethodName)
+        print("Setup:")
+        for ai in range(5):
+            out_tmp_zipname = f"Test_{ai}_{random.randint(1, 6000)}.cbz"
+            self.test_files_names.append(out_tmp_zipname)
+            self.temp_folder = tempfile.mkdtemp()
+            # print("", self._testMethodName)
+            print(f"     Creating: {out_tmp_zipname}")  # , self._testMethodName)
+            with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
+                for i in range(0, 5):
+                    image = Image.new('RGB', size=(20, 20), color=(255, 73, 95))
+                    image.format = "JPEG"
+                    imgByteArr = io.BytesIO()
+                    image.save(imgByteArr, format=image.format)
+                    imgByteArr = imgByteArr.getvalue()
+                    zf.writestr(os.path.basename(f"{str(i).zfill(3)}.jpg"), imgByteArr)
+                cinfo = ComicInfo.ComicInfo()
+                cinfo.set_Number(f"{self.chapter[ai][0]}")
+                cinfo.set_Year(f"200{self.chapter[ai][0]}{self.chapter[ai][1]}")
+                export_io = io.StringIO()
+
+                # Create the LoadedComicInfoList so no need to reopen the files
+                self.test_loadedCInfo_list.append(LoadedComicInfo(out_tmp_zipname, cinfo, original=cinfo))
+                try:
+                    cinfo.export(export_io, 0)
+                    export_io = export_io.getvalue()
+                    zf.writestr("ComicInfo.xml", export_io)
+                except AttributeError as e:
+                    logger.info(f"Attribute error :{str(e)}")
+                    raise e
+            self.initial_dir_count = len(os.listdir(os.getcwd()))
+
+    def tearDown(self) -> None:
+        print("Teardown:")
+        # input("press to delete test files")
+        for filename in self.test_files_names:
+            print(f"     Deleting: {filename}")  # , self._testMethodName)
+            try:
+                os.remove(filename)
+            except Exception as e:
+                print(e)
+
+    def test_fullProcess(self):
+        app = MergeChapterFiles.MergeChapterFilesApp(self.test_loadedCInfo_list)
+        app.order_chapters()
+        app.parse_chapters()
+        app.group_chapters()
+        new_filenames = app.process()
+        self.test_files_names += new_filenames
+        loadedCinfoList = []
+        for i, output_file_path in enumerate(new_filenames):
+            cbzhandler = ReadComicInfo(output_file_path)
+            cinfo = cbzhandler.to_ComicInfo()
+            loadedCinfoList.append(LoadedComicInfo(output_file_path, cinfo))
+            self.subTest("Test first output file values")
+            self.assertTrue(cinfo.get_Number() in ("2", "4", "6"))
+
+            self.assertEqual(int(f"200{cinfo.get_Number()}"))

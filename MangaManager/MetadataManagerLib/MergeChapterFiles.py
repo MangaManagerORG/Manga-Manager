@@ -19,7 +19,7 @@ if __name__ == '__main__':
 else:
     import os
     from . import ComicInfo
-    from .cbz_handler import ReadComicInfo
+    from .cbz_handler import ReadComicInfo, MergeChapter
     from .models import LoadedComicInfo
 
 
@@ -197,12 +197,16 @@ Merges the following tags:
         """
         new_etters = _get_getters(self.output_cInfo)
         min_year = min(list((loadedCinfo.comicInfoObj.Year for loadedCinfo in self.loadedComicInfo_list if
-                             loadedCinfo.comicInfoObj.Year not in (0, -1))))
-        max_count = max(self.loadedComicInfo_list, key=attrgetter('comicInfoObj.Count')).comicInfoObj.get_Count()
+                             loadedCinfo.comicInfoObj.Year not in (0, -1))), default=-1)
+        max_count = max(self.loadedComicInfo_list, key=attrgetter('comicInfoObj.Count'))
+        if max_count:
+            max_count = max_count.comicInfoObj.get_Count()
+        else:
+            max_count = -1
 
         for loadedComicInfo in self.loadedComicInfo_list:
-            ComicInfoObject = loadedComicInfo.comicInfoObj
-            loaded_etters = _get_getters(ComicInfoObject)
+
+            loaded_etters = _get_getters(loadedComicInfo.comicInfoObj)
             for item in zip(loaded_etters, new_etters):
                 loadedInfo_etters = item[0]
                 loadedInfo_get = loadedInfo_etters[0]
@@ -216,7 +220,7 @@ Merges the following tags:
                     if loadedInfo_get():
                         output_field_set(loadedInfo_get())
 
-            loadedComicInfo.comicInfoObj.set_Number(int(float(loadedComicInfo.comicInfoObj.get_Number())))
+            loadedComicInfo.comicInfoObj.set_Number(str(int(float(loadedComicInfo.comicInfoObj.get_Number()))))
             self.output_cInfo.set_Number(int(float(loadedComicInfo.comicInfoObj.get_Number())))
 
             self.output_cInfo.set_Volume(int(float(loadedComicInfo.comicInfoObj.get_Volume())))
@@ -226,7 +230,6 @@ Merges the following tags:
 
             loadedComicInfo.comicInfoObj.set_Year(min_year)
             self.output_cInfo.set_Year(min_year)
-
     def sumPageCount(self):
         """
         Sets the output PageCount to be the sum of all PageCount in loadedCinfoList
@@ -279,12 +282,12 @@ Merges the following tags:
         return self.loadedComicInfo_list
 
 
-class MergeChapterFiles:
+class MergeChapterFilesApp:
     """
     Very inefficient code overall should be rewritten at some point
     """
 
-    def __init__(self, loadedComicInfo_list: LoadedComicInfo = None):
+    def __init__(self, loadedComicInfo_list: list[LoadedComicInfo] = None):
         if loadedComicInfo_list is None:
             loadedComicInfo_list = list[LoadedComicInfo]()
         ...
@@ -295,15 +298,16 @@ class MergeChapterFiles:
 
     def parse_chapters(self):
         for loadedComicInfo in self.loadedComicInfo_list:
-            if loadedComicInfo.comicInfoObj is None:
+            if not loadedComicInfo.comicInfoObj:
                 loadedComicInfo.comicInfoObj = _read_metadata(loadedComicInfo)
-                metadata = loadedComicInfo.comicInfoObj
-                loadedComicInfo.chapter = metadata.get_Number()
-                loadedComicInfo.parsed_chapter = int(float(metadata.get_Number()))
-                loadedComicInfo.parsed_part = float(metadata.get_Number())
+
+            metadata = loadedComicInfo.comicInfoObj
+            loadedComicInfo.chapter = metadata.get_Number()
+            loadedComicInfo.parsed_chapter = int(float(metadata.get_Number()))
+            loadedComicInfo.parsed_part = float(metadata.get_Number())
 
     def order_chapters(self):
-        self.loadedComicInfo_list = sorted(self.loadedComicInfo_list, key=lambda loadedInfo: loadedInfo.chapter,
+        self.loadedComicInfo_list = sorted(self.loadedComicInfo_list, key=attrgetter("comicInfoObj.Number"),
                                            reverse=False)
 
     def group_chapters(self):
@@ -317,6 +321,11 @@ class MergeChapterFiles:
             self.grouped_chapters[loadedInfo.parsed_chapter].append(loadedInfo)
 
     def process(self):
+        """
+
+        :return: List with the new filenames. For unit testing cleanup
+        """
+        new_filenames = []
         for chapter in self.grouped_chapters:
             chapter_loadedCinfo_list = self.grouped_chapters[chapter]
             metadata_merge_app = MergeMetadata(chapter_loadedCinfo_list)
@@ -325,23 +334,10 @@ class MergeChapterFiles:
             chapter_loadedCinfo_list = metadata_merge_app.get_merged_loadedCinfo_list()
             chapter_loadedInfo_single = metadata_merge_app.get_merged_cInfo()
 
-            new_name = f"{chapter_loadedInfo_single.get_Series()}{(f' v{str(chapter_loadedInfo_single.get_Volume()).zfill(2)}' if chapter_loadedInfo_single.get_Volume() else '')} Ch.{chapter}"
+            new_name = f"{chapter_loadedInfo_single.get_Series()}{(f' v.{str(chapter_loadedInfo_single.get_Volume()).zfill(2)}' if (chapter_loadedInfo_single.get_Volume() != -1) else '')} Ch.{chapter}.cbz"
 
-            cbzHandler = MergeChapter(self.loadedComicInfo_list, output_metadata=chapter_loadedCinfo_list,
-                                      output_filename=new_name
-                                      )
+            created_file = MergeChapter(ordered_loadedComicInfo=chapter_loadedCinfo_list,
+                                        output_filename=str(new_name))
 
-# if __name__ == '__main__':
-#     cinfo_1 = ComicInfo.ComicInfo()
-#     cinfo_1.set_Tags("Tag_1, Tag_2")
-#     cinfo_1.set_Series("Serie_1")
-#     cinfo_1.set_Writer("Writer_1")
-#     cinfo_2 = ComicInfo.ComicInfo()
-#     cinfo_2.set_Series("Serie_2")
-#     cinfo_2.set_Tags("Tag_1, Tag_3, Tag_4")
-#     cinfo_2.set_Writer("Writer_2")
-#     test = MergeMetadata([LoadedComicInfo("", cinfo_1), LoadedComicInfo("", cinfo_2)])
-#     test.tags()
-#     test.merge_all_into_one()
-#     test.return_one()
-#
+            new_filenames.append(created_file)
+        return new_filenames
