@@ -552,7 +552,7 @@ class Merge_ChapterFilesTest(unittest.TestCase):
         for file in self.test_files_names:
             ordered_loaded_list.append(LoadedComicInfo(file, None))
 
-        app = MergeChapterFiles.MergeChapterFiles(ordered_loaded_list)
+        app = MergeChapterFiles.MergeChapterFilesApp(ordered_loaded_list)
         app.parse_chapters()
         app.order_chapters()
         # for ordered in app.
@@ -609,8 +609,8 @@ class Merge_FullProcessTest(unittest.TestCase):
                     imgByteArr = imgByteArr.getvalue()
                     zf.writestr(os.path.basename(f"{str(i).zfill(3)}.jpg"), imgByteArr)
                 cinfo = ComicInfo.ComicInfo()
-                cinfo.set_Number(f"{self.chapter[ai][0]}")
-                cinfo.set_Year(f"200{self.chapter[ai][0]}{self.chapter[ai][1]}")
+                cinfo.set_Number(f"{self.chapter[ai][0]}{self.chapter[ai][1]}")
+                cinfo.set_Year(f"200{self.chapter[ai][0]}")
                 export_io = io.StringIO()
 
                 # Create the LoadedComicInfoList so no need to reopen the files
@@ -646,7 +646,6 @@ class Merge_FullProcessTest(unittest.TestCase):
             cbzhandler = ReadComicInfo(output_file_path)
             cinfo = cbzhandler.to_ComicInfo()
             loadedCinfoList.append(LoadedComicInfo(output_file_path, cinfo))
-            self.subTest("Test first output file values")
-            self.assertTrue(cinfo.get_Number() in ("2", "4", "6"))
-
-            self.assertEqual(int(f"200{cinfo.get_Number()}"))
+            with self.subTest("Test first output file values"):
+                self.assertTrue(cinfo.get_Number() in ("2", "4", "6"))
+                self.assertEqual(int(f"200{cinfo.get_Number()}"), cinfo.get_Year())
