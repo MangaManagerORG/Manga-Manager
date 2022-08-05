@@ -61,11 +61,12 @@ class ReadComicInfo:
                 archive.close()
             except KeyError as e:
                 archive.close()
-                if str(e) == "\"There is no item named 'ComicInfo.xml' in the archive\"":
-                    logger.error(f"There is no item named 'ComicInfo.xml' in the archive '{cbz_path}'")
-                    raise NoMetadataFileFound(cbz_path)
-                else:
-                    raise e
+                if not ignore_empty_metadata:
+                    if str(e) == "\"There is no item named 'ComicInfo.xml' in the archive\"":
+                        logger.error(f"There is no item named 'ComicInfo.xml' in the archive '{cbz_path}'")
+                        raise NoMetadataFileFound(cbz_path)
+                    else:
+                        raise e
         else:
             self.xmlString = comicinfo_xml
         logger.debug("ReadComicInfo: Reading XML done")
