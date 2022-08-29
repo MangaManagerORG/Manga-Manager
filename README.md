@@ -1,4 +1,5 @@
 # Manga Manager
+### (Project not abandoned. I have some feats in the oven. I just don't have time to wrap a release. Will do soon)
 [![Python tests](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml) [![Build & publish Docker Images](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Build_Docker_Images.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Build_Docker_Images.yml)
 ## Min required version: Python 3.9
 
