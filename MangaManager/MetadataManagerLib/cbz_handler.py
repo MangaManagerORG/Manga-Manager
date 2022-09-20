@@ -17,6 +17,19 @@ else:
 
 logger = logging.getLogger(__name__)
 
+class ReadMetadata:
+    def __init__(self, cbz_path):
+        """
+        Reads comicinfo without extracting the zip
+        """
+
+
+    def to_ComicInfo(self) -> "ComicInfo.ComicInfo":
+        metadata = ReadComicInfo("", self.metadata).to_ComicInfo()
+        archive.close()
+        logger.debug("Successfully read metadata")
+        return metadata
+
 
 def is_folder(name: str, folders_list):
     if name.split("/")[0] + "/" in folders_list:
@@ -31,17 +44,29 @@ class ReadComicInfo:
         self.xmlString = ""
         self.ignore_empty_metadata = ignore_empty_metadata
         self.total_files = 0
-        comicinfo_xml_exists = False
         if not comicinfo_xml:
-            with zipfile.ZipFile(self.cbz_path, 'r') as zin:
-                self.total_files = len(zin.infolist())
-                for file in zin.infolist():
-                    if file.filename == "ComicInfo.xml":
-                        comicinfo_xml_exists = True
-                        with zin.open(file) as infile:
-                            self.xmlString = infile.read()
-                if not comicinfo_xml_exists and not ignore_empty_metadata:
-                    raise NoMetadataFileFound(self.cbz_path)
+            # with zipfile.ZipFile(self.cbz_path, 'r') as zin:
+            #     self.total_files = len(zin.infolist())
+            #     for file in zin.infolist():
+            #         if file.filename == "ComicInfo.xml":
+            #             comicinfo_xml_exists = True
+            #             with zin.open(file) as infile:
+            #                 self.xmlString = infile.read()
+            #     if not comicinfo_xml_exists and not ignore_empty_metadata:
+            #         raise NoMetadataFileFound(self.cbz_path)
+
+            archive = zipfile.ZipFile(cbz_path, 'r')
+            try:
+                self.xmlString = archive.read('ComicInfo.xml').decode('utf-8')
+                archive.close()
+            except KeyError as e:
+                archive.close()
+                if not ignore_empty_metadata:
+                    if str(e) == "\"There is no item named 'ComicInfo.xml' in the archive\"":
+                        logger.error(f"There is no item named 'ComicInfo.xml' in the archive '{cbz_path}'")
+                        raise NoMetadataFileFound(cbz_path)
+                    else:
+                        raise e
         else:
             self.xmlString = comicinfo_xml
         logger.debug("ReadComicInfo: Reading XML done")
@@ -68,10 +93,8 @@ class ReadComicInfo:
         logger.debug("returning comicinfo")
         return comicinfo
 
-
-
     def to_String(self) -> str:
-        return self.xmlString.decode('utf-8')
+        return self.xmlString
 
 
 class WriteComicInfo:
