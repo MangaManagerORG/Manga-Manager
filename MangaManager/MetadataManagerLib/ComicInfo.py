@@ -170,11 +170,8 @@ except ModulenotfoundExp_ as exp:
             }
             for n in settings:
                 if hasattr(self, n):
-                    setattr(settings[n], self[n])
-            if sys.version_info.major == 2:
-                from StringIO import StringIO
-            else:
-                from io import StringIO
+                    setattr(self, settings[n], self[n])
+            from io import StringIO
             output = StringIO()
             self.export(
                 output,
