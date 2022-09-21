@@ -9,18 +9,16 @@ from pathlib import Path
 from tkinter.filedialog import askopenfiles, askdirectory
 from tkinter.ttk import Style, Progressbar
 
-# from CommonLib import webp_converter as convert_to_webp
-
 logger = logging.getLogger(__name__)
 
 
 # noinspection PyUnboundLocalVariable
 class App:
-    def __init__(self, master: tk.Toplevel, epubsPathList: list[str] = None, convert_to_webp=False, settings=None):
+    def __init__(self, master: tk.Toplevel, epubs_path_ist: list[str] = None, convert_to_webp=False, settings=None):
         """
         If there are epubsPathList; start() must be called manually
 
-        :param epubsPathList: The list of string paths to the epubs files to process
+        :param epubs_path_ist: The list of string paths to the epubs files to process
         :param convert_to_webp: Should the images be converted to .webp when adding
         :param master: used for tkinter integrations
         """
@@ -29,12 +27,12 @@ class App:
         if not master:
             master = tk.Tk()
         self.master = master
-        self.epubsPathList = epubsPathList
+        self.epubsPathList = epubs_path_ist
         self.settings = settings
-        self._initialized_UI = False
+        self._initialized_ui = False
 
-        if not epubsPathList:
-            self._initialized_UI = True
+        if not epubs_path_ist:
+            self._initialized_ui = True
             # self.start_ui()
 
     def start(self):
@@ -46,7 +44,7 @@ class App:
         total = len(self.epubsPathList)
         # TBH I'd like to rework how this processing bar works. - Promidius
         label_progress_text = tk.StringVar()
-        if self._initialized_UI:
+        if self._initialized_ui:
             pb_root = self._progressbar_frame
 
             style = Style(pb_root)
@@ -73,55 +71,50 @@ class App:
 
         processed_counter = 0
         processed_errors = 0
-        # l = len(self.epubsPathList)
-        # printProgressBar(0, l, prefix='Progress:', suffix='Complete', length=50)
 
-        for i, epubPath in enumerate(self.epubsPathList):
+        for i, epub_path in enumerate(self.epubsPathList):
             try:
                 if not self.output_folder:
-                    output_path = os.path.dirname(epubPath) + "/epub2cbz"
+                    output_path = os.path.dirname(epub_path) + "/epub2cbz"
                     Path(output_path).mkdir(parents=True, exist_ok=True)
                 else:
                     output_path = self.output_folder
-                logger.info(f"Processing '{epubPath}'")
+                logger.info(f"Processing '{epub_path}'")
                 logger.info(f"File '{output_path}' will be created")
-                zipFileName = os.path.basename(epubPath)
-                logger.debug(Path(output_path, zipFileName))
+                zipfile_name = os.path.basename(epub_path)
+                logger.debug(Path(output_path, zipfile_name))
                 tmpfd, tmpname = tempfile.mkstemp(dir=output_path)
                 os.close(tmpfd)
-                self.newCbzName = (output_path + "/" + zipFileName).replace(
-                    re.findall(r"(?i).*(\.[a-z]+$)", epubPath)[0]
+                self.newCbzName = (output_path + "/" + zipfile_name).replace(
+                    re.findall(r"(?i).*(\.[a-z]+$)", epub_path)[0]
                     , ".cbz")
                 if os.path.exists(self.newCbzName):
                     os.remove(tmpname)
                     raise FileExistsError
-                self._processFile(epubPath, tmpname)
+                self._processFile(epub_path, tmpname)
                 os.rename(tmpname, self.newCbzName)
-                # print(" " * int(66 + len(os.path.basename(epubPath))), end="\r")
-                # print(f"Processed '{os.path.basename(epubPath)}'")
                 logger.info(f"Successfuly created '{self.newCbzName}'")
                 processed_counter += 1
                 label_progress_text.set(
                     f"Processed: {processed_counter}/{total} - {processed_errors} errors")
-                if self._initialized_UI:
+                if self._initialized_ui:
                     try:
                         self.listbox_1.delete(0, tk.END)
                     except Exception as e:
                         print(e)
             except FileExistsError as e:
-                logger.error(f"Error processing file '{epubPath}'. It already exists: {str(e)}", exc_info=False)
+                logger.error(f"Error processing file '{epub_path}'. It already exists: {str(e)}", exc_info=False)
                 processed_errors += 1
-                # os.remove(tmpname)
             except Exception as e:
                 print(e)
-                logger.error(f"Error processing file '{epubPath}': {str(e)}",e)
+                logger.error(f"Error processing file '{epub_path}': {str(e)}", e)
                 processed_errors += 1
                 try:
                     # noinspection PyUnboundLocalVariable
                     os.remove(tmpname)
                 except UnboundLocalError: # we just want to make sure there are no leftover files
                     pass
-            if self._initialized_UI:
+            if self._initialized_ui:
                 # noinspection PyUnboundLocalVariable
                 pb_root.update()
                 percentage = ((processed_counter + processed_errors) / total) * 100
@@ -130,12 +123,11 @@ class App:
                 pb['value'] = percentage
                 label_progress_text.set(
                     f"Processed: {(processed_counter + processed_errors)}/{total} files - {processed_errors} errors")
-            # printProgressBar(i + 1, l, prefix=f"Progress:", suffix='Complete', length=50)
         logger.info("Completed processing for all selected files")
 
-    def _processFile(self, zipFilePath, tmpname):
+    def _processFile(self, zipfile_path, tmpname):
         logger.info("Inside process")
-        with zipfile.ZipFile(zipFilePath, 'r') as zin:
+        with zipfile.ZipFile(zipfile_path, 'r') as zin:
             with zipfile.ZipFile(tmpname, 'w') as zout:
 
                 images_in_ImagesFolder = [v for v in zin.infolist() if
@@ -215,7 +207,7 @@ class App:
         self.frame_1.pack(anchor='center', expand='true', fill='both', side='top')
         self.frame_1.grid_anchor('center')
 
-        self._initialized_UI = True
+        self._initialized_ui = True
 
     def _change_out_folder(self):
         self.output_folder = askdirectory(parent=self.master, initialdir=self.settings.get("library_folder_path"))
@@ -223,28 +215,6 @@ class App:
 
     def run(self):
         self.master.mainloop()
-
-
-def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-    """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=printEnd)
-    # Print New Line on Complete
-    if iteration == total:
-        print()
 
 
 if __name__ == '__main__':

@@ -12,6 +12,7 @@ from CommonLib.ProgressBarWidget import ProgressBar
 from CommonLib.ScrolledFrame import ScrolledFrame
 from .CoverDownloader import App as CoverDownloaderApp
 from .cbz_handler import SetCover
+from .errors import NoCoverFile
 from .models import cover_process_item_info
 
 logger = logging.getLogger(__name__)
@@ -49,6 +50,8 @@ def disableButtons(thisframe):
 
 
 class App:
+    _licycle = None
+
     def __init__(self, master: tk.Toplevel, settings=None):
         self.settings = settings
         self.deleteCoverFilePath = f"{ScriptDir}/DELETE_COVER.jpg"
@@ -222,14 +225,7 @@ class App:
         Open tkinter.askopenfilename all covers that are going to be placed inside each chapter and loads iter cycle
         """
 
-        def show_first_cover(cls):
-            logger.debug("Printing first image in canvas")
-            cls.thiselem, cls.nextelem = cls.nextelem, next(cls.licycle)
-            image = Image.open(cls.thiselem.name)
-            image = image.resize((190, 260), Image.ANTIALIAS)
-            cls.image = ImageTk.PhotoImage(image)
-            cls.canvas_image = cls._canvas1_coverimage.create_image(0, 0, anchor=tk.NW, image=cls.image)
-            cls._label_coverimagetitle.configure(text=os.path.basename(cls.thiselem.name))
+
 
         logger.debug("Selecting covers")
 
@@ -238,9 +234,9 @@ class App:
         covers_path_list = askopenfiles(parent=self.master, initialdir=self.settings.get("cover_folder_path"),
                                         title="Open all covers you want to work with:"
                                         )
-        self.licycle = cycle(covers_path_list)
+        self._licycle = cycle(covers_path_list)
         try:
-            self.nextelem = next(self.licycle)
+            self._nextelem = next(self._licycle)
         except StopIteration as e:
             # self.button3_load_images.configure(text="Select covers")
             mb.showwarning("No file selected", "No images were selected.", parent=self.master)
@@ -254,31 +250,37 @@ class App:
         try:
             self._button3_load_images.grid_remove()
             self.canvas_image = ""
-            show_first_cover(self)
+            logger.debug("Printing first image in canvas")
+            self._thiselem, self._nextelem = self._nextelem, next(self._licycle)
+            image = Image.open(self._thiselem.name)
+            image = image.resize((190, 260), Image.ANTIALIAS)
+            self.image = ImageTk.PhotoImage(image)
+            self.canvas_image = self._canvas1_coverimage.create_image(0, 0, anchor=tk.NW, image=self.image)
+            self._label_coverimagetitle.configure(text=os.path.basename(self._thiselem.name))
 
         except UnidentifiedImageError as e:
-            mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file",
+            mb.showerror("File is not a valid image", f"The file {self._thiselem.name} is not a valid image file",
                          parent=self.master)
-            logger.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
+            logger.error(f"UnidentifiedImageError - Image file: {self._thiselem.name}")
             self._button3_load_images.configure(text="Select covers", state="normal")
             self._button3_load_images.grid()
 
     def display_next_cover(self):
         """Shows next cover in the iterable in the canvas"""
-        logger.info(f"Printing next cover in canvas - {self.nextelem}")
-        self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
+        logger.info(f"Printing next cover in canvas - {self._nextelem}")
+        self._thiselem, self._nextelem = self._nextelem, next(self._licycle)
         try:
-            rawimage: Image = Image.open(self.thiselem.name)
+            rawimage: Image = Image.open(self._thiselem.name)
             image = rawimage.resize((190, 260), Image.ANTIALIAS)
             self.image = ImageTk.PhotoImage(image)
             # logger.debug(self.label.gettags("IMG10"))
             self._canvas1_coverimage.itemconfig(self.canvas_image, image=self.image)
-            self._label_coverimagetitle.configure(text=os.path.basename(self.thiselem.name))
+            self._label_coverimagetitle.configure(text=os.path.basename(self._thiselem.name))
 
         except UnidentifiedImageError as e:
-            mb.showerror("File is not a valid image", f"The file {self.thiselem.name} is not a valid image file",
+            mb.showerror("File is not a valid image", f"The file {self._thiselem.name} is not a valid image file",
                          parent=self.master)
-            logger.error(f"UnidentifiedImageError - Image file: {self.thiselem.name}")
+            logger.error(f"UnidentifiedImageError - Image file: {self._thiselem.name}")
 
     def add_file_to_list(self, delete=False, recover=False):
         """Prompts file dialog to select a file"""
@@ -296,8 +298,10 @@ class App:
             image_path = self.recoverCoverFilePath
             title = "Select files to recover cover"
         else:
+            if self._licycle is None:
+                raise NoCoverFile("Selected action requires to have a cover image loaded", self.master)
             option_overwrite = self.do_overwrite_first.get()
-            image_path = self.thiselem.name
+            image_path = self._thiselem.name
             if option_overwrite:
                 title = "Select files to overwrite cover"
             else:
