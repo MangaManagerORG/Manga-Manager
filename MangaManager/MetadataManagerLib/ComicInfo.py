@@ -35,10 +35,7 @@ from lxml import etree as etree_
 Validate_simpletypes_ = True
 SaveElementTreeNode = True
 TagNamePrefix = ""
-if sys.version_info.major == 2:
-    pass
-    # BaseStrType_ = basestring
-else:
+if sys.version_info.major != 2:
     BaseStrType_ = str
 
 
@@ -59,55 +56,21 @@ def parsexml_(infile, parser=None, **kwargs):
     doc = etree_.parse(infile, parser=parser, **kwargs)
     return doc
 
-def parsexmlstring_(instring, parser=None, doRecover=False, **kwargs):
+
+def parsexmlstring_(instring, parser=None, do_recover=False, **kwargs):
     if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
         #   we ignore comments.
         try:
-            parser = etree_.ETCompatXMLParser(recover=doRecover)
+            parser = etree_.ETCompatXMLParser(recover=do_recover)
         except AttributeError:
             # fallback to xml.etree
-            parser = etree_.XMLParser(recover=doRecover)
+            parser = etree_.XMLParser(recover=do_recover)
     element = etree_.fromstring(instring, parser=parser, **kwargs)
     return element
 
 
 #
-# Namespace prefix definition table (and other attributes, too)
-#
-# The module generatedsnamespaces, if it is importable, must contain
-# a dictionary named GeneratedsNamespaceDefs.  This Python dictionary
-# should map element type names (strings) to XML schema namespace prefix
-# definitions.  The export method for any class for which there is
-# a namespace prefix definition, will export that definition in the
-# XML representation of that element.  See the export method of
-# any generated element type class for an example of the use of this
-# table.
-# A sample table is:
-#
-#     # File: generatedsnamespaces.py
-#
-#     GenerateDSNamespaceDefs = {
-#         "ElementtypeA": "http://www.xxx.com/namespaceA",
-#         "ElementtypeB": "http://www.xxx.com/namespaceB",
-#     }
-#
-# Additionally, the generatedsnamespaces module can contain a python
-# dictionary named GenerateDSNamespaceTypePrefixes that associates element
-# types with the namespace prefixes that are to be added to the
-# "xsi:type" attribute value.  See the _exportAttributes method of
-# any generated element type and the generation of "xsi:type" for an
-# example of the use of this table.
-# An example table:
-#
-#     # File: generatedsnamespaces.py
-#
-#     GenerateDSNamespaceTypePrefixes = {
-#         "ElementtypeC": "aaa:",
-#         "ElementtypeD": "bbb:",
-#     }
-#
-
 try:
     from generatedsnamespaces import GenerateDSNamespaceDefs as GenerateDSNamespaceDefs_
 except ModulenotfoundExp_:
@@ -769,25 +732,6 @@ except ModulenotfoundExp_ as exp:
         else:
             return None
 
-#
-# If you have installed IPython you can uncomment and use the following.
-# IPython is available from http://ipython.scipy.org/.
-#
-
-## from IPython.Shell import IPShellEmbed
-## args = ''
-## ipshell = IPShellEmbed(args,
-##     banner = 'Dropping into IPython',
-##     exit_msg = 'Leaving Interpreter, back to program.')
-
-# Then use the following line where and when you want to drop into the
-# IPython shell:
-#    ipshell('<some message> -- Entering ipshell.\nHit Ctrl-D to exit')
-
-#
-# Globals
-#
-
 ExternalEncoding = ''
 # Set this to false in order to deactivate during export, the use of
 # name space prefixes captured from the input document.
@@ -890,7 +834,7 @@ def find_attr_value_(attr_name, node):
     elif len(attr_parts) == 2:
         prefix, name = attr_parts
         if prefix == 'xml':
-            namespace = 'http://www.w3.org/XML/1998/namespace'
+            namespace = 'https://www.w3.org/XML/1998/namespace'
         else:
             namespace = node.nsmap.get(prefix)
         if namespace is not None:
@@ -1129,39 +1073,45 @@ class AgeRating(str, Enum):
     def list(cls):
         return list(map(lambda c: c.value, cls))
 
+
 class ComicPageType(str, Enum):
-    FRONT_COVER='FrontCover'
-    INNER_COVER='InnerCover'
-    ROUNDUP='Roundup'
-    STORY='Story'
-    ADVERTISMENT='Advertisment'
-    EDITORIAL='Editorial'
-    LETTERS='Letters'
-    PREVIEW='Preview'
-    BACK_COVER='BackCover'
-    OTHER='Other'
-    DELETED='Deleted'
+    FRONT_COVER = 'FrontCover'
+    INNER_COVER = 'InnerCover'
+    ROUNDUP = 'Roundup'
+    STORY = 'Story'
+    ADVERTISMENT = 'Advertisment'
+    EDITORIAL = 'Editorial'
+    LETTERS = 'Letters'
+    PREVIEW = 'Preview'
+    BACK_COVER = 'BackCover'
+    OTHER = 'Other'
+    DELETED = 'Deleted'
+
     @classmethod
     def list(cls):
         return list(map(lambda c: c.value, cls))
 
 
 class Manga(str, Enum):
-    UNKNOWN='Unknown'
-    NO='No'
-    YES='Yes'
-    YES_AND_RIGHT_TO_LEFT='YesAndRightToLeft'
+    UNKNOWN = 'Unknown'
+    NO = 'No'
+    YES = 'Yes'
+    YES_AND_RIGHT_TO_LEFT = 'YesAndRightToLeft'
+
     @classmethod
     def list(cls):
         return list(map(lambda c: c.value, cls))
 
+
 class YesNo(str, Enum):
-    UNKNOWN='Unknown'
-    NO='No'
-    YES='Yes'
+    UNKNOWN = 'Unknown'
+    NO = 'No'
+    YES = 'Yes'
+
     @classmethod
     def list(cls):
         return list(map(lambda c: c.value, cls))
+
 
 class ComicInfo(GeneratedsSuper):
     __hash__ = GeneratedsSuper.__hash__
@@ -2723,7 +2673,7 @@ def parseEtree(inFileName, silence=False, print_warnings=True,
     return rootObj, rootElement, mapping, reverse_node_mapping
 
 
-def parseString(inString, silence=False, print_warnings=True,doRecover=False):
+def parseString(inString, silence=False, print_warnings=True, doRecover=False):
     '''Parse a string, create the object tree, and export it.
 
     Arguments:
@@ -2733,7 +2683,7 @@ def parseString(inString, silence=False, print_warnings=True,doRecover=False):
     Returns -- The root object in the tree.
     '''
     parser = None
-    rootNode= parsexmlstring_(inString, parser,doRecover)
+    rootNode = parsexmlstring_(inString, parser, doRecover)
     gds_collector = GdsCollector_()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
