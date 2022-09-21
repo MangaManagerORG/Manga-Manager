@@ -1028,7 +1028,7 @@ class App:
                             self.loadedComicInfo_list.append(loaded_ComIinf)
                         else:
                             continue
-                    # self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
+
                 else:
                     if self._initialized_UI:
                         mb.showwarning("No file selected", "No files were selected.", parent=self.master)
@@ -1042,7 +1042,7 @@ class App:
                         self.loadedComicInfo_list.append(loaded_ComIinf)
                     else:
                         continue
-                    # self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
+
         except CancelComicInfoLoad:
             self.loadedComicInfo_list = []
         except NoFilesSelected:
