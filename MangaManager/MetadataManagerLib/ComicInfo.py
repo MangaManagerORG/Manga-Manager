@@ -66,7 +66,10 @@ def parsexmlstring_(instring, parser=None, do_recover=False, **kwargs):
         except AttributeError:
             # fallback to xml.etree
             parser = etree_.XMLParser(recover=do_recover)
-    element = etree_.fromstring(instring, parser=parser, **kwargs)
+    try:
+        element = etree_.fromstring(instring, parser=parser, **kwargs)
+    except ValueError:
+        element = etree_.fromstring(instring.encode('utf-8'), parser=parser, **kwargs)
     return element
 
 
