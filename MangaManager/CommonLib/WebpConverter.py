@@ -8,9 +8,12 @@ import zipfile
 from io import BytesIO
 
 from PIL import Image
+###########
+# Fix for #97 Where it failed loading truncated files (missing blocks)
+from PIL import ImageFile
 
-# import CommonLib.HelperFunctions
-
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+###########
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +70,6 @@ if __name__ == '__main__':
 else:
     from CommonLib.HelperFunctions import get_estimated_time, get_elapsed_time
     import tkinter as tk
-
     from tkinter.filedialog import askopenfiles
     from tkinter.ttk import Style, Progressbar
 
@@ -115,9 +117,11 @@ def getNewWebpFormatName(currentName: str) -> str:
 
 def convertToWebp(open_zipped_file) -> bytes:
     # TODO: Bulletproof image passed not image
+    logger.debug("Successfully converted image to webp")
     image = Image.open(open_zipped_file)
     # print(image.size, image.mode, len(image.getdata()))
     converted_image = BytesIO()
+
     image.save(converted_image, format="webp")
     image.close()
     logger.debug("Successfully converted image to webp")
@@ -178,6 +182,7 @@ if __name__ == '__main__':
             with zipfile.ZipFile(file_path, 'r') as zin:
                 with zipfile.ZipFile(self._tmpname, 'w') as zout:
                     for zipped_file in zin.infolist():
+                        logger.debug(f"processing '{zipped_file.filename}'")
                         # logger.debug(f"Processing file {zipped_file.filename}")
                         file_format = re.findall(r"(?i)\.[a-z]+$", zipped_file.filename)
                         if file_format:
@@ -190,7 +195,7 @@ if __name__ == '__main__':
                         if file_format in self._supported_formats:
                             with zin.open(zipped_file) as open_zipped_file:
                                 zout.writestr(file_name + ".webp", convertToWebp(open_zipped_file))
-                                logger.debug(f"Converted '{zipped_file.filename}' to webp")
+                                logger.debug(f"Added converted to webp file '{zipped_file.filename}' to new file")
                                 # logger.debug(f"Added '{zipped_file.filename}' to new tempfile")
                                 continue
                         zout.writestr(zipped_file.filename, zin.read(zipped_file.filename))
@@ -349,6 +354,7 @@ else:
                     os.remove(self._tmpname)
                     processed_errors += 1
                     continue
+
                 if self._initialized_UI:
                     pb_root.update()
                     percentage = ((processed_counter + processed_errors) / total) * 100
@@ -366,6 +372,7 @@ else:
             with zipfile.ZipFile(cbzFilepath, 'r') as zin:
                 with zipfile.ZipFile(tmp_path, 'w') as zout:
                     for zipped_file in zin.infolist():
+                        logger.debug(f"processing '{zipped_file.filename}'")
                         # logger.debug(f"Processing file {zipped_file.filename}")
                         file_format = re.findall(r"(?i)\.[a-z]+$", zipped_file.filename)
                         if file_format:
@@ -378,7 +385,7 @@ else:
                         if file_format in self._supported_formats:
                             with zin.open(zipped_file) as open_zipped_file:
                                 zout.writestr(file_name + ".webp", convertToWebp(open_zipped_file))
-                                logger.debug(f"Converted '{zipped_file.filename}' to webp")
+                                logger.debug(f"Added converted to webp file '{zipped_file.filename}' to new file")
                                 # logger.debug(f"Added '{zipped_file.filename}' to new tempfile")
                                 continue
                         zout.writestr(zipped_file.filename, zin.read(zipped_file.filename))
