@@ -1,0 +1,2 @@
+prompt_toolkit
+Pillow>=9.0.1
