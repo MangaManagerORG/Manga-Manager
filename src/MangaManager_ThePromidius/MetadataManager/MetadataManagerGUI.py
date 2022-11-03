@@ -4,7 +4,13 @@ import logging
 import os
 import tkinter
 from tkinter import Tk, Button, Frame, Label, Listbox, messagebox as mb, ttk
-from tkinter.filedialog import askopenfiles
+
+from src.MangaManager_ThePromidius.Common.utils import get_platform
+
+if get_platform() == "linux":
+    from src.MangaManager_ThePromidius.Common.GUI.FileChooserWindow import askopenfiles
+else:
+    from tkinter.filedialog import askopenfiles
 from tkinter.ttk import Combobox
 
 from PIL import ImageTk, Image
@@ -12,7 +18,7 @@ from PIL import ImageTk, Image
 from src.MangaManager_ThePromidius.MetadataManager import comicinfo
 from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
-from src.MangaManager_ThePromidius.MetadataManager.errors import CorruptedComicInfo
+from src.MangaManager_ThePromidius.MetadataManager.errors import CorruptedComicInfo, BadZipFile
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget, \
     ScrolledFrameWidget, WidgetManager
 
@@ -293,6 +299,11 @@ class App(Tk, MetadataManagerLib):
                     loaded_cinfo = LoadedComicInfo(file_path, comicInfo=comicinfo.ComicInfo())
                 else:
                     continue
+            except BadZipFile:
+                mb.showerror("Error loading file",
+                             f"Failed to read the file '{file_path}'.\nThis can be caused by wrong file format"
+                             f" or broken file. Skipping file")
+                continue
             self.loaded_cinfo_list.append(loaded_cinfo)
         self.log.debug("Files selected")
         # super(App, self).load_cinfo_list()

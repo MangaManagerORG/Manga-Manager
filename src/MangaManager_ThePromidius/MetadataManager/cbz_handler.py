@@ -10,7 +10,7 @@ from typing import IO
 from lxml.etree import XMLSyntaxError
 
 from .comicinfo import ComicInfo, parseString
-from .errors import CorruptedComicInfo, FailedBackup
+from .errors import CorruptedComicInfo, FailedBackup, BadZipFile
 from src.MangaManager_ThePromidius.Common.naturalsorter import natsort_key_with_path_support
 
 logger = logging.getLogger("LoadedCInfo")
@@ -117,12 +117,16 @@ class LoadedComicInfo:
 
         self.file_path = path
         logger.info(f"[{'OpeningFile':13s}] '{os.path.basename(self.file_path)}'")
-        with zipfile.ZipFile(self.file_path, 'r') as self.archive:
-            self._load_cover_info()
-            if not comicInfo:
-                self._load_metadata()
-            else:
-                self.cinfo_object = comicInfo
+        try:
+            with zipfile.ZipFile(self.file_path, 'r') as self.archive:
+                self._load_cover_info()
+                if not comicInfo:
+                    self._load_metadata()
+                else:
+                    self.cinfo_object = comicInfo
+        except zipfile.BadZipFile:
+            logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.")
+            raise BadZipFile()
 
     def get_cover_image_bytes(self) -> IO[bytes]:
         """

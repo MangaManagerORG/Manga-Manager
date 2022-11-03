@@ -64,6 +64,7 @@ class MetadataManagerLib(abc.ABC):
         :param string file_path: the path to the zip-like file
 
         :raises CorruptedComicInfo: If the data inside ComicInfo.xml could not be read after trying to fix te data
+        :raises BadZipFile: If the provided zip is not a valid zip or is broken
         :returns: LoadedComicInfo
         """
         return LoadedComicInfo(path=file_path)

@@ -42,6 +42,12 @@ class NoFilesSelected(Exception):
     def __init__(self):
         super().__init__(f'No Files Selected')
 
+class BadZipFile(Exception):
+    """
+    Exception raise when the file is broken or is not a zip file
+    """
+    def __init__(self):
+        super().__init__(f'File is broken or not a valid zip file')
 
 class NoComicInfoLoaded(Exception):
     """

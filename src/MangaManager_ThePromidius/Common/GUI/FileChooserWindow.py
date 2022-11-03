@@ -1,7 +1,16 @@
-import gi
+import dataclasses
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+import pgi
+
+pgi.require_version("Gtk", "3.0")
+from pgi.repository import Gtk
+
+@dataclasses.dataclass
+class DummyFile:
+    name: str
+    def __str__(self):
+        return self.name
+
 
 # TODO: ADJUST THIS CLASS TO FIT UI
 class FileChooserWindow(Gtk.Window):
@@ -9,17 +18,17 @@ class FileChooserWindow(Gtk.Window):
     Filedialog for unix
     """
 
-    def __init__(self, title=None, filters:list[(str,str)]=None):
+    def __init__(self, title=None, filters: list[(str, str)] = None):
         """
 
         :param title: The title of the window
         :param filters: list of (filter_name, mime_type)
         """
         super().__init__(title=title)
-        self.filters = filters
-        box = Gtk.Box(spacing=6)
-        self.add(box)
-        self.on_file_clicked()
+        # self.filters = filters
+        # box = Gtk.Box(spacing=6)
+        # self.add(box)
+        # self.on_file_clicked()
         # button1 = Gtk.Button(label="Choose File")
         # button1.connect("clicked", self.on_file_clicked)
         # box.add(button1)
@@ -28,10 +37,18 @@ class FileChooserWindow(Gtk.Window):
         # button2.connect("clicked", self.on_folder_clicked)
         # box.add(button2)
 
-    def on_file_clicked(self):
+    def on_file_clicked(self, initial_dir, filetype_filters, title):
         dialog = Gtk.FileChooserDialog(
-            title="Please choose a file", parent=self, action=Gtk.FileChooserAction.OPEN
+            title=title, parent=self, action=Gtk.FileChooserAction.OPEN
         )
+        if initial_dir:
+            dialog.set_current_folder(initial_dir)
+        for file_filter in filetype_filters:
+            filetype_filter = Gtk.FileFilter()
+            filetype_filter.set_name(file_filter[0])
+            filetype_filter.add_pattern(f"*{file_filter[1]}")
+            dialog.add_filter(filetype_filter)
+
         dialog.add_buttons(
             Gtk.STOCK_CANCEL,
             Gtk.ResponseType.CANCEL,
@@ -39,34 +56,18 @@ class FileChooserWindow(Gtk.Window):
             Gtk.ResponseType.OK,
         )
 
-        self.add_filters(dialog)
-
         response = dialog.run()
+        files_selected = None
         if response == Gtk.ResponseType.OK:
             print("Open clicked")
             print("File selected: " + dialog.get_filename())
+            files_selected = dialog.get_filename()
+            dialog.destroy()
         elif response == Gtk.ResponseType.CANCEL:
             print("Cancel clicked")
-
-        dialog.destroy()
-
-    def add_filters(self, dialog):
-        if self.filters:
-            for filter_data in self.filters:
-                ext_filter = Gtk.FileFilter()
-                ext_filter.set_name(filter_data[0])
-                ext_filter.add_mime_type(filter_data[1])
-                dialog.add_filter(ext_filter)
-        #
-        # filter_py = Gtk.FileFilter()
-        # filter_py.set_name("Python files")
-        # filter_py.add_mime_type("text/x-python")
-        # dialog.add_filter(filter_py)
-        #
-        # filter_any = Gtk.FileFilter()
-        # filter_any.set_name("Any files")
-        # filter_any.add_pattern("*")
-        # dialog.add_filter(filter_any)
+            dialog.destroy()
+        self.destroy()
+        return [DummyFile(name=files_selected)]
 
     def on_folder_clicked(self):
         dialog = Gtk.FileChooserDialog(
@@ -74,6 +75,7 @@ class FileChooserWindow(Gtk.Window):
             parent=self,
             action=Gtk.FileChooserAction.SELECT_FOLDER,
         )
+
         dialog.add_buttons(
             Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, "Select", Gtk.ResponseType.OK
         )
@@ -87,6 +89,24 @@ class FileChooserWindow(Gtk.Window):
             print("Cancel clicked")
 
         dialog.destroy()
+
+
+def askopenfiles(initialdir, title="Select Files", filetypes=None, parent=None):
+    """
+
+    :param initialdirtitle: path to start browsing at
+    :param title: The title of the window
+    :param filetypes: Tuple with content: (str:<Name of the extension> , str:<dot + extension: '.cbz'>)
+    :param parent: Not used but required to monkeypatch tkinter askopenfile
+    :return:
+    """
+    file_chooser = FileChooserWindow(title)
+    if filetypes:
+        filetypes = filetypes + (("All Files", ""),)
+    else:
+        filetypes = (("All Files", ""),)
+
+    return file_chooser.on_file_clicked(initial_dir=initialdir, filetype_filters=filetypes, title=title)
 
 
 __all__ = [

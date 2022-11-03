@@ -1,1 +1,1 @@
-PyGObject-stubs
+PyGObject-stubs # This is a pyc library for linux askopendir windows
