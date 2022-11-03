@@ -1,15 +1,55 @@
 import abc
 import logging
+from abc import ABC
 from io import StringIO
 
+from . import comicinfo
 from .comicinfo import ComicInfo
-from .errors import NoMetadataFileFound, NoComicInfoLoaded, FailedBackup
+from .errors import NoMetadataFileFound, NoComicInfoLoaded, FailedBackup, CorruptedComicInfo, BadZipFile
 from .cbz_handler import LoadedComicInfo
 
 logger = logging.getLogger("MetadataManager.Core")
 
 
-class MetadataManagerLib(abc.ABC):
+class _IMetadataManagerLib(abc.ABC):
+    @abc.abstractmethod
+    def on_badzipfile_error(self, exception, file_path):
+        """
+        Called while loading a file and it's not a valid zip or it's broken
+        """
+        ...
+
+    # @abc.abstractmethod
+    # def on_missing_metadata_error(self, exception, loaded_info: LoadedComicInfo):
+    #     """
+    #     Called when the file does not have metadata in side of it.
+    #     """
+    #     ...
+
+    @abc.abstractmethod
+    def on_corruped_metadata_error(self, exception, loaded_info: LoadedComicInfo):
+        """
+        Called while loading a file, and it's metadata can't be read.
+        """
+        ...
+
+    @abc.abstractmethod
+    def on_writing_error(self, exception, loaded_info: LoadedComicInfo):
+        """
+        Called while trying to save to the file.
+        Posible callees (but not limited to): FailedBackup,
+        """
+        ...
+
+    @abc.abstractmethod
+    def on_writing_exception(self, exception, loaded_info: LoadedComicInfo):
+        """
+        Called when an unhandled exception occurred trying to save the file
+        """
+        ...
+
+
+class MetadataManagerLib(_IMetadataManagerLib, ABC):
     """
     The core of metadata editor.
     It has the logic to merge all the data of each fields across multiple files.
@@ -20,7 +60,7 @@ class MetadataManagerLib(abc.ABC):
     cinfo_tags: list[str] = ['Title', 'Series', 'LocalizedSeries', 'SeriesSort', 'Summary', 'Genre', 'Tags', 'AlternateSeries', 'Notes', 'AgeRating', 'CommunityRating', 'ScanInformation', 'StoryArc', 'AlternateCount', 'Writer', 'Inker', 'Colorist', 'Letterer', 'CoverArtist', 'Editor', 'Translator', 'Publisher', 'Imprint', 'Characters', 'Teams', 'Locations', 'Number', 'AlternateNumber', 'Count', 'Volume', 'PageCount', 'Year', 'Month', 'Day', 'StoryArcNumber', 'LanguageISO', 'Format', 'BlackAndWhite', 'Manga']
     multiple_values_conflict = "~~## Multiple Values in this Field - Keep Original Values ##~~"
 
-    def proces(self) -> tuple[list[LoadedComicInfo], list[LoadedComicInfo]]:
+    def proces(self):
         """
         Core function
         Reads the new cinfo class and compares it against all LoadedComicInfo.
@@ -29,8 +69,6 @@ class MetadataManagerLib(abc.ABC):
         """
         if not self.loaded_cinfo_list:
             raise NoComicInfoLoaded()
-        failed_processing = []
-        unhandled_failed_processing = []
 
         self.merge_changed_metadata()
         self.preview_export()
@@ -38,36 +76,61 @@ class MetadataManagerLib(abc.ABC):
             # noinspection PyBroadException
             try:
                 loaded_info.write_metadata()
-            except FailedBackup:
-                failed_processing.append(loaded_info)
-            except Exception:
-                unhandled_failed_processing.append(loaded_info)
-        return failed_processing, unhandled_failed_processing
+            except PermissionError as e:
+                logger.error("Failed to write changes because of missing permissions "
+                             "or because other program has the file opened", exc_info=True)
+                self.on_writing_error(exception=e, loaded_info=loaded_info)
+                # failed_processing.append(loaded_info)
+            except Exception as e:
+                logger.exception("Unhandled exception saving changes")
+                self.on_writing_exception(exception=e, loaded_info=loaded_info)
+    # @abc.abstractmethod
+    # def load_cinfo_list(self):
+    #     """
+    #
+    #     Expected to be overriden with custom logic catching exceptions loading the metadata.
+    #     """
+    #
+    #     for file_path in self.selected_files_path:
+    #         self.loaded_cinfo_list.append(self.load_cinfo_xml(file_path))
 
-    @abc.abstractmethod
-    def load_cinfo_list(self):
-        """
-        Creates a list of comicinfo with the comicinfo metadata from the selected files.
-        Expected to be overriden with custom logic catching exceptions loading the metadata.
-        """
 
-        for file_path in self.selected_files_path:
-            self.loaded_cinfo_list.append(self.load_cinfo_xml(file_path))
-
-    @staticmethod
-    def load_cinfo_xml(file_path) -> LoadedComicInfo:
+    def load_cinfo_list(self) -> None:
         """
         Accepts a path string
-        Returns a LoadedComicInfo with the ComicInfo class generated from the data contained inside ComicInfo file
-        which is taken from the zip-like file type
-
+        Creates a list of comicinfo with the comicinfo metadata from the selected files.
         :param string file_path: the path to the zip-like file
 
         :raises CorruptedComicInfo: If the data inside ComicInfo.xml could not be read after trying to fix te data
         :raises BadZipFile: If the provided zip is not a valid zip or is broken
-        :returns: LoadedComicInfo
         """
-        return LoadedComicInfo(path=file_path)
+        # return LoadedComicInfo(path=file_path)
+
+        logger.debug("Loading files")
+        self.loaded_cinfo_list = list[LoadedComicInfo]()
+        for file_path in self.selected_files_path:
+            try:
+                loaded_cinfo = LoadedComicInfo(path=file_path)
+            except CorruptedComicInfo as e:
+                # Logging is handled already in LoadedComicInfo load_metadata method
+                loaded_cinfo = LoadedComicInfo(path=file_path, comicInfo=comicinfo.ComicInfo())
+                self.on_corruped_metadata_error(e, loaded_info=loaded_cinfo or file_path)
+
+
+                #
+                # if answer:
+                #     loaded_cinfo = LoadedComicInfo(file_path, comicInfo=comicinfo.ComicInfo())
+                # else:
+                continue
+            except BadZipFile as e:
+                logger.error("Bad zip file. Either the format is not correct or the file is broken", exc_info=False)
+                self.on_badzipfile_error(e, file_path=file_path)
+                continue
+
+            #     continue
+            self.loaded_cinfo_list.append(loaded_cinfo)
+        logger.debug("Files selected")
+        # super(App, self).load_cinfo_list()
 
     def merge_changed_metadata(self):
         """
@@ -103,3 +166,6 @@ class MetadataManagerLib(abc.ABC):
             print(loaded_cinfo.cinfo_object is None)
             loaded_cinfo.cinfo_object.export(export, 0)
             # print(export.getvalue())
+
+
+

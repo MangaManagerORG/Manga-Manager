@@ -74,22 +74,22 @@ class App(Tk, MetadataManagerLib):
         self.display_widgets()
 
         self.side_info_frame = Frame(self.main_frame)
-        self.side_info_frame.pack(side="left",anchor="nw")
+        self.side_info_frame.pack(side="left", anchor="nw")
         #################
         # Action Buttons
         #################
         self.control_frame = Frame(self.side_info_frame)
         btn = Button(self.control_frame, text="Load_data")
         btn.configure(command=self.load_data)
-        btn.pack(fill="both",expand=True)
+        btn.pack(fill="both", expand=True)
         btn = Button(self.control_frame, text="Load Files")
         btn.configure(command=self.select_files)
-        btn.pack(fill="both",expand=True)
+        btn.pack(fill="both", expand=True)
 
         btn = Button(self.control_frame, text="Process")
         btn.configure(command=self.pre_process)
-        btn.pack(fill="both",expand=True)
-        self.control_frame.pack(side="bottom",fill="both", expand=True)  # side="bottom")
+        btn.pack(fill="both", expand=True)
+        self.control_frame.pack(side="bottom", fill="both", expand=True)  # side="bottom")
 
         #################
         # Show Selected Files - ListBox
@@ -102,7 +102,7 @@ class App(Tk, MetadataManagerLib):
         self.files_selected_frame.listbox.pack(expand=True, fill="both", anchor="center")
 
         # self.files_selected_frame.grid(row=1, column=0, sticky="wesn")
-        self.files_selected_frame.pack(expand=True,fill="both")
+        self.files_selected_frame.pack(expand=True, fill="both")
         # self.files_selected_frame.pack()
 
         self.image_cover_frame = Frame(self.side_info_frame)
@@ -112,14 +112,11 @@ class App(Tk, MetadataManagerLib):
         self.test_label1 = tkinter.Label(self.image_cover_frame)
         self.test_label1.pack()
         # self.image_cover_frame.grid(row=2, column=0, sticky="wesn")
-        self.image_cover_frame.pack(expand=True,fill="both")
-
-
+        self.image_cover_frame.pack(expand=True, fill="both")
 
         # Important:
         self.cinfo_tags = self.widget_mngr.get_tags()
         # print(self.widget_mngr.get_tags())
-
 
     def _initialize_frames(self):
         self.main_frame = Frame(self)
@@ -136,7 +133,7 @@ class App(Tk, MetadataManagerLib):
 
         self.numbering_info_frame = Frame(self.misc_frame_numbering)
         self.numbering_info_frame.grid(row=0)
-        # #################
+        # #################º
         # # Show Selected Files
         # #################
         # self.files_selected_frame = Frame(self.misc_frame_numbering)
@@ -168,22 +165,28 @@ class App(Tk, MetadataManagerLib):
             initial_dir = self.settings.get("library_folder_path")
         else:
             initial_dir = self.last_folder
+        self.log.debug("Selecting files")
         # Open select files dialog
         selected_paths_list = askopenfiles(parent=self.master, initialdir=initial_dir,
                                            title="Select file to apply cover",
-                                           filetypes=(("CBZ Files", ".cbz"),)
+                                           filetypes=(("CBZ Files", ".cbz"),("All Files", "*"),)
                                            # ("Zip files", ".zip"))
                                            )
         if selected_paths_list:
             selected_parent_folder = os.path.dirname(selected_paths_list[0].name)
             if self.last_folder != selected_parent_folder or not self.last_folder:
                 self.last_folder = selected_parent_folder
-        for file in selected_paths_list:
-            self.files_selected_frame.listbox.insert(0, file.name)
-            self.selected_files_path.append(file)
+        # for file in selected_paths_list:
+        #     self.files_selected_frame.listbox.insert(0, file.name)
+        #     self.selected_files_path.append(file)
 
         self.selected_files_path = [file.name for file in selected_paths_list]
+
+        self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
         self.load_cinfo_list()
+        for loadedinfo in self.loaded_cinfo_list:
+            self.files_selected_frame.listbox.insert(0, os.path.basename(loadedinfo.file_path))
+
         self.serialize_cinfolist_to_gui()
 
     def display_widgets(self):
@@ -282,38 +285,13 @@ class App(Tk, MetadataManagerLib):
 
         # numbering_info_frame = self.numbering_info_frame
 
-    def load_cinfo_list(self):
-        self.log.debug("Selecting new files")
-        self.loaded_cinfo_list = list[LoadedComicInfo]()
-        for file_path in self.selected_files_path:
-            try:
-                loaded_cinfo = self.load_cinfo_xml(file_path)
-            except CorruptedComicInfo:
-                answer = mb.askyesno(f"Error loading metadata from file",
-                                     f"Failed to read metadata from '{file_path}'.\n"
-                                     f"Recovery was attempted.\n"
-                                     f"Click yes to create a new metadata file\n"
-                                     f"Clicking No to skip this file processing\n"
-                                     f"Proceed?")
-                if answer:
-                    loaded_cinfo = LoadedComicInfo(file_path, comicInfo=comicinfo.ComicInfo())
-                else:
-                    continue
-            except BadZipFile:
-                mb.showerror("Error loading file",
-                             f"Failed to read the file '{file_path}'.\nThis can be caused by wrong file format"
-                             f" or broken file. Skipping file")
-                continue
-            self.loaded_cinfo_list.append(loaded_cinfo)
-        self.log.debug("Files selected")
-        # super(App, self).load_cinfo_list()
-
     def serialize_cinfolist_to_gui(self):
 
         for loaded_cinfo in self.loaded_cinfo_list:
-            image1 = Image.open(loaded_cinfo.get_cover_image_bytes()).resize((190, 260), Image.ANTIALIAS)
-            self.test_image = ImageTk.PhotoImage(image1)
-            self.test_label1.configure(image=self.test_image)
+            if loaded_cinfo.cover_filename:
+                image1 = Image.open(loaded_cinfo.get_cover_image_bytes()).resize((190, 260), Image.ANTIALIAS)
+                self.test_image = ImageTk.PhotoImage(image1)
+                self.test_label1.configure(image=self.test_image)
             for cinfo_tag in self.widget_mngr.get_tags():
                 cinfo_field_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
                 widget = self.widget_mngr.get_widget(cinfo_tag)
@@ -346,17 +324,17 @@ class App(Tk, MetadataManagerLib):
 
     def pre_process(self):
         self.serialize_gui_to_edited_cinfo()
-        errored, unhandled = self.proces()
+        self.proces()
         self.new_edited_cinfo = None  # Nulling value to be safe
-        if unhandled:
-            mb.showerror("Unhandled Exception", "The following files failed to save with unknown cause. Check the logs."
-                                                "\n" + "\n".join((os.path.basename(loaded_cinfo.file_path)
-                                                                  for loaded_cinfo in unhandled)))
-        if errored:
-            mb.showerror("Error saving the files", "There were errors updating some files. "
-                                                   "Check logs for detailed info."
-                                                   "\n" + "\n".join((os.path.basename(loaded_cinfo.file_path)
-                                                                     for loaded_cinfo in errored)))
+        # if unhandled:
+        #     mb.showerror("Unhandled Exception", "The following files failed to save with unknown cause. Check the logs."
+        #                                         "\n" + "\n".join((os.path.basename(loaded_cinfo.file_path)
+        #                                                           for loaded_cinfo in unhandled)))
+        # if errored:
+        #     mb.showerror("Error saving the files", "There were errors updating some files. "
+        #                                            "Check logs for detailed info."
+        #                                            "\n" + "\n".join((os.path.basename(loaded_cinfo.file_path)
+        #                                                              for loaded_cinfo in errored)))
 
     def serialize_gui_to_edited_cinfo(self):
         new_cinfo = self.new_edited_cinfo = comicinfo.ComicInfo()
@@ -372,9 +350,30 @@ class App(Tk, MetadataManagerLib):
             widget = self.widget_mngr.get_widget(cin_widget)
             widget.set(cin_widget)
 
+    # Errors handling implementations
+    def on_badzipfile_error(self, exception, file_path: LoadedComicInfo):
+        mb.showerror("Error loading file",
+                     f"Failed to read the file '{file_path}'.\nThis can be caused by wrong file format"
+                     f" or broken file.\n"
+                     f"Read the logs for more information.\n"
+                     f"Skipping file...")
+
+    def on_writing_exception(self, exception, loaded_info: LoadedComicInfo):
+        mb.showerror("Unhandled exception",
+                     "There was an exception that was not handled while writing the changes to the file."
+                     "Please check the logs and raise an issue so this can be investigated")
+
+    def on_writing_error(self, exception, loaded_info: LoadedComicInfo):
+        mb.showerror("Error writing to file",
+                     "There was an error writing to the file. Please check the logs.")
+
+    def on_corruped_metadata_error(self, exception, loaded_info: LoadedComicInfo):
+        answer = mb.showwarning(f"Error reading the metadata from file",
+                                 f"Failed to read metadata from '{loaded_info.file_path}'\n"
+                                 "The file data couldn't be parsed probably because of corrupted data or bad format.\n"
+                                 f"Recovery was attempted and failed.\nCreating new metadata object...")
 
 if __name__ == '__main__':
     app = App()
 
     app.mainloop()
-

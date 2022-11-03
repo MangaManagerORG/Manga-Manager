@@ -46,10 +46,12 @@ def obtain_cover_filename(file_list) -> str:
     if not possible_covers:
         list_image_files = (filename for filename in file_list if IS_IMAGE_PATTERN.findall(filename))
         cover = sorted(list_image_files, key=natsort_key_with_path_support, reverse=False)
-
-    if isinstance(cover, list):
-        cover = cover[0]
-    if not cover:
+    if cover:
+        if isinstance(cover, list):
+            cover = cover[0]
+        else:
+            cover = None
+    else:
         if len(possible_covers) > 1:
             cover = possible_covers[0]
         else:
@@ -113,10 +115,12 @@ class LoadedComicInfo:
 
         :param path:
         :param comicInfo: The data class to be applied
+        :raises BadZipFile: The file can't be read or is not a valid zip file
         """
-
+        self.cinfo_object = comicInfo
         self.file_path = path
         logger.info(f"[{'OpeningFile':13s}] '{os.path.basename(self.file_path)}'")
+        # raise BadZipFile()
         try:
             with zipfile.ZipFile(self.file_path, 'r') as self.archive:
                 self._load_cover_info()
@@ -125,7 +129,7 @@ class LoadedComicInfo:
                 else:
                     self.cinfo_object = comicInfo
         except zipfile.BadZipFile:
-            logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.")
+            logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",exc_info=False)
             raise BadZipFile()
 
     def get_cover_image_bytes(self) -> IO[bytes]:
@@ -138,9 +142,19 @@ class LoadedComicInfo:
 
     def _load_cover_info(self):
         self.cover_filename = obtain_cover_filename(self.archive.namelist())
-        logger.info(f"[{'CoverParsing':13s}] Cover parsed as '{self.cover_filename}'")
+        if not self.cover_filename:
+            logger.warning(f"[{'CoverParsing':13s}] Couldn't parse any cover")
+        else:
+            logger.info(f"[{'CoverParsing':13s}] Cover parsed as '{self.cover_filename}'")
 
     def _load_metadata(self):
+
+        """
+        Reads the metadata from the ComicInfo.xml at root level
+        :raises CorruptedComicInfo If the metadata file exists but can't be parsed
+        :return:
+        """
+
         logger.info(f"[{'Reading Meta':13s}]")
         try:
             xml_string = self.archive.read('ComicInfo.xml').decode('utf-8')
@@ -156,13 +170,12 @@ class LoadedComicInfo:
                 try:
                     self.cinfo_objectcomicinfo = parseString(xml_string, doRecover=True, silence=True)
                 except XMLSyntaxError:
-                    logger.error(f"[{'Reading Meta':13s}] Failed to parse XML: {e} - Recovery attempt failed",
-                                 exc_info=False)
+                    logger.error(f"[{'Reading Meta':13s}] Failed to parse XML: {e} - Recovery attempt failed")
                     raise CorruptedComicInfo(self.file_path)
-                except Exception:
-                    logger.exception(f"[{'Reading Meta':13s}] Unhandled error reading metadata."
-                                     f" Please create an issue for further investigation")
-                    raise
+            except Exception:
+                logger.exception(f"[{'Reading Meta':13s}] Unhandled error reading metadata."
+                                 f" Please create an issue for further investigation")
+                raise
             logger.debug(f"[{'Reading Meta':13s}] Successful")
         else:
             self.cinfo_object = ComicInfo()
@@ -184,7 +197,6 @@ class LoadedComicInfo:
         self.cinfo_object.export(export, 0)
         if self.has_metadata:
             logger.debug(f"[{'Write Meta':13s}] ComicInfo file found in old file")
-            ...
             self._backup_cinfo()
 
         with zipfile.ZipFile(self.file_path, "a", compression=zipfile.ZIP_STORED) as zout:
@@ -196,7 +208,7 @@ class LoadedComicInfo:
         """
         Renames the ComicInfo.xml file to OLD_Comicinfo.xml.bak
         :return:
-        :raises FailedBackup: If it fails to backup because of any error
+        :raises PermissionError: If the file can't be written because of permissions or other program has file opened
 
         """
         logger.debug(f"[{'Backup':13s}] Starting backup")
@@ -204,7 +216,6 @@ class LoadedComicInfo:
             if "ComicInfo.xml" not in zin.namelist():  # Redundant check. TODO: Make sure this check is safe to remove
                 logger.debug(f"[{'Backup':13s}] Skipping backup. No ComicInfo.xml present")
                 return
-
             # Dev notes
             # Due to how the zip library works, we can't just edit the file.
             # Need to create a copy of it with modified content and delete old one
@@ -238,7 +249,7 @@ class LoadedComicInfo:
         except PermissionError:
             logger.exception(f"[{'Backup':13s}] Permission error. Aborting and clearing temp files")
             os.remove(tmpname)  # Could be moved to a 'finally'? Don't want to risk it not clearing temp files properly
-            raise FailedBackup()
+            raise
         except Exception:
             logger.exception(f"[{'Backup':13s}] Unhandled exception. Create an issue so this gets investigated."
                              f" Aborting and clearing temp files")
