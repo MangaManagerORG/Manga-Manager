@@ -11,46 +11,16 @@ if get_platform() == "linux":
     from src.MangaManager_ThePromidius.Common.GUI.FileChooserWindow import askopenfiles
 else:
     from tkinter.filedialog import askopenfiles
-from tkinter.ttk import Combobox
 
 from PIL import ImageTk, Image
 
 from src.MangaManager_ThePromidius.MetadataManager import comicinfo
 from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
-from src.MangaManager_ThePromidius.MetadataManager.errors import CorruptedComicInfo, BadZipFile
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget, \
     ScrolledFrameWidget, WidgetManager
 
-tst_cinfo = """
-<ComicInfo>
-    <Title>dsadasdasdasdasdasd</Title>
-    <AlternateSeries>dasd</AlternateSeries>
-    <Summary>asdasdasdasda</Summary>
-    <Notes>asdasd</Notes>
-    <Writer>asda</Writer>
-    <Inker>dasdasd</Inker>
-    <Colorist>asddas</Colorist>
-    <Letterer>dasdas</Letterer>
-    <CoverArtist>dsadasda</CoverArtist>
-    <Editor>asdasd</Editor>
-    <Translator>asdas</Translator>
-    <Publisher>dasas</Publisher>
-    <Imprint>ddasasdasddd</Imprint>
-    <Genre>sdasd</Genre>
-    <Tags>asddsada</Tags>
-    <Web>sdasdsdsa</Web>
-    <Characters>dasdasd</Characters>
-    <Teams>dasdasdasdasdaadasd</Teams>
-    <Locations>sdas</Locations>
-    <ScanInformation>adas</ScanInformation>
-    <StoryArc>d</StoryArc>
-    <SeriesGroup>addasdasda</SeriesGroup>
-    <AgeRating>Everyone</AgeRating>
-    <CommunityRating>addsa</CommunityRating>
-</ComicInfo>
 
-"""
 
 
 class App(Tk, MetadataManagerLib):

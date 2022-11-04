@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import logging
 import os
@@ -9,17 +11,16 @@ from typing import IO
 
 from lxml.etree import XMLSyntaxError
 
-from .comicinfo import ComicInfo, parseString
-from .errors import CorruptedComicInfo, FailedBackup, BadZipFile
 from src.MangaManager_ThePromidius.Common.naturalsorter import natsort_key_with_path_support
+from .comicinfo import ComicInfo, parseString
+from .errors import CorruptedComicInfo, BadZipFile
 
 logger = logging.getLogger("LoadedCInfo")
 
-
 # Patterns for picking cover
 IMAGE_EXTENSIONS = ('png', 'jpg', 'jpeg', 'tiff', 'bmp', 'gif', 'webp')
-cover_r1 = '^!*0+\\.[a-z]+$'
-cover_r2 = '.*cover.*\\.[a-z]+$'
+cover_r1 = '^!*0+.[a-z]+$'
+cover_r2 = '.*cover.*.[a-z]+$'
 covers_patterns = [cover_r1, cover_r2]
 COVER_PATTERN = re.compile(f"(?i)({'|'.join(covers_patterns)})")
 cover_r3_alt = '^!*0+1\\.[a-z]+$'
@@ -37,33 +38,20 @@ def obtain_cover_filename(file_list) -> str:
     # Cover stuff
     possible_covers = [filename for filename in file_list
                        if IS_IMAGE_PATTERN.findall(filename) and COVER_PATTERN.findall(filename)]
-
+    if possible_covers:
+        cover = possible_covers[0]
+        return cover
     # Try to get 0001
-    if not possible_covers:
-        possible_covers = [filename for filename in file_list if ALT_COVER_PATTERN.findall(filename)]
+    possible_covers = [filename for filename in file_list if ALT_COVER_PATTERN.findall(filename)]
+    if possible_covers:
+        cover = possible_covers[0]
+        return cover
     # Resource back to first filename available that is a cover
-
-    if not possible_covers:
-        list_image_files = (filename for filename in file_list if IS_IMAGE_PATTERN.findall(filename))
-        cover = sorted(list_image_files, key=natsort_key_with_path_support, reverse=False)
+    list_image_files = (filename for filename in file_list if IS_IMAGE_PATTERN.findall(filename))
+    cover = sorted(list_image_files, key=natsort_key_with_path_support, reverse=False)
     if cover:
-        if isinstance(cover, list):
-            cover = cover[0]
-        else:
-            cover = None
-    else:
-        if len(possible_covers) > 1:
-            cover = possible_covers[0]
-        else:
-            cover = possible_covers
-    return cover
-
-
-def matchany(image_filename):
-    ...
-
-
-# @dataclass()
+        cover = cover[0]
+        return cover
 
 
 class LoadedComicInfo:
@@ -129,14 +117,17 @@ class LoadedComicInfo:
                 else:
                     self.cinfo_object = comicInfo
         except zipfile.BadZipFile:
-            logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",exc_info=False)
+            logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",
+                         exc_info=False)
             raise BadZipFile()
 
-    def get_cover_image_bytes(self) -> IO[bytes]:
+    def get_cover_image_bytes(self) -> IO[bytes] | None:
         """
         Opens the cbz and returns the bytes for the parsed cover image
         :return:
         """
+        if not self.file_path:
+            return None
         with zipfile.ZipFile(self.file_path, 'r') as zin:
             return zin.open(self.cover_filename)
 

@@ -4,9 +4,9 @@ from abc import ABC
 from io import StringIO
 
 from . import comicinfo
-from .comicinfo import ComicInfo
-from .errors import NoMetadataFileFound, NoComicInfoLoaded, FailedBackup, CorruptedComicInfo, BadZipFile
 from .cbz_handler import LoadedComicInfo
+from .comicinfo import ComicInfo
+from .errors import NoMetadataFileFound, NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 
 logger = logging.getLogger("MetadataManager.Core")
 
@@ -97,7 +97,6 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
 
     def load_cinfo_list(self) -> None:
         """
-        Accepts a path string
         Creates a list of comicinfo with the comicinfo metadata from the selected files.
         :param string file_path: the path to the zip-like file
 
