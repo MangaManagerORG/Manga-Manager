@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from tkinter import Text, INSERT, END
 
 
@@ -6,7 +8,7 @@ class LongText:
     Helper class to have a multi line summary input
     """
 
-    linked_text_field: Text = None
+    linked_text_field: Text | None = None
     name: str
     _value: str = ""
 

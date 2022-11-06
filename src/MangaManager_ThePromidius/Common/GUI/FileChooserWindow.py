@@ -25,17 +25,6 @@ class FileChooserWindow(Gtk.Window):
         :param filters: list of (filter_name, mime_type)
         """
         super().__init__(title=title)
-        # self.filters = filters
-        # box = Gtk.Box(spacing=6)
-        # self.add(box)
-        # self.on_file_clicked()
-        # button1 = Gtk.Button(label="Choose File")
-        # button1.connect("clicked", self.on_file_clicked)
-        # box.add(button1)
-        #
-        # button2 = Gtk.Button(label="Choose Folder")
-        # button2.connect("clicked", self.on_folder_clicked)
-        # box.add(button2)
 
     def on_file_clicked(self, initial_dir, filetype_filters, title):
         dialog = Gtk.FileChooserDialog(
@@ -91,13 +80,12 @@ class FileChooserWindow(Gtk.Window):
         dialog.destroy()
 
 
-def askopenfiles(initialdir, title="Select Files", filetypes=None, parent=None):
+def askopenfiles(initialdir, title="Select Files", filetypes=None, **kwargs):
     """
 
-    :param initialdirtitle: path to start browsing at
+    :param initialdir:  path to start browsing at
     :param title: The title of the window
     :param filetypes: Tuple with content: (str:<Name of the extension> , str:<dot + extension: '.cbz'>)
-    :param parent: Not used but required to monkeypatch tkinter askopenfile
     :return:
     """
     file_chooser = FileChooserWindow(title)

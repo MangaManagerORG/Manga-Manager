@@ -41,8 +41,8 @@ class CoreTesting(unittest.TestCase):
         cinfo_2.set_Writer("This writer from file 1 should NOT be kept")
 
         # Created loaded metadata objects
-        metadata_1 = LoadedComicInfo(out_tmp_zipname, comicInfo=cinfo_1)
-        metadata_2 = LoadedComicInfo(out_tmp_zipname2, comicInfo=cinfo_2)
+        metadata_1 = LoadedComicInfo(out_tmp_zipname, comicinfo=cinfo_1)
+        metadata_2 = LoadedComicInfo(out_tmp_zipname2, comicinfo=cinfo_2)
 
         self.instance.loaded_cinfo_list = [metadata_1, metadata_2]
 

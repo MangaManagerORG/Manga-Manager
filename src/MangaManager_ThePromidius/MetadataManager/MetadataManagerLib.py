@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import abc
 import logging
 from abc import ABC
@@ -55,7 +57,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
     It has the logic to merge all the data of each fields across multiple files.
     """
     selected_files_path = None
-    new_edited_cinfo: ComicInfo = None
+    new_edited_cinfo: ComicInfo | None = None
     loaded_cinfo_list: list[LoadedComicInfo]
     cinfo_tags: list[str] = ['Title', 'Series', 'LocalizedSeries', 'SeriesSort', 'Summary', 'Genre', 'Tags', 'AlternateSeries', 'Notes', 'AgeRating', 'CommunityRating', 'ScanInformation', 'StoryArc', 'AlternateCount', 'Writer', 'Inker', 'Colorist', 'Letterer', 'CoverArtist', 'Editor', 'Translator', 'Publisher', 'Imprint', 'Characters', 'Teams', 'Locations', 'Number', 'AlternateNumber', 'Count', 'Volume', 'PageCount', 'Year', 'Month', 'Day', 'StoryArcNumber', 'LanguageISO', 'Format', 'BlackAndWhite', 'Manga']
     multiple_values_conflict = "~~## Multiple Values in this Field - Keep Original Values ##~~"
@@ -84,16 +86,6 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
             except Exception as e:
                 logger.exception("Unhandled exception saving changes")
                 self.on_writing_exception(exception=e, loaded_info=loaded_info)
-    # @abc.abstractmethod
-    # def load_cinfo_list(self):
-    #     """
-    #
-    #     Expected to be overriden with custom logic catching exceptions loading the metadata.
-    #     """
-    #
-    #     for file_path in self.selected_files_path:
-    #         self.loaded_cinfo_list.append(self.load_cinfo_xml(file_path))
-
 
     def load_cinfo_list(self) -> None:
         """
@@ -103,7 +95,6 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         :raises CorruptedComicInfo: If the data inside ComicInfo.xml could not be read after trying to fix te data
         :raises BadZipFile: If the provided zip is not a valid zip or is broken
         """
-        # return LoadedComicInfo(path=file_path)
 
         logger.debug("Loading files")
         self.loaded_cinfo_list = list[LoadedComicInfo]()
@@ -112,24 +103,15 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 loaded_cinfo = LoadedComicInfo(path=file_path)
             except CorruptedComicInfo as e:
                 # Logging is handled already in LoadedComicInfo load_metadata method
-                loaded_cinfo = LoadedComicInfo(path=file_path, comicInfo=comicinfo.ComicInfo())
+                loaded_cinfo = LoadedComicInfo(path=file_path, comicinfo=comicinfo.ComicInfo())
                 self.on_corruped_metadata_error(e, loaded_info=loaded_cinfo or file_path)
-
-
-                #
-                # if answer:
-                #     loaded_cinfo = LoadedComicInfo(file_path, comicInfo=comicinfo.ComicInfo())
-                # else:
                 continue
             except BadZipFile as e:
                 logger.error("Bad zip file. Either the format is not correct or the file is broken", exc_info=False)
                 self.on_badzipfile_error(e, file_path=file_path)
                 continue
-
-            #     continue
             self.loaded_cinfo_list.append(loaded_cinfo)
         logger.debug("Files selected")
-        # super(App, self).load_cinfo_list()
 
     def merge_changed_metadata(self):
         """
@@ -151,7 +133,6 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 if new_value == self.multiple_values_conflict:
                     logger.debug(
                         f"[Merging][{cinfo_tag:15s}] Keeping \x1b[31;1mOld\x1b[0m '\x1b[33;20m{old_value}\x1b[0m' vs New: '{new_value}'")
-                    # logger.debug(f"Keeping original value: {loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag)}")
                     continue
                 # Write whatever is in the new (edited) cinfo
                 logger.debug(f"[Merging][{cinfo_tag:15s}] Keeping \x1b[31;1mNew\x1b[0m '{old_value}' vs "
@@ -164,7 +145,6 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
             export = StringIO()
             print(loaded_cinfo.cinfo_object is None)
             loaded_cinfo.cinfo_object.export(export, 0)
-            # print(export.getvalue())
 
 
 

@@ -6,7 +6,6 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 
-# from pygubu import ApplicationLevelBindManager as ApplicationLevelBindManager
 def bindings(widget, seq):
     return [x for x in widget.bind(seq).splitlines() if x.strip()]
 
@@ -24,7 +23,6 @@ def remove_binding(widget, seq, index=None, funcid=None):
             widget.unbind(seq, _funcid(binding))
             b.remove(binding)
         except IndexError:
-            # logger.info('Binding #%d not defined.', index)
             return
 
     elif funcid:
@@ -36,7 +34,6 @@ def remove_binding(widget, seq, index=None, funcid=None):
                 widget.unbind(seq, funcid)
                 break
         if not binding:
-            # logger.info('Binding "%s" not defined.', funcid)
             return
     else:
         raise ValueError('No index or function id defined.')
@@ -111,11 +108,13 @@ class ApplicationLevelBindManager(object):
         return on_mousewheel
 
 
+
 # noinspection PyUnresolvedReferences
 class ScrolledFrame(ttk.Frame):
     VERTICAL = 'vertical'
     HORIZONTAL = 'horizontal'
     BOTH = 'both'
+    CONFIGURE = '<Configure>'
     _framecls = ttk.Frame
     _sbarcls = ttk.Scrollbar
 
@@ -125,14 +124,13 @@ class ScrolledFrame(ttk.Frame):
         self.usemousewheel = tk.getboolean(kw.pop('usemousewheel', False))
         self._bindingids = []
 
-        # super(ScrolledFrame, self).__init__(master, **kw)
         self._framecls.__init__(self, master, **kw)
 
         self._container = self._framecls(self, width=200, height=200)
         self._clipper = self._framecls(self._container, width=200, height=200)
-        self.innerframe = innerframe = self._framecls(self._clipper)
-        self.vsb = vsb = self._sbarcls(self._container)
-        self.hsb = hsb = self._sbarcls(self._container, orient="horizontal")
+        self.innerframe = self._framecls(self._clipper)
+        self.vsb = self._sbarcls(self._container)
+        self.hsb = self._sbarcls(self._container, orient="horizontal")
 
         # variables
         self.hsbOn = 0
@@ -143,7 +141,7 @@ class ScrolledFrame(ttk.Frame):
         self._scrollTimer = None
         self._scrollRecurse = 0
         self._startX = 0
-        self._startY = 0
+        self._start_y = 0
 
         # configure scroll
         self.hsb.set(0.0, 1.0)
@@ -154,17 +152,15 @@ class ScrolledFrame(ttk.Frame):
         # grid
         self._container.pack(expand=True, fill='both')
         self._clipper.grid(row=0, column=0, sticky=tk.NSEW)
-        # self.vsb.grid(row=0, column=1, sticky=tk.NS)
-        # self.hsb.grid(row=1, column=0, sticky=tk.EW)
 
         self._container.rowconfigure(0, weight=1)
         self._container.columnconfigure(0, weight=1)
 
         # Whenever the clipping window or scrolled frame change size,
         # update the scrollbars.
-        self.innerframe.bind('<Configure>', self._reposition)
-        self._clipper.bind('<Configure>', self._reposition)
-        self.bind('<Configure>', self._reposition)
+        self.innerframe.bind(CONFIGURE, self._reposition)
+        self._clipper.bind(CONFIGURE, self._reposition)
+        self.bind(CONFIGURE, self._reposition)
         self._configure_mousewheel()
 
     # Set timer to call real reposition method, so that it is not
@@ -206,14 +202,14 @@ class ScrolledFrame(ttk.Frame):
             return self.vsb.get()
         elif mode == 'moveto':
             frameHeight = self.innerframe.winfo_reqheight()
-            self._startY = value * float(frameHeight)
+            self._start_y = value * float(frameHeight)
         else:  # mode == 'scroll'
             clipperHeight = self._clipper.winfo_height()
             if units == 'units':
                 jump = int(clipperHeight * self._jfraction)
             else:
                 jump = clipperHeight
-            self._startY = self._startY + value * jump
+            self._start_y = self._start_y + value * jump
 
         self.reposition()
 
@@ -223,9 +219,9 @@ class ScrolledFrame(ttk.Frame):
     def _getxview(self):
 
         # Horizontal dimension.
-        clipperWidth = self._clipper.winfo_width()
-        frameWidth = self.innerframe.winfo_reqwidth()
-        if frameWidth <= clipperWidth:
+        clipper_width = self._clipper.winfo_width()
+        frame_width = self.innerframe.winfo_reqwidth()
+        if frame_width <= clipper_width:
             # The scrolled frame is smaller than the clipping window.
 
             self._startX = 0
@@ -235,47 +231,47 @@ class ScrolledFrame(ttk.Frame):
         else:
             # The scrolled frame is larger than the clipping window.
             # use expand by default
-            if self._startX + clipperWidth > frameWidth:
-                self._startX = frameWidth - clipperWidth
+            if self._startX + clipper_width > frame_width:
+                self._startX = frame_width - clipper_width
                 endScrollX = 1.0
             else:
                 if self._startX < 0:
                     self._startX = 0
-                endScrollX = (self._startX + clipperWidth) / float(frameWidth)
+                endScrollX = (self._startX + clipper_width) / float(frame_width)
             relwidth = ''
 
         # Position frame relative to clipper.
         self.innerframe.place(x=-self._startX, relwidth=relwidth)
-        return (self._startX / float(frameWidth), endScrollX)
+        return (self._startX / float(frame_width), endScrollX)
 
     def _getyview(self):
 
         # Vertical dimension.
-        clipperHeight = self._clipper.winfo_height()
-        frameHeight = self.innerframe.winfo_reqheight()
-        if frameHeight <= clipperHeight:
+        clipper_height = self._clipper.winfo_height()
+        frame_height = self.innerframe.winfo_reqheight()
+        if frame_height <= clipper_height:
             # The scrolled frame is smaller than the clipping window.
 
-            self._startY = 0
-            endScrollY = 1.0
+            self._start_y = 0
+            end_scroll_y = 1.0
             # use expand by default
             relheight = 1
         else:
             # The scrolled frame is larger than the clipping window.
             # use expand by default
-            if self._startY + clipperHeight > frameHeight:
-                self._startY = frameHeight - clipperHeight
-                endScrollY = 1.0
+            if self._start_y + clipper_height > frame_height:
+                self._start_y = frame_height - clipper_height
+                end_scroll_y = 1.0
             else:
-                if self._startY < 0:
-                    self._startY = 0
-                endScrollY = (self._startY + clipperHeight) / \
-                             float(frameHeight)
+                if self._start_y < 0:
+                    self._start_y = 0
+                end_scroll_y = (self._start_y + clipper_height) / \
+                               float(frame_height)
             relheight = ''
 
         # Position frame relative to clipper.
-        self.innerframe.place(y=-self._startY, relheight=relheight)
-        return (self._startY / float(frameHeight), endScrollY)
+        self.innerframe.place(y=-self._start_y, relheight=relheight)
+        return (self._start_y / float(frame_height), end_scroll_y)
 
     # According to the relative geometries of the frame and the
     # clipper, reposition the frame within the clipper and reset the
@@ -325,25 +321,19 @@ class ScrolledFrame(ttk.Frame):
 
         self.hsbOn = not self.hsbOn
 
-        # interior = self #.origInterior
         if self.hsbOn:
             self.hsb.grid(row=1, column=0, sticky=tk.EW)
-            # interior.grid_rowconfigure(3, minsize = self['scrollmargin'])
         else:
             self.hsb.grid_forget()
-            # interior.grid_rowconfigure(3, minsize = 0)
 
     def _toggleVertScrollbar(self):
 
         self.vsbOn = not self.vsbOn
 
-        # interior = self#.origInterior
         if self.vsbOn:
             self.vsb.grid(row=0, column=1, sticky=tk.NS)
-            # interior.grid_columnconfigure(3, minsize = self['scrollmargin'])
         else:
             self.vsb.grid_forget()
-            # interior.grid_columnconfigure(3, minsize = 0)
 
     def configure(self, cnf=None, **kw):
         args = tk._cnfmerge((cnf, kw))
@@ -352,7 +342,6 @@ class ScrolledFrame(ttk.Frame):
             self.usemousewheel = tk.getboolean(args[key])
             del args[key]
             self._configure_mousewheel()
-        # super(ScrolledFrameBase, self).configure(args)
         self._framecls.configure(self, args)
 
     config = configure
@@ -361,7 +350,6 @@ class ScrolledFrame(ttk.Frame):
         option = 'usemousewheel'
         if key == option:
             return self.usemousewheel
-        # return super(ScrolledFrameBase, self).cget(key)
         return self._framecls.cget(self, key)
 
     __getitem__ = cget

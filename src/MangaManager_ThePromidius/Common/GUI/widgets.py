@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 import re
-from tkinter import Label, Frame, ttk
-import os
 import tkinter
-from tkinter import Tk, Button, OptionMenu, Frame, Label
+from tkinter import OptionMenu, Frame, Label
 from tkinter.scrolledtext import ScrolledText
 from tkinter.ttk import Combobox
 
-from .scrolledframe import ScrolledFrame
 from .models import LongText
+from .scrolledframe import ScrolledFrame
 
 
 def _place_label(frame, text):
@@ -17,7 +15,7 @@ def _place_label(frame, text):
     getattr(frame, "label").pack(side="top")
 
 
-INT_PATTERN = re.compile("^[-.\d]+[,]?[\d]*[\.]?[\d]?$")
+INT_PATTERN = re.compile("^-?\d*(?:,?\d?|\.?\d+)?$")
 
 
 def validate_int(value):
@@ -48,7 +46,7 @@ class WidgetManager:
 
 
 class Widget(Frame):
-    validation: str = None
+    validation: str | None = None
     widget_slave = None
     widget: Combobox | LongText | OptionMenu
     name: str
@@ -57,10 +55,12 @@ class Widget(Frame):
         super(Widget, self).__init__(master)
 
     def set(self, value):
+        if not self.validation:
+            self.widget.set(value)
+            return
         if self.validation == "int" and validate_int(value):
             self.widget.set(value)
-        elif not self.validation:
-            self.widget.set(value)
+            return
 
     def get(self):
         return self.widget.get()
@@ -76,7 +76,7 @@ class Widget(Frame):
         widget = self.widget_slave or self.widget
         widget.pack(fill="both", side="top")
 
-        super(Frame, self).grid(row=row, column=column, sticky="ew",**kwargs)
+        super(Frame, self).grid(row=row, column=column, sticky="ew", **kwargs)
         return self
 
 

@@ -146,10 +146,6 @@ class App(Tk, MetadataManagerLib):
             selected_parent_folder = os.path.dirname(selected_paths_list[0].name)
             if self.last_folder != selected_parent_folder or not self.last_folder:
                 self.last_folder = selected_parent_folder
-        # for file in selected_paths_list:
-        #     self.files_selected_frame.listbox.insert(0, file.name)
-        #     self.selected_files_path.append(file)
-
         self.selected_files_path = [file.name for file in selected_paths_list]
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
@@ -165,7 +161,6 @@ class App(Tk, MetadataManagerLib):
         # Basic info - first column
         #################
         parent_frame = self.basic_info_frame
-        # self.widget_mngr = self.basic_info_frame
         self.widget_mngr.Title = ComboBoxWidget(parent_frame, cinfo_name="Title").pack()
         self.widget_mngr.Series = ComboBoxWidget(parent_frame, cinfo_name="Series").pack()
         self.widget_mngr.LocalizedSeries = ComboBoxWidget(parent_frame, cinfo_name="LocalizedSeries",
@@ -251,10 +246,6 @@ class App(Tk, MetadataManagerLib):
         self.widget_mngr.Manga = OptionMenuWidget(parent_frame, "Manga", "Manga",
                                                   "Unknown", *("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(6, 1)
 
-        # self.numbering_info_frame = Frame(self.misc_frame_numbering)
-
-        # numbering_info_frame = self.numbering_info_frame
-
     def serialize_cinfolist_to_gui(self):
 
         for loaded_cinfo in self.loaded_cinfo_list:
@@ -290,21 +281,11 @@ class App(Tk, MetadataManagerLib):
 
                     else:
                         widget.set(cinfo_field_value)
-                    # widget['values'] = ["Value_a", "Valueb",widget_name]
 
     def pre_process(self):
         self.serialize_gui_to_edited_cinfo()
         self.proces()
         self.new_edited_cinfo = None  # Nulling value to be safe
-        # if unhandled:
-        #     mb.showerror("Unhandled Exception", "The following files failed to save with unknown cause. Check the logs."
-        #                                         "\n" + "\n".join((os.path.basename(loaded_cinfo.file_path)
-        #                                                           for loaded_cinfo in unhandled)))
-        # if errored:
-        #     mb.showerror("Error saving the files", "There were errors updating some files. "
-        #                                            "Check logs for detailed info."
-        #                                            "\n" + "\n".join((os.path.basename(loaded_cinfo.file_path)
-        #                                                              for loaded_cinfo in errored)))
 
     def serialize_gui_to_edited_cinfo(self):
         new_cinfo = self.new_edited_cinfo = comicinfo.ComicInfo()
@@ -315,7 +296,6 @@ class App(Tk, MetadataManagerLib):
 
     def load_data(self):
         self.widget_mngr.clean_widgets()
-        # cinfo = comicinfo.parseString(tst_cinfo)
         for cin_widget in self.widget_mngr.get_tags():
             widget = self.widget_mngr.get_widget(cin_widget)
             widget.set(cin_widget)
@@ -338,10 +318,10 @@ class App(Tk, MetadataManagerLib):
                      "There was an error writing to the file. Please check the logs.")
 
     def on_corruped_metadata_error(self, exception, loaded_info: LoadedComicInfo):
-        answer = mb.showwarning(f"Error reading the metadata from file",
-                                 f"Failed to read metadata from '{loaded_info.file_path}'\n"
-                                 "The file data couldn't be parsed probably because of corrupted data or bad format.\n"
-                                 f"Recovery was attempted and failed.\nCreating new metadata object...")
+        mb.showwarning(f"Error reading the metadata from file",
+                       f"Failed to read metadata from '{loaded_info.file_path}'\n"
+                       "The file data couldn't be parsed probably because of corrupted data or bad format.\n"
+                       f"Recovery was attempted and failed.\nCreating new metadata object...")
 
 if __name__ == '__main__':
     app = App()

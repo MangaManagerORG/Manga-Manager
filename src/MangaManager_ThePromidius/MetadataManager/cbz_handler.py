@@ -26,7 +26,7 @@ COVER_PATTERN = re.compile(f"(?i)({'|'.join(covers_patterns)})")
 cover_r3_alt = '^!*0+1\\.[a-z]+$'
 ALT_COVER_PATTERN = re.compile(f"(?i)({'|'.join([cover_r3_alt])})")
 IS_IMAGE_PATTERN = re.compile(rf"(?i).*.(?:{'|'.join(IMAGE_EXTENSIONS)})$")
-
+COMICINFO_FILE = 'ComicInfo.xml'
 
 def obtain_cover_filename(file_list) -> str:
     """
@@ -76,7 +76,7 @@ class LoadedComicInfo:
     file_path: str
     _cinfo_object: ComicInfo
     original_cinfo_object: ComicInfo
-    cover_filename: str = None
+    cover_filename: str | None = None
     has_metadata: bool = False
 
     @property
@@ -98,24 +98,22 @@ class LoadedComicInfo:
         if self.cinfo_object:
             return self.cinfo_object.get_Number()
 
-    def __init__(self, path, comicInfo: ComicInfo = None):
+    def __init__(self, path, comicinfo: ComicInfo = None):
         """
 
         :param path:
-        :param comicInfo: The data class to be applied
+        :param comicinfo: The data class to be applied
         :raises BadZipFile: The file can't be read or is not a valid zip file
         """
-        self.cinfo_object = comicInfo
         self.file_path = path
         logger.info(f"[{'OpeningFile':13s}] '{os.path.basename(self.file_path)}'")
-        # raise BadZipFile()
         try:
             with zipfile.ZipFile(self.file_path, 'r') as self.archive:
                 self._load_cover_info()
-                if not comicInfo:
+                if not comicinfo:
                     self._load_metadata()
                 else:
-                    self.cinfo_object = comicInfo
+                    self.cinfo_object = comicinfo
         except zipfile.BadZipFile:
             logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",
                          exc_info=False)
@@ -148,9 +146,9 @@ class LoadedComicInfo:
 
         logger.info(f"[{'Reading Meta':13s}]")
         try:
-            xml_string = self.archive.read('ComicInfo.xml').decode('utf-8')
+            xml_string = self.archive.read(COMICINFO_FILE).decode('utf-8')
             self.has_metadata = True
-        except KeyError:
+        except KeyError as e:
             xml_string = ""
 
         if xml_string:
@@ -192,7 +190,7 @@ class LoadedComicInfo:
 
         with zipfile.ZipFile(self.file_path, "a", compression=zipfile.ZIP_STORED) as zout:
             # We finally append our new ComicInfo file
-            zout.writestr("ComicInfo.xml", export.getvalue())
+            zout.writestr(COMICINFO_FILE, export.getvalue())
             logger.debug(f"[{'WriteMetadata':13s}] New ComicInfo.xml appended to the file")
 
     def _backup_cinfo(self):
@@ -204,7 +202,7 @@ class LoadedComicInfo:
         """
         logger.debug(f"[{'Backup':13s}] Starting backup")
         with zipfile.ZipFile(self.file_path, "r") as zin:
-            if "ComicInfo.xml" not in zin.namelist():  # Redundant check. TODO: Make sure this check is safe to remove
+            if COMICINFO_FILE not in zin.namelist():  # Redundant check. TODO: Make sure this check is safe to remove
                 logger.debug(f"[{'Backup':13s}] Skipping backup. No ComicInfo.xml present")
                 return
             # Dev notes
@@ -218,15 +216,11 @@ class LoadedComicInfo:
 
             with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
                 for item in zin.infolist():  # We use infolist since we want to get file data not just a list of names
-
-                    if item.filename == "ComicInfo.xml":  # If filename is comicinfo save as old_comicinfo.xml
+                    if item.filename == COMICINFO_FILE:  # If filename is comicinfo save as old_comicinfo.xml
                         zout.writestr(f"Old_{item.filename}.bak", zin.read(item.filename))
                         logger.debug(f"[{'Backup':13s}] Backup for comicinfo.xml created")
-
                     elif item.filename == "Old_ComicInfo.xml.bak":  # Skip file, efectively deleting old backup
                         logger.debug(f"[{'Backup':13s}] Skipped old backup file")
-                        continue
-
                     else:  # Any other file gets saved as is
                         zout.writestr(item.filename, zin.read(item.filename))
                         logger.debug(f"[{'Backup':13s}] Adding {item.filename} back to the new tempfile")
