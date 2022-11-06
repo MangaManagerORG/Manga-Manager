@@ -139,7 +139,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         :return:
         """
         if self.new_edited_cinfo is None:
-            raise NoMetadataFileFound()
+            raise NoMetadataFileFound("")
 
         for loaded_cinfo in self.loaded_cinfo_list:
             logger.debug(f"[Merging] Merging changes to {loaded_cinfo.file_path}")
