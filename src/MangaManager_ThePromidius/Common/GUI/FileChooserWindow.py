@@ -80,14 +80,17 @@ class FileChooserWindow(Gtk.Window):
         dialog.destroy()
 
 
-def askopenfiles(initialdir, title="Select Files", filetypes=None, **kwargs):
+def askopenfiles(initialdir, title="Select Files", filetypes=None, parent=None):
     """
+
 
     :param initialdir:  path to start browsing at
     :param title: The title of the window
     :param filetypes: Tuple with content: (str:<Name of the extension> , str:<dot + extension: '.cbz'>)
+    :param parent: required to monkeypatch tkinter askopenfilename
     :return:
     """
+
     file_chooser = FileChooserWindow(title)
     if filetypes:
         filetypes = filetypes + (("All Files", ""),)

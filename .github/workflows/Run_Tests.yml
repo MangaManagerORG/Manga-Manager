@@ -17,28 +17,36 @@ jobs:
         python-version: [ '3.9', '3.10' ]
     name: Python ${{ matrix.python-version }} sample
     steps:
-      -   uses: actions/checkout@v3
-      -   uses: actions/setup-python@v3
-          with:
-            python-version: ${{ matrix.python-version }}
-            cache: 'pip'
-      -   run: pip install -r requirements.txt
-      -   run: sudo apt install xvfb
-      -   name: Start xvfb
-          run: |
-            Xvfb :99 -screen 0 1920x1080x24 &disown
-      -   name: Run the tests
-          run: |
-            python3 -m unittest discover -s tests -t .
+        -   uses: actions/checkout@v3
+        -   uses: actions/setup-python@v3
+            with:
+                python-version: ${{ matrix.python-version }}
+                cache: 'pip'
+        -   run: pip install -r requirements.txt
+        -   run: sudo apt install xvfb
+        -   name: Start xvfb
+            run: |
+                Xvfb :99 -screen 0 1920x1080x24 &disown
+        -   name: Run the tests
+            run: |
+                python3 -m unittest discover -s tests -t .
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
     steps:
-      -   uses: actions/checkout@v2
-          with:
-            fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      -   name: SonarCloud Scan
-          uses: SonarSource/sonarcloud-github-action@master
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        -   uses: actions/checkout@v2
+            with:
+                fetch-depth: 0
+        -   name: Setup Python
+            uses: actions/setup-python@v2
+            with:
+                python-version: ${{ matrix.python }}
+        -   name: Install tox and any other packages
+            run: pip install tox
+        -   name: Run tox
+            run: tox -e py
+        -   name: SonarCloud Scan
+            uses: SonarSource/sonarcloud-github-action@master
+            env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+                SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

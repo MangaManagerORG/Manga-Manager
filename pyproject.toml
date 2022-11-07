@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "MangaManager_ThePromidius"
 version = "0.0.1"
 authors = [
-  { name="ThePromidius", email="thepromidiusyt@gmail.com" },
+    { name = "ThePromidius", email = "thepromidiusyt@gmail.com" },
 ]
 description = "A all-in-one manga managing solution. Holds multiple tool to manage your files. Oriented for manga but compatible with any zip-like file"
 readme = "README.md"
@@ -16,7 +16,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-
+dynamic = ["dependencies"]
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
 [project.urls]
 "Homepage" = "https://github.com/ThePromidius/Manga-Manager"
 "Bug Tracker" = "https://github.com/ThePromidius/Manga-Manager/issues"

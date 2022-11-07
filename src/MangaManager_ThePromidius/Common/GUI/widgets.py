@@ -15,7 +15,7 @@ def _place_label(frame, text):
     getattr(frame, "label").pack(side="top")
 
 
-INT_PATTERN = re.compile("^-?\d*(?:,?\d?|\.?\d+)?$")
+INT_PATTERN = re.compile("^-?\d+(?:,?\d+|\.?\d+)?$")
 
 
 def validate_int(value):
