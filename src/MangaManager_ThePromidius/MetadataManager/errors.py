@@ -6,6 +6,11 @@ class NoMetadataFileFound(Exception):
         super().__init__(f"ComicInfo.xml not found inside '{cbz_path}'")
 
 
+class EditedCinfoNotSet(RuntimeError):
+    def __init__(self, message=None):
+        super(EditedCinfoNotSet, self).__init__(message)
+
+
 class CorruptedComicInfo(Exception):
     """
     Exception raised when the attempt to recover comicinfo file fails..
@@ -42,12 +47,14 @@ class NoFilesSelected(Exception):
     def __init__(self):
         super().__init__(f'No Files Selected')
 
+
 class BadZipFile(Exception):
     """
     Exception raise when the file is broken or is not a zip file
     """
     def __init__(self):
         super().__init__(f'File is broken or not a valid zip file')
+
 
 class NoComicInfoLoaded(Exception):
     """
@@ -57,9 +64,10 @@ class NoComicInfoLoaded(Exception):
     def __init__(self, info=""):
         super().__init__(f'No ComicInfo Loaded' + info)
 
+
 class FailedBackup(RuntimeError):
     """
-    Exception raised when a file fails to create a backuo
+    Exception raised when a file fails to create a backup
     """
     def __init__(self):
         super(FailedBackup, self).__init__()

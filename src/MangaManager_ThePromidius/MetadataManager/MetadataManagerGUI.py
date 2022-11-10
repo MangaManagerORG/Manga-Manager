@@ -270,14 +270,14 @@ class App(Tk, MetadataManagerLib):
                     if cinfo_field_value not in list_of_values:
                         list_of_values.append(cinfo_field_value)
                     if len(list_of_values) > 1:
-                        if self.multiple_values_conflict not in list_of_values:
-                            list_of_values = [self.multiple_values_conflict] + list_of_values
-                        widget.widget.set(self.multiple_values_conflict)
+                        if self.MULTIPLE_VALUES_CONFLICT not in list_of_values:
+                            list_of_values = [self.MULTIPLE_VALUES_CONFLICT] + list_of_values
+                        widget.widget.set(self.MULTIPLE_VALUES_CONFLICT)
                     widget.widget['values'] = list_of_values
                     # widget['values'] = ["Value_a", "Valueb",widget_name]
                 elif isinstance(widget, LongTextWidget):
                     if widget.get():
-                        widget.set(self.multiple_values_conflict)
+                        widget.set(self.MULTIPLE_VALUES_CONFLICT)
 
                     else:
                         widget.set(cinfo_field_value)

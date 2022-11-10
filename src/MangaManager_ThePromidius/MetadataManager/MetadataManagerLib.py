@@ -8,7 +8,7 @@ from io import StringIO
 from . import comicinfo
 from .cbz_handler import LoadedComicInfo
 from .comicinfo import ComicInfo
-from .errors import NoMetadataFileFound, NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
+from .errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile, EditedCinfoNotSet
 
 logger = logging.getLogger("MetadataManager.Core")
 
@@ -19,21 +19,12 @@ class _IMetadataManagerLib(abc.ABC):
         """
         Called while loading a file and it's not a valid zip or it's broken
         """
-        ...
-
-    # @abc.abstractmethod
-    # def on_missing_metadata_error(self, exception, loaded_info: LoadedComicInfo):
-    #     """
-    #     Called when the file does not have metadata in side of it.
-    #     """
-    #     ...
 
     @abc.abstractmethod
     def on_corruped_metadata_error(self, exception, loaded_info: LoadedComicInfo):
         """
         Called while loading a file, and it's metadata can't be read.
         """
-        ...
 
     @abc.abstractmethod
     def on_writing_error(self, exception, loaded_info: LoadedComicInfo):
@@ -41,14 +32,12 @@ class _IMetadataManagerLib(abc.ABC):
         Called while trying to save to the file.
         Posible callees (but not limited to): FailedBackup,
         """
-        ...
 
     @abc.abstractmethod
     def on_writing_exception(self, exception, loaded_info: LoadedComicInfo):
         """
         Called when an unhandled exception occurred trying to save the file
         """
-        ...
 
 
 class MetadataManagerLib(_IMetadataManagerLib, ABC):
@@ -58,9 +47,9 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
     """
     selected_files_path = None
     new_edited_cinfo: ComicInfo | None = None
-    loaded_cinfo_list: list[LoadedComicInfo]
+    loaded_cinfo_list: list[LoadedComicInfo] = None
     cinfo_tags: list[str] = ['Title', 'Series', 'LocalizedSeries', 'SeriesSort', 'Summary', 'Genre', 'Tags', 'AlternateSeries', 'Notes', 'AgeRating', 'CommunityRating', 'ScanInformation', 'StoryArc', 'AlternateCount', 'Writer', 'Inker', 'Colorist', 'Letterer', 'CoverArtist', 'Editor', 'Translator', 'Publisher', 'Imprint', 'Characters', 'Teams', 'Locations', 'Number', 'AlternateNumber', 'Count', 'Volume', 'PageCount', 'Year', 'Month', 'Day', 'StoryArcNumber', 'LanguageISO', 'Format', 'BlackAndWhite', 'Manga']
-    multiple_values_conflict = "~~## Multiple Values in this Field - Keep Original Values ##~~"
+    MULTIPLE_VALUES_CONFLICT = "~~## Multiple Values in this Field - Keep Original Values ##~~"
 
     def proces(self):
         """
@@ -121,7 +110,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         :return:
         """
         if self.new_edited_cinfo is None:
-            raise NoMetadataFileFound("")
+            raise EditedCinfoNotSet("Runtime error: Edited CINFO not set")
 
         for loaded_cinfo in self.loaded_cinfo_list:
             logger.debug(f"[Merging] Merging changes to {loaded_cinfo.file_path}")
@@ -130,7 +119,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 new_value = self.new_edited_cinfo.get_attr_by_name(cinfo_tag)
                 old_value = loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag)
                 # If the value in the ui is to keep original values then we continue with the next field
-                if new_value == self.multiple_values_conflict:
+                if new_value == self.MULTIPLE_VALUES_CONFLICT:
                     logger.debug(
                         f"[Merging][{cinfo_tag:15s}] Keeping \x1b[31;1mOld\x1b[0m '\x1b[33;20m{old_value}\x1b[0m' vs New: '{new_value}'")
                     continue

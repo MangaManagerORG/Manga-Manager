@@ -4,7 +4,7 @@
 import platform
 import tkinter as tk
 import tkinter.ttk as ttk
-
+CONFIGURE = '<Configure>'
 
 def bindings(widget, seq):
     return [x for x in widget.bind(seq).splitlines() if x.strip()]
@@ -114,7 +114,7 @@ class ScrolledFrame(ttk.Frame):
     VERTICAL = 'vertical'
     HORIZONTAL = 'horizontal'
     BOTH = 'both'
-    CONFIGURE = '<Configure>'
+
     _framecls = ttk.Frame
     _sbarcls = ttk.Scrollbar
 

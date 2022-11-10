@@ -1,0 +1,16 @@
+/.coverage
+/build/MangaManager/Analysis-00.toc
+/build/MangaManager/base_library.zip
+/build/MangaManager/EXE-00.toc
+/build/MangaManager/MangaManager.exe.manifest
+/build/MangaManager/MangaManager.pkg
+/build/MangaManager/PKG-00.toc
+/build/MangaManager/PYZ-00.pyz
+/build/MangaManager/PYZ-00.toc
+/build/MangaManager/Tree-00.toc
+/build/MangaManager/Tree-01.toc
+/build/MangaManager/Tree-02.toc
+/build/MangaManager/warn-MangaManager.txt
+/build/MangaManager/xref-MangaManager.html
+/dist/MangaManager.exe
+/MangaManager.spec
