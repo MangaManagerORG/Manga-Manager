@@ -55,12 +55,17 @@ class Widget(Frame):
         super(Widget, self).__init__(master)
 
     def set(self, value):
+        if not value:
+            return
         if not self.validation:
             self.widget.set(value)
             return
-        if self.validation == "int" and validate_int(value):
-            self.widget.set(value)
-            return
+        if validate_int(value):
+            if self.validation == "int":
+                self.widget.set(value)
+            elif self.validation == "rating" and 0 <= float(value) <=10:
+                self.widget.set(value)
+
 
     def get(self):
         return self.widget.get()

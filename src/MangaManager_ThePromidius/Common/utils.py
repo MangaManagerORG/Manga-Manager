@@ -1,4 +1,6 @@
 import sys
+
+
 def get_platform():
     platforms = {
         'linux1': 'Linux',

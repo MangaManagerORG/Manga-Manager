@@ -4,7 +4,9 @@
 import platform
 import tkinter as tk
 import tkinter.ttk as ttk
+
 CONFIGURE = '<Configure>'
+
 
 def bindings(widget, seq):
     return [x for x in widget.bind(seq).splitlines() if x.strip()]
@@ -106,7 +108,6 @@ class ApplicationLevelBindManager(object):
                 pass
 
         return on_mousewheel
-
 
 
 # noinspection PyUnresolvedReferences

@@ -21,8 +21,6 @@ from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, Lon
     ScrolledFrameWidget, WidgetManager
 
 
-
-
 class App(Tk, MetadataManagerLib):
     main_frame: Frame
 
@@ -49,9 +47,6 @@ class App(Tk, MetadataManagerLib):
         # Action Buttons
         #################
         self.control_frame = Frame(self.side_info_frame)
-        btn = Button(self.control_frame, text="Load_data")
-        btn.configure(command=self.load_data)
-        btn.pack(fill="both", expand=True)
         btn = Button(self.control_frame, text="Load Files")
         btn.configure(command=self.select_files)
         btn.pack(fill="both", expand=True)
@@ -139,7 +134,7 @@ class App(Tk, MetadataManagerLib):
         # Open select files dialog
         selected_paths_list = askopenfiles(parent=self.master, initialdir=initial_dir,
                                            title="Select file to apply cover",
-                                           filetypes=(("CBZ Files", ".cbz"),("All Files", "*"),)
+                                           filetypes=(("CBZ Files", ".cbz"), ("All Files", "*"),)
                                            # ("Zip files", ".zip"))
                                            )
         if selected_paths_list:
@@ -153,7 +148,7 @@ class App(Tk, MetadataManagerLib):
         for loadedinfo in self.loaded_cinfo_list:
             self.files_selected_frame.listbox.insert(0, os.path.basename(loadedinfo.file_path))
 
-        self.serialize_cinfolist_to_gui()
+        self._serialize_cinfolist_to_gui()
 
     def display_widgets(self):
 
@@ -246,7 +241,7 @@ class App(Tk, MetadataManagerLib):
         self.widget_mngr.Manga = OptionMenuWidget(parent_frame, "Manga", "Manga",
                                                   "Unknown", *("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(6, 1)
 
-    def serialize_cinfolist_to_gui(self):
+    def _serialize_cinfolist_to_gui(self):
 
         for loaded_cinfo in self.loaded_cinfo_list:
             if loaded_cinfo.cover_filename:
@@ -294,36 +289,25 @@ class App(Tk, MetadataManagerLib):
             if widget.get() != widget.default and widget.get():
                 new_cinfo.set_attr_by_name(cinfo_tag, self.widget_mngr.get_widget(cinfo_tag).get())
 
-    def load_data(self):
-        self.widget_mngr.clean_widgets()
-        for cin_widget in self.widget_mngr.get_tags():
-            widget = self.widget_mngr.get_widget(cin_widget)
-            widget.set(cin_widget)
-
     # Errors handling implementations
-    def on_badzipfile_error(self, exception, file_path: LoadedComicInfo):
+    def on_badzipfile_error(self, exception, file_path: LoadedComicInfo):  # pragma: no cover
         mb.showerror("Error loading file",
                      f"Failed to read the file '{file_path}'.\nThis can be caused by wrong file format"
                      f" or broken file.\n"
                      f"Read the logs for more information.\n"
                      f"Skipping file...")
 
-    def on_writing_exception(self, exception, loaded_info: LoadedComicInfo):
+    def on_writing_exception(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
         mb.showerror("Unhandled exception",
                      "There was an exception that was not handled while writing the changes to the file."
                      "Please check the logs and raise an issue so this can be investigated")
 
-    def on_writing_error(self, exception, loaded_info: LoadedComicInfo):
+    def on_writing_error(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
         mb.showerror("Error writing to file",
                      "There was an error writing to the file. Please check the logs.")
 
-    def on_corruped_metadata_error(self, exception, loaded_info: LoadedComicInfo):
+    def on_corruped_metadata_error(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
         mb.showwarning(f"Error reading the metadata from file",
                        f"Failed to read metadata from '{loaded_info.file_path}'\n"
                        "The file data couldn't be parsed probably because of corrupted data or bad format.\n"
                        f"Recovery was attempted and failed.\nCreating new metadata object...")
-
-if __name__ == '__main__':
-    app = App()
-
-    app.mainloop()

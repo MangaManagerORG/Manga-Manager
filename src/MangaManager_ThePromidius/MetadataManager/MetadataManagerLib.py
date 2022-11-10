@@ -86,7 +86,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         """
 
         logger.debug("Loading files")
-        self.loaded_cinfo_list = list[LoadedComicInfo]()
+        self.loaded_cinfo_list: list[LoadedComicInfo] = list()
         for file_path in self.selected_files_path:
             try:
                 loaded_cinfo = LoadedComicInfo(path=file_path)
