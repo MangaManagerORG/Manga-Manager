@@ -25,7 +25,7 @@ def validate_int(value):
 
 
 class WidgetManager:
-    cinfo_tags = list[str]()
+    cinfo_tags:list[str] = list()
 
     def get_widget(self, name) -> ComboBoxWidget | LongTextWidget | OptionMenuWidget:
         return getattr(self, name)

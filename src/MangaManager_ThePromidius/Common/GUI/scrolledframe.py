@@ -1,6 +1,8 @@
 # Extracted from: https://github.com/alejandroautalan/pygubu/tree/master/pygubu
 
 # encoding: utf8
+from __future__ import annotations
+
 import platform
 import tkinter as tk
 import tkinter.ttk as ttk

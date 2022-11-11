@@ -1,9 +1,16 @@
+from __future__ import annotations
+
 import dataclasses
 
-import pgi
+try:
+    import pgi
+    pgi.require_version("Gtk", "3.0")
+    from pgi.repository import Gtk
+except (ModuleNotFoundError, NameError, ImportError):
+    import gi
+    gi.require_version("Gtk", "3.0")
+    from gi.repository import Gtk
 
-pgi.require_version("Gtk", "3.0")
-from pgi.repository import Gtk
 
 @dataclasses.dataclass
 class DummyFile:

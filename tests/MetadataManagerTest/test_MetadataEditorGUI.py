@@ -5,9 +5,9 @@ from tkinter.filedialog import askopenfiles
 
 import _tkinter
 
-from MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
-from MetadataManagerTest.common import create_dummy_files
 from src.MangaManager_ThePromidius.MetadataManager import MetadataManagerGUI
+from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
+from tests.MetadataManagerTest.common import create_dummy_files
 
 
 class TKinterTestCase(unittest.TestCase):

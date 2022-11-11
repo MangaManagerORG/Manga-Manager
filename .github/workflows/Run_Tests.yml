@@ -22,11 +22,12 @@ jobs:
             with:
                 python-version: ${{ matrix.python-version }}
                 cache: 'pip'
-        -   run: pip install -r requirements.txt
-        -   run: sudo apt install xvfb
+        -   run: sudo apt install xvfb python3-gi python3-gi-cairo gir1.2-gtk-3.0 libgirepository1.0-dev
+        -   run: pip install -r requirements.txt pygobject
         -   name: Start xvfb
             run: |
                 Xvfb :99 -screen 0 1920x1080x24 &disown
+
         -   name: Run the tests
             run: |
                 python3 -m unittest discover -s tests -t .
@@ -34,19 +35,11 @@ jobs:
     name: SonarCloud
     runs-on: ubuntu-latest
     steps:
-        -   uses: actions/checkout@v3
-            with:
-                fetch-depth: 0
-        -   name: Setup Python
-            uses: actions/setup-python@v3
-            with:
-                python-version: ${{ matrix.python }}
-        -   name: Install tox and any other packages
-            run: pip install tox
-        -   name: Run tox
-            run: tox -e py
-        -   name: SonarCloud Scan
-            uses: SonarSource/sonarcloud-github-action@master
-            env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-                SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      -   uses: actions/checkout@v2
+          with:
+            fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      -   name: SonarCloud Scan
+          uses: SonarSource/sonarcloud-github-action@master
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
