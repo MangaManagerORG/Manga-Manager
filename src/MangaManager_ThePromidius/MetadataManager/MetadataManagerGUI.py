@@ -162,7 +162,7 @@ class App(Tk, MetadataManagerLib):
                                                           label_text="LocalizedSeries").pack()
         self.widget_mngr.SeriesSort = ComboBoxWidget(parent_frame, cinfo_name="SeriesSort",
                                                      label_text="Series Sort").pack()
-        self.widget_mngr.Summary = LongTextWidget(parent_frame, cinfo_name="Summary")
+        self.widget_mngr.Summary = LongTextWidget(parent_frame, cinfo_name="Summary").pack()
         self.widget_mngr.Genre = ComboBoxWidget(parent_frame, cinfo_name="Genre").pack()
         self.widget_mngr.Tags = ComboBoxWidget(parent_frame, cinfo_name="Tags").pack()
         # TODO: add global tag and genre

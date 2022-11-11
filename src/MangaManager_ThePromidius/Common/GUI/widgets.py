@@ -61,11 +61,9 @@ class Widget(Frame):
             self.widget.set(value)
             return
         if validate_int(value):
-            if self.validation == "int":
-                self.widget.set(value)
-            elif self.validation == "rating" and 0 <= float(value) <=10:
-                self.widget.set(value)
-
+            if self.validation == "rating" and float(value) < 0 or float(value) > 10:
+                return
+            self.widget.set(value)
 
     def get(self):
         return self.widget.get()

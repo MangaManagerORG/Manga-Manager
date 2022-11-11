@@ -6,7 +6,7 @@ try:
     import pgi
     pgi.require_version("Gtk", "3.0")
     from pgi.repository import Gtk
-except (ModuleNotFoundError, NameError, ImportError):
+except (NameError, ImportError):
     import gi
     gi.require_version("Gtk", "3.0")
     from gi.repository import Gtk

@@ -47,7 +47,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
     """
     selected_files_path = None
     new_edited_cinfo: ComicInfo | None = None
-    loaded_cinfo_list: list[LoadedComicInfo] = None
+    loaded_cinfo_list: list[LoadedComicInfo] = list()
     cinfo_tags: list[str] = ['Title', 'Series', 'LocalizedSeries', 'SeriesSort', 'Summary', 'Genre', 'Tags', 'AlternateSeries', 'Notes', 'AgeRating', 'CommunityRating', 'ScanInformation', 'StoryArc', 'AlternateCount', 'Writer', 'Inker', 'Colorist', 'Letterer', 'CoverArtist', 'Editor', 'Translator', 'Publisher', 'Imprint', 'Characters', 'Teams', 'Locations', 'Number', 'AlternateNumber', 'Count', 'Volume', 'PageCount', 'Year', 'Month', 'Day', 'StoryArcNumber', 'LanguageISO', 'Format', 'BlackAndWhite', 'Manga']
     MULTIPLE_VALUES_CONFLICT = "~~## Multiple Values in this Field - Keep Original Values ##~~"
 

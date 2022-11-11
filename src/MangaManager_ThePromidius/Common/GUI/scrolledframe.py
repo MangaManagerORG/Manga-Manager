@@ -182,14 +182,14 @@ class ScrolledFrame(ttk.Frame):
         if mode is None:
             return self.hsb.get()
         elif mode == 'moveto':
-            frameWidth = self.innerframe.winfo_reqwidth()
-            self._startX = value * float(frameWidth)
+            frame_width = self.innerframe.winfo_reqwidth()
+            self._startX = value * float(frame_width)
         else:  # mode == 'scroll'
-            clipperWidth = self._clipper.winfo_width()
+            clipper_width = self._clipper.winfo_width()
             if units == 'units':
-                jump = int(clipperWidth * self._jfraction)
+                jump = int(clipper_width * self._jfraction)
             else:
-                jump = clipperWidth
+                jump = clipper_width
             self._startX = self._startX + value * jump
 
         self.reposition()
@@ -204,14 +204,14 @@ class ScrolledFrame(ttk.Frame):
         if mode is None:
             return self.vsb.get()
         elif mode == 'moveto':
-            frameHeight = self.innerframe.winfo_reqheight()
-            self._start_y = value * float(frameHeight)
+            frame_height = self.innerframe.winfo_reqheight()
+            self._start_y = value * float(frame_height)
         else:  # mode == 'scroll'
-            clipperHeight = self._clipper.winfo_height()
+            clipper_height = self._clipper.winfo_height()
             if units == 'units':
-                jump = int(clipperHeight * self._jfraction)
+                jump = int(clipper_height * self._jfraction)
             else:
-                jump = clipperHeight
+                jump = clipper_height
             self._start_y = self._start_y + value * jump
 
         self.reposition()
@@ -228,7 +228,7 @@ class ScrolledFrame(ttk.Frame):
             # The scrolled frame is smaller than the clipping window.
 
             self._startX = 0
-            endScrollX = 1.0
+            end_scrollX_x= 1.0
             # use expand by default
             relwidth = 1
         else:
@@ -236,16 +236,16 @@ class ScrolledFrame(ttk.Frame):
             # use expand by default
             if self._startX + clipper_width > frame_width:
                 self._startX = frame_width - clipper_width
-                endScrollX = 1.0
+                end_scrollX_x = 1.0
             else:
                 if self._startX < 0:
                     self._startX = 0
-                endScrollX = (self._startX + clipper_width) / float(frame_width)
+                end_scrollX_x = (self._startX + clipper_width) / float(frame_width)
             relwidth = ''
 
         # Position frame relative to clipper.
         self.innerframe.place(x=-self._startX, relwidth=relwidth)
-        return (self._startX / float(frame_width), endScrollX)
+        return (self._startX / float(frame_width), end_scrollX_x)
 
     def _getyview(self):
 
