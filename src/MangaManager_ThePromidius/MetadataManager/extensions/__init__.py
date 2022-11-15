@@ -4,7 +4,7 @@ import os
 import tkinter
 from tkinter import ttk
 
-from MangaManager_ThePromidius.Common.Templates.extension import Extension
+from src.MangaManager_ThePromidius.Common.Templates.extension import Extension
 
 
 class ExtensionController:

@@ -8,10 +8,10 @@ import zipfile
 
 from PIL import Image
 
-from MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
-from MangaManager_ThePromidius.MetadataManager.errors import NoFilesSelected
-from MangaManager_ThePromidius.MetadataManager.extensions import webpconverter
 from MetadataManagerTests.common import TKinterTestCase
+from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
+from src.MangaManager_ThePromidius.MetadataManager.errors import NoFilesSelected
+from src.MangaManager_ThePromidius.MetadataManager.extensions import webpconverter
 
 
 class LoadedComicInfoConversToWebpTests(unittest.TestCase):

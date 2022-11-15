@@ -5,10 +5,10 @@ import tkinter
 import tkinter.ttk as ttk
 from tkinter import filedialog
 
-from MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget
-from MangaManager_ThePromidius.Common.Templates.extension import Extension
-from MangaManager_ThePromidius.MetadataManager import comicinfo
-from MangaManager_ThePromidius.MetadataManager.errors import NoFilesSelected
+from src.MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget
+from src.MangaManager_ThePromidius.Common.Templates.extension import Extension
+from src.MangaManager_ThePromidius.MetadataManager import comicinfo
+from src.MangaManager_ThePromidius.MetadataManager.errors import NoFilesSelected
 
 
 def has_cbz(abspath, glob):

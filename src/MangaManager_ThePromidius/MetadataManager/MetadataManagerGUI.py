@@ -5,8 +5,8 @@ import os
 import tkinter
 from tkinter import Tk, Button, Frame, Label, Listbox, messagebox as mb, ttk
 
-from MangaManager_ThePromidius.MetadataManager.extensions import GUIExtensionManager
 from src.MangaManager_ThePromidius.Common.utils import get_platform
+from src.MangaManager_ThePromidius.MetadataManager.extensions import GUIExtensionManager
 
 if get_platform() == "linux":
     from src.MangaManager_ThePromidius.Common.GUI.FileChooserWindow import askopenfiles
