@@ -5,6 +5,7 @@ import os
 import tkinter
 from tkinter import Tk, Button, Frame, Label, Listbox, messagebox as mb, ttk
 
+from MangaManager_ThePromidius.MetadataManager.extensions import GUIExtensionManager
 from src.MangaManager_ThePromidius.Common.utils import get_platform
 
 if get_platform() == "linux":
@@ -21,7 +22,7 @@ from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, Lon
     ScrolledFrameWidget, WidgetManager
 
 
-class App(Tk, MetadataManagerLib):
+class App(Tk, MetadataManagerLib, GUIExtensionManager):
     main_frame: Frame
 
     def __init__(self):
@@ -39,7 +40,10 @@ class App(Tk, MetadataManagerLib):
 
         self.log = logging.getLogger("MetadataManager.GUI")
         self._initialize_frames()
+
         self.display_widgets()
+        self.display_extensions(self.extensions_tab_frame)
+
 
         self.side_info_frame = Frame(self.main_frame)
         self.side_info_frame.pack(side="left", anchor="nw")
@@ -83,6 +87,9 @@ class App(Tk, MetadataManagerLib):
         self.cinfo_tags = self.widget_mngr.get_tags()
         # print(self.widget_mngr.get_tags())
 
+    ############
+    # GUI methods
+    ############
     def _initialize_frames(self):
         self.main_frame = Frame(self)
         self.main_frame.configure(bg="blue", borderwidth=2)
@@ -91,30 +98,28 @@ class App(Tk, MetadataManagerLib):
 
         tab_1 = ScrolledFrameWidget(self.notebook, scrolltype="vertical")
         self.basic_info_frame = tab_1.create_frame()
+        self.notebook.add(tab_1, text="Basic Info")
+
         tab_2 = ScrolledFrameWidget(self.notebook, scrolltype="vertical")
         self.people_info_frame = tab_2.create_frame()
-        tab_3 = ScrolledFrameWidget(self.notebook, scrolltype="vertical")
-        self.misc_frame_numbering = tab_3.create_frame()
-
-        self.numbering_info_frame = Frame(self.misc_frame_numbering)
-        self.numbering_info_frame.grid(row=0)
-        # #################º
-        # # Show Selected Files
-        # #################
-        # self.files_selected_frame = Frame(self.misc_frame_numbering)
-        # self.files_selected_frame.selected_files_label = Label(self.files_selected_frame, text="Selected Files:",
-        #                                                        pady="10")
-        # self.files_selected_frame.selected_files_label.pack()
-        # self.files_selected_frame.listbox = Listbox(self.files_selected_frame)
-        # self.files_selected_frame.listbox.pack(expand=True, fill="both", anchor="center")
-        # self.files_selected_frame.grid(row=1, column=0, sticky="wesn")
-
-        self.notebook.add(tab_1, text="Basic Info")
         self.notebook.add(tab_2, text="People Info")
+
+        tab_3 = ScrolledFrameWidget(self.notebook, scrolltype="vertical")
+        self.numbering_info_frame = tab_3.create_frame()
         self.notebook.add(tab_3, text="Numbering")
+
+        extension_tab = ScrolledFrameWidget(self.notebook, scrolltype="Vertical")
+        self.extensions_tab_frame = extension_tab.create_frame()
+        self.notebook.add(extension_tab, text="Extensions")
+
+        # self.numbering_info_frame = Frame(self.misc_frame_numbering)
+        # self.numbering_info_frame.grid(row=0)
+
         self.main_frame.configure(height='600', width='200')
         self.main_frame.pack(anchor='center', expand=True, fill='both', side='top')
+
         self.focus()
+
 
     def select_files(self):
         # New file selection. Proceed to clean the ui to a new state
@@ -241,6 +246,9 @@ class App(Tk, MetadataManagerLib):
         self.widget_mngr.Manga = OptionMenuWidget(parent_frame, "Manga", "Manga",
                                                   "Unknown", *("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(6, 1)
 
+    ###################
+    # Processing methods
+    ###################
     def _serialize_cinfolist_to_gui(self):
 
         for loaded_cinfo in self.loaded_cinfo_list:
@@ -289,7 +297,9 @@ class App(Tk, MetadataManagerLib):
             if widget.get() != widget.default and widget.get():
                 new_cinfo.set_attr_by_name(cinfo_tag, self.widget_mngr.get_widget(cinfo_tag).get())
 
+    #################################
     # Errors handling implementations
+    #################################
     def on_badzipfile_error(self, exception, file_path: LoadedComicInfo):  # pragma: no cover
         mb.showerror("Error loading file",
                      f"Failed to read the file '{file_path}'.\nThis can be caused by wrong file format"
