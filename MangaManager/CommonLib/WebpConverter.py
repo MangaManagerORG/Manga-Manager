@@ -6,6 +6,7 @@ import tempfile
 import time
 import zipfile
 from io import BytesIO
+from typing import IO
 
 from PIL import Image
 ###########
@@ -18,6 +19,42 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 logger = logging.getLogger(__name__)
 
 supportedFormats = (".png", ".jpeg", ".jpg")
+
+
+
+def getNewWebpFormatName(currentName: str) -> str:
+    filename, file_format = os.path.splitext(currentName)
+    if filename.endswith("."):
+        filename = filename.strip(".")
+    return filename + ".webp"
+
+
+def convertToWebp(image_bytes_to_convert: IO[bytes]) -> bytes:
+    """
+    Converts the provided image to webp and returns the converted image bytes
+    :param image_bytes_to_convert: The image that has to be converted
+    :return:
+    """
+    # TODO: Bulletproof image passed not image
+    image = Image.open(image_bytes_to_convert).convert()
+    # print(image.size, image.mode, len(image.getdata()))
+    converted_image = BytesIO()
+
+    image.save(converted_image, format="webp")
+    image.close()
+    return converted_image.getvalue()
+
+
+def get_file_format(path) -> tuple[str, str]:
+    """
+
+    :param path:
+    :return:
+    """
+    return os.path.splitext(path)
+
+
+
 if __name__ == '__main__':
     import argparse
 
@@ -108,25 +145,6 @@ def _printProgressBar(total, prefix='', suffix='', decimals=1, length=100, fill=
         print("Processing Finished")
 
 
-def getNewWebpFormatName(currentName: str) -> str:
-    filename, file_format = os.path.splitext(currentName)
-    if filename.endswith("."):
-        filename = filename.strip(".")
-    return filename + ".webp"
-
-
-def convertToWebp(open_zipped_file) -> bytes:
-    # TODO: Bulletproof image passed not image
-    logger.debug("Successfully converted image to webp")
-    image = Image.open(open_zipped_file)
-    # print(image.size, image.mode, len(image.getdata()))
-    converted_image = BytesIO()
-
-    image.save(converted_image, format="webp")
-    image.close()
-    logger.debug("Successfully converted image to webp")
-    return converted_image.getvalue()
-
 
 from threading import Timer
 
@@ -161,11 +179,16 @@ if __name__ == '__main__':
                     os.close(tmpfd)
                     try:
                         self._process(cbzFilepath)
-
-                        os.remove(self.zipFilePath)
-                        os.rename(self._tmpname, self.zipFilePath)
-                        # time.sleep(2)
-                        logger.debug(f"Done processing '{os.path.basename(self.pathList[i])}'")
+                        original_size = os.path.getsize(cbzFilepath)
+                        newfile_size = os.path.getsize(self._tmpname)
+                        if original_size > newfile_size:
+                            os.remove(self.zipFilePath)
+                            os.rename(self._tmpname, self.zipFilePath)
+                            logger.debug(f"Done processing '{os.path.basename(self.pathList[i])}'")
+                        else:
+                            logger.warning(f"New file bigger than source. Deleting converted file. Source: '"
+                                           f"{os.path.basename(self.pathList[i])}'")
+                            os.remove(self._tmpname)
                     except zipfile.BadZipfile as e:
                         logger.error(f"Error processing '{cbzFilepath}': {str(e)}", exc_info=True)
                         os.remove(self._tmpname)
@@ -342,12 +365,17 @@ else:
                 # logger.info("Processing...")
                 try:
                     self._process(cbzFilepath, self._tmpname)
+                    original_size = os.path.getsize(cbzFilepath)
+                    newfile_size = os.path.getsize(self._tmpname)
 
-                    os.remove(self.zipFilePath)
-                    os.rename(self._tmpname, self.zipFilePath)
-                    logger.info(f"Done")
-                    # time.sleep(2)
-                    logger.info(f"Processed '{os.path.basename(self.cbzFilePathList[i])}'")
+                    if original_size > newfile_size:
+                        os.remove(self.zipFilePath)
+                        os.rename(self._tmpname, self.zipFilePath)
+                        logger.debug(f"Done processing '{os.path.basename(self.zipFilePath)}'")
+                    else:
+                        logger.warning(
+                            f"New file bigger than source. Deleting converted file. Source: '{os.path.basename(self.zipFilePath)}'")
+                        os.remove(self._tmpname)
                     processed_counter += 1
                 except zipfile.BadZipfile as e:
                     logger.error(f"Error processing '{cbzFilepath}': {str(e)}", exc_info=True)
