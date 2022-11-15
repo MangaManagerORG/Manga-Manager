@@ -65,7 +65,8 @@ class LoadedComicInfoReadTests(unittest.TestCase):
     def setUp(self) -> None:
         print(os.getcwd())
         # Make sure there are no test files else delete them:
-        leftover_files = [listed for listed in os.listdir() if listed.startswith("Test__") and listed.endswith(".cbz")]
+        leftover_files = [listed for listed in os.listdir() if listed.startswith("Test__") and listed.endswith(".cbz")
+                          or listed.startswith("tmp")]
         for file in leftover_files:
             os.remove(file)
         self.test_files_names = []

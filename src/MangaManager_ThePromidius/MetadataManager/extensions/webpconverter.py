@@ -8,6 +8,7 @@ from tkinter import filedialog
 from MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget
 from MangaManager_ThePromidius.Common.Templates.extension import Extension
 from MangaManager_ThePromidius.MetadataManager import comicinfo
+from MangaManager_ThePromidius.MetadataManager.errors import NoFilesSelected
 
 
 def has_cbz(abspath, glob):
@@ -24,6 +25,7 @@ class ExtensionApp(Extension):
     nodes = dict()
     path: str = None
     path_has_cbz = None
+
     def process(self) -> comicinfo.ComicInfo:
         pass
 
@@ -34,13 +36,15 @@ class ExtensionApp(Extension):
     def preview(self):
         # TODO: clear tree and insert in it
         self.path = self.selected_base_path.get()
+        if not self.path:
+            raise NoFilesSelected
         abspath = os.path.abspath(self.path)
         self.tree.delete(*self.tree.get_children())
-        self._insert_node('', abspath, abspath,isInitial=True)
+        self._insert_node('', abspath, abspath, isInitial=True)
         # self._open_node()
 
-
         # App(self.treeview_frame, self.base_path or os.getcwd(), self.path_glob.get().get() or '*.cbz')
+
     # def preview_selected(self):
     #     for root, dirnames, filenames in os.walk(self.selected_base_path):
     #         for filename in fnmatch.filter(filenames, self.path_glob.get().get()):
@@ -58,7 +62,6 @@ class ExtensionApp(Extension):
 
         tkinter.Button(frame, text="Preview selected files", command=self.preview).pack(side="top")
 
-
         self.tree = ttk.Treeview(frame)
         self.tree.heading('#0', text='Project tree', anchor='n')
 
@@ -68,10 +71,7 @@ class ExtensionApp(Extension):
             self.tree.heading('#0', text="No cbz files found in nested subfolders.")
         self.tree.bind('<<TreeviewOpen>>', self._open_node)
 
-
-
-
-    def _insert_node(self, parent, text, abspath,isInitial=False):
+    def _insert_node(self, parent, text, abspath, isInitial=False):
         glob = self.path_glob.get() or '*.cbz'
         if isInitial:
             self.path_has_cbz = has_cbz(abspath, glob)

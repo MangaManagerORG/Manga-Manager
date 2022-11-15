@@ -12,7 +12,7 @@ from lxml.etree import XMLSyntaxError
 
 from .comicinfo import ComicInfo, parseString
 from .errors import CorruptedComicInfo, BadZipFile
-from ..Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp
+from ..Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp, IS_IMAGE_PATTERN
 
 logger = logging.getLogger("LoadedCInfo")
 
@@ -159,6 +159,7 @@ class LoadedComicInfo:
         :raises PermissionError: If the file can't be written because of permissions or other program has file opened
 
         """
+        logger.debug(f"[{'Processing':13s}] Starting")
         exported_metadata = StringIO()
         self.cinfo_object.export(exported_metadata, 0)
         exported_metadata = exported_metadata.getvalue()
@@ -169,7 +170,6 @@ class LoadedComicInfo:
                 logger.debug(f"[{'WriteMetadata':13s}] New ComicInfo.xml appended to the file")
             return
 
-        logger.debug(f"[{'Backup':13s}] Starting backup")
         with zipfile.ZipFile(self.file_path, "r") as zin:
             # if COMICINFO_FILE not in zin.namelist():  # Redundant check. TODO: Make sure this check is safe to remove
             #     logger.debug(f"[{'Backup':13s}] Skipping backup. No ComicInfo.xml present")
@@ -200,7 +200,7 @@ class LoadedComicInfo:
                             continue
 
                     # Save the rest of the images as is
-                    if convert_to_webp:
+                    if convert_to_webp and IS_IMAGE_PATTERN.match(item.filename):
                         with zin.open(item) as opened_image:
                             new_filename = getNewWebpFormatName(item.filename)
                             zout.writestr(new_filename, convertToWebp(opened_image))

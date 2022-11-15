@@ -20,7 +20,7 @@
       </ENTRIES>
     </EXTENSION>
     <option name="_new_pattern" value="&quot;&quot;" />
-    <option name="_new_additionalArguments" value="&quot;discover -s tests -t ..&quot;" />
+    <option name="_new_additionalArguments" value="&quot;discover -s tests -t .&quot;" />
     <option name="_new_target" value="&quot;$PROJECT_DIR$&quot;" />
     <option name="_new_targetType" value="&quot;PATH&quot;" />
     <method v="2" />

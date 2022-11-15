@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-#
+# pragma: no cover
 # Generated Wed Mar 23 22:29:29 2022 by generateDS.py version 2.40.7.
 # Python 3.10.0 (tags/v3.10.0:b494f59, Oct  4 2021, 19:00:18) [MSC v.1929 64 bit (AMD64)]
 #
@@ -17,7 +16,7 @@
 # Current working directory (os.getcwd()):
 #   PYTHON_TOOLS
 #
-
+# pragma: no cover
 import sys
 
 try:
@@ -84,7 +83,7 @@ GenerateDSNamespaceTypePrefixes_ = {}
 # clues about the possible content of that class.
 #
 
-class GdsCollector_(object):
+class GdsCollector_(object):  # pragma: no cover
     def __init__(self, messages=None):
         if messages is None:
             self.messages = []
@@ -124,12 +123,12 @@ except ModulenotfoundExp_:
 # You can replace these methods by re-implementing the following class
 #   in a module named generatedssuper.py.
 
-class GeneratedsSuperSuper(object):
+class GeneratedsSuperSuper(object):  # pragma: no cover
     pass
 
 
 # noinspection PyCompatibility,PyUnboundLocalVariable
-class GeneratedsSuper(GeneratedsSuperSuper):
+class GeneratedsSuper(GeneratedsSuperSuper):  # pragma: no cover
     __hash__ = object.__hash__
     tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
 
@@ -708,7 +707,7 @@ class GeneratedsSuper(GeneratedsSuperSuper):
             return ""
 
 
-def getSubclassFromModule_(module, class_):
+def getSubclassFromModule_(module, class_):  # pragma: no cover
     '''Get the subclass of a class from a specific module.'''
     name = class_.__name__ + 'Sub'
     if hasattr(module, name):
@@ -742,7 +741,7 @@ def showIndent(outfile, level, pretty_print=True):
             outfile.write('    ')
 
 
-def quote_xml(inStr):
+def quote_xml(inStr):  # pragma: no cover
     "Escape markup chars, but do not modify CDATA sections."
     if not inStr:
         return ''
@@ -767,7 +766,7 @@ def quote_xml_aux(inStr):
     return s1
 
 
-def quote_attrib(inStr):
+def quote_attrib(inStr):  # pragma: no cover
     s1 = (isinstance(inStr, BaseStrType_) and inStr or '%s' % inStr)
     s1 = s1.replace('&', '&amp;')
     s1 = s1.replace('<', '&lt;')
@@ -782,7 +781,7 @@ def quote_attrib(inStr):
     return s1
 
 
-def quote_python(inStr):
+def quote_python(inStr):  # pragma: no cover
     s1 = inStr
     if s1.find("'") == -1:
         if s1.find('\n') == -1:
@@ -798,7 +797,7 @@ def quote_python(inStr):
             return '"""%s"""' % s1
 
 
-def get_all_text_(node):
+def get_all_text_(node):  # pragma: no cover
     if node.text is not None:
         text = node.text
     else:
@@ -809,7 +808,7 @@ def get_all_text_(node):
     return text
 
 
-def find_attr_value_(attr_name, node):
+def find_attr_value_(attr_name, node):  # pragma: no cover
     attrs = node.attrib
     attr_parts = attr_name.split(':')
     value = None
@@ -826,7 +825,7 @@ def find_attr_value_(attr_name, node):
     return value
 
 
-def encode_str_2_3(instr):
+def encode_str_2_3(instr):  # pragma: no cover
     return instr
 
 
@@ -834,14 +833,14 @@ class GDSParseError(Exception):
     pass
 
 
-def raise_parse_error(node, msg):
+def raise_parse_error(node, msg):  # pragma: no cover
     if node is not None:
         msg = '%s (element %s/line %d)' % (msg, node.tag, node.sourceline,)
     raise GDSParseError(msg)
 
 
 # noinspection PyUnboundLocalVariable
-class MixedContainer:
+class MixedContainer:  # pragma: no cover
     # Constants for category:
     CategoryNone = 0
     CategoryText = 1
@@ -969,7 +968,7 @@ class MixedContainer:
             outfile.write(')\n')
 
 
-class MemberSpec_(object):
+class MemberSpec_(object):  # pragma: no cover
     def __init__(self, name='', data_type='', container=0,
                  optional=0, child_attrs=None, choice=None):
         self.name = name
@@ -1025,7 +1024,7 @@ class MemberSpec_(object):
         return self.optional
 
 
-def _cast(typ, value):
+def _cast(typ, value):  # pragma: no cover
     if typ is None or value is None:
         return value
     return typ(value)
@@ -1072,7 +1071,7 @@ class ComicPageType(str, Enum):
     DELETED = 'Deleted'
 
     @classmethod
-    def list(cls):
+    def list(cls):  # pragma: no cover
         return list(map(lambda c: c.value, cls))
 
 
@@ -1083,7 +1082,7 @@ class Manga(str, Enum):
     YES_AND_RIGHT_TO_LEFT = 'YesAndRightToLeft'
 
     @classmethod
-    def list(cls):
+    def list(cls):  # pragma: no cover
         return list(map(lambda c: c.value, cls))
 
 
@@ -1093,11 +1092,11 @@ class YesNo(str, Enum):
     YES = 'Yes'
 
     @classmethod
-    def list(cls):
+    def list(cls):  # pragma: no cover
         return list(map(lambda c: c.value, cls))
 
 
-class ComicInfo(GeneratedsSuper):
+class ComicInfo(GeneratedsSuper):  # pragma: no cover
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = None
@@ -2202,7 +2201,7 @@ class ComicInfo(GeneratedsSuper):
 # end class ComicInfo
 
 
-class ArrayOfComicPageInfo(GeneratedsSuper):
+class ArrayOfComicPageInfo(GeneratedsSuper):  # pragma: no cover
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = None
@@ -2326,7 +2325,7 @@ class ArrayOfComicPageInfo(GeneratedsSuper):
 # end class ArrayOfComicPageInfo
 
 
-class ComicPageInfo(GeneratedsSuper):
+class ComicPageInfo(GeneratedsSuper):  # pragma: no cover
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = None
@@ -2574,7 +2573,7 @@ def get_root_tag(node):
     return tag, rootClass
 
 
-def get_required_ns_prefix_defs(rootNode):
+def get_required_ns_prefix_defs(rootNode):  # pragma: no cover
     '''Get all name space prefix definitions required in this XML doc.
     Return a dictionary of definitions and a char string of definitions.
     '''
@@ -2591,7 +2590,7 @@ def get_required_ns_prefix_defs(rootNode):
     return nsmap, namespacedefs
 
 
-def parse(inFileName, silence=False, print_warnings=True):
+def parse(inFileName, silence=False, print_warnings=True):  # pragma: no cover
     global CapturedNsmap_
     gds_collector = GdsCollector_()
     parser = None
@@ -2624,7 +2623,7 @@ def parse(inFileName, silence=False, print_warnings=True):
 
 
 def parseEtree(inFileName, silence=False, print_warnings=True,
-               mapping=None, reverse_mapping=None, nsmap=None):
+               mapping=None, reverse_mapping=None, nsmap=None):  # pragma: no cover
     parser = None
     doc = parsexml_(inFileName, parser)
     gds_collector = GdsCollector_()
@@ -2663,7 +2662,7 @@ def parseEtree(inFileName, silence=False, print_warnings=True,
     return rootObj, rootElement, mapping, reverse_node_mapping
 
 
-def parseString(inString, silence=False, print_warnings=True, doRecover=False):
+def parseString(inString, silence=False, print_warnings=True, doRecover=False):  # pragma: no cover
     '''Parse a string, create the object tree, and export it.
 
     Arguments:
@@ -2698,7 +2697,7 @@ def parseString(inString, silence=False, print_warnings=True, doRecover=False):
     return rootObj
 
 
-def parseLiteral(inFileName, silence=False, print_warnings=True):
+def parseLiteral(inFileName, silence=False, print_warnings=True):  # pragma: no cover
     parser = None
     doc = parsexml_(inFileName, parser)
     gds_collector = GdsCollector_()
@@ -2729,7 +2728,7 @@ def parseLiteral(inFileName, silence=False, print_warnings=True):
     return rootObj
 
 
-def main():
+def main():  # pragma: no cover
     args = sys.argv[1:]
     if len(args) == 1:
         parse(args[0])
@@ -2737,7 +2736,7 @@ def main():
         usage()
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     # import pdb; pdb.set_trace()
     main()
 

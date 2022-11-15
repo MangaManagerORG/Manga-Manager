@@ -1,31 +1,10 @@
 import os
 import random
-import unittest
 from tkinter.filedialog import askopenfiles
-
-import _tkinter
 
 from src.MangaManager_ThePromidius.MetadataManager import MetadataManagerGUI
 from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
-from tests.MetadataManagerTest.common import create_dummy_files
-
-
-class TKinterTestCase(unittest.TestCase):
-    """These methods are going to be the same for every GUI test,
-    so refactored them into a separate class
-    """
-    def setUp(self):
-        self.root=MetadataManagerGUI.App()
-        self.pump_events()
-
-    def tearDown(self):
-        if self.root:
-            self.root.destroy()
-            self.pump_events()
-
-    def pump_events(self):
-        while self.root.dooneevent(_tkinter.ALL_EVENTS | _tkinter.DONT_WAIT):
-            pass
+from tests.MetadataManagerTests.common import create_dummy_files, TKinterTestCase
 
 
 class UiToCinfoTest(TKinterTestCase):
