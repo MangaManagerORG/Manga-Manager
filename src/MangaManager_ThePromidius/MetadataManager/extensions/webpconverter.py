@@ -1,18 +1,13 @@
 import fnmatch
 import os
-import pathlib
 import tkinter
-from pathlib import Path
+# encoding: utf-8
+import tkinter.ttk as ttk
+from tkinter import filedialog
 
-from MangaManager_ThePromidius.Common.GUI.scrolledframe import ScrolledFrame
 from MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget
 from MangaManager_ThePromidius.Common.Templates.extension import Extension
 from MangaManager_ThePromidius.MetadataManager import comicinfo
-
-# encoding: utf-8
-import tkinter as tk
-import tkinter.ttk as ttk
-from tkinter import filedialog, END
 
 
 def has_cbz(abspath, glob):

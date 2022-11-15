@@ -80,15 +80,6 @@ class LoadedComicInfoReadTests(unittest.TestCase):
             # Create a random int so the values in the cinfo are unique each test
 
             with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
-                # for i in range(5):
-                #     image = Image.new('RGB', size=(20, 20), color=(255, 73, 95))
-                #     image.format = "JPEG"
-                #     # file = tempfile.NamedTemporaryFile(suffix=f'.jpg', prefix=str(i).zfill(3), dir=self.temp_folder)
-                #     imgByteArr = io.BytesIO()
-                #     image.save(imgByteArr, format=image.format)
-                #     imgByteArr = imgByteArr.getvalue()
-                #     zf.writestr(os.path.basename(f"{str(i).zfill(3)}.jpg"), imgByteArr)
-
                 cinfo = comicinfo.ComicInfo()
                 cinfo.set_Series(f"Series-{ai}-{self.random_int}")
                 cinfo.set_Writer(f"Writer-{ai}-{self.random_int}")
@@ -120,7 +111,7 @@ class LoadedComicInfoReadTests(unittest.TestCase):
             with self.subTest(f"Testing individual file read metadata - {i + 1}/{len(self.test_files_names)}"):
                 cinfo = LoadedComicInfo(file_names)
                 cinfo.cinfo_object.set_Notes(f"This text was modified - {self.random_int}")
-                cinfo.write_metadata()
+                cinfo.process(write_metadata=True)
         # check changes are saved
         print("Testing reading saved values")
         for i, file_names in enumerate(self.test_files_names):
@@ -135,12 +126,12 @@ class LoadedComicInfoReadTests(unittest.TestCase):
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Backing up individual metadata - {i + 1}/{len(self.test_files_names)}"):
                 cinfo = LoadedComicInfo(file_names)
-                cinfo._backup_cinfo()
+                cinfo.process(write_metadata=True)
                 with zipfile.ZipFile(file_names, "r") as zf:
-                    print("Asserting there is only one metadata backup file")
+                    print("Asserting backup is in the file")
                     # In this test there should only be the backed up file because the new modified metadata file gets
                     # appended later, after the backup flow is run.
-                    self.assertEqual(1, len(zf.namelist()))
+                    self.assertTrue("Old_ComicInfo.xml.bak" in zf.namelist())
 
                     print("Making sure the backed up file has content and matches original values:")
                     cinfo = comicinfo.parseString(zf.open("Old_ComicInfo.xml.bak").read())

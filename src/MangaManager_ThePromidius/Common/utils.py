@@ -5,6 +5,7 @@ from io import BytesIO
 from typing import IO
 
 from PIL import Image
+
 from src.MangaManager_ThePromidius.Common.naturalsorter import natsort_key_with_path_support
 
 # Patterns for picking cover

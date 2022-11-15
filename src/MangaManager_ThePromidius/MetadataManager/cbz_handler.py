@@ -3,12 +3,11 @@ from __future__ import annotations
 import copy
 import logging
 import os
-import re
 import tempfile
 import zipfile
-from io import StringIO, BytesIO
+from io import StringIO
 from typing import IO
-from PIL import Image
+
 from lxml.etree import XMLSyntaxError
 
 from .comicinfo import ComicInfo, parseString
@@ -176,7 +175,6 @@ class LoadedComicInfo:
             #     logger.debug(f"[{'Backup':13s}] Skipping backup. No ComicInfo.xml present")
             #     return
 
-
             # Dev notes
             # Due to how the zip library works, we can't just edit the file.
             # Need to create a copy of it with modified content and delete old one
@@ -185,19 +183,21 @@ class LoadedComicInfo:
             # Creates a tempfile in the directory the original file is at
             tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_path))
             os.close(tmpfd)
-
+            metadata_written = False
             with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
+                if write_metadata:
+                    zout.writestr(COMICINFO_FILE, exported_metadata)
+                    logger.debug(f"[{'WriteMetadata':13s}] New ComicInfo.xml appended to the file")
                 for item in zin.infolist():  # We use infolist since we want to get file data not just a list of names
 
                     if write_metadata:
                         if item.filename == COMICINFO_FILE:  # If filename is comicinfo save as old_comicinfo.xml
                             zout.writestr(f"Old_{item.filename}.bak", zin.read(item.filename))
                             logger.debug(f"[{'Backup':13s}] Backup for comicinfo.xml created")
+                            continue
                         elif item.filename == "Old_ComicInfo.xml.bak":  # Skip file, efectively deleting old backup
                             logger.debug(f"[{'Backup':13s}] Skipped old backup file")
-
-                        zout.writestr(COMICINFO_FILE, exported_metadata)
-                        logger.debug(f"[{'WriteMetadata':13s}] New ComicInfo.xml appended to the file")
+                            continue
 
                     # Save the rest of the images as is
                     if convert_to_webp:
