@@ -1,53 +1,79 @@
 import fnmatch
+import glob
 import os
+import pathlib
 import tkinter
-# encoding: utf-8
 import tkinter.ttk as ttk
 from tkinter import filedialog
 
+from MangaManager_ThePromidius.Common.utils import ShowPathTreeAsDict
+from MangaManager_ThePromidius.MetadataManager.errors import NoFilesSelected
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget
-from src.MangaManager_ThePromidius.Common.Templates.extension import Extension
+from src.MangaManager_ThePromidius.Common.Templates.extension import Extension, ExtensionGUI
 from src.MangaManager_ThePromidius.MetadataManager import comicinfo
-from src.MangaManager_ThePromidius.MetadataManager.errors import NoFilesSelected
 
 
-def has_cbz(abspath, glob):
-    for root, dirs, files in os.walk(abspath):
+def has_cbz(base_path,abspath, glob_pattern):
+    for _, __, files in os.walk(abspath):
         for filename in files:
-            if fnmatch.fnmatch(filename, glob):
+            # noinspection PyTypeChecker
+            if fnmatch.fnmatch(pathlib.Path(base_path,filename), glob_pattern):
                 return True
+        break
+    return False
 
 
 class ExtensionApp(Extension):
     name = "Webp Converter"
-    treeview_frame: ScrolledFrameWidget = None
-    glob: str
-    nodes = dict()
-    path: str = None
-    path_has_cbz = None
+    base_path: str
+    glob: str = "**/*.cbz"
+    selected_files: list[str]
+
 
     def process(self) -> comicinfo.ComicInfo:
-        pass
+        ...
+
+
+
+class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
+    treeview_frame: ScrolledFrameWidget = None
+    nodes: dict
+    path: str = None
+    base_path = None
 
     def select_base(self):
         self.base_path = filedialog.askdirectory()  # select directory
         self.selected_base_path.set(str(self.base_path))
 
-    def preview(self):
-        # TODO: clear tree and insert in it
-        self.path = self.selected_base_path.get()
-        if not self.path:
-            raise NoFilesSelected
-        abspath = os.path.abspath(self.path)
+    def _on_file(self, parent, file):
+        self.tree.insert(self.nodes.get(str(parent.get("current"))), 'end', text=file, open=True)
+
+    def _on_folder(self, parent_dic, folder):
+        parent_path = str(pathlib.Path(parent_dic.get("current")))
+        node = self.tree.insert(self.nodes[parent_path], 'end', text=folder, open=True)
+        self.nodes[str(pathlib.Path(parent_path, folder))] = node
+
+    def _clear(self):
         self.tree.delete(*self.tree.get_children())
-        self._insert_node('', abspath, abspath, isInitial=True)
-        # self._open_node()
+        self.nodes = dict()
 
-        # App(self.treeview_frame, self.base_path or os.getcwd(), self.path_glob.get().get() or '*.cbz')
+    def _set_input(self):
+        self.glob = self.path_glob.get() or "*.cbz"
+        os.chdir(self.base_path)
+        self.selected_files = glob.glob(self.glob, recursive=True)
 
-    # def preview_selected(self):
-    #     for root, dirnames, filenames in os.walk(self.selected_base_path):
-    #         for filename in fnmatch.filter(filenames, self.path_glob.get().get()):
+    def preview(self):
+        if not self.base_path:
+            raise NoFilesSelected()
+        self._clear()
+        self._set_input()
+        abspath = os.path.abspath(self.base_path)
+        node = self.tree.insert("", 'end', abspath, text=self.base_path, open=True)
+        self.nodes[abspath] = node
+        treeview = ShowPathTreeAsDict
+        treeview.on_file = self._on_file
+        treeview.on_subfolder = self._on_folder
+        self.treeview_files = treeview(self.base_path, self.selected_files).get()
 
     def serve_gui(self, parentframe):
         frame = ScrolledFrameWidget(parentframe).create_frame()
@@ -67,35 +93,9 @@ class ExtensionApp(Extension):
 
         self.tree.pack(expand=True, fill="x", side="top")
 
-        if not self.nodes:
-            self.tree.heading('#0', text="No cbz files found in nested subfolders.")
-        self.tree.bind('<<TreeviewOpen>>', self._open_node)
-
-    def _insert_node(self, parent, text, abspath, isInitial=False):
-        glob = self.path_glob.get() or '*.cbz'
-        if isInitial:
-            self.path_has_cbz = has_cbz(abspath, glob)
-        if fnmatch.fnmatch(abspath, glob):
-            node = self.tree.insert(parent, 'end', text=text, open=False)
-
-        if os.path.isdir(abspath):
-            if not self.path_has_cbz or not has_cbz(abspath, glob):
-                return
-            node = self.tree.insert(parent, 'end', text=text, open=False)
-            self.nodes[node] = abspath
-            self.tree.insert(node, 'end')
-
-    def _open_node(self, event):
-        node = self.tree.focus()
-        abspath = self.nodes.pop(node, None)
-        if abspath:
-            self.tree.delete(*self.tree.get_children(node))
-            for p in os.listdir(abspath):
-                self._insert_node(node, p, os.path.join(abspath, p))
-
 
 if __name__ == '__main__':
     root = tkinter.Tk()
-    app = ExtensionApp()
+    app = ExtensionAppGUI()
     app.serve_gui(root)
     root.mainloop()

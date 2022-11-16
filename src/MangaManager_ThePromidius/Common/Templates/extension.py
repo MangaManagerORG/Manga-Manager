@@ -10,6 +10,8 @@ class Extension(ABC):
     def process(self) -> comicinfo.ComicInfo:
         ...
 
+
+class ExtensionGUI(ABC):
     @abstractmethod
-    def serve_gui(self, frame):
+    def serve_gui(self, parentframe):
         ...

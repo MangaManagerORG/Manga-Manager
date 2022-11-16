@@ -27,7 +27,7 @@ class ExtensionController:
         for ext in extensions:
             self.loaded_extensions.append(importlib.import_module(f'.extensions.{ext}',
                                                                   package="src.MangaManager_ThePromidius"
-                                                                          ".MetadataManager").ExtensionApp())
+                                                                          ".MetadataManager").ExtensionAppGUI())
 
     def _close_ext_window(self):
         for child in self.p.winfo_children():

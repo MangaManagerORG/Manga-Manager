@@ -10,7 +10,6 @@ from PIL import Image
 
 from MetadataManagerTests.common import TKinterTestCase
 from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
-from src.MangaManager_ThePromidius.MetadataManager.errors import NoFilesSelected
 from src.MangaManager_ThePromidius.MetadataManager.extensions import webpconverter
 
 
@@ -74,14 +73,15 @@ class LoadedComicInfoConversToWebpTests(unittest.TestCase):
 
 class GuiTests(TKinterTestCase):
     ...
+
     def test_gui_flow(self):
         self.root = tkinter.Tk()
         webpconverter.filedialog.askdirectory = lambda : os.getcwd()
-        app = webpconverter.ExtensionApp()
+        app = webpconverter.ExtensionAppGUI()
         app.serve_gui(self.root)
-        self.assertRaises(NoFilesSelected, app.preview)
 
         app.select_base()
+
         app.preview()
 
         self.root.focus_set()

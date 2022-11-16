@@ -2,6 +2,7 @@ import os
 import re
 import sys
 from io import BytesIO
+from pathlib import Path
 from typing import IO
 
 from PIL import Image
@@ -83,3 +84,50 @@ def get_platform():
         return sys.platform
 
     return platforms[sys.platform]
+
+
+class ShowPathTreeAsDict:
+    """Builds a tree like structure out of a list of paths"""
+    def __init__(self, base_path, paths: list):
+
+        new_path_dict = {"subfolders": [],
+                         "files": [],
+                         "current": Path(base_path)}
+        self.new_path_dict = new_path_dict
+        for path in paths:
+
+            self._recurse(new_path_dict, Path(path).parts)
+        ...
+
+    def _recurse(self,parent_dic: dict, breaked_subpath):
+
+        if len(breaked_subpath) == 0:
+            return
+        if len(breaked_subpath) == 1:
+            # parent_dic[breaked_subpath[0]] = None
+            parent_dic["files"].append(breaked_subpath[0])
+            self.on_file(parent_dic,breaked_subpath[0])
+            return
+
+        key, *new_chain = breaked_subpath
+        if key == "\\":
+            key = "root"
+        if key not in parent_dic:
+            parent_dic[key] = {"subfolders": [], "files": [], "current": Path(parent_dic.get("current"), key)}
+            parent_dic["subfolders"].append(key)
+            # parent_dic["current"] = Path(parent_dic.get("current"),key)
+            self.on_subfolder(parent_dic,key)
+        self._recurse(parent_dic[key], new_chain)
+        return
+
+    def get(self):
+        return self.new_path_dict
+
+    def on_file(self, parent_dict: dict, breaked_subpath):
+        ...
+
+    def on_subfolder(self, parent_dict: dict, subfolder):
+        ...
+
+
+
