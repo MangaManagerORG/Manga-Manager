@@ -76,6 +76,7 @@ def parsexmlstring_(instring, parser=None, do_recover=False, **kwargs):
 GenerateDSNamespaceDefs_ = {}
 GenerateDSNamespaceTypePrefixes_ = {}
 
+
 #
 # You can replace the following class definition by defining an
 # importable module named "generatedscollector" containing a class
@@ -107,6 +108,7 @@ class GdsCollector_(object):  # pragma: no cover
         for msg in self.messages:
             outstream.write("Warning: {}\n".format(msg))
 
+
 #
 # The super-class for enum types
 #
@@ -115,6 +117,7 @@ try:
     from enum import Enum
 except ModulenotfoundExp_:
     Enum = object
+
 
 #
 # The root super-class for element type classes
@@ -127,7 +130,7 @@ class GeneratedsSuperSuper(object):  # pragma: no cover
     pass
 
 
-# noinspection PyCompatibility,PyUnboundLocalVariable
+# noinspection PyCompatibility,PyUnboundLocalVariable,PyMethodMayBeStatic
 class GeneratedsSuper(GeneratedsSuperSuper):  # pragma: no cover
     __hash__ = object.__hash__
     tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
@@ -714,6 +717,7 @@ def getSubclassFromModule_(module, class_):  # pragma: no cover
         return getattr(module, name)
     else:
         return None
+
 
 ExternalEncoding = ''
 # Set this to false in order to deactivate during export, the use of
@@ -2325,6 +2329,7 @@ class ArrayOfComicPageInfo(GeneratedsSuper):  # pragma: no cover
 # end class ArrayOfComicPageInfo
 
 
+# noinspection PyMethodMayBeStatic
 class ComicPageInfo(GeneratedsSuper):  # pragma: no cover
     __hash__ = GeneratedsSuper.__hash__
     subclass = None

@@ -72,8 +72,8 @@ class CoreTesting(unittest.TestCase):
         self.assertEqual("This series from file 1 should be kept", metadata_1.cinfo_object.get_Series())
         self.assertEqual("This series from file 2 should be kept", metadata_2.cinfo_object.get_Series())
         print("Assert values are overwritten")
-        self.assertEqual("This is the new writer for both cinfo",metadata_1.cinfo_object.get_Writer())
-        self.assertEqual("This is the new writer for both cinfo",metadata_2.cinfo_object.get_Writer())
+        self.assertEqual("This is the new writer for both cinfo", metadata_1.cinfo_object.get_Writer())
+        self.assertEqual("This is the new writer for both cinfo", metadata_2.cinfo_object.get_Writer())
 
     def test_selected_files_loaded(self):
 
@@ -82,10 +82,12 @@ class CoreTesting(unittest.TestCase):
         self.instance.selected_files_path = self.test_files_names
         self.instance.load_cinfo_list()
         self.assertEqual(2, len(self.instance.loaded_cinfo_list))
+
     def test_process_should_raise_exception_if_no_new_cinfo(self):
         self.test_files_names = create_dummy_files(2)
         self.instance.selected_files_path = self.test_files_names
         self.assertRaises(NoComicInfoLoaded, self.instance.proces)
+
 
 class ErrorHandlingTests(unittest.TestCase):
     """
@@ -113,11 +115,13 @@ class ErrorHandlingTests(unittest.TestCase):
     @patch.multiple(MetadataManagerLib.MetadataManagerLib, __abstractmethods__=set())
     def test_load_files_should_handle_broken_zipfile(self):
         self.instance = MetadataManagerLib.MetadataManagerLib()
+
         class RaiseBadZip:
             ...
 
         def raise_badzip(self, path, comicinfo=None):
             raise BadZipFile
+
         RaiseBadZip.__init__ = raise_badzip
         MetadataManagerLib.LoadedComicInfo = RaiseBadZip
 
@@ -130,14 +134,16 @@ class ErrorHandlingTests(unittest.TestCase):
     @patch.multiple(MetadataManagerLib.MetadataManagerLib, __abstractmethods__=set())
     def test_on_badzipfile_error(self):
         self.instance = MetadataManagerLib.MetadataManagerLib()
+
         class RaiseCorruptedMeta:
             ...
 
-        def raise_badzip(self ,path, comicinfo=None):
+        def raise_badzip(self, path, comicinfo=None):
             # Exception raised but then we create a new object with a brand new comicinfo.
             # Fix back patched class and raise exception
             MetadataManagerLib.LoadedComicInfo = LoadedComicInfo
             raise CorruptedComicInfo("")
+
         RaiseCorruptedMeta.__init__ = raise_badzip
         MetadataManagerLib.LoadedComicInfo = RaiseCorruptedMeta
 
@@ -150,9 +156,11 @@ class ErrorHandlingTests(unittest.TestCase):
     @patch.multiple(MetadataManagerLib.MetadataManagerLib, __abstractmethods__=set())
     def test_on_writing_error(self):
         self.instance = MetadataManagerLib.MetadataManagerLib()
+
         class RaisePermissionError(LoadedComicInfo):
             def write_metadata(self):
                 raise PermissionError()
+
         MetadataManagerLib.LoadedComicInfo = RaisePermissionError
 
         self.instance.selected_files_path = self.test_files_names = create_dummy_files(2)
@@ -178,6 +186,3 @@ class ErrorHandlingTests(unittest.TestCase):
         self.instance.on_writing_exception = MagicMock()
         self.instance.proces()
         self.instance.on_writing_exception.assert_called()
-
-
-

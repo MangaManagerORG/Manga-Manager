@@ -18,11 +18,10 @@ class TKinterTestCase(unittest.TestCase):
     """These methods are going to be the same for every GUI test,
     so refactored them into a separate class
     """
-    root=None
+    root = None
+
     def setUp(self):
         ...
-        # self.root = MetadataManagerGUI.App()
-        # self.pump_events()
 
     def tearDown(self):
         if self.root:

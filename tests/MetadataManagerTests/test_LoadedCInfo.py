@@ -112,7 +112,7 @@ class LoadedComicInfoReadTests(unittest.TestCase):
             with self.subTest(f"Testing individual file read metadata - {i + 1}/{len(self.test_files_names)}"):
                 cinfo = LoadedComicInfo(file_names).load_all()
                 cinfo.cinfo_object.set_Notes(f"This text was modified - {self.random_int}")
-                cinfo.process(write_metadata=True)
+                cinfo.write_metadata()
         # check changes are saved
         print("Testing reading saved values")
         for i, file_names in enumerate(self.test_files_names):
@@ -127,7 +127,7 @@ class LoadedComicInfoReadTests(unittest.TestCase):
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Backing up individual metadata - {i + 1}/{len(self.test_files_names)}"):
                 cinfo = LoadedComicInfo(file_names).load_all()
-                cinfo.process(write_metadata=True)
+                cinfo.write_metadata()
                 with zipfile.ZipFile(file_names, "r") as zf:
                     print("Asserting backup is in the file")
                     # In this test there should only be the backed up file because the new modified metadata file gets

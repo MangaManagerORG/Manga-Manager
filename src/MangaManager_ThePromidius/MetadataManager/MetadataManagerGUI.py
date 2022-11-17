@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import tkinter
-from tkinter import Tk, Button, Frame, Label, Listbox, messagebox as mb, ttk
+from tkinter import Tk, Frame, Label, messagebox as mb, ttk
 
 from src.MangaManager_ThePromidius.Common.utils import get_platform
 from src.MangaManager_ThePromidius.MetadataManager.extensions import GUIExtensionManager
@@ -13,13 +13,11 @@ if get_platform() == "linux":
 else:
     from tkinter.filedialog import askopenfiles
 
-from PIL import ImageTk, Image
-
 from src.MangaManager_ThePromidius.MetadataManager import comicinfo
 from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget, \
-    ScrolledFrameWidget, WidgetManager
+    ScrolledFrameWidget, WidgetManager, ListboxWidget, CoverFrame, ButtonWidget
 
 
 class App(Tk, MetadataManagerLib, GUIExtensionManager):
@@ -27,12 +25,14 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
 
     def __init__(self):
         super(App, self).__init__()
+        # self.wm_minsize(1000, 660)
+        self.geometry("1000x660")
         # super(MetadataManagerLib, self).__init__()
 
         self.widget_mngr = WidgetManager()
         self.selected_files_path = None
-        self.loaded_cinfo_list = None
-        self.cinfo_tags = list[str]()
+        self.loaded_cinfo_list: list[LoadedComicInfo] = []
+        self.cinfo_tags: list[str] = []
         style = ttk.Style()
         current_theme = style.theme_use()
         style.theme_settings(current_theme, {"TNotebook.Tab": {"configure": {"padding": [20, 5],
@@ -44,45 +44,6 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.display_widgets()
         self.display_extensions(self.extensions_tab_frame)
 
-
-        self.side_info_frame = Frame(self.main_frame)
-        self.side_info_frame.pack(side="left", anchor="nw")
-        #################
-        # Action Buttons
-        #################
-        self.control_frame = Frame(self.side_info_frame)
-        btn = Button(self.control_frame, text="Load Files")
-        btn.configure(command=self.select_files)
-        btn.pack(fill="both", expand=True)
-
-        btn = Button(self.control_frame, text="Process")
-        btn.configure(command=self.pre_process)
-        btn.pack(fill="both", expand=True)
-        self.control_frame.pack(side="bottom", fill="both", expand=True)  # side="bottom")
-
-        #################
-        # Show Selected Files - ListBox
-        #################
-        self.files_selected_frame = Frame(self.side_info_frame)
-        self.files_selected_frame.selected_files_label = Label(self.files_selected_frame, text="Selected Files:",
-                                                               pady="10")
-        self.files_selected_frame.selected_files_label.pack()
-        self.files_selected_frame.listbox = Listbox(self.files_selected_frame)
-        self.files_selected_frame.listbox.pack(expand=True, fill="both", anchor="center")
-
-        # self.files_selected_frame.grid(row=1, column=0, sticky="wesn")
-        self.files_selected_frame.pack(expand=True, fill="both")
-        # self.files_selected_frame.pack()
-
-        self.image_cover_frame = Frame(self.side_info_frame)
-
-        # Create a photoimage object of the image in the path
-
-        self.test_label1 = tkinter.Label(self.image_cover_frame)
-        self.test_label1.pack()
-        # self.image_cover_frame.grid(row=2, column=0, sticky="wesn")
-        self.image_cover_frame.pack(expand=True, fill="both")
-
         # Important:
         self.cinfo_tags = self.widget_mngr.get_tags()
         # print(self.widget_mngr.get_tags())
@@ -90,6 +51,38 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
     ############
     # GUI methods
     ############
+    def select_files(self):
+        # New file selection. Proceed to clean the ui to a new state
+        self.widget_mngr.clean_widgets()
+        self.selected_files_path = list()
+        self.files_selected_frame.listbox.delete(0, tkinter.END)
+        self.last_folder = ""
+        self.settings = {}
+
+        # These are some tricks to make it easier to select files.
+        # Saves last opened folder to not have to browse to it again
+        if not self.last_folder:
+            initial_dir = self.settings.get("library_folder_path")
+        else:
+            initial_dir = self.last_folder
+        self.log.debug("Selecting files")
+        # Open select files dialog
+        selected_paths_list = askopenfiles(parent=self.master, initialdir=initial_dir,
+                                           title="Select file to apply cover",
+                                           filetypes=(("CBZ Files", ".cbz"), ("All Files", "*"),)
+                                           # ("Zip files", ".zip"))
+                                           )
+        if selected_paths_list:
+            selected_parent_folder = os.path.dirname(selected_paths_list[0].name)
+            if self.last_folder != selected_parent_folder or not self.last_folder:
+                self.last_folder = selected_parent_folder
+        self.selected_files_path = [file.name for file in selected_paths_list]
+
+        self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
+        self.load_cinfo_list()
+
+        self._serialize_cinfolist_to_gui()
+
     def _initialize_frames(self):
         self.main_frame = Frame(self)
         self.main_frame.configure(bg="blue", borderwidth=2)
@@ -120,51 +113,52 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
 
         self.focus()
 
-
-    def select_files(self):
-        # New file selection. Proceed to clean the ui to a new state
-        self.widget_mngr.clean_widgets()
-        self.selected_files_path = list()
-        self.files_selected_frame.listbox.delete(0, tkinter.END)
-        self.last_folder = ""
-        self.settings = {}
-
-        # These are some tricks to make it easier to select files.
-        # Saves last opened folder to not have to browse to it again
-        if not self.last_folder:
-            initial_dir = self.settings.get("library_folder_path")
-        else:
-            initial_dir = self.last_folder
-        self.log.debug("Selecting files")
-        # Open select files dialog
-        selected_paths_list = askopenfiles(parent=self.master, initialdir=initial_dir,
-                                           title="Select file to apply cover",
-                                           filetypes=(("CBZ Files", ".cbz"), ("All Files", "*"),)
-                                           # ("Zip files", ".zip"))
-                                           )
-        if selected_paths_list:
-            selected_parent_folder = os.path.dirname(selected_paths_list[0].name)
-            if self.last_folder != selected_parent_folder or not self.last_folder:
-                self.last_folder = selected_parent_folder
-        self.selected_files_path = [file.name for file in selected_paths_list]
-
-        self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
-        self.load_cinfo_list()
-        for loadedinfo in self.loaded_cinfo_list:
-            self.files_selected_frame.listbox.insert(0, os.path.basename(loadedinfo.file_path))
-
-        self._serialize_cinfolist_to_gui()
-
     def display_widgets(self):
+
+        ################
+        # Sidebar actions and covers
+        ################
+        self.side_info_frame = Frame(self.basic_info_frame)
+        self.side_info_frame.pack(side="left", anchor="nw", padx=30, pady=25)
+
+        # Action Buttons
+        control_frame = Frame(self.side_info_frame)
+        control_frame.pack(side="top", fill="both", expand=False)
+        btn = ButtonWidget(master=control_frame, text="Load Files", tooltip="Load the metadata and cover to edit them")
+        btn.configure(command=self.select_files)
+        btn.pack(fill="both", expand=True)
+        btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes")
+        btn.configure(command=self.pre_process)
+        btn.pack(fill="both", expand=True)
+
+        # Show Selected Files - ListBox
+        self.files_selected_frame = Frame(self.side_info_frame)
+
+        self.files_selected_frame.selected_files_label = Label(self.files_selected_frame, text="Selected Files:",
+                                                               pady="10")
+        self.files_selected_frame.selected_files_label.pack(expand=True, fill="both", anchor="nw")
+        self.files_selected_frame.listbox = ListboxWidget(self.files_selected_frame)
+        self.files_selected_frame.listbox.pack(expand=True, fill="both", anchor="center")
+
+        # Selected Covers
+        self.image_cover_frame = CoverFrame(self.side_info_frame)
+        self.files_selected_frame.listbox.update_cover_image = self.image_cover_frame.update_cover_image
+        self.image_cover_frame.pack(expand=True, fill='both')
+        self.files_selected_frame.pack(expand=False, fill="both", side="bottom")
 
         #################
         # Basic info - first column
         #################
-        parent_frame = self.basic_info_frame
-        self.widget_mngr.Title = ComboBoxWidget(parent_frame, cinfo_name="Title").pack()
-        self.widget_mngr.Series = ComboBoxWidget(parent_frame, cinfo_name="Series").pack()
+        parent_frame = Frame(self.basic_info_frame)
+        parent_frame.pack(side="right", expand=False, fill="both")
+
+        self.widget_mngr.Title = ComboBoxWidget(parent_frame, cinfo_name="Title",
+                                                tooltip="The title of the chapter").pack()
+        self.widget_mngr.Series = ComboBoxWidget(parent_frame, cinfo_name="Series",
+                                                 tooltip="The name of the series").pack()
         self.widget_mngr.LocalizedSeries = ComboBoxWidget(parent_frame, cinfo_name="LocalizedSeries",
-                                                          label_text="LocalizedSeries").pack()
+                                                          label_text="LocalizedSeries",
+                                                          tooltip="The translated series name").pack()
         self.widget_mngr.SeriesSort = ComboBoxWidget(parent_frame, cinfo_name="SeriesSort",
                                                      label_text="Series Sort").pack()
         self.widget_mngr.Summary = LongTextWidget(parent_frame, cinfo_name="Summary").pack()
@@ -175,7 +169,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
                                                           label_text="Alternate Series").pack()
         self.widget_mngr.Notes = ComboBoxWidget(parent_frame, cinfo_name="Notes").pack()
         self.widget_mngr.AgeRating = OptionMenuWidget(parent_frame, "AgeRating", "Age Rating",
-                                                      "Unknown", *comicinfo.AgeRating.list())
+                                                      "Unknown", *comicinfo.AgeRating.list()).pack()
         self.widget_mngr.CommunityRating = ComboBoxWidget(parent_frame, cinfo_name="CommunityRating",
                                                           label_text="Community Rating",
                                                           validation="rating").pack()
@@ -209,7 +203,8 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         # #################
         parent_frame = self.numbering_info_frame
         combo_width = 10
-        self.widget_mngr.Number = ComboBoxWidget(parent_frame, "Number", width=combo_width).grid(0, 0)
+        self.widget_mngr.Number = ComboBoxWidget(parent_frame, "Number", width=combo_width,
+                                                 tooltip="The chapter absolute number").grid(0, 0)
         self.widget_mngr.AlternateNumber = ComboBoxWidget(parent_frame, "AlternateNumber", width=combo_width,
                                                           label_text="Alternate Number", validation="int").grid(0, 1)
         self.widget_mngr.Count = ComboBoxWidget(parent_frame, "Count", width=combo_width,
@@ -252,10 +247,8 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
     def _serialize_cinfolist_to_gui(self):
 
         for loaded_cinfo in self.loaded_cinfo_list:
-            if loaded_cinfo.cover_filename:
-                image1 = Image.open(loaded_cinfo.get_cover_image_bytes()).resize((190, 260), Image.ANTIALIAS)
-                self.test_image = ImageTk.PhotoImage(image1)
-                self.test_label1.configure(image=self.test_image)
+            if loaded_cinfo.cached_image:
+                self.image_cover_frame.update_cover_image(loaded_cinfo)
             for cinfo_tag in self.widget_mngr.get_tags():
                 cinfo_field_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
                 widget = self.widget_mngr.get_widget(cinfo_tag)
@@ -296,6 +289,10 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
             widget = self.widget_mngr.get_widget(cinfo_tag)
             if widget.get() != widget.default and widget.get():
                 new_cinfo.set_attr_by_name(cinfo_tag, self.widget_mngr.get_widget(cinfo_tag).get())
+
+    def on_item_loaded(self, loadedcomicInfo: LoadedComicInfo):
+        self.files_selected_frame.listbox.insert(loadedcomicInfo)
+        self.update()
 
     #################################
     # Errors handling implementations

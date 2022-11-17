@@ -60,7 +60,7 @@ class UiToCinfoTest(TKinterTestCase):
                 print(f"Comparing '{widget.get()}' vs ('{cinfo_tag}' or '{random_number}')")
                 self.assertTrue(widget.get() == cinfo_tag or widget.get() == random_number or str(random_number))
         # app.proces()
-        
+
     def test_full_flow(self):
         def custom_askopenfiles(*_, **__):
             return [open(filename, "r") for filename in self.test_files_names]

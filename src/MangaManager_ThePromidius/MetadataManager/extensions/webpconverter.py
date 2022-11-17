@@ -1,4 +1,5 @@
-import fnmatch
+from __future__ import annotations
+
 import glob
 import os
 import pathlib
@@ -6,40 +7,28 @@ import tkinter
 import tkinter.ttk as ttk
 from tkinter import filedialog
 
-from MangaManager_ThePromidius.Common.utils import ShowPathTreeAsDict
-from MangaManager_ThePromidius.MetadataManager.errors import NoFilesSelected
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget
 from src.MangaManager_ThePromidius.Common.Templates.extension import Extension, ExtensionGUI
-from src.MangaManager_ThePromidius.MetadataManager import comicinfo
-
-
-def has_cbz(base_path,abspath, glob_pattern):
-    for _, __, files in os.walk(abspath):
-        for filename in files:
-            # noinspection PyTypeChecker
-            if fnmatch.fnmatch(pathlib.Path(base_path,filename), glob_pattern):
-                return True
-        break
-    return False
+from src.MangaManager_ThePromidius.Common.utils import ShowPathTreeAsDict
+from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
+from src.MangaManager_ThePromidius.MetadataManager.errors import NoFilesSelected
 
 
 class ExtensionApp(Extension):
     name = "Webp Converter"
     base_path: str
     glob: str = "**/*.cbz"
-    selected_files: list[str]
+    selected_files: list[str|pathlib.Path]
 
-
-    def process(self) -> comicinfo.ComicInfo:
-        ...
-
+    def process(self):
+        print(self.selected_files)
+        for file in self.selected_files:
+            LoadedComicInfo(file).convert_to_webp()
 
 
 class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
     treeview_frame: ScrolledFrameWidget = None
     nodes: dict
-    path: str = None
-    base_path = None
 
     def select_base(self):
         self.base_path = filedialog.askdirectory()  # select directory
@@ -60,7 +49,8 @@ class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
     def _set_input(self):
         self.glob = self.path_glob.get() or "*.cbz"
         os.chdir(self.base_path)
-        self.selected_files = glob.glob(self.glob, recursive=True)
+        self.selected_files = [
+            pathlib.Path(self.base_path,globbed_file) for globbed_file in glob.glob(self.glob, recursive=True)]
 
     def preview(self):
         if not self.base_path:
@@ -87,6 +77,7 @@ class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
         self.path_glob.pack()
 
         tkinter.Button(frame, text="Preview selected files", command=self.preview).pack(side="top")
+        tkinter.Button(frame, text="Process", command=self.process).pack(side="top")
 
         self.tree = ttk.Treeview(frame)
         self.tree.heading('#0', text='Project tree', anchor='n')

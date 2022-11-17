@@ -14,10 +14,16 @@ logger = logging.getLogger("MetadataManager.Core")
 
 
 class _IMetadataManagerLib(abc.ABC):
+    def on_item_loaded(self, loadedcomicInfo: LoadedComicInfo):
+        """
+        Called when a loadedcomicinfo is loaded
+        :return:
+        """
+
     @abc.abstractmethod
     def on_badzipfile_error(self, exception, file_path):
         """
-        Called while loading a file and it's not a valid zip or it's broken
+        Called while loading a file, and it's not a valid zip or it's broken
         """
 
     @abc.abstractmethod
@@ -48,7 +54,12 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
     selected_files_path = None
     new_edited_cinfo: ComicInfo | None = None
     loaded_cinfo_list: list[LoadedComicInfo] = list()
-    cinfo_tags: list[str] = ['Title', 'Series', 'LocalizedSeries', 'SeriesSort', 'Summary', 'Genre', 'Tags', 'AlternateSeries', 'Notes', 'AgeRating', 'CommunityRating', 'ScanInformation', 'StoryArc', 'AlternateCount', 'Writer', 'Inker', 'Colorist', 'Letterer', 'CoverArtist', 'Editor', 'Translator', 'Publisher', 'Imprint', 'Characters', 'Teams', 'Locations', 'Number', 'AlternateNumber', 'Count', 'Volume', 'PageCount', 'Year', 'Month', 'Day', 'StoryArcNumber', 'LanguageISO', 'Format', 'BlackAndWhite', 'Manga']
+    cinfo_tags: list[str] = ['Title', 'Series', 'LocalizedSeries', 'SeriesSort', 'Summary', 'Genre', 'Tags',
+                             'AlternateSeries', 'Notes', 'AgeRating', 'CommunityRating', 'ScanInformation', 'StoryArc',
+                             'AlternateCount', 'Writer', 'Inker', 'Colorist', 'Letterer', 'CoverArtist', 'Editor',
+                             'Translator', 'Publisher', 'Imprint', 'Characters', 'Teams', 'Locations', 'Number',
+                             'AlternateNumber', 'Count', 'Volume', 'PageCount', 'Year', 'Month', 'Day',
+                             'StoryArcNumber', 'LanguageISO', 'Format', 'BlackAndWhite', 'Manga']
     MULTIPLE_VALUES_CONFLICT = "~~## Multiple Values in this Field - Keep Original Values ##~~"
 
     def proces(self):
@@ -79,7 +90,6 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
     def load_cinfo_list(self) -> None:
         """
         Creates a list of comicinfo with the comicinfo metadata from the selected files.
-        :param string file_path: the path to the zip-like file
 
         :raises CorruptedComicInfo: If the data inside ComicInfo.xml could not be read after trying to fix te data
         :raises BadZipFile: If the provided zip is not a valid zip or is broken
@@ -90,7 +100,6 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         for file_path in self.selected_files_path:
             try:
                 loaded_cinfo = LoadedComicInfo(path=file_path).load_all()
-
             except CorruptedComicInfo as e:
                 # Logging is handled already in LoadedComicInfo load_metadata method
                 loaded_cinfo = LoadedComicInfo(path=file_path, comicinfo=comicinfo.ComicInfo()).load_all()
@@ -101,6 +110,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 self.on_badzipfile_error(e, file_path=file_path)
                 continue
             self.loaded_cinfo_list.append(loaded_cinfo)
+            self.on_item_loaded(loaded_cinfo)
         logger.debug("Files selected")
 
     def merge_changed_metadata(self):

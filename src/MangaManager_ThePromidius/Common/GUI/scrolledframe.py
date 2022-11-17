@@ -228,7 +228,7 @@ class ScrolledFrame(ttk.Frame):
             # The scrolled frame is smaller than the clipping window.
 
             self._startX = 0
-            end_scrollX_x= 1.0
+            end_scrollX_x = 1.0
             # use expand by default
             relwidth = 1
         else:
@@ -339,6 +339,7 @@ class ScrolledFrame(ttk.Frame):
             self.vsb.grid_forget()
 
     def configure(self, cnf=None, **kw):
+        # noinspection PyProtectedMember
         args = tk._cnfmerge((cnf, kw))
         key = 'usemousewheel'
         if key in args:

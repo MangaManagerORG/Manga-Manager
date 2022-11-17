@@ -3,11 +3,15 @@ from __future__ import annotations
 import dataclasses
 
 try:
+    # noinspection PyUnresolvedReferences
     import pgi
+
     pgi.require_version("Gtk", "3.0")
+    # noinspection PyUnresolvedReferences
     from pgi.repository import Gtk
 except (NameError, ImportError):
     import gi
+
     gi.require_version("Gtk", "3.0")
     from gi.repository import Gtk
 
@@ -15,6 +19,7 @@ except (NameError, ImportError):
 @dataclasses.dataclass
 class DummyFile:
     name: str
+
     def __str__(self):
         return self.name
 
@@ -108,5 +113,6 @@ def askopenfiles(initialdir, title="Select Files", filetypes=None, parent=None):
 
 
 __all__ = [
-    "FileChooserWindow"
+    "FileChooserWindow",
+    "askopenfiles"
 ]
