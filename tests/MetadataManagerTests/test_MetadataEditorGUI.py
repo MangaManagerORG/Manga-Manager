@@ -30,7 +30,7 @@ class UiToCinfoTest(TKinterTestCase):
         self.root = app = MetadataManagerGUI.App()
         # new_edited = comicinfo.ComicInfo()
         # app.new_edited_cinfo = new_edited
-        app.loaded_cinfo_list = [LoadedComicInfo(filename) for filename in self.test_files_names]
+        app.loaded_cinfo_list = [LoadedComicInfo(filename).load_all() for filename in self.test_files_names]
         self.pump_events()
         app.focus_set()
         random_number = random.random()
@@ -69,7 +69,7 @@ class UiToCinfoTest(TKinterTestCase):
         self.root = app = MetadataManagerGUI.App()
         self.pump_events()
         app.select_files()
-        app.loaded_cinfo_list = [LoadedComicInfo(filename) for filename in self.test_files_names]
+        app.loaded_cinfo_list = [LoadedComicInfo(filename).load_all() for filename in self.test_files_names]
         self.pump_events()
         app.focus_set()
 
