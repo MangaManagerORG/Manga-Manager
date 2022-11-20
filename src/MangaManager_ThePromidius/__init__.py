@@ -2,7 +2,7 @@ import glob
 import importlib
 import os.path
 
-from MangaManager_ThePromidius.Common.settings import Settings, SettingsSection
+from src.MangaManager_ThePromidius.Common.settings import Settings, SettingsSection
 
 
 # from MetadataManager.extensions import ExtensionController

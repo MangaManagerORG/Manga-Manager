@@ -5,10 +5,10 @@ import logging
 from abc import ABC
 from io import StringIO
 
+from MangaManager_ThePromidius.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile, EditedCinfoNotSet
+from MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from . import comicinfo
-from .cbz_handler import LoadedComicInfo
 from .comicinfo import ComicInfo
-from .errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile, EditedCinfoNotSet
 
 logger = logging.getLogger("MetadataManager.Core")
 

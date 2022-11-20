@@ -3,11 +3,11 @@ import unittest
 import zipfile
 from unittest.mock import patch, MagicMock
 
+from MangaManager_ThePromidius.Common.errors import EditedCinfoNotSet, BadZipFile, \
+    CorruptedComicInfo, NoComicInfoLoaded
+from MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.MetadataManager import MetadataManagerLib
 from src.MangaManager_ThePromidius.MetadataManager import comicinfo
-from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
-from src.MangaManager_ThePromidius.MetadataManager.errors import EditedCinfoNotSet, BadZipFile, \
-    CorruptedComicInfo, NoComicInfoLoaded
 from tests.MetadataManagerTests.common import create_dummy_files
 
 

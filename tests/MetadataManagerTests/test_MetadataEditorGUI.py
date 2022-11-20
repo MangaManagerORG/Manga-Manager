@@ -2,8 +2,8 @@ import os
 import random
 from tkinter.filedialog import askopenfiles
 
+from MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.MetadataManager import MetadataManagerGUI
-from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
 from tests.MetadataManagerTests.common import create_dummy_files, TKinterTestCase
 
 
