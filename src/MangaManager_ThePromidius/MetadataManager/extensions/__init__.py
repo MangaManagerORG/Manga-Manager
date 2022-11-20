@@ -17,18 +17,26 @@ class ExtensionController:
     extensions_tab_frame: tkinter.Frame
     master: tkinter.Tk
     loaded_extensions: list[Extension] = []
+    path_to_extensions = os.path.dirname(__file__)
 
     def __init__(self):
         self.load_extensions()
 
     def load_extensions(self):
-        modules = glob.glob(os.path.join(os.path.dirname(__file__), "*.py"))
+        modules = glob.glob(os.path.join(self.path_to_extensions, "*.py"))
         extensions = [os.path.basename(f)[:-3] for f in modules if os.path.isfile(f) and not f.endswith('__init__.py')]
 
         for ext in extensions:
             self.loaded_extensions.append(importlib.import_module(f'.extensions.{ext}',
                                                                   package="src.MangaManager_ThePromidius"
                                                                           ".MetadataManager").ExtensionAppGUI())
+
+    def load_settings(self):
+        modules = glob.glob(os.path.join(self.path_to_extensions, "*.py"))
+        extensions = [os.path.basename(f)[:-3] for f in modules if os.path.isfile(f) and not f.endswith('__init__.py')]
+        for ext in extensions:
+            self.loaded_extensions.append(importlib.import_module(f'.extensions.{ext}',
+                                                                  package="src.MangaManager_ThePromidius").ExtensionSettings())
 
     # def _close_ext_window(self):
     #     for child in self.p.winfo_children():
@@ -63,7 +71,7 @@ class GUIExtensionManager(ExtensionController):
 
         for loaded_extension in self.loaded_extensions:
             tkinter.Button(parent_frame, text=loaded_extension.name, command=lambda:
-                           self.run_extension(loaded_extension)).pack(side="top")
+            self.run_extension(loaded_extension)).pack(side="top")
 
     def run_extension(self, extension: ExtensionAppGUI):
         for child in self.extension_active_frame.winfo_children():

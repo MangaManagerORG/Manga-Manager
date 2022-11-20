@@ -9,17 +9,25 @@ from tkinter import filedialog
 
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget
 from src.MangaManager_ThePromidius.Common.Templates.extension import Extension, ExtensionGUI
+from src.MangaManager_ThePromidius.Common.settings import SettingsSection
 from src.MangaManager_ThePromidius.Common.utils import ShowPathTreeAsDict
 from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
 from src.MangaManager_ThePromidius.MetadataManager.errors import NoFilesSelected
 
 
+class SettingsSectionTemplate(SettingsSection):
+    name = "WebpConverter"
+
+    def initialize(self):
+        self.default_base_path = ""
+
+settings = None
+
 class ExtensionApp(Extension):
     name = "Webp Converter"
     base_path: str
     glob: str = "**/*.cbz"
-    selected_files: list[str|pathlib.Path]
-
+    selected_files: list[str | pathlib.Path]
     def process(self):
         print(self.selected_files)
         for file in self.selected_files:
@@ -29,6 +37,13 @@ class ExtensionApp(Extension):
 class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
     treeview_frame: ScrolledFrameWidget = None
     nodes: dict
+
+    def __init__(self):
+        super(ExtensionApp, self).__init__()
+        if SettingsSectionTemplate.name:
+            from MangaManager_ThePromidius import settings_class
+            global settings
+            settings = settings_class.get_setion(SettingsSectionTemplate.name)
 
     def select_base(self):
         self.base_path = filedialog.askdirectory()  # select directory
@@ -50,7 +65,7 @@ class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
         self.glob = self.path_glob.get() or "*.cbz"
         os.chdir(self.base_path)
         self.selected_files = [
-            pathlib.Path(self.base_path,globbed_file) for globbed_file in glob.glob(self.glob, recursive=True)]
+            pathlib.Path(self.base_path, globbed_file) for globbed_file in glob.glob(self.glob, recursive=True)]
 
     def preview(self):
         if not self.base_path:
@@ -67,7 +82,7 @@ class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
 
     def serve_gui(self, parentframe):
         frame = ScrolledFrameWidget(parentframe).create_frame()
-        self.selected_base_path = tkinter.StringVar()
+        self.selected_base_path = tkinter.StringVar(None, value="" if not settings else settings.default_base_path )
 
         tkinter.Button(frame, text="Select Base Directory", command=self.select_base).pack()
         self.base_path_entry = tkinter.Entry(frame, state="readonly", textvariable=self.selected_base_path)

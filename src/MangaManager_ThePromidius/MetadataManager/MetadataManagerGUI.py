@@ -5,8 +5,12 @@ import os
 import tkinter
 from tkinter import Tk, Frame, Label, messagebox as mb, ttk
 
+from src.MangaManager_ThePromidius import settings_class
 from src.MangaManager_ThePromidius.Common.utils import get_platform
 from src.MangaManager_ThePromidius.MetadataManager.extensions import GUIExtensionManager
+
+# import src.MangaManager_ThePromidius.settings
+main_settings = settings_class.main
 
 if get_platform() == "linux":
     from src.MangaManager_ThePromidius.Common.GUI.FileChooserWindow import askopenfiles
@@ -17,7 +21,7 @@ from src.MangaManager_ThePromidius.MetadataManager import comicinfo
 from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from src.MangaManager_ThePromidius.MetadataManager.cbz_handler import LoadedComicInfo
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget, \
-    ScrolledFrameWidget, WidgetManager, ListboxWidget, CoverFrame, ButtonWidget
+    ScrolledFrameWidget, WidgetManager, ListboxWidget, CoverFrame, ButtonWidget, SettingsWidgetManager
 
 
 class App(Tk, MetadataManagerLib, GUIExtensionManager):
@@ -26,7 +30,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
     def __init__(self):
         super(App, self).__init__()
         # self.wm_minsize(1000, 660)
-        self.geometry("1000x660")
+        self.geometry("1000x730")
         # super(MetadataManagerLib, self).__init__()
 
         self.widget_mngr = WidgetManager()
@@ -54,15 +58,15 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
     def select_files(self):
         # New file selection. Proceed to clean the ui to a new state
         self.widget_mngr.clean_widgets()
+        self.image_cover_frame.clear()
         self.selected_files_path = list()
-        self.files_selected_frame.listbox.delete(0, tkinter.END)
+        self.files_selected_frame.listbox.delete(0, tkinter.END)  # FIXME: this is not deleting the listbox correctly
         self.last_folder = ""
-        self.settings = {}
 
         # These are some tricks to make it easier to select files.
         # Saves last opened folder to not have to browse to it again
         if not self.last_folder:
-            initial_dir = self.settings.get("library_folder_path")
+            initial_dir = main_settings.library_path
         else:
             initial_dir = self.last_folder
         self.log.debug("Selecting files")
@@ -83,22 +87,32 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
 
         self._serialize_cinfolist_to_gui()
 
+    def show_settings(self):
+        print("Show_settings")
+        SettingsWidgetManager(self)
+
     def _initialize_frames(self):
+        # MENU
         self.main_frame = Frame(self)
-        self.main_frame.configure(bg="blue", borderwidth=2)
+        setting_btn = ButtonWidget(master=self, text="⚙ Settings", font=('Arial', 10), command=self.show_settings)
+        self.main_frame.configure(pady=10, padx=10)
+        # self.main_frame.configure(bg="blue", borderwidth=2)
         self.notebook = ttk.Notebook(self.main_frame)
         self.notebook.pack(side="right", expand=True, fill="both")
 
         tab_1 = ScrolledFrameWidget(self.notebook, scrolltype="vertical")
         self.basic_info_frame = tab_1.create_frame()
+
         self.notebook.add(tab_1, text="Basic Info")
 
         tab_2 = ScrolledFrameWidget(self.notebook, scrolltype="vertical")
         self.people_info_frame = tab_2.create_frame()
+        self.people_info_frame.configure(padx=20)
         self.notebook.add(tab_2, text="People Info")
 
         tab_3 = ScrolledFrameWidget(self.notebook, scrolltype="vertical")
         self.numbering_info_frame = tab_3.create_frame()
+        self.numbering_info_frame.configure(padx=20)
         self.notebook.add(tab_3, text="Numbering")
 
         extension_tab = ScrolledFrameWidget(self.notebook, scrolltype="Vertical")
@@ -112,7 +126,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.main_frame.pack(anchor='center', expand=True, fill='both', side='top')
 
         self.focus()
-
+        setting_btn.place(anchor=tkinter.NE, relx=1)
     def display_widgets(self):
 
         ################
@@ -122,7 +136,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.side_info_frame.pack(side="left", anchor="nw", padx=30, pady=25)
 
         # Action Buttons
-        control_frame = Frame(self.side_info_frame)
+        control_frame = Frame(self.side_info_frame, pady=20)
         control_frame.pack(side="top", fill="both", expand=False)
         btn = ButtonWidget(master=control_frame, text="Load Files", tooltip="Load the metadata and cover to edit them")
         btn.configure(command=self.select_files)
@@ -132,10 +146,10 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         btn.pack(fill="both", expand=True)
 
         # Show Selected Files - ListBox
-        self.files_selected_frame = Frame(self.side_info_frame)
+        self.files_selected_frame = tkinter.LabelFrame(self.side_info_frame, pady=10)
 
         self.files_selected_frame.selected_files_label = Label(self.files_selected_frame, text="Selected Files:",
-                                                               pady="10")
+                                                               )
         self.files_selected_frame.selected_files_label.pack(expand=True, fill="both", anchor="nw")
         self.files_selected_frame.listbox = ListboxWidget(self.files_selected_frame)
         self.files_selected_frame.listbox.pack(expand=True, fill="both", anchor="center")
@@ -149,8 +163,8 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         #################
         # Basic info - first column
         #################
-        parent_frame = Frame(self.basic_info_frame)
-        parent_frame.pack(side="right", expand=False, fill="both")
+        parent_frame = Frame(self.basic_info_frame, padx=20)
+        parent_frame.pack(side="right", expand=True, fill="both")
 
         self.widget_mngr.Title = ComboBoxWidget(parent_frame, cinfo_name="Title",
                                                 tooltip="The title of the chapter").pack()

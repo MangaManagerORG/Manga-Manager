@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MangaManager_ThePromidius"
-version = "0.0.1"
+version = "1.0.1"
 authors = [
     { name = "ThePromidius", email = "thepromidiusyt@gmail.com" },
 ]

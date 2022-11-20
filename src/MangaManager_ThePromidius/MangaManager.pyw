@@ -1,13 +1,16 @@
 import logging
 import pathlib
 import sys
-from logging.handlers import RotatingFileHandler
 
+# from Common.settings import Settings
 from MetadataManager.MetadataManagerGUI import App as MetadataApp
 
 # if __name__ == '__main__':
 # MetadataManager()
+# import test_file
 
+
+# exit()
 PROJECT_PATH = pathlib.Path(__file__).parent
 SETTING_PATH = pathlib.Path(PROJECT_PATH, "settings.json")
 LOGS_PATH = pathlib.Path(f"{PROJECT_PATH}/logs/")
