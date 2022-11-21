@@ -8,7 +8,7 @@ import zipfile
 
 from PIL import Image
 
-from MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
+from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.MetadataManager.extensions import webpconverter
 from tests.MetadataManagerTests.common import TKinterTestCase
 

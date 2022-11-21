@@ -12,9 +12,9 @@ from tkinter.ttk import Combobox
 from PIL import UnidentifiedImageError
 
 from src.MangaManager_ThePromidius import settings_class
+from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from .models import LongText
 from .scrolledframe import ScrolledFrame
-from MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 
 INT_PATTERN = re.compile("^-?\d+(?:,?\d+|\.?\d+)?$")
 

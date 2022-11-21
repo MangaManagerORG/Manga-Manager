@@ -35,7 +35,6 @@ settings_class.import_(random_setting)
 for extension in extensions:
     settings_class.import_(importlib.import_module(f".MetadataManager.extensions.{extension}",
                                                    package="src.MangaManager_ThePromidius").SettingsSectionTemplate())
-print("te")
 settings_class.read()
 # settings_class.write()
 # Load Extension settings

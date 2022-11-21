@@ -10,13 +10,12 @@ from io import StringIO
 from typing import IO
 
 from PIL import Image, ImageTk
-from PIL.Image import Resampling
 from lxml.etree import XMLSyntaxError
 
-from MangaManager_ThePromidius.Common.errors import CorruptedComicInfo, BadZipFile
-from MangaManager_ThePromidius.Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp, \
+from src.MangaManager_ThePromidius.Common.errors import CorruptedComicInfo, BadZipFile
+from src.MangaManager_ThePromidius.Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp, \
     IS_IMAGE_PATTERN
-from MangaManager_ThePromidius.MetadataManager.comicinfo import ComicInfo, parseString
+from src.MangaManager_ThePromidius.MetadataManager.comicinfo import ComicInfo, parseString
 
 logger = logging.getLogger("LoadedCInfo")
 
@@ -241,7 +240,7 @@ class LoadedComicInfo:
         with zipfile.ZipFile(self.file_path, 'r') as zin:
             img_bytes = zin.open(self.cover_filename)
             image = Image.open(img_bytes)
-            image = image.resize((190, 260), Resampling.LANCZOS)
+            image = image.resize((190, 260), Image.LANCZOS)
             try:
                 self.cached_image = ImageTk.PhotoImage(image)
             except RuntimeError:  # Random patch for some error when running tests

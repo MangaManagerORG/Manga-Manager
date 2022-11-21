@@ -9,9 +9,6 @@ from src.MangaManager_ThePromidius import settings_class
 from src.MangaManager_ThePromidius.Common.utils import get_platform
 from src.MangaManager_ThePromidius.MetadataManager.extensions import GUIExtensionManager
 
-# import src.MangaManager_ThePromidius.settings
-main_settings = settings_class.main
-
 if get_platform() == "linux":
     from src.MangaManager_ThePromidius.Common.GUI.FileChooserWindow import askopenfiles
 else:
@@ -19,9 +16,11 @@ else:
 
 from src.MangaManager_ThePromidius.MetadataManager import comicinfo
 from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
-from MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
+from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget, \
     ScrolledFrameWidget, WidgetManager, ListboxWidget, CoverFrame, ButtonWidget, SettingsWidgetManager
+# import src.MangaManager_ThePromidius.settings
+main_settings = settings_class.main
 
 
 class App(Tk, MetadataManagerLib, GUIExtensionManager):
@@ -127,6 +126,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
 
         self.focus()
         setting_btn.place(anchor=tkinter.NE, relx=1)
+
     def display_widgets(self):
 
         ################

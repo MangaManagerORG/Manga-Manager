@@ -5,8 +5,9 @@ import logging
 from abc import ABC
 from io import StringIO
 
-from MangaManager_ThePromidius.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile, EditedCinfoNotSet
-from MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
+from src.MangaManager_ThePromidius.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile, \
+    EditedCinfoNotSet
+from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from . import comicinfo
 from .comicinfo import ComicInfo
 
@@ -61,7 +62,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                              'AlternateNumber', 'Count', 'Volume', 'PageCount', 'Year', 'Month', 'Day',
                              'StoryArcNumber', 'LanguageISO', 'Format', 'BlackAndWhite', 'Manga']
     MULTIPLE_VALUES_CONFLICT = "~~## Multiple Values in this Field - Keep Original Values ##~~"
-
+    tags_with_multiple_values = []
     def proces(self):
         """
         Core function
@@ -120,6 +121,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         Else it applies the edited version.
         :return:
         """
+        self.tags_with_multiple_values = []
         if self.new_edited_cinfo is None:
             raise EditedCinfoNotSet("Runtime error: Edited CINFO not set")
 
@@ -133,12 +135,34 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 if new_value == self.MULTIPLE_VALUES_CONFLICT:
                     logger.debug(
                         f"[Merging][{cinfo_tag:15s}] Keeping \x1b[31;1mOld\x1b[0m '\x1b[33;20m{old_value}\x1b[0m' vs New: '{new_value}'")
+                    self.tags_with_multiple_values.append(cinfo_tag)
                     continue
                 # Write whatever is in the new (edited) cinfo
                 logger.debug(f"[Merging][{cinfo_tag:15s}] Keeping \x1b[31;1mNew\x1b[0m '{old_value}' vs "
                              f"New: '\x1b[33;20m{new_value}\x1b[0m' - Keeping new value")
                 loaded_cinfo.cinfo_object.set_attr_by_name(cinfo_tag, new_value)
 
+    def merge_loaded_metadata(self) -> comicinfo.ComicInfo:
+        """
+        Visually merges all data and returns a merged comic info
+        :return:
+        """
+        out_cinfo = comicinfo.ComicInfo()
+        for tag in self.cinfo_tags:
+            multiple_values = []
+            for loaded_cinfo in self.loaded_cinfo_list:
+                a = loaded_cinfo.cinfo_object.get_attr_by_name(tag)
+                if a:
+                    if a not in multiple_values:
+                        multiple_values.append(a)
+            if len(multiple_values) > 1:
+                final_value = self.MULTIPLE_VALUES_CONFLICT
+            elif len(multiple_values) == 1:
+                final_value = multiple_values[0]
+            else:
+                continue
+            out_cinfo.set_attr_by_name(tag, final_value)
+        return out_cinfo
     def preview_export(self):
         for loaded_cinfo in self.loaded_cinfo_list:
             print(loaded_cinfo.__dict__)

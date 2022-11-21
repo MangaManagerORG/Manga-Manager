@@ -7,10 +7,10 @@ import tkinter
 import tkinter.ttk as ttk
 from tkinter import filedialog
 
-from MangaManager_ThePromidius.Common.errors import NoFilesSelected
-from MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget
 from src.MangaManager_ThePromidius.Common.Templates.extension import Extension, ExtensionGUI
+from src.MangaManager_ThePromidius.Common.errors import NoFilesSelected
+from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.Common.settings import SettingsSection
 from src.MangaManager_ThePromidius.Common.utils import ShowPathTreeAsDict
 
@@ -100,8 +100,8 @@ class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
         self.tree.pack(expand=True, fill="x", side="top")
 
 
-if __name__ == '__main__':
-    root = tkinter.Tk()
-    app = ExtensionAppGUI()
-    app.serve_gui(root)
-    root.mainloop()
+# if __name__ == '__main__':
+#     root = tkinter.Tk()
+#     app = ExtensionAppGUI()
+#     app.serve_gui(root)
+#     root.mainloop()
