@@ -1,7 +1,11 @@
+import argparse
+import enum
+import glob
 import logging
 import pathlib
 import sys
 
+from MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
 # from Common.settings import Settings
 from MetadataManager.MetadataManagerGUI import App as MetadataApp
 
@@ -30,9 +34,29 @@ logging.basicConfig(level=logging.DEBUG,
                     handlers=[logging.StreamHandler(sys.stdout)]  # , rotating_file_handler]
                     # filename='/tmp/myapp.log'
                     )
+
 logger.debug('DEBUG LEVEL - MAIN MODULE')
 logger.info('INFO LEVEL - MAIN MODULE')
-
+# <Arguments parser>
+class ToolS(enum.Enum):
+    METADATA = CLIMetadataApp
+    VOLUME = 3
+    EPUB2CBZ = 4
+    WEBP = 5
+    SETTINGS = 6
+# ToolS.METADATA.value
 if __name__ == '__main__':
-    app = MetadataApp()
-    app.mainloop()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "selected_files",metavar="<path>")
+    parser.add_argument(
+        '-c', '--cli',
+        help="cli mode",
+        action="store_const", dest="tool", const=ToolS.METADATA,
+        default=logging.INFO)
+    args = parser.parse_args()
+    if args.tool:
+        app = args.tool.value(glob.glob(args.selected_files))
+    else:
+        app = MetadataApp()
+        app.mainloop()

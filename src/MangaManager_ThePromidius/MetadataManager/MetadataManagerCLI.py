@@ -58,7 +58,7 @@ class App(MetadataManagerLib):
     def __init__(self, file_paths: list[str]):
         self.terminal_height = int(os.get_terminal_size().lines)
         self.terminal_width = int(os.get_terminal_size().columns)
-        self.selected_files_path = file_paths
+        self.selected_files_path =file_paths
         self.serve_ui()
     def serve_ui(self):
         self.load_cinfo_list()
@@ -209,5 +209,9 @@ class App(MetadataManagerLib):
         pass
 
 
-if __name__ == '__main__':
-    App(["test_patching/" + path for path in os.listdir("test_patching")])
+# if __name__ == '__main__':
+#
+#     arguments = argparse.
+#
+#
+#     App(["test_patching/" + path for path in os.listdir("test_patching")])
