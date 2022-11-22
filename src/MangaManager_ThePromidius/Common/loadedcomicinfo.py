@@ -200,10 +200,12 @@ class LoadedComicInfo:
 
     def load_all(self):
         try:
+            # Fixme: skip folders
             with zipfile.ZipFile(self.file_path, 'r') as self.archive:
                 self._load_cover_info()
                 if not self.cinfo_object:
                     self._load_metadata()
+
         except zipfile.BadZipFile:
             logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",
                          exc_info=False)

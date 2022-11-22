@@ -1,5 +1,5 @@
 import itertools
-import os
+import shutil
 import sys
 import textwrap
 
@@ -10,8 +10,8 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.validation import Validator
 
-from MangaManager_ThePromidius.MetadataManager import comicinfo
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
+from src.MangaManager_ThePromidius.MetadataManager import comicinfo
 from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
 
@@ -43,10 +43,12 @@ class bcolors:
 bindings = KeyBindings()
 app = None
 
+
 @bindings.add('c-q')
 def _(event):
     """Exit when `c-q` is pressed. """
     app.quit()
+
 @bindings.add('c-p')
 def _(event:prompt_toolkit.key_binding.KeyPressEvent):
     """Exit when `c-q` is pressed."""
@@ -56,9 +58,9 @@ def _(event:prompt_toolkit.key_binding.KeyPressEvent):
 
 class App(MetadataManagerLib):
     def __init__(self, file_paths: list[str]):
-        self.terminal_height = int(os.get_terminal_size().lines)
-        self.terminal_width = int(os.get_terminal_size().columns)
-        self.selected_files_path =file_paths
+        self.terminal_height = int(shutil.get_terminal_size().lines)
+        self.terminal_width = int(shutil.get_terminal_size().columns)
+        self.selected_files_path = file_paths
         self.serve_ui()
     def serve_ui(self):
         self.load_cinfo_list()

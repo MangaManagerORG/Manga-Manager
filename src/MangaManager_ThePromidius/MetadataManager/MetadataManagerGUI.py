@@ -19,7 +19,7 @@ from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import Met
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget, \
     ScrolledFrameWidget, WidgetManager, ListboxWidget, CoverFrame, ButtonWidget, SettingsWidgetManager
-# import src.MangaManager_ThePromidius.settings
+# import MangaManager_ThePromidius.settings
 main_settings = settings_class.main
 
 

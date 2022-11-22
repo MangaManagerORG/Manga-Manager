@@ -6,8 +6,8 @@
     <option name="SDK_HOME" value="C:\Users\galla\.virtualenvs\MangaManagerV2\Scripts\python.exe" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="IS_MODULE_SDK" value="false" />
-    <option name="ADD_CONTENT_ROOTS" value="true" />
-    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <option name="ADD_CONTENT_ROOTS" value="false" />
+    <option name="ADD_SOURCE_ROOTS" value="false" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <EXTENSION ID="net.ashald.envfile">
       <option name="IS_ENABLED" value="false" />

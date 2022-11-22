@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="MangaManager.pyw" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+  <configuration default="false" name="MangaManager" type="PythonConfigurationType" factoryName="Python">
     <module name="MangaManagerV2" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -22,7 +22,7 @@
         <ENTRY IS_ENABLED="true" PARSER="runconfig" />
       </ENTRIES>
     </EXTENSION>
-    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/MangaManager_ThePromidius/MangaManager.pyw" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/MangaManager_ThePromidius/__main__.py" />
     <option name="PARAMETERS" value="" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />

@@ -1,5 +1,6 @@
 import glob
 import importlib
+import logging
 import os
 import tkinter
 from tkinter import ttk
@@ -7,6 +8,7 @@ from tkinter import ttk
 from src.MangaManager_ThePromidius.Common.Templates.extension import Extension
 from src.MangaManager_ThePromidius.MetadataManager.extensions.webpconverter import ExtensionAppGUI
 
+logger = logging.getLogger(__name__)
 
 class ExtensionController:
     """
@@ -23,9 +25,11 @@ class ExtensionController:
         self.load_extensions()
 
     def load_extensions(self):
+        logger.debug(f"Loading extensions. CWD:'{os.getcwd()}")
         modules = glob.glob(os.path.join(self.path_to_extensions, "*.py"))
+        logger.debug(f"Found modules: [{', '.join(modules)}]")
         extensions = [os.path.basename(f)[:-3] for f in modules if os.path.isfile(f) and not f.endswith('__init__.py')]
-
+        logger.debug(f"Found extensions: [{', '.join(extensions)}]")
         for ext in extensions:
             self.loaded_extensions.append(importlib.import_module(f'.extensions.{ext}',
                                                                   package="src.MangaManager_ThePromidius"
@@ -36,7 +40,7 @@ class ExtensionController:
         extensions = [os.path.basename(f)[:-3] for f in modules if os.path.isfile(f) and not f.endswith('__init__.py')]
         for ext in extensions:
             self.loaded_extensions.append(importlib.import_module(f'.extensions.{ext}',
-                                                                  package="src.MangaManager_ThePromidius").ExtensionSettings())
+                                                                  package="MangaManager_ThePromidius").ExtensionSettings())
 
     # def _close_ext_window(self):
     #     for child in self.p.winfo_children():

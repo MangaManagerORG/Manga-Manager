@@ -21,20 +21,20 @@ class main_settings(SettingsSection):
 a = os.path.abspath(os.path.join(os.getcwd(),"MetadataManager/extensions"))
 modules = glob.glob(os.path.join(a, "*.py"))
 if not modules and "src" in os.listdir(os.getcwd()):
-    a = os.path.join(os.getcwd(), "src/MangaManager_ThePromidius/MetadataManager/extensions")
+    a = os.path.join(os.getcwd(), "MangaManager_ThePromidius/MetadataManager/extensions")
     modules = glob.glob(os.path.join(a, "*.py"))
 extensions = [os.path.basename(f)[:-3] for f in modules if os.path.isfile(f) and not f.endswith('__init__.py')]
 settings_class = Settings("config.ini")
 settings_class.import_(main_settings())
-random_setting = main_settings
-random_setting.name = "random_setting"
-random_setting = random_setting()
-random_setting.random_dynamic_var = "random_din_ var"
+# random_setting = main_settings
+# random_setting.name = "random_setting"
+# random_setting = random_setting()
+# random_setting.random_dynamic_var = "random_din_ var"
 
-settings_class.import_(random_setting)
+# settings_class.import_(random_setting)
 for extension in extensions:
     settings_class.import_(importlib.import_module(f".MetadataManager.extensions.{extension}",
-                                                   package="src.MangaManager_ThePromidius").SettingsSectionTemplate())
+                                                   package="MangaManager_ThePromidius").SettingsSectionTemplate())
 settings_class.read()
 # settings_class.write()
 # Load Extension settings
