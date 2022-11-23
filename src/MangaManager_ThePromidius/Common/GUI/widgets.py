@@ -184,7 +184,6 @@ class ListboxWidget(tkinter.Listbox):
         index = self.content.__len__()
         super(ListboxWidget, self).insert(index, os.path.basename(loadedcinfo.file_path))
         self.content[index] = loadedcinfo
-
         self.update_cover_image(loadedcinfo)
 
     def on_select(self, event: tkinter.Event):
@@ -209,8 +208,9 @@ class CoverFrame(tkinter.LabelFrame):
         # canvas_frame.pack(expand=False)
         self.cover_subtitle = tkinter.Label(canvas_frame)
         self.cover_subtitle.configure(text='No file selected', width=25, compound="right", justify="left")
-        # self.cover_subtitle.pack(expand=False)
+        self.tooltip = Hovertip(self, "No file selected", 20)
         self.cover_subtitle.grid(row=0, sticky="w")
+
         self.canvas = tkinter.Canvas(canvas_frame)
         self.canvas.configure(background='#878787', height='260', width='190')
         self.canvas.grid(column=0, row=1)
@@ -235,6 +235,7 @@ class CoverFrame(tkinter.LabelFrame):
             self.clear()
         else:
             self.update_cover_button.grid(column=0, row=1)
+        self.tooltip.text = os.path.basename(loadedcomicinfo.file_path)
         self.canvas.itemconfig(self.canvas_image, image=loadedcomicinfo.cached_image)
         self.cover_subtitle.configure(text=basename(loadedcomicinfo.file_path))
         # , image = loadedcomicinfo.cached_image

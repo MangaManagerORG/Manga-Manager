@@ -2,6 +2,7 @@ import os
 import random
 from tkinter.filedialog import askopenfiles
 
+from MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.MetadataManager import MetadataManagerGUI
 from tests.MetadataManagerTests.common import create_dummy_files, TKinterTestCase
@@ -25,6 +26,10 @@ class UiToCinfoTest(TKinterTestCase):
                 os.remove(filename)
             except Exception as e:
                 print(e)
+    def test_all_fields_loaded(self):
+        self.root = app = MetadataManagerGUI.App()
+        for tag in MetadataManagerLib.cinfo_tags:
+            self.assertTrue(tag in app.widget_mngr.get_tags())
 
     def test_all_fields_map_to_cinfo(self):
         self.root = app = MetadataManagerGUI.App()

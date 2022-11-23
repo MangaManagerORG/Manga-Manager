@@ -136,9 +136,9 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.side_info_frame.pack(side="left", anchor="nw", padx=30, pady=25)
 
         # Action Buttons
-        control_frame = Frame(self.side_info_frame, pady=20)
-        control_frame.pack(side="top", fill="both", expand=False)
-        btn = ButtonWidget(master=control_frame, text="Load Files", tooltip="Load the metadata and cover to edit them")
+        control_frame = Frame(self.side_info_frame)
+        control_frame.pack(side="top", fill="both", expand=False, pady=(0,20))
+        btn = ButtonWidget(master=control_frame, text="Open Files", tooltip="Load the metadata and cover to edit them")
         btn.configure(command=self.select_files)
         btn.pack(fill="both", expand=True)
         btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes")
@@ -146,10 +146,9 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         btn.pack(fill="both", expand=True)
 
         # Show Selected Files - ListBox
-        self.files_selected_frame = tkinter.LabelFrame(self.side_info_frame, pady=10)
+        self.files_selected_frame = tkinter.LabelFrame(self.side_info_frame)
 
-        self.files_selected_frame.selected_files_label = Label(self.files_selected_frame, text="Selected Files:",
-                                                               )
+        self.files_selected_frame.selected_files_label = Label(self.files_selected_frame, text="Opened Files:")
         self.files_selected_frame.selected_files_label.pack(expand=True, fill="both", anchor="nw")
         self.files_selected_frame.listbox = ListboxWidget(self.files_selected_frame)
         self.files_selected_frame.listbox.pack(expand=True, fill="both", anchor="center")
@@ -158,7 +157,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.image_cover_frame = CoverFrame(self.side_info_frame)
         self.files_selected_frame.listbox.update_cover_image = self.image_cover_frame.update_cover_image
         self.image_cover_frame.pack(expand=True, fill='both')
-        self.files_selected_frame.pack(expand=False, fill="both", side="bottom")
+        self.files_selected_frame.pack(expand=False, fill="both", side="bottom",pady=(20,0))
 
         #################
         # Basic info - first column
@@ -305,6 +304,11 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
                 new_cinfo.set_attr_by_name(cinfo_tag, self.widget_mngr.get_widget(cinfo_tag).get())
 
     def on_item_loaded(self, loadedcomicInfo: LoadedComicInfo):
+        """
+        Called when an item gets added to the listbox
+        :param loadedcomicInfo:
+        :return:
+        """
         self.files_selected_frame.listbox.insert(loadedcomicInfo)
         self.update()
 
