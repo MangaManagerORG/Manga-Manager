@@ -18,7 +18,7 @@ class main_settings(SettingsSection):
         self.covers_folder_path = ""
 
 
-a = os.path.abspath(os.path.join(os.getcwd(),"MetadataManager/extensions"))
+a = os.path.abspath(os.path.join(os.getcwd(), "MetadataManager/extensions"))
 modules = glob.glob(os.path.join(a, "*.py"))
 if not modules and "src" in os.listdir(os.getcwd()):
     a = os.path.join(os.getcwd(), "MangaManager_ThePromidius/MetadataManager/extensions")
@@ -33,7 +33,7 @@ settings_class.import_(main_settings())
 
 # settings_class.import_(random_setting)
 for extension in extensions:
-    settings_class.import_(importlib.import_module(f".MetadataManager.extensions.{extension}",
+    settings_class.import_(importlib.import_module(f"MetadataManagersrc..extensions.{extension}",
                                                    package="MangaManager_ThePromidius").SettingsSectionTemplate())
 settings_class.read()
 # settings_class.write()

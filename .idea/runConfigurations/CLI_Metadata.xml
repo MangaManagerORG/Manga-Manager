@@ -23,7 +23,7 @@
       </ENTRIES>
     </EXTENSION>
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/MangaManager_ThePromidius/MangaManager.pyw" />
-    <option name="PARAMETERS" value="./**/test_patching/* --cli" />
+    <option name="PARAMETERS" value="--cli &quot;D:\Descargas\ANIME\**\*.cbr&quot;" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="true" />
     <option name="MODULE_MODE" value="false" />

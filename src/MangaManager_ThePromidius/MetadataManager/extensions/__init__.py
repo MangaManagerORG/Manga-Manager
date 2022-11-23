@@ -6,8 +6,8 @@ import tkinter
 from tkinter import ttk
 
 from src.MangaManager_ThePromidius.Common.Templates.extension import Extension
-from src.MangaManager_ThePromidius.MetadataManager.extensions.webpconverter import ExtensionAppGUI
 
+#
 logger = logging.getLogger(__name__)
 
 class ExtensionController:
@@ -26,6 +26,7 @@ class ExtensionController:
 
     def load_extensions(self):
         logger.debug(f"Loading extensions. CWD:'{os.getcwd()}")
+        logger.debug("Somethingggg{}")
         modules = glob.glob(os.path.join(self.path_to_extensions, "*.py"))
         logger.debug(f"Found modules: [{', '.join(modules)}]")
         extensions = [os.path.basename(f)[:-3] for f in modules if os.path.isfile(f) and not f.endswith('__init__.py')]
@@ -77,7 +78,7 @@ class GUIExtensionManager(ExtensionController):
             tkinter.Button(parent_frame, text=loaded_extension.name, command=lambda:
             self.run_extension(loaded_extension)).pack(side="top")
 
-    def run_extension(self, extension: ExtensionAppGUI):
+    def run_extension(self, extension):
         for child in self.extension_active_frame.winfo_children():
             child.destroy()
         self.extension_active_frame.configure(text=extension.name)

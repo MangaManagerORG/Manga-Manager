@@ -68,11 +68,11 @@ class App(MetadataManagerLib):
         global app
         app = self
         self.new_edited_cinfo = merged_info = self.merge_loaded_metadata()
-        merged_info.set_Summary(
-            "3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r\n\nsdad3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r")
-        print("a")
+        # merged_info.set_Summary(
+        #     "3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r\n\nsdad3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r")
+        # print("a")
         self.terminal_width_half = int(self.terminal_width / 2 - 40)
-        custom_entered_values =[]
+        custom_entered_values = []
         self.clear()
 
         self.running = True
@@ -86,7 +86,7 @@ class App(MetadataManagerLib):
                     value_2 = [""]
                 print_once = False
                 print(" " * self.terminal_width, end="\r")
-                print("─" * self.terminal_width)
+                # print("─" * self.terminal_width)
                 for val_1, val2 in itertools.zip_longest(value_1, value_2, fillvalue=" "):
 
                     if not print_once:
