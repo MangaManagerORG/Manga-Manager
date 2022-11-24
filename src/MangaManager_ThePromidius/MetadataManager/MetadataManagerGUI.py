@@ -18,18 +18,20 @@ from src.MangaManager_ThePromidius.MetadataManager import comicinfo
 from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget, \
-    ScrolledFrameWidget, WidgetManager, ListboxWidget, CoverFrame, ButtonWidget, SettingsWidgetManager
+    ScrolledFrameWidget, WidgetManager, CoverFrame, ButtonWidget, SettingsWidgetManager, TreeviewWidget
+
 # import MangaManager_ThePromidius.settings
 main_settings = settings_class.main
 
 
 class App(Tk, MetadataManagerLib, GUIExtensionManager):
     main_frame: Frame
-
+    prev_selected_loaded_cinfo_list: list[LoadedComicInfo] = []
+    inserting_files = False
     def __init__(self):
         super(App, self).__init__()
         # self.wm_minsize(1000, 660)
-        self.geometry("1000x730")
+        self.geometry("1000x800")
         # super(MetadataManagerLib, self).__init__()
 
         self.widget_mngr = WidgetManager()
@@ -51,6 +53,9 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.cinfo_tags = self.widget_mngr.get_tags()
         # print(self.widget_mngr.get_tags())
 
+
+    def get_selected_loaded_cinfo_list(self):
+        return self.selected_files_listbox.get_selected() or self.loaded_cinfo_list
     ############
     # GUI methods
     ############
@@ -59,9 +64,9 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.widget_mngr.clean_widgets()
         self.image_cover_frame.clear()
         self.selected_files_path = list()
-        self.files_selected_frame.listbox.delete(0, tkinter.END)  # FIXME: this is not deleting the listbox correctly
+        self.selected_files_listbox.clear()  # FIXME: this is not deleting the listbox correctly
         self.last_folder = ""
-
+        self.inserting_files = True
         # These are some tricks to make it easier to select files.
         # Saves last opened folder to not have to browse to it again
         if not self.last_folder:
@@ -82,9 +87,10 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.selected_files_path = [file.name for file in selected_paths_list]
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
-        self.load_cinfo_list()
+        self.open_cinfo_list()
 
         self._serialize_cinfolist_to_gui()
+        self.inserting_files = False
 
     def show_settings(self):
         print("Show_settings")
@@ -93,6 +99,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
     def _initialize_frames(self):
         # MENU
         self.main_frame = Frame(self)
+
         setting_btn = ButtonWidget(master=self, text="⚙ Settings", font=('Arial', 10), command=self.show_settings)
         self.main_frame.configure(pady=10, padx=10)
         # self.main_frame.configure(bg="blue", borderwidth=2)
@@ -121,11 +128,14 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         # self.numbering_info_frame = Frame(self.misc_frame_numbering)
         # self.numbering_info_frame.grid(row=0)
 
-        self.main_frame.configure(height='600', width='200')
+        self.main_frame.configure(height='630', width='200')
         self.main_frame.pack(anchor='center', expand=True, fill='both', side='top')
-
+        self.changes_saved = Label(master=self, text="Changes are not saved", font=('Arial', 10))
         self.focus()
         setting_btn.place(anchor=tkinter.NE, relx=1)
+
+    def unsaved_files(self):
+        self.changes_saved.place(anchor=tkinter.NE, relx=0.885)
 
     def display_widgets(self):
 
@@ -150,12 +160,16 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
 
         self.files_selected_frame.selected_files_label = Label(self.files_selected_frame, text="Opened Files:")
         self.files_selected_frame.selected_files_label.pack(expand=True, fill="both", anchor="nw")
-        self.files_selected_frame.listbox = ListboxWidget(self.files_selected_frame)
-        self.files_selected_frame.listbox.pack(expand=True, fill="both", anchor="center")
+        # self.selected_files_listbox = ListboxWidget(self.files_selected_frame, selectmode="multiple")
+        self.selected_files_listbox = TreeviewWidget(self.files_selected_frame)
+        self.selected_files_listbox.pack(expand=True, fill="both", anchor="center")
 
         # Selected Covers
         self.image_cover_frame = CoverFrame(self.side_info_frame)
-        self.files_selected_frame.listbox.update_cover_image = self.image_cover_frame.update_cover_image
+
+        self.selected_files_listbox.add_hook_item_selected(self.on_file_selection_preview)
+
+        # self.selected_files_listbox.update_cover_image = self.image_cover_frame.update_cover_image
         self.image_cover_frame.pack(expand=True, fill='both')
         self.files_selected_frame.pack(expand=False, fill="both", side="bottom",pady=(20,0))
 
@@ -165,8 +179,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         parent_frame = Frame(self.basic_info_frame, padx=20)
         parent_frame.pack(side="right", expand=True, fill="both")
 
-        self.widget_mngr.Title = ComboBoxWidget(parent_frame, cinfo_name="Title",
-                                                tooltip="The title of the chapter").pack()
+
         self.widget_mngr.Series = ComboBoxWidget(parent_frame, cinfo_name="Series",
                                                  tooltip="The name of the series").pack()
         self.widget_mngr.LocalizedSeries = ComboBoxWidget(parent_frame, cinfo_name="LocalizedSeries",
@@ -174,31 +187,43 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
                                                           tooltip="The translated series name").pack()
         self.widget_mngr.SeriesSort = ComboBoxWidget(parent_frame, cinfo_name="SeriesSort",
                                                      label_text="Series Sort").pack()
+        self.widget_mngr.SeriesGroup = ComboBoxWidget(parent_frame, cinfo_name="SeriesGroup", label_text="Series Group").pack()
+
+        self.widget_mngr.Title = ComboBoxWidget(parent_frame, cinfo_name="Title",
+                                                tooltip="The title of the chapter").pack()
         self.widget_mngr.Summary = LongTextWidget(parent_frame, cinfo_name="Summary").pack()
         self.widget_mngr.Genre = ComboBoxWidget(parent_frame, cinfo_name="Genre").pack()
         self.widget_mngr.Tags = ComboBoxWidget(parent_frame, cinfo_name="Tags").pack()
+        self.widget_mngr.Web = ComboBoxWidget(parent_frame, cinfo_name="Web").pack()
         # TODO: add global tag and genre
+        self.widget_mngr.StoryArc = ComboBoxWidget(parent_frame, "StoryArc", label_text="Story Arc").pack()
         self.widget_mngr.AlternateSeries = ComboBoxWidget(parent_frame, cinfo_name="AlternateSeries",
                                                           label_text="Alternate Series").pack()
-        self.widget_mngr.Notes = ComboBoxWidget(parent_frame, cinfo_name="Notes").pack()
-        self.widget_mngr.AgeRating = OptionMenuWidget(parent_frame, "AgeRating", "Age Rating",
-                                                      "Unknown", *comicinfo.AgeRating.list()).pack()
-        self.widget_mngr.CommunityRating = ComboBoxWidget(parent_frame, cinfo_name="CommunityRating",
+
+        com_age_rat_frame = Frame(parent_frame)
+        com_age_rat_frame.pack(side="top", expand=False,fill="x")
+        self.widget_mngr.AgeRating = OptionMenuWidget(com_age_rat_frame, "AgeRating", "Age Rating",
+                                                      "Unknown", *comicinfo.AgeRating.list()).pack(expand=True,fill="both",side="left")
+
+        self.widget_mngr.CommunityRating = ComboBoxWidget(com_age_rat_frame, cinfo_name="CommunityRating",
                                                           label_text="Community Rating",
-                                                          validation="rating").pack()
-        self.widget_mngr.ScanInformation = ComboBoxWidget(parent_frame, cinfo_name="ScanInformation",
-                                                          label_text="Scan Information").pack()
-        self.widget_mngr.StoryArc = ComboBoxWidget(parent_frame, "StoryArc", label_text="Story Arc").pack()
+                                                          validation="rating").pack(expand=True,fill="both",side="right")
+
+
 
         self.widget_mngr.AlternateCount = ComboBoxWidget(parent_frame, cinfo_name="AlternateCount",
                                                          label_text="Alternate Count",
-                                                         default="-1", validation="int", width=20)
+                                                         default="-1", validation="int", width=20).pack()
+        self.widget_mngr.ScanInformation = ComboBoxWidget(parent_frame, cinfo_name="ScanInformation",
+                                                          label_text="Scan Information").pack()
+        self.widget_mngr.Notes = ComboBoxWidget(parent_frame, cinfo_name="Notes").pack()
 
         #################
         # People column
         #################
         parent_frame = self.people_info_frame
         self.widget_mngr.Writer = ComboBoxWidget(parent_frame, "Writer").pack()
+        self.widget_mngr.Penciller = ComboBoxWidget(parent_frame, "Penciller").pack()
         self.widget_mngr.Inker = ComboBoxWidget(parent_frame, "Inker").pack()
         self.widget_mngr.Colorist = ComboBoxWidget(parent_frame, "Colorist").pack()
         self.widget_mngr.Letterer = ComboBoxWidget(parent_frame, "Letterer").pack()
@@ -257,11 +282,19 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
     ###################
     # Processing methods
     ###################
-    def _serialize_cinfolist_to_gui(self):
+    def _serialize_cinfolist_to_gui(self, loaded_cinfo_list=None):
+        """
 
-        for loaded_cinfo in self.loaded_cinfo_list:
-            if loaded_cinfo.cached_image:
-                self.image_cover_frame.update_cover_image(loaded_cinfo)
+        :param loaded_cinfo_list:
+        :return:
+        """
+        if not loaded_cinfo_list:
+            loaded_cinfo_list = self.get_selected_loaded_cinfo_list()
+        self.widget_mngr.clean_widgets()
+        self.image_cover_frame.update_cover_image(loaded_cinfo_list)
+        for loaded_cinfo in loaded_cinfo_list:
+            # if loaded_cinfo.cached_image:
+
             for cinfo_tag in self.widget_mngr.get_tags():
                 cinfo_field_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
                 widget = self.widget_mngr.get_widget(cinfo_tag)
@@ -292,24 +325,62 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
                         widget.set(cinfo_field_value)
 
     def pre_process(self):
+        self.changes_saved.place_forget()
+        self.loaded_cinfo_list_to_process = self.get_selected_loaded_cinfo_list()
         self.serialize_gui_to_edited_cinfo()
-        self.proces()
+        self.process()
         self.new_edited_cinfo = None  # Nulling value to be safe
 
     def serialize_gui_to_edited_cinfo(self):
+        """
+        Sets new_edited_cinfo
+        :return:
+        """
         new_cinfo = self.new_edited_cinfo = comicinfo.ComicInfo()
         for cinfo_tag in self.widget_mngr.get_tags():
             widget = self.widget_mngr.get_widget(cinfo_tag)
             if widget.get() != widget.default and widget.get():
                 new_cinfo.set_attr_by_name(cinfo_tag, self.widget_mngr.get_widget(cinfo_tag).get())
 
+
+    def on_file_selection_preview(self, *args):
+        """
+        Method called when the users selects one or more files to previe the metadata
+        Called dinamically
+        :return:
+        """
+        if not self.inserting_files:
+            if not self.prev_selected_loaded_cinfo_list:
+                self.serialize_gui_to_edited_cinfo()  # Sets new_edited_cinfo
+                self.prev_selected_loaded_cinfo_list = self.get_selected_loaded_cinfo_list()
+                self.merge_changed_metadata(soft_save=True)  # Reads new_edited_cinfo and applies to loaded cinfo
+            else:
+                self.unsaved_files()
+                # Soft-save current modified data
+                self.serialize_gui_to_edited_cinfo()  # Sets new_edited_cinfo
+                self.loaded_cinfo_list_to_process = self.prev_selected_loaded_cinfo_list
+                self.merge_changed_metadata(soft_save=True)  # Reads new_edited_cinfo and applies to loaded cinfo
+
+
+        # Display new selection data
+        self._serialize_cinfolist_to_gui(*args)  # Reds loaded cinfo from new selection
+        self.image_cover_frame.update_cover_image(*args)
+        self.prev_selected_loaded_cinfo_list = self.get_selected_loaded_cinfo_list()
+
+        ###################
+    #################
+    # INTERFACE IMPLEMENTATIONS
+    #################
+    ###################
+
     def on_item_loaded(self, loadedcomicInfo: LoadedComicInfo):
         """
-        Called when an item gets added to the listbox
+        Called by backend when an item gets added to the loaded comic info list
         :param loadedcomicInfo:
         :return:
         """
-        self.files_selected_frame.listbox.insert(loadedcomicInfo)
+        self.selected_files_listbox.insert(loadedcomicInfo)
+        self.image_cover_frame.update_cover_image([loadedcomicInfo])
         self.update()
 
     #################################

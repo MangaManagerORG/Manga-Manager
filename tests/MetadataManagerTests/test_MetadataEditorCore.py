@@ -60,7 +60,7 @@ class CoreTesting(unittest.TestCase):
         metadata_2 = LoadedComicInfo(out_tmp_zipname2, comicinfo=cinfo_2)
 
         self.instance.loaded_cinfo_list = [metadata_1, metadata_2]
-
+        self.instance.loaded_cinfo_list_to_process = self.instance.loaded_cinfo_list
         # There is no edited comicinfo, it should fail
         self.assertRaises(EditedCinfoNotSet, self.instance.merge_changed_metadata)
         new_cinfo = comicinfo.ComicInfo()
@@ -80,13 +80,14 @@ class CoreTesting(unittest.TestCase):
         # Setup
         self.test_files_names = create_dummy_files(2)
         self.instance.selected_files_path = self.test_files_names
-        self.instance.load_cinfo_list()
+        self.instance.open_cinfo_list()
         self.assertEqual(2, len(self.instance.loaded_cinfo_list))
 
     def test_process_should_raise_exception_if_no_new_cinfo(self):
         self.test_files_names = create_dummy_files(2)
         self.instance.selected_files_path = self.test_files_names
-        self.assertRaises(NoComicInfoLoaded, self.instance.proces)
+        self.assertRaises(NoComicInfoLoaded, self.instance.process)
+
 
 
 class ErrorHandlingTests(unittest.TestCase):
@@ -128,7 +129,7 @@ class ErrorHandlingTests(unittest.TestCase):
         self.instance.selected_files_path = self.test_files_names = create_dummy_files(2)
 
         self.instance.on_badzipfile_error = MagicMock()
-        self.instance.load_cinfo_list()
+        self.instance.open_cinfo_list()
         self.instance.on_badzipfile_error.assert_called()
 
     @patch.multiple(MetadataManagerLib.MetadataManagerLib, __abstractmethods__=set())
@@ -150,7 +151,7 @@ class ErrorHandlingTests(unittest.TestCase):
         self.instance.selected_files_path = self.test_files_names = create_dummy_files(2)
 
         self.instance.on_corruped_metadata_error = MagicMock()
-        self.instance.load_cinfo_list()
+        self.instance.open_cinfo_list()
         self.instance.on_corruped_metadata_error.assert_called()
 
     @patch.multiple(MetadataManagerLib.MetadataManagerLib, __abstractmethods__=set())
@@ -167,7 +168,8 @@ class ErrorHandlingTests(unittest.TestCase):
         self.instance.loaded_cinfo_list = [RaisePermissionError(path) for path in self.test_files_names]
         self.instance.new_edited_cinfo = comicinfo.ComicInfo()
         self.instance.on_writing_error = MagicMock()
-        self.instance.proces()
+        self.instance.loaded_cinfo_list_to_process = self.instance.loaded_cinfo_list
+        self.instance.process()
         self.instance.on_writing_error.assert_called()
 
     @patch.multiple(MetadataManagerLib.MetadataManagerLib, __abstractmethods__=set())
@@ -184,5 +186,6 @@ class ErrorHandlingTests(unittest.TestCase):
         self.instance.loaded_cinfo_list = [RaisePermissionError(path) for path in self.test_files_names]
         self.instance.new_edited_cinfo = comicinfo.ComicInfo()
         self.instance.on_writing_exception = MagicMock()
-        self.instance.proces()
+        self.instance.loaded_cinfo_list_to_process = self.instance.loaded_cinfo_list
+        self.instance.process()
         self.instance.on_writing_exception.assert_called()

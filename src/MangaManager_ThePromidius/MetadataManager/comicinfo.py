@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pragma: no cover
-# Generated Wed Mar 23 22:29:29 2022 by generateDS.py version 2.40.7.
+
+#
+# Generated Thu Nov 24 17:13:50 2022 by generateDS.py version 2.40.7.
 # Python 3.10.0 (tags/v3.10.0:b494f59, Oct  4 2021, 19:00:18) [MSC v.1929 64 bit (AMD64)]
 #
 # Command line options:
@@ -1106,12 +1107,12 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
     superclass = None
 
     def __init__(self, Title='', Series='', Number='', Count=-1, Volume=-1, AlternateSeries='', SeriesSort='',
-                 LocalizedSeries='', AlternateNumber='', AlternateCount=-1, Summary='', Notes='', Year=-1, Month=-1,
-                 Day=-1, Writer='', Penciller='', Inker='', Colorist='', Letterer='', CoverArtist='', Editor='',
-                 Translator='', Publisher='', Imprint='', Genre='', Tags='', Web='', PageCount=0, LanguageISO='',
-                 Format='', BlackAndWhite='Unknown', Manga='Unknown', Characters='', Teams='', Locations='',
-                 ScanInformation='', StoryArc='', StoryArcNumber='', SeriesGroup='', AgeRating='Unknown', Pages=None,
-                 CommunityRating='', gds_collector_=None, **kwargs_):
+                 LocalizedSeries='', AlternateNumber='', AlternateCount=-1, Summary='', Notes='', Year=-1, Month=-1, Day=-1, Writer='', Penciller='', Inker='',
+                 Colorist='', Letterer='', CoverArtist='', Editor='', Translator='', Publisher='', Imprint='', Genre='',
+                 Tags='', Web='', PageCount=0, LanguageISO='', Format='', BlackAndWhite='Unknown', Manga='Unknown',
+                 Characters='', Teams='', Locations='', ScanInformation='', StoryArc='', StoryArcNumber='',
+                 SeriesGroup='', AgeRating='Unknown', Pages=None, CommunityRating='', MainCharacterOrTeam='',
+                 Review='', gds_collector_=None, **kwargs_):
         self.gds_collector_ = gds_collector_
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
@@ -1207,6 +1208,14 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
         self.CommunityRating = CommunityRating
         self.validate_Rating(self.CommunityRating)
         self.CommunityRating_nsprefix_ = None
+
+        self.Pages = Pages
+        self.Pages_nsprefix_ = None
+
+        self.MainCharacterOrTeam = MainCharacterOrTeam
+        self.MainCharacterOrTeam_nsprefix_ = None
+        self.Review = Review
+        self.Review_nsprefix_ = None
 
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
@@ -1491,6 +1500,18 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
     def set_CommunityRating(self, CommunityRating):
         self.CommunityRating = CommunityRating
 
+    def get_MainCharacterOrTeam(self):
+        return self.MainCharacterOrTeam
+
+    def set_MainCharacterOrTeam(self, MainCharacterOrTeam):
+        self.MainCharacterOrTeam = MainCharacterOrTeam
+
+    def get_Review(self):
+        return self.Review
+
+    def set_Review(self, Review):
+        self.Review = Review
+
     def validate_YesNo(self, value):
         result = True
         # Validate type YesNo, a restriction on xs:string.
@@ -1621,7 +1642,9 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
                 self.SeriesGroup != "" or
                 self.AgeRating != "Unknown" or
                 self.Pages is not None or
-                self.CommunityRating != ""
+                self.CommunityRating != "" or
+                self.MainCharacterOrTeam != "" or
+                self.Review != ""
         ):
             return True
         else:
@@ -1918,6 +1941,19 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
             outfile.write('<%sCommunityRating>%s</%sCommunityRating>%s' % (
                 namespaceprefix_, self.gds_format_decimal(self.CommunityRating, input_name='CommunityRating'),
                 namespaceprefix_, eol_))
+        if self.MainCharacterOrTeam != "":
+            namespaceprefix_ = self.MainCharacterOrTeam_nsprefix_ + ':' if (
+                        UseCapturedNS_ and self.MainCharacterOrTeam_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sMainCharacterOrTeam>%s</%sMainCharacterOrTeam>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.MainCharacterOrTeam), input_name='MainCharacterOrTeam')),
+                                                                                   namespaceprefix_, eol_))
+        if self.Review != "":
+            namespaceprefix_ = self.Review_nsprefix_ + ':' if (UseCapturedNS_ and self.Review_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sReview>%s</%sReview>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Review), input_name='Review')),
+            namespaceprefix_, eol_))
 
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -2200,6 +2236,18 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
             self.CommunityRating_nsprefix_ = child_.prefix
             # validate type Rating
             self.validate_Rating(self.CommunityRating)
+        elif nodeName_ == 'MainCharacterOrTeam':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'MainCharacterOrTeam')
+            value_ = self.gds_validate_string(value_, node, 'MainCharacterOrTeam')
+            self.MainCharacterOrTeam = value_
+            self.MainCharacterOrTeam_nsprefix_ = child_.prefix
+        elif nodeName_ == 'Review':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'Review')
+            value_ = self.gds_validate_string(value_, node, 'Review')
+            self.Review = value_
+            self.Review_nsprefix_ = child_.prefix
 
 
 # end class ComicInfo

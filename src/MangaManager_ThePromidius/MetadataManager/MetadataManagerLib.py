@@ -55,40 +55,52 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
     selected_files_path = None
     new_edited_cinfo: ComicInfo | None = None
     loaded_cinfo_list: list[LoadedComicInfo] = list()
-    cinfo_tags: list[str] = ['Title', 'Series', 'LocalizedSeries', 'SeriesSort', 'Summary', 'Genre', 'Tags',
-                             'AlternateSeries', 'Notes', 'AgeRating', 'CommunityRating', 'ScanInformation', 'StoryArc',
-                             'AlternateCount', 'Writer', 'Inker', 'Colorist', 'Letterer', 'CoverArtist', 'Editor',
-                             'Translator', 'Publisher', 'Imprint', 'Characters', 'Teams', 'Locations', 'Number',
-                             'AlternateNumber', 'Count', 'Volume', 'PageCount', 'Year', 'Month', 'Day',
-                             'StoryArcNumber', 'LanguageISO', 'Format', 'BlackAndWhite', 'Manga']
+    cinfo_tags: list[str] = ["Title", "Series", "Number", "Count", "Volume", "AlternateSeries", "AlternateNumber",
+                             "AlternateCount", "Summary", "Notes", "Year", "Month", "Day", "Writer", "Penciller",
+                             "Inker", "Colorist", "Letterer", "CoverArtist", "Editor", "Translator", "Publisher",
+                             "Imprint", "Genre", "Tags", "Web", "PageCount", "LanguageISO", "Format", "BlackAndWhite",
+                             "Manga", "Characters", "Teams", "Locations", "ScanInformation", "StoryArc",
+                             "StoryArcNumber", "SeriesGroup", "AgeRating", "CommunityRating",
+                             "MainCharacterOrTeam", "Review",
+	    ]
+    # cinfo_tags: list[str] = ['Title', 'Series', 'LocalizedSeries', 'SeriesSort', 'Summary', 'Genre', 'Tags',
+    #                          'AlternateSeries', 'Notes', 'AgeRating', 'CommunityRating', 'ScanInformation', 'StoryArc',
+    #                          'AlternateCount', 'Writer', 'Inker', 'Colorist', 'Letterer', 'CoverArtist', 'Editor',
+    #                          'Translator', 'Publisher', 'Imprint', 'Characters', 'Teams', 'Locations', 'Number',
+    #                          'AlternateNumber', 'Count', 'Volume', 'PageCount', 'Year', 'Month', 'Day',
+    #                          'StoryArcNumber', 'LanguageISO', 'Format', 'BlackAndWhite', 'Manga']
     MULTIPLE_VALUES_CONFLICT = "~~## Multiple Values in this Field - Keep Original Values ##~~"
     tags_with_multiple_values = []
-    def proces(self):
+    loaded_cinfo_list_to_process: list[LoadedComicInfo] = list()
+
+    def process(self):
         """
         Core function
         Reads the new cinfo class and compares it against all LoadedComicInfo.
         Applies the changes to the LoadedComicInfo unless the value in cinfo is a special one (-1 -keep current,-2 - clear field)
         :return: list of loadedcinfo that failed to update :
         """
-        if not self.loaded_cinfo_list:
-            raise NoComicInfoLoaded()
+        try:
+            if not self.loaded_cinfo_list_to_process:
+                raise NoComicInfoLoaded()
+            self.merge_changed_metadata()
+            self.preview_export()
+            for loaded_info in self.loaded_cinfo_list_to_process:
+                # noinspection PyBroadException
+                try:
+                    loaded_info.write_metadata()
+                except PermissionError as e:
+                    logger.error("Failed to write changes because of missing permissions "
+                                 "or because other program has the file opened", exc_info=True)
+                    self.on_writing_error(exception=e, loaded_info=loaded_info)
+                    # failed_processing.append(loaded_info)
+                except Exception as e:
+                    logger.exception("Unhandled exception saving changes")
+                    self.on_writing_exception(exception=e, loaded_info=loaded_info)
+        finally:
+            self.loaded_cinfo_list_to_proces: list[LoadedComicInfo] = list()
 
-        self.merge_changed_metadata()
-        self.preview_export()
-        for loaded_info in self.loaded_cinfo_list:
-            # noinspection PyBroadException
-            try:
-                loaded_info.write_metadata()
-            except PermissionError as e:
-                logger.error("Failed to write changes because of missing permissions "
-                             "or because other program has the file opened", exc_info=True)
-                self.on_writing_error(exception=e, loaded_info=loaded_info)
-                # failed_processing.append(loaded_info)
-            except Exception as e:
-                logger.exception("Unhandled exception saving changes")
-                self.on_writing_exception(exception=e, loaded_info=loaded_info)
-
-    def load_cinfo_list(self) -> None:
+    def open_cinfo_list(self) -> None:
         """
         Creates a list of comicinfo with the comicinfo metadata from the selected files.
 
@@ -98,6 +110,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
 
         logger.debug("Loading files")
         self.loaded_cinfo_list: list[LoadedComicInfo] = list()
+        self.loaded_cinfo_list_to_process: list[LoadedComicInfo] = list()
         for file_path in self.selected_files_path:
             try:
                 loaded_cinfo = LoadedComicInfo(path=file_path).load_all()
@@ -114,19 +127,21 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
             self.on_item_loaded(loaded_cinfo)
         logger.debug("Files selected")
 
-    def merge_changed_metadata(self):
+    def merge_changed_metadata(self,soft_save=False):
         """
         Edited comic info gets applied to each loaded ComicInfo
         If edited version == '~~## Multiple Values in this Field ##~~' then original values are kept
         Else it applies the edited version.
+        :raises EditedCinfoNotSet if new_edited_cinfo is None
         :return:
         """
+        logger_tag = "[Soft-Saving][Merging]" if soft_save else "[Merging]"
         self.tags_with_multiple_values = []
         if self.new_edited_cinfo is None:
             raise EditedCinfoNotSet("Runtime error: Edited CINFO not set")
 
-        for loaded_cinfo in self.loaded_cinfo_list:
-            logger.debug(f"[Merging] Merging changes to {loaded_cinfo.file_path}")
+        for loaded_cinfo in self.loaded_cinfo_list_to_process:
+            logger.debug(f"{logger_tag} Merging changes to {loaded_cinfo.file_path}")
 
             for cinfo_tag in self.cinfo_tags:
                 new_value = self.new_edited_cinfo.get_attr_by_name(cinfo_tag)
@@ -134,11 +149,11 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 # If the value in the ui is to keep original values then we continue with the next field
                 if new_value == self.MULTIPLE_VALUES_CONFLICT:
                     logger.debug(
-                        f"[Merging][{cinfo_tag:15s}] Keeping \x1b[31;1mOld\x1b[0m '\x1b[33;20m{old_value}\x1b[0m' vs New: '{new_value}'")
+                        f"{logger_tag}[{cinfo_tag:15s}] Keeping \x1b[31;1mOld\x1b[0m '\x1b[33;20m{old_value}\x1b[0m' vs New: '{new_value}'")
                     self.tags_with_multiple_values.append(cinfo_tag)
                     continue
                 # Write whatever is in the new (edited) cinfo
-                logger.debug(f"[Merging][{cinfo_tag:15s}] Keeping \x1b[31;1mNew\x1b[0m '{old_value}' vs "
+                logger.debug(f"{logger_tag}[{cinfo_tag:15s}] Keeping \x1b[31;1mNew\x1b[0m '{old_value}' vs "
                              f"New: '\x1b[33;20m{new_value}\x1b[0m' - Keeping new value")
                 loaded_cinfo.cinfo_object.set_attr_by_name(cinfo_tag, new_value)
 
@@ -150,7 +165,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         out_cinfo = comicinfo.ComicInfo()
         for tag in self.cinfo_tags:
             multiple_values = []
-            for loaded_cinfo in self.loaded_cinfo_list:
+            for loaded_cinfo in self.loaded_cinfo_list_to_process:
                 a = loaded_cinfo.cinfo_object.get_attr_by_name(tag)
                 if a:
                     if a not in multiple_values:
@@ -164,7 +179,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
             out_cinfo.set_attr_by_name(tag, final_value)
         return out_cinfo
     def preview_export(self):
-        for loaded_cinfo in self.loaded_cinfo_list:
+        for loaded_cinfo in self.loaded_cinfo_list_to_process:
             print(loaded_cinfo.__dict__)
             export = StringIO()
             print(loaded_cinfo.cinfo_object is None)

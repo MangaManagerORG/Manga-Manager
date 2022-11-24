@@ -53,7 +53,7 @@ def _(event):
 def _(event:prompt_toolkit.key_binding.KeyPressEvent):
     """Exit when `c-q` is pressed."""
     event.app.exit()
-    app.proces()
+    app.process()
 
 
 class App(MetadataManagerLib):
@@ -63,7 +63,7 @@ class App(MetadataManagerLib):
         self.selected_files_path = file_paths
         self.serve_ui()
     def serve_ui(self):
-        self.load_cinfo_list()
+        self.open_cinfo_list()
         # self.merge_changed_metadata()
         global app
         app = self
@@ -151,10 +151,10 @@ class App(MetadataManagerLib):
         self.clear()
         self.running = False
         exit()
-    def proces(self):
+    def process(self):
         self.clear()
         self.running = False
-        super(App, self).proces()
+        super(App, self).process()
 
     #     while True:
     #         is_valid_tool = Validator.from_callable(

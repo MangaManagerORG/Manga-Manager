@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os.path
 import re
 import tkinter
@@ -15,13 +16,16 @@ from src.MangaManager_ThePromidius import settings_class
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from .models import LongText
 from .scrolledframe import ScrolledFrame
+from ..errors import NoFilesSelected
 
-INT_PATTERN = re.compile("^-?\d+(?:,?\d+|\.?\d+)?$")
+INT_PATTERN = re.compile("^-*\d*(?:,?\d+|\.?\d+)?$")
+MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
+logger = logging.getLogger()
 
 
 def validate_int(value):
     ilegal_chars = [character for character in str(value) if not INT_PATTERN.match(character)]
-    # print(f"Ilegal chars: {ilegal_chars}")
+    print(f"Ilegal chars: {ilegal_chars}")
     return not ilegal_chars
 
 
@@ -46,9 +50,9 @@ class WidgetManager:
     def clean_widgets(self):
         for widget_name in self.__dict__:
             widget = self.get_widget(widget_name)
-            widget.set(widget.default)
+            widget.set_default()
             if isinstance(widget, ComboBoxWidget):
-                widget.widget['values'] = []
+                widget.widget['values'] = widget.default_vals or []
 
     def get_tags(self):
         return [tag for tag in self.__dict__]
@@ -74,14 +78,17 @@ class Widget(Frame):
                 return
             self.widget.set(value)
 
+    def set_default(self):
+        self.widget.set(self.default)
+
     def get(self):
         return self.widget.get()
 
-    def pack(self) -> Widget:
+    def pack(self, **kwargs) -> Widget:
         widget = self.widget_slave or self.widget
         widget.pack(fill="both", side="top")
 
-        super(Frame, self).pack(fill='both', side='top')
+        super(Frame, self).pack(kwargs or {"fill":"both", "side":"top"})
         return self
 
     def grid(self, row=None, column=None, **kwargs) -> Widget:
@@ -108,6 +115,7 @@ class ComboBoxWidget(Widget):
             label_text = cinfo_name
         self.name = cinfo_name
         self.default = default
+        self.default_vals = default_values
         # Label:
         self.set_label(label_text, tooltip)
 
@@ -184,17 +192,19 @@ class ListboxWidget(tkinter.Listbox):
         index = self.content.__len__()
         super(ListboxWidget, self).insert(index, os.path.basename(loadedcinfo.file_path))
         self.content[index] = loadedcinfo
-        self.update_cover_image(loadedcinfo)
+        self.update_cover_image([loadedcinfo])
 
     def on_select(self, event: tkinter.Event):
         if not event.widget.curselection():
             return
-        index = int(event.widget.curselection()[0])
-        loadedcinfo: LoadedComicInfo = self.content.get(index)
-        print('You selected item %d: "%s"' % (index, loadedcinfo.file_path))
-        self.update_cover_image(loadedcinfo)
+        indexes = event.widget.curselection()
+        if isinstance(indexes,tuple):
+            self.update_cover_image([self.content.get(index) for index in indexes])
+        else:
+            loadedcinfo: LoadedComicInfo = self.content.get(indexes)
+            self.update_cover_image([loadedcinfo])
 
-    def update_cover_image(self, loadedcomicinfo: LoadedComicInfo):
+    def update_cover_image(self, loadedcomicinfo: list[LoadedComicInfo]):
         ...
 
 
@@ -230,7 +240,15 @@ class CoverFrame(tkinter.LabelFrame):
         self.update_cover_button.grid_remove()
         return
 
-    def update_cover_image(self, loadedcomicinfo: LoadedComicInfo):
+    def update_cover_image(self, loadedcomicinfo_list: list[LoadedComicInfo], multiple=False):
+        if len(loadedcomicinfo_list)>1:
+            self.clear()
+            self.cover_subtitle.configure(text=MULTIPLE_FILES_SELECTED)
+            self.tooltip.text = "\n".join([os.path.basename(loadedcomicinfo.file_path) for loadedcomicinfo in loadedcomicinfo_list])
+            return
+        if not loadedcomicinfo_list:
+            raise NoFilesSelected()
+        loadedcomicinfo = loadedcomicinfo_list[0]
         if not loadedcomicinfo.cached_image:
             self.clear()
         else:
@@ -314,4 +332,60 @@ class SettingsWidgetManager:
                 entry_data = self.settings_widget.get(setting_section).get(config).get()
                 set_class.set_value(config,entry_data)
         settings_class.write()
+
+
+def _run_hook(source:list[callable], *args):
+    for hook_function in source:
+        try:
+            hook_function(*args)
+        except:
+            logger.exception("Error calling hook")
+
+
+class TreeviewWidget(tkinter.ttk.Treeview):
+    def __init__(self, *args,**kwargs):
+        super(TreeviewWidget, self).__init__(padding=[-20,0,0,0],*args, **kwargs)
+        self.heading('#0', text='Click to select all files', anchor='n',command=self.select_all)
+        # self.pack(expand=True, side="top")
+        self.bind('<<TreeviewSelect>>', self._on_select)
+
+        self._hook_items_inserted: list[callable] = []
+        self._hook_items_selected: list[callable] = []
+        self.content = {}
+    def clear(self):
+        self.delete(*self.get_children())
+
+    def select_all(self,event=None):
+        for item in self.get_children():
+            self.selection_add(item)
+
+    def get_selected(self) -> list[LoadedComicInfo]:
+        return [self.content.get(item) for item in self.selection()]
+
+    def insert(self, loaded_cinfo:LoadedComicInfo, *args, **kwargs):
+        a = super(TreeviewWidget, self).insert("", 'end', loaded_cinfo.file_path, text=loaded_cinfo.file_name, *args, **kwargs)
+        self.content[loaded_cinfo.file_path] = loaded_cinfo
+        # self._call_hook_item_inserted(loaded_cinfo)
+        self.select_all()
+
+    def _on_select(self, event=None):
+        selected = [self.content.get(item) for item in self.selection()]
+        if not selected:
+            return
+        self._call_hook_item_selected(selected)
+
+    ##################
+    # Hook Stuff
+    ##################
+    def add_hook_item_selected(self,function: callable):
+        self._hook_items_selected.append(function)
+
+    def add_hook_item_inserted(self, function: callable):
+        self._hook_items_inserted.append(function)
+
+    def _call_hook_item_selected(self,loaded_cinfo_list:list[LoadedComicInfo]):
+        _run_hook(self._hook_items_selected,loaded_cinfo_list)
+
+    def _call_hook_item_inserted(self,loaded_comicinfo:LoadedComicInfo):
+        _run_hook(self._hook_items_inserted,[loaded_comicinfo])
 
