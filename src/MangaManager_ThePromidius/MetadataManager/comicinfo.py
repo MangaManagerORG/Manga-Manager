@@ -1663,6 +1663,7 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
         if UseCapturedNS_ and self.ns_prefix_:
             namespaceprefix_ = self.ns_prefix_ + ':'
         showIndent(outfile, level, pretty_print)
+        outfile.write(f"<?xml version='1.0' encoding='{ExternalEncoding or 'utf-8'}'?>\n")
         outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ComicInfo')
