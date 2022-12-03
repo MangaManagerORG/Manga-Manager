@@ -14,15 +14,7 @@ from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.Common.settings import SettingsSection
 from src.MangaManager_ThePromidius.Common.utils import ShowPathTreeAsDict
 
-
-class SettingsSectionTemplate(SettingsSection):
-    name = "WebpConverter"
-
-    def initialize(self):
-        self.default_base_path = ""
-
-settings = None
-
+setting = settings.get_setting("WebpConverter")
 class ExtensionApp(Extension):
     name = "Webp Converter"
     base_path: str
@@ -37,13 +29,6 @@ class ExtensionApp(Extension):
 class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
     treeview_frame: ScrolledFrameWidget = None
     nodes: dict
-
-    def __init__(self):
-        super(ExtensionApp, self).__init__()
-        if SettingsSectionTemplate.name:
-            from src.MangaManager_ThePromidius import settings_class
-            global settings
-            settings = settings_class.get_setion(SettingsSectionTemplate.name)
 
     def select_base(self):
         self.base_path = filedialog.askdirectory()  # select directory
@@ -82,7 +67,7 @@ class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
 
     def serve_gui(self, parentframe):
         frame = ScrolledFrameWidget(parentframe).create_frame()
-        self.selected_base_path = tkinter.StringVar(None, value="" if not settings else settings.default_base_path )
+        self.selected_base_path = tkinter.StringVar(None, value=settings.default_base_path )
 
         tkinter.Button(frame, text="Select Base Directory", command=self.select_base).pack()
         self.base_path_entry = tkinter.Entry(frame, state="readonly", textvariable=self.selected_base_path)

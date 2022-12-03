@@ -1,87 +1,144 @@
-import abc
-import dataclasses
-import logging
+import copy
 from configparser import ConfigParser
 
-config = ConfigParser()
+# from src.MangaManager_ThePromidius import CONFIG_PATH
+from typing import MutableMapping
+
+CONFIG_PATH = ""
+CPARSER = ConfigParser()
 
 
-logger = logging.getLogger("Settings")
+class SettingItem(object):
+    def __init__(self, section, key, name, tooltip):
+        self.section = section
+        self.key = key
+        self.name = name
+        self.tooltip = tooltip
+        self.value = ""
 
-# @dataclasses.dataclass
-class SettingsSection(abc.ABC):
-    def __init__(self):
-        self.initialize()
+    def __repr__(self):
+        return self.value
 
-    @abc.abstractmethod
-    def initialize(self):
-        ...
+    def __str__(self):
+        return self.value
 
-    def get_value(self, value):
-        return getattr(self, value)
 
-    def set_value(self,name, value):
-        setattr(self, name, value)
+class SettingsSection(object):
+    _section_name: str
 
-_CONFIG_PATH = "config.ini"
-@dataclasses.dataclass
-class _DummySetting(SettingsSection):
-    def initialize(self):
-        ...
-    def fill(self, values:dict):
-        self.__dict__.update(values)
-        # setattr(self,'__dict__', values)
-        return self
+    # @classmethod
+
+    def __init__(self, section_name, settings_dict: dict):
+        self.settings: list[SettingItem] = []
+        self._section_name = section_name
+        self.pname = settings_dict["pretty_name"]
+
+        a = {}
+        for value in settings_dict.get("values"):
+            b = copy.copy(SettingItem)
+            b.value = property(lambda self_: CPARSER.get(self_.section, self_.key),
+                               lambda self_, new_value: CPARSER[self_.section].update({self_.key: new_value}))
+            # b.__repr__ = lambda self_: CPARSER.get(self._section_name, value["key"])
+            c = b(section_name, **value)
+            c.__dict__.update(value)
+            a[value["key"]] = c
+            self.settings.append(c)
+
+        self.__dict__.update(a)
+        # for value_dict in settings_dict["values"]:
+        #     self._register_key(value_dict.get("key"))
+
+    @property
+    def section_name(self) -> str:
+        return self._section_name
+
+    # @classmethod
+    # def _register_key(cls, name):
+    #     setattr(cls, name,
+    #             property(
+    #                 lambda self_: self_.get(name),
+    #                 lambda self_, value: self_.set(name, value))
+    #             )
+
+    @classmethod
+    def get(cls, key, *args, **kargs):
+        return CPARSER.get(cls._section_name, key)
+
+    @classmethod
+    def set(cls, key, value, *args, **kargs):
+        CPARSER[cls._section_name][key] = value
+
+
+factory: dict[MutableMapping[str,SettingsSection]] = dict()
+
+
+def register_section(section_name, section: SettingsSection):
+    factory[section_name] = section
 
 
 class Settings:
-    # def __init__(self):
-    # if not os.path.exists(_CONFIG_FILE):
-    def __init__(self, config_path = ""):
-        _CONFIG_PATH = config_path
+    CPARSER = CPARSER
+    factory = factory
 
-    def read(self):
-        if not self.__dict__:
-            raise RuntimeError("Modules must be imported prior to read their configs")
-        config.read(_CONFIG_PATH)
-        for section in config.sections():
-            if section not in self.__dict__:
-                section_class = _DummySetting
-                section_class.name = section
-                section_class = section_class()
-                section_class.fill(config[section])
-                # self.main = section_class
+    def __init__(self, config_path):
+        self.factory: dict[str:SettingsSection] = factory
+        global CONFIG_PATH
+        CONFIG_PATH = config_path
 
-            else:
-                section_class = getattr(self, section)
-            for key in config[section]:
-                setattr(section_class, key, config.get(section, key))
-            # self.__dict__.update(config[section])
-            setattr(self, section, section_class)
-        self.write()
+    @staticmethod
+    def get_setting(section_name) -> SettingsSection:
+        return factory.get(section_name)
 
-    def write(self):
-        for section in self.__dict__:
-            if not self.__dict__.get(section):
-                logger.warning(f"Aborting loading extension settings. Section: '{section}'")
-                continue
-            config[section] = getattr(self,section).__dict__ # FIXME: weird error here
-        with open(_CONFIG_PATH, 'w') as f:
-            config.write(f)
+    @staticmethod
+    def list_settings() -> list[str]:
+        return [setting_key for setting_key in factory]
 
-    def import_(self, value):
-        """
-        Modules must be imported prior to read the config
-        :param value:
-        :return:
-        """
-        # section_class = SettingsSection()
-        setattr(self, value.name, value)
+    @staticmethod
+    def save_settings() -> None:
 
-    def get_setion(self, value) -> SettingsSection:
-        return getattr(self, value)
-# if __name__ == '__main__':
-#     a = Settings()
-#     a.read()
-#     a.write()
-#     print("sda")
+        with open(CONFIG_PATH, 'w') as f:
+
+            CPARSER.write(f)
+
+    def load_settings(self) -> None:
+        CPARSER.read(CONFIG_PATH)
+        for section in registered_settings_sections:
+            section_class = SettingsSection(section, registered_settings_sections.get(section))
+            register_section(section, section_class)
+            setattr(self, section_class.section_name, section_class)
+            print("sdSAd")
+
+###
+#
+#   Default settings for base modules
+#
+
+
+registered_settings_sections = {
+    "main": {
+        "pretty_name": "Main settings",
+        "values": [
+            {
+                "key": "library_path",
+                "name": "Library path",
+                "tooltip": "The path to your library. This location will be opened by default when choosing files"
+            },
+            {
+                "key": "covers_folder_path",
+                "name": "Covers folder path",
+                "tooltip": "The path to your covers. This location will be opened by default when choosing covers"
+            }
+        ]
+    },
+    "WebpConverter": {
+        "pretty_name": "Webp Converter Settings",
+        "values": [
+            {
+                "key": "default_base_path",
+                "name": "Default base path",
+                "tooltip": "The starting point where the glob will begin looking for files that match the pattern"
+            }
+        ]
+
+    }
+}

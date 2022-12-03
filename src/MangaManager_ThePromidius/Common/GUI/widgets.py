@@ -296,8 +296,24 @@ def center(win):
     win.deiconify()
 
 
+class SettingStringVar(tkinter.StringVar):
+
+    def __init__(self, *args, **kwargs):
+        super(SettingStringVar, self).__init__(*args, **kwargs)
+        self.linked_setting: SettingItem = None
+
+    # def set(self, value: str) -> None:
+    #     self.linked_setting.value = value
+    #     super(SettingStringVar, self).set(value)
+
+
 class SettingsWidgetManager:
+    def parse_ui_settings_process(self):
+        for stringvar in self.strings_vars:
+            stringvar.linked_setting.value = stringvar.get()
+        settings.save_settings()
     def __init__(self, parent):
+        self.strings_vars:list[SettingStringVar] = []
         settings_window = tkinter.Toplevel(parent, pady=30, padx=30)
         settings_window.title("Settings")
         self.widgets_frame = tkinter.Frame(settings_window, pady=30, padx=30)
@@ -305,36 +321,50 @@ class SettingsWidgetManager:
         control_frame = tkinter.Frame(settings_window)
         control_frame.pack()
         ButtonWidget(master=control_frame, text="Save", tooltip="Saves the settings to the config file",
-                     command=self.save).pack()
+                     command=self.parse_ui_settings_process).pack()
         # for setting_section in settings_class.__dict__.sort(key=):
         self.settings_widget = {}
-        for settings_section in sorted(settings_class.__dict__, key=lambda k: settings_class.__dict__[k].name.lower()):
+        for settings_section in settings.factory:
+            section_class = settings.get_setting(settings_section)
+
+
             frame = tkinter.LabelFrame(master=self.widgets_frame, text=settings_section)
             frame.pack(expand=True, fill="both", ipady=15)
-            settings_section_class = settings_class.get_setion(settings_section)
+
             self.settings_widget[settings_section] = {}
-            for i, setting in enumerate(settings_section_class.__dict__):
-                row = tkinter.Frame(frame)
-                row.pack(expand=True, fill="x")
-                tkinter.Label(master=row, text=setting, width=20, justify="right", anchor="e").pack(side="left")
-                entry = tkinter.Entry(master=row, width=80)
-                entry.setting_section = settings_section
-                entry.setting_name = setting
-                self.settings_widget[settings_section][setting] = entry
-                entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
-                entry.insert(0, settings_section_class.get_value(setting))
-        center(settings_window)
+            self.print_setting_entry(frame, section_class)
+            center(settings_window)
 
-    def save(self):
-        for setting_section in self.settings_widget:
-            set_class = settings_class.get_setion(setting_section)
-            for config in self.settings_widget.get(setting_section):
-                entry_data = self.settings_widget.get(setting_section).get(config).get()
-                set_class.set_value(config,entry_data)
-        settings_class.write()
+    def print_setting_entry(self, parent_frame, section_class):
+        for i, setting in enumerate(section_class.settings):
+            row = tkinter.Frame(parent_frame)
+            row.pack(expand=True, fill="x")
+            label = tkinter.Label(master=row, text=setting.name, width=20, justify="right", anchor="e")
+            label.pack(side="left")
+            if setting.tooltip:
+                label.configure(text=label.cget('text') + '  ⁱ')
+                label.tooltip = Hovertip(label, setting.tooltip, 20)
+            string_var = SettingStringVar(value=setting.value,name=f"{setting.section}.{setting.key}")
+            string_var.linked_setting = setting
+            self.strings_vars.append(string_var)
+            entry = tkinter.Entry(master=row, width=80,textvariable=string_var)
+            entry.setting_section = section_class._section_name
+            entry.setting_name = setting
+            self.settings_widget[section_class._section_name][setting] = entry
+            entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
+            entry.insert(0, setting.value)
 
 
-def _run_hook(source:list[callable], *args):
+    # def save(self):
+    #     for setting_section in self.settings_widget:
+    #         set_class = settings_class.get_setion(setting_section)
+    #         for config in self.settings_widget.get(setting_section):
+    #             entry_data = self.settings_widget.get(setting_section).get(config).get()
+    #             set_class.set_value(config,entry_data)
+
+
+
+def _run_hook(source: list[callable], *args):
     for hook_function in source:
         try:
             hook_function(*args)

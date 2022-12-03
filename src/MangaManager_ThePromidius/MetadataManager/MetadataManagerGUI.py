@@ -5,7 +5,8 @@ import os
 import tkinter
 from tkinter import Tk, Frame, Label, messagebox as mb, ttk
 
-from src.MangaManager_ThePromidius import settings_class
+from MangaManager_ThePromidius.Common.errors import NoFilesSelected
+from src.MangaManager_ThePromidius import settings
 from src.MangaManager_ThePromidius.Common.utils import get_platform
 from src.MangaManager_ThePromidius.MetadataManager.extensions import GUIExtensionManager
 
@@ -18,10 +19,11 @@ from src.MangaManager_ThePromidius.MetadataManager import comicinfo
 from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget, \
-    ScrolledFrameWidget, WidgetManager, CoverFrame, ButtonWidget, SettingsWidgetManager, TreeviewWidget
+    ScrolledFrameWidget, WidgetManager, CoverFrame, ButtonWidget, SettingsWidgetManager, TreeviewWidget, \
+    ProgressBarWidget
 
 # import MangaManager_ThePromidius.settings
-main_settings = settings_class.main
+main_settings = settings.get_setting("main")
 
 
 class App(Tk, MetadataManagerLib, GUIExtensionManager):
