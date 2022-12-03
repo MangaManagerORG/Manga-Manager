@@ -45,17 +45,17 @@ class UiToCinfoTest(TKinterTestCase):
         for cinfo_tag in app.cinfo_tags:
             widget = app.widget_mngr.get_widget(cinfo_tag)
             if widget.validation:
-                app.widget_mngr.get_widget(cinfo_tag).set(random_number)
+                app.widget_mngr.get_widget(cinfo_tag).set(random_number, )
             try:
-                app.widget_mngr.get_widget(cinfo_tag).set(cinfo_tag)
+                app.widget_mngr.get_widget(cinfo_tag).set(cinfo_tag, )
             except AttributeError:
-                app.widget_mngr.get_widget(cinfo_tag).set(cinfo_tag)
+                app.widget_mngr.get_widget(cinfo_tag).set(cinfo_tag, )
         # Set different entry types values
 
-        app.widget_mngr.get_widget("Summary").widget.set("Summary")
-        app.widget_mngr.get_widget("AgeRating").widget.set("AgeRating")
-        app.widget_mngr.get_widget("BlackAndWhite").widget.set("BlackAndWhite")
-        app.widget_mngr.get_widget("Manga").widget.set("Manga")
+        app.widget_mngr.get_widget("Summary").widget.set("Summary", )
+        app.widget_mngr.get_widget("AgeRating").widget.set("AgeRating", )
+        app.widget_mngr.get_widget("BlackAndWhite").widget.set("BlackAndWhite", )
+        app.widget_mngr.get_widget("Manga").widget.set("Manga", )
         # app.serialize_gui_to_edited_cinfo()
         # app.pre_process()
 
@@ -85,17 +85,17 @@ class UiToCinfoTest(TKinterTestCase):
         for cinfo_tag in app.cinfo_tags:
             widget = app.widget_mngr.get_widget(cinfo_tag)
             if widget.validation:
-                app.widget_mngr.get_widget(cinfo_tag).set(random_number)
+                app.widget_mngr.get_widget(cinfo_tag).set(random_number, )
             try:
-                app.widget_mngr.get_widget(cinfo_tag).set(cinfo_tag)
+                app.widget_mngr.get_widget(cinfo_tag).set(cinfo_tag, )
             except AttributeError:
-                app.widget_mngr.get_widget(cinfo_tag).set(cinfo_tag)
+                app.widget_mngr.get_widget(cinfo_tag).set(cinfo_tag, )
         # Set different entry types values
 
-        app.widget_mngr.get_widget("Summary").widget.set("Summary")
-        app.widget_mngr.get_widget("AgeRating").widget.set("AgeRating")
-        app.widget_mngr.get_widget("BlackAndWhite").widget.set("BlackAndWhite")
-        app.widget_mngr.get_widget("Manga").widget.set("Manga")
+        app.widget_mngr.get_widget("Summary").widget.set("Summary", )
+        app.widget_mngr.get_widget("AgeRating").widget.set("AgeRating", )
+        app.widget_mngr.get_widget("BlackAndWhite").widget.set("BlackAndWhite", )
+        app.widget_mngr.get_widget("Manga").widget.set("Manga", )
         app.pre_process()
 
 

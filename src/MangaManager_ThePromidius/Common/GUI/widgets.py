@@ -6,22 +6,24 @@ import re
 import tkinter
 from idlelib.tooltip import Hovertip
 from os.path import basename
-from tkinter import OptionMenu, Frame, Label
+from tkinter import OptionMenu, Frame, Label, ttk
 from tkinter.scrolledtext import ScrolledText
 from tkinter.ttk import Combobox
 
 from PIL import UnidentifiedImageError
 
-from src.MangaManager_ThePromidius import settings_class
+from src.MangaManager_ThePromidius import settings
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from .models import LongText
+from .progressbar import ProgressBar
 from .scrolledframe import ScrolledFrame
 from ..errors import NoFilesSelected
+from ..settings import SettingItem
 
 INT_PATTERN = re.compile("^-*\d*(?:,?\d+|\.?\d+)?$")
 MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
 logger = logging.getLogger()
-
+window_width, window_height = 0, 0
 
 def validate_int(value):
     ilegal_chars = [character for character in str(value) if not INT_PATTERN.match(character)]
@@ -208,22 +210,54 @@ class ListboxWidget(tkinter.Listbox):
         ...
 
 
-class CoverFrame(tkinter.LabelFrame):
+class CoverFrame(tkinter.Frame):
     canvas_image = None
+    canvas_image_last = None
+
+    def rezized(self, event: tkinter.Event):
+        global window_width, window_height
+        if (window_width != event.width):# or (window_height != event.height)
+            print(f"The width of Toplevel is {window_width}vs{event.width} and the height of Toplevel "
+                  f"is {window_height}vs{event.height}")
+        #
+            if 1000 >= event.width:
+            # window_width, window_height = event.width, event.height
+                print(f"The width of Toplevel is {window_width}vs{event.width} and the height of Toplevel "
+                  f"is {window_height}vs{event.height}")
+                self.hide_back_image()
+                window_width, window_height = event.width, event.height
+
+            elif 1000 < event.width and window_width+400 < event.width:
+                self.show_back_image()
+                window_width, window_height = event.width, event.height
 
     def __init__(self, master):
-        super(CoverFrame, self).__init__(master)
+        super(CoverFrame, self).__init__(master,highlightbackground="black", highlightthickness=2)
         self.configure(pady=5)
         canvas_frame = self
+        canvas_frame.configure(background="red")
+        master.master.bind("<Configure>", self.rezized)
+
         # canvas_frame.pack(expand=False)
-        self.cover_subtitle = tkinter.Label(canvas_frame)
+        self.cover_subtitle = tkinter.Label(canvas_frame,background="violet")
         self.cover_subtitle.configure(text='No file selected', width=25, compound="right", justify="left")
         self.tooltip = Hovertip(self, "No file selected", 20)
-        self.cover_subtitle.grid(row=0, sticky="w")
+        self.cover_subtitle.grid(row=0, sticky="nsew")
+        # self.grid_rowconfigure(0, weight=1)
+        # self.grid_rowconfigure(2, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        # self.grid_columnconfigure(1, weight=1)
+        images_frame = Frame(canvas_frame,background="yellow")
 
-        self.canvas = tkinter.Canvas(canvas_frame)
+        images_frame.grid(column=0, row=1, sticky="nsew")
+
+        self.canvas = tkinter.Canvas(images_frame)
         self.canvas.configure(background='#878787', height='260', width='190')
-        self.canvas.grid(column=0, row=1)
+        self.canvas.pack(side="left")
+        self.canvas_back = tkinter.Canvas(images_frame)
+        self.canvas_back.configure(background='#878227', height='260', width='190')
+        self.canvas_back.pack(side="right")
+        # self.canvas.grid(column=0, row=1,sticky="nsew")
 
         self.update_cover_button = ButtonWidget(master=canvas_frame, text='Replace Cover',
                                                 tooltip="Click to REPLACE this cover image",
@@ -236,7 +270,9 @@ class CoverFrame(tkinter.LabelFrame):
         # self.update_cover_button.configure(text="Select covers", state="normal")
         # self.update_cover_button.grid()
         self.canvas.delete('all')
+        self.canvas_back.delete('all')
         self.create_canvas_image()
+        self.create_canvas_back_image()
         self.update_cover_button.grid_remove()
         return
 
@@ -249,27 +285,33 @@ class CoverFrame(tkinter.LabelFrame):
         if not loadedcomicinfo_list:
             raise NoFilesSelected()
         loadedcomicinfo = loadedcomicinfo_list[0]
-        if not loadedcomicinfo.cached_image:
+        if not loadedcomicinfo.cached_image and not loadedcomicinfo.cached_image_last:
             self.clear()
         else:
             self.update_cover_button.grid(column=0, row=1)
         self.tooltip.text = os.path.basename(loadedcomicinfo.file_path)
         self.canvas.itemconfig(self.canvas_image, image=loadedcomicinfo.cached_image)
+        self.canvas_back.itemconfig(self.canvas_image_last, image=loadedcomicinfo.cached_image_last)
         self.cover_subtitle.configure(text=basename(loadedcomicinfo.file_path))
         # , image = loadedcomicinfo.cached_image
 
     def create_canvas_image(self):
-        # self.update_cover_button.grid_remove() - Change to update button text to change cover
         try:
             self.canvas_image = self.canvas.create_image(0, 0, anchor=tkinter.NW)
         except UnidentifiedImageError as e:
             ...
-            # mb.showerror("File is not a valid image", f"The file {image_path} is not a valid image file",
-            #              parent=self.master)
-            # logger.error(f"UnidentifiedImageError - Image file: '{image_path}'")
+    def create_canvas_back_image(self):
+        try:
+            self.canvas_image_last = self.canvas_back.create_image(0, 0, anchor=tkinter.NW)
+        except UnidentifiedImageError as e:
+            ...
 
-            # self.update_cover_button.configure(text="Select covers", state="normal")
-            # self.update_cover_button.grid()
+    def hide_back_image(self):
+        self.canvas_back.pack_forget()
+        self.canvas.pack(side="top")
+    def show_back_image(self):
+        self.canvas_back.pack(side="right")
+        self.canvas.pack(side="left")
 
     def opencovers(self):
         ...
@@ -418,4 +460,41 @@ class TreeviewWidget(tkinter.ttk.Treeview):
 
     def _call_hook_item_inserted(self,loaded_comicinfo:LoadedComicInfo):
         _run_hook(self._hook_items_inserted,[loaded_comicinfo])
+
+
+class ProgressBarWidget(ProgressBar):
+    def __init__(self, parent):
+
+        pb_frame = Frame(parent)
+        # pb_frame =parent
+        pb_frame.pack(expand=True,fill="x")
+        super().__init__()
+        bar_frame = Frame(pb_frame)
+        bar_frame.pack(fill="x",side="top")
+        bar_frame.columnconfigure(0, weight=1)
+        self.progress_bar = ttk.Progressbar(bar_frame, length=300,
+                                            mode="determinate")  # create progress bar
+        self.progress_bar.grid(row=0, column=0, sticky="we")
+        self.progress_label = tkinter.StringVar(value="0 %")
+        self.label = Label(bar_frame, textvariable=self.progress_label)
+        self.label.grid(row=0,column=0)
+        # self.progress_bar.pack(expand=False, fill="x",side="top")
+        self.pb_label_variable = tkinter.StringVar(value=self.label_text)
+        self.pb_label = tkinter.Label(pb_frame, justify="right",textvariable=self.pb_label_variable)
+        self.pb_label.pack(expand=False, fill="x",side="right")
+        # self.pb_label.columnconfigure(0, weight=1)
+        # self.pb_label.grid(row=1, column=0, sticky="e")
+        logger.info("Initialized progress bar")
+
+    def _update(self):
+
+        if not self.timer:
+            return
+        if self.processed >= self.total:
+            self.timer.stop()
+        self.pb_label_variable.set(self.label_text)
+        self.progress_label.set(f"{round(self.percentage, 2)}")
+
+        self.progress_bar['value'] = self.percentage
+        self.progress_bar.update()
 

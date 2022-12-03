@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import time
 from io import BytesIO
 from pathlib import Path
 from typing import IO
@@ -20,30 +21,33 @@ ALT_COVER_PATTERN = re.compile(f"(?i)({'|'.join([cover_r3_alt])})")
 IS_IMAGE_PATTERN = re.compile(rf"(?i).*.(?:{'|'.join(IMAGE_EXTENSIONS)})$")
 
 
-def obtain_cover_filename(file_list) -> str:
+def obtain_cover_filename(file_list) -> (str,str):
     """
     Helper function to find a cover file based on a list of filenames
     :param file_list:
     :return:
     """
+    list_image_files = [filename for filename in file_list if IS_IMAGE_PATTERN.findall(filename)]
     cover = None
+    latest_cover = sorted(list_image_files, key=natsort_key_with_path_support, reverse=True)[0]
     # Cover stuff
     possible_covers = [filename for filename in file_list
                        if IS_IMAGE_PATTERN.findall(filename) and COVER_PATTERN.findall(filename)]
     if possible_covers:
         cover = possible_covers[0]
-        return cover
+        return cover,latest_cover
     # Try to get 0001
     possible_covers = [filename for filename in file_list if ALT_COVER_PATTERN.findall(filename)]
     if possible_covers:
         cover = possible_covers[0]
-        return cover
+        return cover,latest_cover
     # Resource back to first filename available that is a cover
-    list_image_files = (filename for filename in file_list if IS_IMAGE_PATTERN.findall(filename))
+    # list_image_files = (filename for filename in file_list if IS_IMAGE_PATTERN.findall(filename))
     cover = sorted(list_image_files, key=natsort_key_with_path_support, reverse=False)
     if cover:
         cover = cover[0]
-        return cover
+        return cover,latest_cover
+    print("asdasdas")
 
 
 webp_supported_formats = (".png", ".jpeg", ".jpg")
@@ -128,3 +132,45 @@ class ShowPathTreeAsDict:
 
     def on_subfolder(self, parent_dict: dict, subfolder):
         ...
+
+
+def get_elapsed_time(start_time: float) -> str:
+    """
+    This functions returns a string of how much time has elapsed
+
+    :param start_time: The start time (time.time())
+    :return: "{minutes:int} minutes and {seconds:int} seconds"
+    """
+    if start_time == -1:
+        return 0
+    current_time = time.time()
+    seconds = current_time - start_time
+    minutes, seconds = divmod(seconds, 60)
+
+    return f"{int(round(minutes, 0))} minutes and {int(round(seconds, 0))} seconds"
+
+
+def get_estimated_time(start_time: float, processed_files: int, total_files: int) -> str:
+    """
+    This functions returns a statistic of how much time is left to finish processing. (Uses elapsed time per file)
+
+    :param start_time: The start time (time.time())
+    :param processed_files: Number of files that have already been processed
+    :param total_files: Total number of files to be processed
+    :return: "{minutes:int} minutes and {seconds:int} seconds"
+    """
+    if start_time == -1:
+        return 0
+    try:
+        current_time = time.time()
+        elapsed_time = current_time - start_time
+
+        time_perFile = elapsed_time / processed_files
+
+        estimated_time = time_perFile * (total_files - processed_files)
+
+        # seconds = current_time - start_time
+        minutes, seconds = divmod(estimated_time, 60)
+        return f"{int(round(minutes, 0))} minutes and {int(round(seconds, 0))} seconds"
+    except ZeroDivisionError:
+        return f"{int(round(0, 0))} minutes and {int(round(0, 0))} seconds"

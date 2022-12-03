@@ -224,7 +224,8 @@ class LoadedComicInfo:
         return self
 
     def _load_cover_info(self, cache_cover_bytes=True):
-        self.cover_filename = obtain_cover_filename(self.archive.namelist())
+        self.cover_filename, self.cover_filename_last = obtain_cover_filename(self.archive.namelist())
+
         if not self.cover_filename:
             logger.warning(f"[{'CoverParsing':13s}] Couldn't parse any cover")
         else:
@@ -232,20 +233,33 @@ class LoadedComicInfo:
             if cache_cover_bytes:
                 self.get_cover_image_bytes()
 
-    def get_cover_image_bytes(self, resized=False) -> IO[bytes] | None:
+        if not self.cover_filename_last:
+            logger.warning(f"[{'CoverParsing':13s}] Couldn't parse any back cover")
+        else:
+            logger.info(f"[{'CoverParsing':13s}] Cover parsed as '{self.cover_filename}'")
+            if cache_cover_bytes:
+                self.get_cover_image_bytes(back_cover=True)
+
+
+    def get_cover_image_bytes(self, resized=False,back_cover=False) -> IO[bytes] | None:
         """
         Opens the cbz and returns the bytes for the parsed cover image
         :return:
         """
         if not self.file_path or not self.cover_filename:
             return None
+        if back_cover and not self.cover_filename_last:
+            return None
 
         with zipfile.ZipFile(self.file_path, 'r') as zin:
-            img_bytes = zin.open(self.cover_filename)
+            img_bytes = zin.open(self.cover_filename if not back_cover else self.cover_filename_last)
             image = Image.open(img_bytes)
             image = image.resize((190, 260), Image.LANCZOS)
             try:
-                self.cached_image = ImageTk.PhotoImage(image)
+                if not back_cover:
+                    self.cached_image = ImageTk.PhotoImage(image)
+                else:
+                    self.cached_image_last = ImageTk.PhotoImage(image)
             except RuntimeError:  # Random patch for some error when running tests
                 ...
             if resized:

@@ -49,7 +49,7 @@ class LoadedCInfo_Utils(unittest.TestCase):
         print("Running unit tests for cover filename parsing")
         for filename in list_filenames_to_test:
             with self.subTest(f"Subtest - Parsed name should match {filename[0]}"):
-                selected = obtain_cover_filename(filename[1])
+                selected = obtain_cover_filename(filename[1])[0]
                 print(f"    ┣━━	Selected file is: {selected}")
                 self.assertEqual(filename[0], selected)
 
@@ -99,7 +99,6 @@ class LoadedComicInfoReadTests(unittest.TestCase):
                 print(e)
 
     def test_simple_read(self):
-        raise Exception()
         loaded_cinfo_list = []
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Testing individual file read metadata - {i + 1}/{len(self.test_files_names)}"):

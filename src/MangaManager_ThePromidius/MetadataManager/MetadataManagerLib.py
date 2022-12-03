@@ -28,6 +28,12 @@ class _IMetadataManagerLib(abc.ABC):
         """
 
     @abc.abstractmethod
+    def on_processed_item(self, loaded_info: LoadedComicInfo):
+        """
+        Called when  a file is successfully processed
+        """
+
+    @abc.abstractmethod
     def on_corruped_metadata_error(self, exception, loaded_info: LoadedComicInfo):
         """
         Called while loading a file, and it's metadata can't be read.
@@ -89,6 +95,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 # noinspection PyBroadException
                 try:
                     loaded_info.write_metadata()
+                    self.on_processed_item(loaded_info)
                 except PermissionError as e:
                     logger.error("Failed to write changes because of missing permissions "
                                  "or because other program has the file opened", exc_info=True)
@@ -178,12 +185,13 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 continue
             out_cinfo.set_attr_by_name(tag, final_value)
         return out_cinfo
+
     def preview_export(self):
         for loaded_cinfo in self.loaded_cinfo_list_to_process:
             print(loaded_cinfo.__dict__)
             export = StringIO()
             print(loaded_cinfo.cinfo_object is None)
             loaded_cinfo.cinfo_object.export(export, 0)
-
+            print(export.getvalue())
 
 

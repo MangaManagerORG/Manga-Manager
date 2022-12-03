@@ -7,11 +7,11 @@ import tkinter
 import tkinter.ttk as ttk
 from tkinter import filedialog
 
+from src.MangaManager_ThePromidius import settings
 from src.MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget
 from src.MangaManager_ThePromidius.Common.Templates.extension import Extension, ExtensionGUI
 from src.MangaManager_ThePromidius.Common.errors import NoFilesSelected
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
-from src.MangaManager_ThePromidius.Common.settings import SettingsSection
 from src.MangaManager_ThePromidius.Common.utils import ShowPathTreeAsDict
 
 setting = settings.get_setting("WebpConverter")
