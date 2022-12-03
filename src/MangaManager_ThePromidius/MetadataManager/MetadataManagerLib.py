@@ -120,10 +120,10 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         self.loaded_cinfo_list_to_process: list[LoadedComicInfo] = list()
         for file_path in self.selected_files_path:
             try:
-                loaded_cinfo = LoadedComicInfo(path=file_path).load_all()
+                loaded_cinfo = LoadedComicInfo(path=file_path).load_metadata()
             except CorruptedComicInfo as e:
                 # Logging is handled already in LoadedComicInfo load_metadata method
-                loaded_cinfo = LoadedComicInfo(path=file_path, comicinfo=comicinfo.ComicInfo()).load_all()
+                loaded_cinfo = LoadedComicInfo(path=file_path, comicinfo=comicinfo.ComicInfo()).load_metadata()
                 self.on_corruped_metadata_error(e, loaded_info=loaded_cinfo or file_path)
                 continue
             except BadZipFile as e:

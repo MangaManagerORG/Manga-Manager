@@ -102,7 +102,7 @@ class LoadedComicInfoReadTests(unittest.TestCase):
         loaded_cinfo_list = []
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Testing individual file read metadata - {i + 1}/{len(self.test_files_names)}"):
-                cinfo = LoadedComicInfo(file_names).load_all()
+                cinfo = LoadedComicInfo(file_names).load_metadata()
                 self.assertEqual(f"Series-{i}-{self.random_int}", cinfo.cinfo_object.get_Series())
                 self.assertEqual(f"Writer-{i}-{self.random_int}", cinfo.cinfo_object.get_Writer())
 
@@ -110,14 +110,14 @@ class LoadedComicInfoReadTests(unittest.TestCase):
         print("Writing new values")
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Testing individual file read metadata - {i + 1}/{len(self.test_files_names)}"):
-                cinfo = LoadedComicInfo(file_names).load_all()
+                cinfo = LoadedComicInfo(file_names).load_metadata()
                 cinfo.cinfo_object.set_Notes(f"This text was modified - {self.random_int}")
                 cinfo.write_metadata()
         # check changes are saved
         print("Testing reading saved values")
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Testing individual write metadata - {i + 1}/{len(self.test_files_names)}"):
-                cinfo = LoadedComicInfo(file_names).load_all()
+                cinfo = LoadedComicInfo(file_names).load_metadata()
                 self.assertEqual(f"This text was modified - {self.random_int}", cinfo.cinfo_object.get_Notes())
 
                 # self.assertEqual(f"Series-{i}-{self.random_int}", cinfo.cinfo_object.get_Series())
@@ -126,7 +126,7 @@ class LoadedComicInfoReadTests(unittest.TestCase):
     def test_simple_backup(self):
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Backing up individual metadata - {i + 1}/{len(self.test_files_names)}"):
-                cinfo = LoadedComicInfo(file_names).load_all()
+                cinfo = LoadedComicInfo(file_names).load_metadata()
                 cinfo.write_metadata()
                 with zipfile.ZipFile(file_names, "r") as zf:
                     print("Asserting backup is in the file")

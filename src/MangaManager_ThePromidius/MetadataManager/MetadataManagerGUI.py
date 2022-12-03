@@ -5,8 +5,8 @@ import os
 import tkinter
 from tkinter import Tk, Frame, Label, messagebox as mb, ttk
 
-from MangaManager_ThePromidius.Common.errors import NoFilesSelected
 from src.MangaManager_ThePromidius import settings
+from src.MangaManager_ThePromidius.Common.errors import NoFilesSelected
 from src.MangaManager_ThePromidius.Common.utils import get_platform
 from src.MangaManager_ThePromidius.MetadataManager.extensions import GUIExtensionManager
 

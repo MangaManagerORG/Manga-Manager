@@ -51,6 +51,7 @@ class LoadedComicInfo:
     has_metadata: bool = False
     is_cinfo_at_root: bool = False
     cached_image: ImageTk.PhotoImage = None
+    cached_image_last: ImageTk.PhotoImage = None
 
     @property
     def cinfo_object(self):
@@ -83,7 +84,7 @@ class LoadedComicInfo:
         logger.info(f"[{'Opening File':13s}] '{os.path.basename(self.file_path)}'")
         self.cinfo_object = comicinfo
         if load_all_data:
-            self.load_all()
+            self.load_metadata()
 
     @volume.setter
     def volume(self, value):

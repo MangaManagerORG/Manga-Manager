@@ -38,7 +38,7 @@ class UiToCinfoTest(TKinterTestCase):
         self.root = app = MetadataManagerGUI.App()
         # new_edited = comicinfo.ComicInfo()
         # app.new_edited_cinfo = new_edited
-        app.loaded_cinfo_list = [LoadedComicInfo(filename).load_all() for filename in self.test_files_names]
+        app.loaded_cinfo_list = [LoadedComicInfo(filename).load_metadata() for filename in self.test_files_names]
         self.pump_events()
         app.focus_set()
         random_number = random.random()
@@ -77,7 +77,7 @@ class UiToCinfoTest(TKinterTestCase):
         self.root = app = MetadataManagerGUI.App()
         self.pump_events()
         app.select_files()
-        app.loaded_cinfo_list = [LoadedComicInfo(filename).load_all() for filename in self.test_files_names]
+        app.loaded_cinfo_list = [LoadedComicInfo(filename).load_metadata() for filename in self.test_files_names]
         self.pump_events()
         app.focus_set()
 
@@ -145,6 +145,7 @@ class CinfoToUiTest(TKinterTestCase):
         print("Assert original values will be kept")
         self.assertEqual(app.MULTIPLE_VALUES_CONFLICT, app.new_edited_cinfo.get_Series())
         # self.assertEqual(cinfo1_series, metadata_2.cinfo_object.get_Series())
+        app.selected_files_path = self.test_files_names
         app.pre_process()
         # print("Assert final values match original")
         # self.assertEqual(app.MULTIPLE_VALUES_CONFLICT, app.new_edited_cinfo.get_Series())

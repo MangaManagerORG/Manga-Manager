@@ -1,6 +1,6 @@
 from os.path import abspath, dirname, join
 
-from MangaManager_ThePromidius.Common.settings import Settings
+from src.MangaManager_ThePromidius.Common.settings import Settings
 
 _CONFIG_PATH = "config.ini"
 CONFIG_PATH = abspath(join(dirname(__file__), _CONFIG_PATH))
