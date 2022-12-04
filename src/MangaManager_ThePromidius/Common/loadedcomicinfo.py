@@ -12,6 +12,7 @@ from typing import IO
 from PIL import Image, ImageTk
 from lxml.etree import XMLSyntaxError
 
+from src.MangaManager_ThePromidius import settings as settings_class
 from src.MangaManager_ThePromidius.Common.errors import CorruptedComicInfo, BadZipFile
 from src.MangaManager_ThePromidius.Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp, \
     IS_IMAGE_PATTERN
@@ -23,7 +24,7 @@ COMICINFO_FILE = 'ComicInfo.xml'
 
 _LOG_TAG_WEBP = "Convert Webp"
 _LOG_TAG_WRITE_META = 'Write Meta'
-
+settings = settings_class.get_setting("main")
 
 class LoadedComicInfo:
     """
@@ -52,7 +53,8 @@ class LoadedComicInfo:
     is_cinfo_at_root: bool = False
     cached_image: ImageTk.PhotoImage = None
     cached_image_last: ImageTk.PhotoImage = None
-
+    has_changes = False
+    changed_tags = []
     @property
     def cinfo_object(self):
         return self._cinfo_object
@@ -72,7 +74,7 @@ class LoadedComicInfo:
         if self.cinfo_object:
             return self.cinfo_object.get_Number()
 
-    def __init__(self, path, comicinfo: ComicInfo = None, load_all_data=True):
+    def __init__(self, path, comicinfo: ComicInfo = None):
         """
 
         :param path:
@@ -83,8 +85,7 @@ class LoadedComicInfo:
         self.file_name = os.path.basename(path)
         logger.info(f"[{'Opening File':13s}] '{os.path.basename(self.file_path)}'")
         self.cinfo_object = comicinfo
-        if load_all_data:
-            self.load_metadata()
+        self.load_metadata()
 
     @volume.setter
     def volume(self, value):
@@ -94,15 +95,24 @@ class LoadedComicInfo:
     def chapter(self, value):
         self.cinfo_object.set_Number(value)
 
-    def write_metadata(self):
+    def write_metadata(self,auto_unmark_changes=False):
         # print(self.cinfo_object.__dict__)
         logger.debug(f"[{'BEGIN WRITE':13s}] Writing metadata to file '{self.file_path}'")
         # logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] ComicInfo file found in old file")
-        self._process(write_metadata=True)
+        try:
+            self._process(write_metadata=True)
+        finally:
+            if auto_unmark_changes:
+                self.has_changes = False
 
     def convert_to_webp(self):
         logger.debug(f"[{'BEGIN CONVERT':13s}] Converting to webp: '{self.file_path}'")
         self._process(convert_to_webp=True)
+
+    def _export_metadata(self) -> str:
+        exported_metadata = StringIO()
+        self.cinfo_object.export(exported_metadata, 0)
+        return exported_metadata.getvalue()
 
     def _process(self, write_metadata=False, convert_to_webp=False):
         """
@@ -112,14 +122,15 @@ class LoadedComicInfo:
 
         """
         logger.debug(f"[{'Processing':13s}] Starting")
-        exported_metadata = StringIO()
-        self.cinfo_object.export(exported_metadata, 0)
-        exported_metadata = exported_metadata.getvalue()
+
 
         # Check to just append metadata if no cinfo in already in file or no webp conversion ordered
         if write_metadata and not convert_to_webp and not self.has_metadata:
             with zipfile.ZipFile(self.file_path, mode='a', compression=zipfile.ZIP_STORED) as zf:
-                zf.writestr(COMICINFO_FILE, exported_metadata)
+                self.cinfo_object.set_PageCount(
+                    len([file_ for file_ in zf.namelist() if IS_IMAGE_PATTERN.match(file_)]))
+
+                zf.writestr(COMICINFO_FILE, self._export_metadata())
                 logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
             return
 
@@ -138,7 +149,9 @@ class LoadedComicInfo:
             with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
                 # Write the new metadata once
                 if write_metadata:
-                    zout.writestr(COMICINFO_FILE, exported_metadata)
+                    self.cinfo_object.set_PageCount(
+                        len([file_ for file_ in zin.namelist() if IS_IMAGE_PATTERN.match(file_)]))
+                    zout.writestr(COMICINFO_FILE, self._export_metadata())
                     logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
                     # Directly backup the metadata if it's at root.
                     if self.is_cinfo_at_root:

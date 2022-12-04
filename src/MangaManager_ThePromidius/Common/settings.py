@@ -9,15 +9,22 @@ CPARSER = ConfigParser()
 
 
 class SettingItem(object):
-    def __init__(self, section, key, name, tooltip):
+    def __init__(self, section, key, name, tooltip, value=None, type_=False):
         self.section = section
         self.key = key
         self.name = name
         self.tooltip = tooltip
-        self.value = ""
+        self.value = value
+        self.type_ = type_
 
     def __repr__(self):
         return self.value
+
+    def __bool__(self):
+        if self.type_ == "bool":
+            return True if self.value in ("True", True, "true") else False
+        else:
+            return bool(self.value)
 
     def __str__(self):
         return self.value
@@ -39,7 +46,9 @@ class SettingsSection(object):
             b.value = property(lambda self_: CPARSER.get(self_.section, self_.key),
                                lambda self_, new_value: CPARSER[self_.section].update({self_.key: new_value}))
             # b.__repr__ = lambda self_: CPARSER.get(self._section_name, value["key"])
+            value["value"] = CPARSER.get(self._section_name, value.get("key"))
             c = b(section_name, **value)
+
             c.__dict__.update(value)
             a[value["key"]] = c
             self.settings.append(c)
@@ -69,7 +78,7 @@ class SettingsSection(object):
         CPARSER[cls._section_name][key] = value
 
 
-factory: dict[MutableMapping[str,SettingsSection]] = dict()
+factory: dict[MutableMapping[str, SettingsSection]] = dict()
 
 
 def register_section(section_name, section: SettingsSection):
@@ -79,6 +88,7 @@ def register_section(section_name, section: SettingsSection):
 class Settings:
     CPARSER = CPARSER
     factory = factory
+
 
     def __init__(self, config_path):
         self.factory: dict[str:SettingsSection] = factory
@@ -97,16 +107,21 @@ class Settings:
     def save_settings() -> None:
 
         with open(CONFIG_PATH, 'w') as f:
-
             CPARSER.write(f)
 
     def load_settings(self) -> None:
         CPARSER.read(CONFIG_PATH)
         for section in registered_settings_sections:
+            if section not in CPARSER.sections():
+                CPARSER.add_section(section)
+                for value in registered_settings_sections.get(section).get("values"):
+                    CPARSER.set(section, value.get("key"), "")
+
             section_class = SettingsSection(section, registered_settings_sections.get(section))
             register_section(section, section_class)
             setattr(self, section_class.section_name, section_class)
             print("sdSAd")
+
 
 ###
 #
@@ -121,13 +136,19 @@ registered_settings_sections = {
             {
                 "key": "library_path",
                 "name": "Library path",
-                "tooltip": "The path to your library. This location will be opened by default when choosing files"
+                "tooltip": "The path to your library. This location will be opened by default when choosing files",
             },
             {
                 "key": "covers_folder_path",
                 "name": "Covers folder path",
                 "tooltip": "The path to your covers. This location will be opened by default when choosing covers"
-            }
+            },
+            {
+                "key": "cache_cover_images",
+                "name": "Cache cover images",
+                "tooltip": "If enabled, the covers of the file will be cached and shown in the ui",
+                "type_": "bool"
+            },
         ]
     },
     "WebpConverter": {

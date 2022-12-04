@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import logging
 import os.path
 import re
@@ -12,18 +13,21 @@ from tkinter.ttk import Combobox
 
 from PIL import UnidentifiedImageError
 
-from src.MangaManager_ThePromidius import settings
+from src.MangaManager_ThePromidius import settings as settings_class
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from .models import LongText
 from .progressbar import ProgressBar
 from .scrolledframe import ScrolledFrame
-from ..errors import NoFilesSelected
 from ..settings import SettingItem
+from ..utils import open_settings_folder
 
 INT_PATTERN = re.compile("^-*\d*(?:,?\d+|\.?\d+)?$")
 MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
 logger = logging.getLogger()
 window_width, window_height = 0, 0
+
+settings = settings_class.get_setting("main")
+
 
 def validate_int(value):
     ilegal_chars = [character for character in str(value) if not INT_PATTERN.match(character)]
@@ -55,6 +59,7 @@ class WidgetManager:
             widget.set_default()
             if isinstance(widget, ComboBoxWidget):
                 widget.widget['values'] = widget.default_vals or []
+            widget.update()
 
     def get_tags(self):
         return [tag for tag in self.__dict__]
@@ -65,6 +70,7 @@ class Widget(Frame):
     widget_slave = None
     widget: Combobox | LongText | OptionMenu
     name: str
+    NONE = "~~# None ##~~"
 
     def __init__(self, master):
         super(Widget, self).__init__(master)
@@ -90,7 +96,7 @@ class Widget(Frame):
         widget = self.widget_slave or self.widget
         widget.pack(fill="both", side="top")
 
-        super(Frame, self).pack(kwargs or {"fill":"both", "side":"top"})
+        super(Frame, self).pack(kwargs or {"fill": "both", "side": "top"})
         return self
 
     def grid(self, row=None, column=None, **kwargs) -> Widget:
@@ -135,7 +141,8 @@ class ComboBoxWidget(Widget):
 
 
 class OptionMenuWidget(Widget):
-    def __init__(self, master, cinfo_name, label_text=None, default=None, *values):
+    def __init__(self, master, cinfo_name, label_text=None, max_width=None, default=None, *values):
+
         if not label_text:
             label_text = cinfo_name
         super(OptionMenuWidget, self).__init__(master)
@@ -147,8 +154,24 @@ class OptionMenuWidget(Widget):
         self.set_label(label_text)
         # Input:
         # noinspection PyTypeChecker
-        self.widget = tkinter.StringVar(name=cinfo_name, value=default)
+
+        self.widget = tkinter.StringVar(self, name=cinfo_name, value=default)
         self.widget_slave: OptionMenu = OptionMenu(self, self.widget, *values)
+        self.widget.trace('w', self.option_select)
+        if max_width:
+            self.widget_slave.configure(width=max_width)
+
+    def update_menu(self, values) -> None:
+        self.widget.set('')
+        self.widget_slave['menu'].delete(0, 'end')
+
+        # Insert list of new options (tk._setit hooks them up to var)
+        for choice in values:
+            self.widget_slave['menu'].add_command(label=choice, command=tkinter._setit(self.widget, choice))
+
+    def option_select(self, *args):
+        print(self.widget.get())
+        self.widget_slave.focus_set()
 
 
 class LongTextWidget(Widget):
@@ -184,62 +207,39 @@ class ScrolledFrameWidget(ScrolledFrame):
         return frame
 
 
-class ListboxWidget(tkinter.Listbox):
-    def __init__(self, *args, **kwargs):
-        self.content = {}
-        super(ListboxWidget, self).__init__(*args, **kwargs)
-        self.bind('<<ListboxSelect>>', self.on_select)
-
-    def insert(self, loadedcinfo: LoadedComicInfo, *args, **kwargs) -> None:
-        index = self.content.__len__()
-        super(ListboxWidget, self).insert(index, os.path.basename(loadedcinfo.file_path))
-        self.content[index] = loadedcinfo
-        self.update_cover_image([loadedcinfo])
-
-    def on_select(self, event: tkinter.Event):
-        if not event.widget.curselection():
-            return
-        indexes = event.widget.curselection()
-        if isinstance(indexes,tuple):
-            self.update_cover_image([self.content.get(index) for index in indexes])
-        else:
-            loadedcinfo: LoadedComicInfo = self.content.get(indexes)
-            self.update_cover_image([loadedcinfo])
-
-    def update_cover_image(self, loadedcomicinfo: list[LoadedComicInfo]):
-        ...
-
-
 class CoverFrame(tkinter.Frame):
     canvas_image = None
     canvas_image_last = None
 
     def rezized(self, event: tkinter.Event):
+
         global window_width, window_height
-        if (window_width != event.width):# or (window_height != event.height)
+        if (window_width != event.width):  # or (window_height != event.height)
             print(f"The width of Toplevel is {window_width}vs{event.width} and the height of Toplevel "
                   f"is {window_height}vs{event.height}")
-        #
+            #
             if 1000 >= event.width:
-            # window_width, window_height = event.width, event.height
+                # window_width, window_height = event.width, event.height
                 print(f"The width of Toplevel is {window_width}vs{event.width} and the height of Toplevel "
-                  f"is {window_height}vs{event.height}")
+                      f"is {window_height}vs{event.height}")
                 self.hide_back_image()
                 window_width, window_height = event.width, event.height
 
-            elif 1000 < event.width and window_width+400 < event.width:
+            elif 1000 < event.width and window_width + 400 < event.width:
+                if not settings.cache_cover_images:
+                    return
                 self.show_back_image()
                 window_width, window_height = event.width, event.height
 
     def __init__(self, master):
-        super(CoverFrame, self).__init__(master,highlightbackground="black", highlightthickness=2)
+        super(CoverFrame, self).__init__(master, highlightbackground="black", highlightthickness=2)
         self.configure(pady=5)
         canvas_frame = self
         canvas_frame.configure(background="red")
         master.master.bind("<Configure>", self.rezized)
 
         # canvas_frame.pack(expand=False)
-        self.cover_subtitle = tkinter.Label(canvas_frame,background="violet")
+        self.cover_subtitle = tkinter.Label(canvas_frame, background="violet")
         self.cover_subtitle.configure(text='No file selected', width=25, compound="right", justify="left")
         self.tooltip = Hovertip(self, "No file selected", 20)
         self.cover_subtitle.grid(row=0, sticky="nsew")
@@ -247,7 +247,7 @@ class CoverFrame(tkinter.Frame):
         # self.grid_rowconfigure(2, weight=1)
         self.grid_columnconfigure(0, weight=1)
         # self.grid_columnconfigure(1, weight=1)
-        images_frame = Frame(canvas_frame,background="yellow")
+        images_frame = Frame(canvas_frame, background="yellow")
 
         images_frame.grid(column=0, row=1, sticky="nsew")
 
@@ -257,6 +257,8 @@ class CoverFrame(tkinter.Frame):
         self.canvas_back = tkinter.Canvas(images_frame)
         self.canvas_back.configure(background='#878227', height='260', width='190')
         self.canvas_back.pack(side="right")
+        if settings.cache_cover_images:
+            self.hide_back_image()
         # self.canvas.grid(column=0, row=1,sticky="nsew")
 
         self.update_cover_button = ButtonWidget(master=canvas_frame, text='Replace Cover',
@@ -277,13 +279,15 @@ class CoverFrame(tkinter.Frame):
         return
 
     def update_cover_image(self, loadedcomicinfo_list: list[LoadedComicInfo], multiple=False):
-        if len(loadedcomicinfo_list)>1:
+        if len(loadedcomicinfo_list) > 1:
             self.clear()
             self.cover_subtitle.configure(text=MULTIPLE_FILES_SELECTED)
-            self.tooltip.text = "\n".join([os.path.basename(loadedcomicinfo.file_path) for loadedcomicinfo in loadedcomicinfo_list])
+            self.tooltip.text = "\n".join(
+                [os.path.basename(loadedcomicinfo.file_path) for loadedcomicinfo in loadedcomicinfo_list])
             return
         if not loadedcomicinfo_list:
-            raise NoFilesSelected()
+            # raise NoFilesSelected()
+            return
         loadedcomicinfo = loadedcomicinfo_list[0]
         if not loadedcomicinfo.cached_image and not loadedcomicinfo.cached_image_last:
             self.clear()
@@ -300,6 +304,7 @@ class CoverFrame(tkinter.Frame):
             self.canvas_image = self.canvas.create_image(0, 0, anchor=tkinter.NW)
         except UnidentifiedImageError as e:
             ...
+
     def create_canvas_back_image(self):
         try:
             self.canvas_image_last = self.canvas_back.create_image(0, 0, anchor=tkinter.NW)
@@ -309,6 +314,7 @@ class CoverFrame(tkinter.Frame):
     def hide_back_image(self):
         self.canvas_back.pack_forget()
         self.canvas.pack(side="top")
+
     def show_back_image(self):
         self.canvas_back.pack(side="right")
         self.canvas.pack(side="left")
@@ -344,6 +350,12 @@ class SettingStringVar(tkinter.StringVar):
         super(SettingStringVar, self).__init__(*args, **kwargs)
         self.linked_setting: SettingItem = None
 
+
+class SettingBolVar(tkinter.BooleanVar):
+
+    def __init__(self, *args, **kwargs):
+        super(SettingBolVar, self).__init__(*args, **kwargs)
+        self.linked_setting: SettingItem = None
     # def set(self, value: str) -> None:
     #     self.linked_setting.value = value
     #     super(SettingStringVar, self).set(value)
@@ -352,26 +364,35 @@ class SettingStringVar(tkinter.StringVar):
 class SettingsWidgetManager:
     def parse_ui_settings_process(self):
         for stringvar in self.strings_vars:
-            stringvar.linked_setting.value = stringvar.get()
-        settings.save_settings()
+            if isinstance(stringvar, tkinter.BooleanVar):
+                stringvar.linked_setting.value = str(stringvar.get())
+            else:
+                stringvar.linked_setting.value = str(stringvar.get())
+        settings_class.save_settings()
+
     def __init__(self, parent):
-        self.strings_vars:list[SettingStringVar] = []
+        self.strings_vars: list[tkinter.Variable] = []
         settings_window = tkinter.Toplevel(parent, pady=30, padx=30)
+        settings_window.geometry("900x420")
         settings_window.title("Settings")
-        self.widgets_frame = tkinter.Frame(settings_window, pady=30, padx=30)
+
+        main_frame = ScrolledFrameWidget(settings_window, scrolltype="vertical").create_frame()
+        self.widgets_frame = tkinter.Frame(main_frame, pady=30, padx=30)
         self.widgets_frame.pack()
         control_frame = tkinter.Frame(settings_window)
         control_frame.pack()
         ButtonWidget(master=control_frame, text="Save", tooltip="Saves the settings to the config file",
                      command=self.parse_ui_settings_process).pack()
+        ButtonWidget(master=control_frame, text="Open Settings Folder",
+                     tooltip="Opens the folder where Manga Manager stores it's files",
+                     command=open_settings_folder).pack()
         # for setting_section in settings_class.__dict__.sort(key=):
         self.settings_widget = {}
-        for settings_section in settings.factory:
-            section_class = settings.get_setting(settings_section)
-
+        for settings_section in settings_class.factory:
+            section_class = settings_class.get_setting(settings_section)
 
             frame = tkinter.LabelFrame(master=self.widgets_frame, text=settings_section)
-            frame.pack(expand=True, fill="both", ipady=15)
+            frame.pack(expand=True, fill="both")
 
             self.settings_widget[settings_section] = {}
             self.print_setting_entry(frame, section_class)
@@ -379,23 +400,35 @@ class SettingsWidgetManager:
 
     def print_setting_entry(self, parent_frame, section_class):
         for i, setting in enumerate(section_class.settings):
+
             row = tkinter.Frame(parent_frame)
             row.pack(expand=True, fill="x")
-            label = tkinter.Label(master=row, text=setting.name, width=20, justify="right", anchor="e")
+            label = tkinter.Label(master=row, text=setting.name, width=30, justify="right", anchor="e")
             label.pack(side="left")
             if setting.tooltip:
                 label.configure(text=label.cget('text') + '  ⁱ')
                 label.tooltip = Hovertip(label, setting.tooltip, 20)
-            string_var = SettingStringVar(value=setting.value,name=f"{setting.section}.{setting.key}")
-            string_var.linked_setting = setting
-            self.strings_vars.append(string_var)
-            entry = tkinter.Entry(master=row, width=80,textvariable=string_var)
+
+            if setting.type_ == "bool":
+                value = True if setting.value else False
+                string_var = SettingBolVar(value=value, name=f"{setting.section}.{setting.key}")
+                string_var.linked_setting = setting
+                entry = tkinter.Checkbutton(row, variable=string_var, onvalue=1, offvalue=0)
+                entry.pack(side="left")
+                self.strings_vars.append(string_var)
+            else:
+                string_var = SettingStringVar(value=setting.value, name=f"{setting.section}.{setting.key}")
+                string_var.linked_setting = setting
+                self.strings_vars.append(string_var)
+                entry = tkinter.Entry(master=row, width=80, textvariable=string_var)
+                entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
             entry.setting_section = section_class._section_name
             entry.setting_name = setting
             self.settings_widget[section_class._section_name][setting] = entry
-            entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
-            entry.insert(0, setting.value)
-
+            if setting.type_ == "bool":
+                string_var.set(bool(setting))
+            # else:
+            # entry.insert(0, setting.value)
 
     # def save(self):
     #     for setting_section in self.settings_widget:
@@ -403,7 +436,6 @@ class SettingsWidgetManager:
     #         for config in self.settings_widget.get(setting_section):
     #             entry_data = self.settings_widget.get(setting_section).get(config).get()
     #             set_class.set_value(config,entry_data)
-
 
 
 def _run_hook(source: list[callable], *args):
@@ -415,51 +447,55 @@ def _run_hook(source: list[callable], *args):
 
 
 class TreeviewWidget(tkinter.ttk.Treeview):
-    def __init__(self, *args,**kwargs):
-        super(TreeviewWidget, self).__init__(padding=[-20,0,0,0],*args, **kwargs)
-        self.heading('#0', text='Click to select all files', anchor='n',command=self.select_all)
+    def __init__(self, *args, **kwargs):
+        super(TreeviewWidget, self).__init__(padding=[-20, 0, 0, 0], *args, **kwargs)
+        self.heading('#0', text='Click to select all files', anchor='n', command=self.select_all)
         # self.pack(expand=True, side="top")
         self.bind('<<TreeviewSelect>>', self._on_select)
-
         self._hook_items_inserted: list[callable] = []
         self._hook_items_selected: list[callable] = []
         self.content = {}
+        self.prev_selection = None
+
     def clear(self):
         self.delete(*self.get_children())
 
-    def select_all(self,event=None):
+    def select_all(self, event=None):
         for item in self.get_children():
             self.selection_add(item)
 
     def get_selected(self) -> list[LoadedComicInfo]:
         return [self.content.get(item) for item in self.selection()]
 
-    def insert(self, loaded_cinfo:LoadedComicInfo, *args, **kwargs):
-        a = super(TreeviewWidget, self).insert("", 'end', loaded_cinfo.file_path, text=loaded_cinfo.file_name, *args, **kwargs)
+    def insert(self, loaded_cinfo: LoadedComicInfo, *args, **kwargs):
+        a = super(TreeviewWidget, self).insert("", 'end', loaded_cinfo.file_path, text=loaded_cinfo.file_name, *args,
+                                               **kwargs)
         self.content[loaded_cinfo.file_path] = loaded_cinfo
         # self._call_hook_item_inserted(loaded_cinfo)
         self.select_all()
 
-    def _on_select(self, event=None):
+    def _on_select(self, *args):
+        prev_selection = copy.copy(self.prev_selection)
         selected = [self.content.get(item) for item in self.selection()]
+        self.prev_selection = selected
         if not selected:
             return
-        self._call_hook_item_selected(selected)
+        self._call_hook_item_selected(selected, prev_selection)
 
     ##################
     # Hook Stuff
     ##################
-    def add_hook_item_selected(self,function: callable):
+    def add_hook_item_selected(self, function: callable):
         self._hook_items_selected.append(function)
 
     def add_hook_item_inserted(self, function: callable):
         self._hook_items_inserted.append(function)
 
-    def _call_hook_item_selected(self,loaded_cinfo_list:list[LoadedComicInfo]):
-        _run_hook(self._hook_items_selected,loaded_cinfo_list)
+    def _call_hook_item_selected(self, loaded_cinfo_list: list[LoadedComicInfo], prev_selection):
+        _run_hook(self._hook_items_selected, loaded_cinfo_list, prev_selection)
 
-    def _call_hook_item_inserted(self,loaded_comicinfo:LoadedComicInfo):
-        _run_hook(self._hook_items_inserted,[loaded_comicinfo])
+    def _call_hook_item_inserted(self, loaded_comicinfo: LoadedComicInfo):
+        _run_hook(self._hook_items_inserted, [loaded_comicinfo])
 
 
 class ProgressBarWidget(ProgressBar):
@@ -467,21 +503,21 @@ class ProgressBarWidget(ProgressBar):
 
         pb_frame = Frame(parent)
         # pb_frame =parent
-        pb_frame.pack(expand=True,fill="x")
+        pb_frame.pack(expand=True, fill="x")
         super().__init__()
         bar_frame = Frame(pb_frame)
-        bar_frame.pack(fill="x",side="top")
+        bar_frame.pack(fill="x", side="top")
         bar_frame.columnconfigure(0, weight=1)
         self.progress_bar = ttk.Progressbar(bar_frame, length=300,
                                             mode="determinate")  # create progress bar
         self.progress_bar.grid(row=0, column=0, sticky="we")
         self.progress_label = tkinter.StringVar(value="0 %")
         self.label = Label(bar_frame, textvariable=self.progress_label)
-        self.label.grid(row=0,column=0)
+        self.label.grid(row=0, column=0)
         # self.progress_bar.pack(expand=False, fill="x",side="top")
         self.pb_label_variable = tkinter.StringVar(value=self.label_text)
-        self.pb_label = tkinter.Label(pb_frame, justify="right",textvariable=self.pb_label_variable)
-        self.pb_label.pack(expand=False, fill="x",side="right")
+        self.pb_label = tkinter.Label(pb_frame, justify="right", textvariable=self.pb_label_variable)
+        self.pb_label.pack(expand=False, fill="x", side="right")
         # self.pb_label.columnconfigure(0, weight=1)
         # self.pb_label.grid(row=1, column=0, sticky="e")
         logger.info("Initialized progress bar")
@@ -497,4 +533,3 @@ class ProgressBarWidget(ProgressBar):
 
         self.progress_bar['value'] = self.percentage
         self.progress_bar.update()
-

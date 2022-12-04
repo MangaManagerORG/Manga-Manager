@@ -68,6 +68,15 @@ class NoComicInfoLoaded(Exception):
         super().__init__(f'No ComicInfo Loaded' + info)
 
 
+class NoModifiedCinfo(Exception):
+    """
+    Exception raised when a processing is attempted but there are no loaded_cinfo with it's comicinfo modified
+    """
+
+    def __init__(self):
+        super().__init__(f'No loaded_cinfo to process')
+
+
 class FailedBackup(RuntimeError):
     """
     Exception raised when a file fails to create a backup

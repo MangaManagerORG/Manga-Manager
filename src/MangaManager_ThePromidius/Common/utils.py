@@ -1,5 +1,7 @@
+import logging
 import os
 import re
+import subprocess
 import sys
 import time
 from io import BytesIO
@@ -8,19 +10,18 @@ from typing import IO
 
 from PIL import Image
 
+from src.MangaManager_ThePromidius import MM_PATH
 from src.MangaManager_ThePromidius.Common.naturalsorter import natsort_key_with_path_support
 
 # Patterns for picking cover
 IMAGE_EXTENSIONS = ('png', 'jpg', 'jpeg', 'tiff', 'bmp', 'gif', 'webp')
-cover_r1 = '^!*0+.[a-z]+$'
-cover_r2 = '.*cover.*.[a-z]+$'
-covers_patterns = [cover_r1, cover_r2]
+covers_patterns = ['^!*0+.[a-z]+$', '.*cover.*.[a-z]+$']
 COVER_PATTERN = re.compile(f"(?i)({'|'.join(covers_patterns)})")
 cover_r3_alt = '^!*0+1\\.[a-z]+$'
 ALT_COVER_PATTERN = re.compile(f"(?i)({'|'.join([cover_r3_alt])})")
 IS_IMAGE_PATTERN = re.compile(rf"(?i).*.(?:{'|'.join(IMAGE_EXTENSIONS)})$")
 
-
+logger = logging.getLogger()
 def obtain_cover_filename(file_list) -> (str,str):
     """
     Helper function to find a cover file based on a list of filenames
@@ -178,3 +179,21 @@ def get_estimated_time(start_time: float, processed_files: int, total_files: int
         return f"{int(round(minutes, 0))} minutes and {int(round(seconds, 0))} seconds"
     except ZeroDivisionError:
         return f"{int(round(0, 0))} minutes and {int(round(0, 0))} seconds"
+
+def open_settings_folder():
+    if sys.platform == 'darwin':
+        def openFolder(path):
+            subprocess.check_call(['open', '--', path])
+    elif sys.platform == 'linux2':
+        def openFolder(path):
+            subprocess.check_call(['xdg-open', '--', path])
+    elif sys.platform == 'win32':
+        def openFolder(path):
+            subprocess.check_call(['explorer', path])
+    else:
+        logger.error(f"Couldn't detect platform. Can't open settings folder. Please navigate to {MM_PATH}")
+        return
+    try:
+        openFolder(MM_PATH)
+    except Exception:
+        logger.exception("Exception opening the settings folder")
