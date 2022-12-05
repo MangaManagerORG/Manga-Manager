@@ -58,8 +58,12 @@ def get_selected_files(glob_path)-> list[str]:
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('-d', help="Debug Level", action="store", dest="selected_files_cli",
+                        metavar="--cli <glob-like-path>", required=False, default=False)
+
     parser.add_argument('--cli', help="Metadata Editor in CLI mode", action="store", dest="selected_files_cli",
                         metavar="--cli <glob-like-path>", required=False, default=False)
+
     parser.add_argument('--webp', help="Webp converter in CLI mode", action="store", dest="selected_files_webp",
                         metavar="--webp <glob-like-path>", required=False, default=False)
     args = parser.parse_args()

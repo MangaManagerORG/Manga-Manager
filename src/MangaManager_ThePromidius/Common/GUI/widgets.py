@@ -37,11 +37,12 @@ def validate_int(value):
 
 class ButtonWidget(tkinter.Button):
     def __init__(self, tooltip=None, *args, **kwargs):
+
         super(ButtonWidget, self).__init__(*args, **kwargs)
+
         if tooltip:
             self.configure(text=self.cget('text') + '  ⁱ')
             self.tooltip = Hovertip(self, tooltip, 20)
-
 
 class WidgetManager:
     cinfo_tags: list[str] = list()

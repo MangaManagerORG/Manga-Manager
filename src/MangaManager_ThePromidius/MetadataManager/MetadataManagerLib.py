@@ -6,8 +6,8 @@ from abc import ABC
 from io import StringIO
 
 from src.MangaManager_ThePromidius import settings as settings_class
-from src.MangaManager_ThePromidius.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile, \
-    EditedCinfoNotSet
+from src.MangaManager_ThePromidius.Common.errors import EditedCinfoNotSet
+from src.MangaManager_ThePromidius.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from . import comicinfo
 from .comicinfo import ComicInfo
@@ -96,25 +96,25 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
             if not self.loaded_cinfo_list:
                 raise NoComicInfoLoaded()
 
-            for loaded_info in self.loaded_cinfo_list:
-                if not loaded_info.has_changes:
-                    logger.info(LOG_TAG + f"Skipping file processing. No changes to it. File: '{loaded_info.file_name}'")
-                    self.on_processed_item(loaded_info)
+            for loaded_cinfo in self.loaded_cinfo_list:
+                if not loaded_cinfo.has_changes:
+                    logger.info(LOG_TAG + f"Skipping file processing. No changes to it. File: '{loaded_cinfo.file_name}'")
+                    self.on_processed_item(loaded_cinfo)
                     continue
                 # noinspection PyBroadException
-                self.preview_export(loaded_info)
+                self.preview_export(loaded_cinfo)
                 try:
-                    loaded_info.write_metadata()
-                    loaded_info.has_changes = False
-                    self.on_processed_item(loaded_info)
+                    loaded_cinfo.write_metadata()
+                    loaded_cinfo.has_changes = False
+                    self.on_processed_item(loaded_cinfo)
                 except PermissionError as e:
                     logger.error("Failed to write changes because of missing permissions "
                                  "or because other program has the file opened", exc_info=True)
-                    self.on_writing_error(exception=e, loaded_info=loaded_info)
+                    self.on_writing_error(exception=e, loaded_info=loaded_cinfo)
                     # failed_processing.append(loaded_info)
                 except Exception as e:
                     logger.exception("Unhandled exception saving changes")
-                    self.on_writing_exception(exception=e, loaded_info=loaded_info)
+                    self.on_writing_exception(exception=e, loaded_info=loaded_cinfo)
         finally:
             self.loaded_cinfo_list_to_proces: list[LoadedComicInfo] = list()
 
@@ -140,13 +140,14 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 if old_value == new_value:
                     logger.debug(LOG_TAG + f"Ignoring {cinfo_tag}. Field has not changed")
                     continue
-
-                loaded_cinfo.changed_tags.append((cinfo_tag, old_value, new_value))
+                if cinfo_tag not in loaded_cinfo.changed_tags:
+                    loaded_cinfo.changed_tags.append((cinfo_tag, old_value, new_value))
                 logger.debug(LOG_TAG + f"[{cinfo_tag:15s}] Updating \x1b[31;1mNew\x1b[0m '{old_value}' vs "
                              f"New: '\x1b[33;20m{new_value}\x1b[0m' - Keeping new value")
                 loaded_cinfo.cinfo_object.set_attr_by_name(cinfo_tag, new_value)
-            if loaded_cinfo.is_metadata_modified(self.cinfo_tags):
-                any_has_changes = True
+            loaded_cinfo.has_changes = True
+            # if loaded_cinfo.is_metadata_modified(self.cinfo_tags):
+            any_has_changes = True
         self.new_edited_cinfo = None
         return any_has_changes
 

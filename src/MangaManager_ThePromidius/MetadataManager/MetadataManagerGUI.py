@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+#
 import logging
 import os
 import tkinter
 from tkinter import Tk, Frame, Label, messagebox as mb, ttk
 
-from src.MangaManager_ThePromidius import settings
+#
 from src.MangaManager_ThePromidius.Common.errors import NoFilesSelected
 from src.MangaManager_ThePromidius.Common.utils import get_platform
 from src.MangaManager_ThePromidius.MetadataManager.extensions import GUIExtensionManager
@@ -14,17 +15,15 @@ if get_platform() == "linux":
     from src.MangaManager_ThePromidius.Common.GUI.FileChooserWindow import askopenfiles
 else:
     from tkinter.filedialog import askopenfiles
-
+#
 from src.MangaManager_ThePromidius.MetadataManager import comicinfo
 from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
-from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget, \
-    ScrolledFrameWidget, WidgetManager, CoverFrame, ButtonWidget, SettingsWidgetManager, TreeviewWidget, \
-    ProgressBarWidget
+from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget
+from src.MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget, WidgetManager, CoverFrame, ButtonWidget, SettingsWidgetManager, TreeviewWidget, ProgressBarWidget
 
-# import MangaManager_ThePromidius.settings
-main_settings = settings.get_setting("main")
-
+from src.MangaManager_ThePromidius import settings as settings_class
+main_settings = settings_class.get_setting("main")
 
 
 class App(Tk, MetadataManagerLib, GUIExtensionManager):
@@ -121,30 +120,35 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         print("Show_settings")
         SettingsWidgetManager(self)
 
-    def unsaved_files(self, saved=False):
+    def are_unsaved_changes(self, exist_unsaved_changes=False):
         """
         Displays the text "unsaved changes"
         :return:
         """
-        if saved:
-            self.changes_saved.place_forget()
-        else:
-            self.changes_saved.place(anchor=tkinter.NE, relx=0.885)
-        # self.update()
 
-    def show_not_saved_indicator(self, loaded_cinfo_list, mark_saved=False):
+        if exist_unsaved_changes:  # Place the warning sign
+            self.changes_saved.place(anchor=tkinter.NE, relx=0.885)
+        else:  # remove the warning sign
+            self.changes_saved.place_forget()
+
+    def update_item_saved_status(self,loaded_cinfo):
+        self.selected_files_treeview.item(loaded_cinfo.file_path,
+                                          text=f"{'⚠' if loaded_cinfo.has_changes else ''}{loaded_cinfo.file_name}")
+
+    def show_not_saved_indicator(self, loaded_cinfo_list):
         """
         Shows a litle triangle while files are not saved.
         :param loaded_cinfo_list:
         :param mark_saved:
         :return:
         """
+        any_has_changes = False
         for loaded_cinfo in loaded_cinfo_list:
-            if loaded_cinfo.is_metadata_modified(self.cinfo_tags):
-                # treeview_index = self.selected_files_treeview.index(cinfo.file_path)
-                self.selected_files_treeview.item(loaded_cinfo.file_path, text=f"{'' if mark_saved else '⚠'}{loaded_cinfo.file_name}")
-                # self.update()
-        self.unsaved_files(not any([cinfo.has_changes for cinfo in loaded_cinfo_list]))
+            loaded_cinfo.is_metadata_modified(self.cinfo_tags)
+            self.update_item_saved_status(loaded_cinfo)
+            if not any_has_changes and loaded_cinfo.has_changes:
+                any_has_changes = True
+        self.are_unsaved_changes(any_has_changes)
 
     #########################################################
     # GUI Display Methods
@@ -242,8 +246,17 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         parent_frame = Frame(self.basic_info_frame, padx=20)
         parent_frame.pack(side="right", expand=True, fill="both")
 
-        self.widget_mngr.Series = ComboBoxWidget(parent_frame, cinfo_name="Series",
-                                                 tooltip="The name of the series").pack()
+        frame = Frame(parent_frame)
+        frame.pack(fill="both", side="top")
+        self.widget_mngr.Series = ComboBoxWidget(frame, cinfo_name="Series",
+                                                 tooltip="The name of the series").pack(side="left", expand=True,
+                                                                                        fill="x")
+        frame = Frame(frame)
+        frame.pack(side="right")
+        Label(frame).pack(side="top")  # Dummy label so button is centered
+        ButtonWidget(master=frame, text="⋯", tooltip="If one file selected, load the filename",
+                                              command=self._fill_filename).pack(side="bottom")
+
         self.widget_mngr.LocalizedSeries = ComboBoxWidget(parent_frame, cinfo_name="LocalizedSeries",
                                                           label_text="LocalizedSeries",
                                                           tooltip="The translated series name").pack()
@@ -387,9 +400,9 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
     ############
 
     def on_processed_item(self, loaded_info: LoadedComicInfo):
-        self.update()
         self.progress_bar.increase_processed()
-
+        self.update_item_saved_status(loaded_info)
+        self.update()
     def on_badzipfile_error(self, exception, file_path: LoadedComicInfo):  # pragma: no cover
         mb.showerror("Error loading file",
                      f"Failed to read the file '{file_path}'.\nThis can be caused by wrong file format"
@@ -489,7 +502,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self._serialize_gui_to_cinfo()
         unsaved_changes = self.merge_changed_metadata(old_selection)
 
-        self.show_not_saved_indicator(old_selection, mark_saved=not unsaved_changes)
+        self.show_not_saved_indicator(old_selection)
         self.widget_mngr.clean_widgets()
         # Display new selection data
         self._serialize_cinfolist_to_gui(new_selection)
@@ -505,8 +518,6 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         # self.loaded_cinfo_list_to_process = self.get_selected_loaded_cinfo_list()
         self.progress_bar.start(len(self.loaded_cinfo_list))
         # Make sure current view is saved:
-        # self._serialize_gui_to_cinfo()
-        # self.merge_changed_metadata(self.selected_files_path)
         self.process_gui_update(self.selected_items,self.selected_items)
         try:
             # self._serialize_gui_to_cinfo()
@@ -514,11 +525,11 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
             self.process()
         finally:
             self.progress_bar.stop()
+            # self.show_not_saved_indicator(self.loaded_cinfo_list)
         self.new_edited_cinfo = None  # Nulling value to be safe
         self.control_buttons(enabled=True)
 
-class _ProcessingModule(App):
-    ...
-
-
-
+    # Unique methods
+    def _fill_filename(self):
+        if len(self.selected_items) == 1:
+            self.widget_mngr.get_widget("Series").set(self.selected_items[0].file_name)

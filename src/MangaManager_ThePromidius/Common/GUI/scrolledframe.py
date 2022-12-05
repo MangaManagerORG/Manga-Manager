@@ -268,8 +268,7 @@ class ScrolledFrame(ttk.Frame):
             else:
                 if self._start_y < 0:
                     self._start_y = 0
-                end_scroll_y = (self._start_y + clipper_height) / \
-                               float(frame_height)
+                end_scroll_y = (self._start_y + clipper_height) / float(frame_height)
             relheight = ''
 
         # Position frame relative to clipper.

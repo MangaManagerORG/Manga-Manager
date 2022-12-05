@@ -1,5 +1,7 @@
 from src.MangaManager_ThePromidius.Common.settings import Settings
 
+# Create our own implementation to have trace logging
+
 _CONFIG_PATH = "config.ini"
 # CONFIG_PATH = abspath(join(dirname(__file__), _CONFIG_PATH))
 from pathlib import Path

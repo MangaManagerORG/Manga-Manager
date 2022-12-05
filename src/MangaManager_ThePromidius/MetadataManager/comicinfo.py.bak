@@ -896,12 +896,10 @@ class MixedContainer:  # pragma: no cover
         if self.content_type == MixedContainer.TypeString:
             outfile.write('<%s>%s</%s>' % (
                 self.name, self.value, self.name))
-        elif self.content_type == MixedContainer.TypeInteger or \
-                self.content_type == MixedContainer.TypeBoolean:
+        elif self.content_type == MixedContainer.TypeInteger or self.content_type == MixedContainer.TypeBoolean:
             outfile.write('<%s>%d</%s>' % (
                 self.name, self.value, self.name))
-        elif self.content_type == MixedContainer.TypeFloat or \
-                self.content_type == MixedContainer.TypeDecimal:
+        elif self.content_type == MixedContainer.TypeFloat or self.content_type == MixedContainer.TypeDecimal:
             outfile.write('<%s>%f</%s>' % (
                 self.name, self.value, self.name))
         elif self.content_type == MixedContainer.TypeDouble:

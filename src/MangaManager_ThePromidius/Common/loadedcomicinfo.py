@@ -14,8 +14,8 @@ from lxml.etree import XMLSyntaxError
 
 from src.MangaManager_ThePromidius import settings as settings_class
 from src.MangaManager_ThePromidius.Common.errors import CorruptedComicInfo, BadZipFile
-from src.MangaManager_ThePromidius.Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp, \
-    IS_IMAGE_PATTERN
+from src.MangaManager_ThePromidius.Common.utils import IS_IMAGE_PATTERN
+from src.MangaManager_ThePromidius.Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp
 from src.MangaManager_ThePromidius.MetadataManager.comicinfo import ComicInfo, parseString
 
 logger = logging.getLogger("LoadedCInfo")
@@ -220,6 +220,7 @@ class LoadedComicInfo:
                              f" Aborting and clearing temp files")
             os.remove(tmpname)
             raise
+        self.has_changes = False
 
     def load_all(self):
         try:
