@@ -59,7 +59,7 @@ class UiToCinfoTest(TKinterTestCase):
         # app.serialize_gui_to_edited_cinfo()
         # app.pre_process()
 
-        app.serialize_gui_to_edited_cinfo()
+        app._serialize_gui_to_cinfo()
         for cinfo_tag in app.cinfo_tags:
             widget = app.widget_mngr.get_widget(cinfo_tag)
             # if not isinstance(widget, ComboBoxWidget):
@@ -136,12 +136,12 @@ class CinfoToUiTest(TKinterTestCase):
         metadata_1 = LoadedComicInfo(self.test_files_names[0], comicinfo=cinfo_1)
         metadata_2 = LoadedComicInfo(self.test_files_names[1], comicinfo=cinfo_2)
         app.loaded_cinfo_list = [metadata_1, metadata_2]
-        app.loaded_cinfo_list_to_process = app.loaded_cinfo_list
+        # app.loaded_cinfo_list_to_process = app.loaded_cinfo_list
         # There is no edited comicinfo, it should fail
         new_cinfo = comicinfo.ComicInfo()
         app.new_edited_cinfo = new_cinfo
         app._serialize_cinfolist_to_gui()
-        app.serialize_gui_to_edited_cinfo()
+        app._serialize_gui_to_cinfo()
         print("Assert original values will be kept")
         self.assertEqual(app.MULTIPLE_VALUES_CONFLICT, app.new_edited_cinfo.get_Series())
         # self.assertEqual(cinfo1_series, metadata_2.cinfo_object.get_Series())

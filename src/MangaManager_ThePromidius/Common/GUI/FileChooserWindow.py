@@ -10,9 +10,11 @@ try:
     # noinspection PyUnresolvedReferences
     from pgi.repository import Gtk
 except (NameError, ImportError):
+    # noinspection PyUnresolvedReferences
     import gi
 
     gi.require_version("Gtk", "3.0")
+    # noinspection PyUnresolvedReferences
     from gi.repository import Gtk
 
 

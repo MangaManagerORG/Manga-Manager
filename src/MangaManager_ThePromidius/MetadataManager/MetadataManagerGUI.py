@@ -26,6 +26,7 @@ from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, Lon
 main_settings = settings.get_setting("main")
 
 
+
 class App(Tk, MetadataManagerLib, GUIExtensionManager):
     main_frame: Frame
     _prev_selected_items: list[LoadedComicInfo] = []
@@ -37,6 +38,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         # self.wm_minsize(1000, 660)
         self.geometry("1000x800")
         # super(MetadataManagerLib, self).__init__()
+        self.title("Manga Manager")
 
         self.widget_mngr = WidgetManager()
         self.selected_files_path = None
@@ -138,167 +140,11 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         :return:
         """
         for loaded_cinfo in loaded_cinfo_list:
-            if loaded_cinfo.has_changes:
+            if loaded_cinfo.is_metadata_modified(self.cinfo_tags):
                 # treeview_index = self.selected_files_treeview.index(cinfo.file_path)
                 self.selected_files_treeview.item(loaded_cinfo.file_path, text=f"{'' if mark_saved else '⚠'}{loaded_cinfo.file_name}")
                 # self.update()
         self.unsaved_files(not any([cinfo.has_changes for cinfo in loaded_cinfo_list]))
-
-    #########################################################
-    # Processing methods
-    ############
-
-    def _serialize_cinfolist_to_gui(self, loaded_cinfo_list=None):
-        """
-        Merges the cinfo data from the selected files and displays it merged
-
-        :param loaded_cinfo_list: Override cinfo to display
-        :return:
-        """
-
-        if not loaded_cinfo_list:
-            loaded_cinfo_list = self.selected_items
-        self.widget_mngr.clean_widgets()
-        self.image_cover_frame.update_cover_image(loaded_cinfo_list)
-
-        # Iterate all cinfo tags. Should there be any values that are not equal. Show different values selected
-
-        for cinfo_tag in self.widget_mngr.get_tags():
-            widget = self.widget_mngr.get_widget(cinfo_tag)
-            tag_values = set()
-            for loaded_cinfo in loaded_cinfo_list:
-                tag_values.add(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag) or "")
-            tag_values = tuple(tag_values)  # make readonly
-            tag_values_len = len(tag_values)
-            print(tag_values)
-            if tag_values_len == 1:
-                widget.set(tag_values[0])
-            elif tag_values_len > 1:
-                tag_values = (self.MULTIPLE_VALUES_CONFLICT,) + tag_values
-                widget.widget.set(self.MULTIPLE_VALUES_CONFLICT)
-
-            if isinstance(widget, ComboBoxWidget):
-                widget.widget['values'] = list(tag_values)
-
-            # Handle single selected value:
-            # if len(loaded_cinfo_list) == 1:
-            #     loaded_cinfo = loaded_cinfo_list[0]
-            #     widget.widget.set(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
-            # else:
-            #     # If format is not present in any comicinfo set ""
-            #     if all([str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag)) == ""
-            #                     for loaded_cinfo in loaded_cinfo_list]):
-            #         widget.widget.set(widget.NONE)
-            #     else:
-            #         if self.MULTIPLE_VALUES_CONFLICT not in [widget.widget_slave["menu"].entrycget(i, "label") for
-            #                                                       i in
-            #                                                       range(widget.widget_slave["menu"].index("end") + 1)]:
-            #             new_vals = [self.MULTIPLE_VALUES_CONFLICT] + [widget.widget_slave["menu"].entrycget(i, "label") for
-            #                                                       i in
-            #                                                       range(widget.widget_slave["menu"].index("end") + 1)]
-            #             widget.update_menu(new_vals)
-            #         widget.widget.set(self.MULTIPLE_VALUES_CONFLICT)
-            #
-            #
-
-        # for loaded_cinfo in loaded_cinfo_list:
-        #
-
-        # if not loaded_cinfo_list:
-        #     loaded_cinfo_list = self.get_selected_loaded_cinfo_list()
-        # self.widget_mngr.clean_widgets()
-        # self.image_cover_frame.update_cover_image(loaded_cinfo_list)
-        # for loaded_cinfo in loaded_cinfo_list:
-        #     # if loaded_cinfo.cached_image:
-        #
-        #     for cinfo_tag in self.widget_mngr.get_tags():
-        #         cinfo_field_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
-        #         widget = self.widget_mngr.get_widget(cinfo_tag)
-        #
-        #         if isinstance(widget, ComboBoxWidget):
-        #             if not widget.widget['values']:
-        #                 if not cinfo_field_value:
-        #                     widget.widget['values'] = (widget.default,)
-        #                 else:
-        #                     widget.widget['values'] = (cinfo_field_value,)
-        #                 widget.set(cinfo_field_value)
-        #
-        #             list_of_values = list(widget.widget['values'])
-        #             if cinfo_field_value not in list_of_values:
-        #                 list_of_values.append(cinfo_field_value)
-        #             if len(list_of_values) > 1:
-        #                 if self.MULTIPLE_VALUES_CONFLICT not in list_of_values:
-        #                     list_of_values = [self.MULTIPLE_VALUES_CONFLICT] + list_of_values
-        #                 widget.widget.set(self.MULTIPLE_VALUES_CONFLICT)
-        #             else:
-        #                 widget.widget.set(cinfo_field_value)
-        #             widget.widget['values'] = list_of_values
-        #             # widget['values'] = ["Value_a", "Valueb",widget_name]
-        #         elif isinstance(widget, LongTextWidget):
-        #             if widget.get():
-        #                 widget.set(self.MULTIPLE_VALUES_CONFLICT)
-        #
-        #             else:
-        #                 widget.set(cinfo_field_value)
-        # for cinfo_tag in ("Format", "BlackAndWhite", "AgeRating", "Manga"):
-        #     widget = self.widget_mngr.get_widget(cinfo_tag)
-        #     # Handle single selected value:
-        #     if len(loaded_cinfo_list) == 1:
-        #         loaded_cinfo = loaded_cinfo_list[0]
-        #         widget.widget.set(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
-        #     else:
-        #         # If format is not present in any comicinfo set ""
-        #         if all([str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag)) == ""
-        #                         for loaded_cinfo in loaded_cinfo_list]):
-        #             widget.widget.set(widget.NONE)
-        #         else:
-        #             if self.MULTIPLE_VALUES_CONFLICT not in [widget.widget_slave["menu"].entrycget(i, "label") for
-        #                                                           i in
-        #                                                           range(widget.widget_slave["menu"].index("end") + 1)]:
-        #                 new_vals = [self.MULTIPLE_VALUES_CONFLICT] + [widget.widget_slave["menu"].entrycget(i, "label") for
-        #                                                           i in
-        #                                                           range(widget.widget_slave["menu"].index("end") + 1)]
-        #                 widget.update_menu(new_vals)
-        #             widget.widget.set(self.MULTIPLE_VALUES_CONFLICT)
-
-    def serialize_gui_to_edited_cinfo(self) -> comicinfo.ComicInfo:
-        """
-        Sets new_edited_cinfo
-        :return:
-        """
-        new_cinfo = comicinfo.ComicInfo()
-        for cinfo_tag in self.widget_mngr.get_tags():
-            widget = self.widget_mngr.get_widget(cinfo_tag)
-            if widget.get() == "None" and widget.name == "Format":
-                new_cinfo.set_attr_by_name(cinfo_tag, "")
-            if widget.get() == self.MULTIPLE_VALUES_CONFLICT:
-                new_cinfo.set_attr_by_name(cinfo_tag,self.MULTIPLE_VALUES_CONFLICT)
-            elif widget.get() != widget.default and widget.get():
-                new_cinfo.set_attr_by_name(cinfo_tag, self.widget_mngr.get_widget(cinfo_tag).get())
-            else:
-                print("Asdsadasas")
-            print(f"{cinfo_tag} - {self.widget_mngr.get_widget(cinfo_tag).get()}")
-        return new_cinfo
-
-    def pre_process(self) -> None:
-        """
-        Handles UI stuff to be started prior to processing such as converting ui data to comicinfo and starting the timer
-        """
-
-        if not self.selected_files_path:
-            raise NoFilesSelected()
-        self.control_buttons(enabled=False)
-        self.changes_saved.place_forget()
-        # self.loaded_cinfo_list_to_process = self.get_selected_loaded_cinfo_list()
-        self.progress_bar.start(len(self.loaded_cinfo_list_to_process))
-        try:
-            new_cinfo = self.serialize_gui_to_edited_cinfo()
-            self.merge_changed_metadata(new_cinfo,self.loaded_cinfo_list_to_process)
-            self.process()
-        finally:
-            self.progress_bar.stop()
-        self.new_edited_cinfo = None  # Nulling value to be safe
-        self.control_buttons(enabled=True)
 
     #########################################################
     # GUI Display Methods
@@ -513,19 +359,14 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         new_selection, old_selection = args
 
         if not self.inserting_files:
-            if not old_selection:
-                new_cinfo = self.serialize_gui_to_edited_cinfo()  # Sets new_edited_cinfo
-                self.merge_changed_metadata(new_cinfo,self.selected_items)  # Reads new_edited_cinfo and applies to loaded cinfo
-            else:
-                # Soft-save current modified data
-                unsaved_changes = self.merge_changed_metadata(self.serialize_gui_to_edited_cinfo(),old_selection)  # Reads new_edited_cinfo and applies to each loaded cinfo
-                self.show_not_saved_indicator(old_selection,mark_saved=not unsaved_changes)
-            self.widget_mngr.clean_widgets()
-        # Display new selection data
-            self._serialize_cinfolist_to_gui(new_selection)
+            # self._serialize_gui_to_cinfo()  # Sets new_edited_cinfo
+            # if not old_selection:
+            #     self.merge_changed_metadata(self.selected_items)  # Reads new_edited_cinfo and applies to loaded cinfo
+            # else:
+            #     # Soft-save current modified data
+            #     # Reads new_edited_cinfo and applies to each loaded cinfo
+            self.process_gui_update(old_selection, new_selection)
         self.image_cover_frame.update_cover_image(new_selection)
-
-        ###################
 
     #########################################################
     # INTERFACE IMPLEMENTATIONS
@@ -572,3 +413,112 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
                        f"Failed to read metadata from '{loaded_info.file_path}'\n"
                        "The file data couldn't be parsed probably because of corrupted data or bad format.\n"
                        f"Recovery was attempted and failed.\nCreating new metadata object...")
+
+    #########################################################
+    # Processing Methods
+    ############
+
+    def _serialize_cinfolist_to_gui(self, loaded_cinfo_list=None):
+        """
+        Display the loaded cinfo values in the ui.
+        If multiple values for one field, shows conflict (keeping values)
+        :param loaded_cinfo_list:
+        :return:
+        """
+        # Clear current values
+        self.widget_mngr.clean_widgets()
+        if loaded_cinfo_list is None:
+            loaded_cinfo_list = self.selected_items
+        if main_settings.cache_cover_images:
+            self.image_cover_frame.update_cover_image(loaded_cinfo_list)
+
+        # Iterate all cinfo tags. Should there be any values that are not equal. Show "different values selected"
+
+        for cinfo_tag in self.widget_mngr.get_tags():
+            widget = self.widget_mngr.get_widget(cinfo_tag)
+            tag_values = set()
+            for loaded_cinfo in loaded_cinfo_list:
+                tag_values.add(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag) or "")
+            tag_values = tuple(tag_values)
+            tag_values_len = len(tag_values)
+
+            # All files have the same content for this field
+
+            if tag_values_len == 1:
+                widget.set(tag_values[0])
+
+            # Multiple values across different files for this field
+            elif tag_values_len > 1:
+                # Append "multiple_values" string to the suggestion listbox
+                tag_values = (self.MULTIPLE_VALUES_CONFLICT,) + tag_values
+                widget.widget.set(self.MULTIPLE_VALUES_CONFLICT)
+
+            # If it's a combobox update the suggestions listbox with the loaded values
+            if isinstance(widget, ComboBoxWidget):
+                widget.widget['values'] = list(tag_values)
+
+    def _serialize_gui_to_cinfo(self):
+        """
+        Parses current UI values to a 'new_edited_cinfo'
+        :return:
+        """
+        # is_metadata_modified
+        LOG_TAG = "[UI->CINFO] "
+        self.new_edited_cinfo = comicinfo.ComicInfo()
+        for cinfo_tag in self.widget_mngr.get_tags():
+            widget = self.widget_mngr.get_widget(cinfo_tag)
+            widget_value = widget.widget.get()
+
+            match widget_value:
+                case self.MULTIPLE_VALUES_CONFLICT:
+                    self.log.debug(LOG_TAG + f"Omitting {cinfo_tag}. Keeping original")
+                    self.new_edited_cinfo.set_attr_by_name(cinfo_tag,self.MULTIPLE_VALUES_CONFLICT)
+                case "None":
+                    if widget.name == "Format":
+                        self.new_edited_cinfo.set_attr_by_name(cinfo_tag, "")
+                case widget.default:  # If it matches the default then do nothing
+                    self.log.debug(LOG_TAG + f"Omitting {cinfo_tag}.")
+                    pass
+                case _:
+                    self.new_edited_cinfo.set_attr_by_name(cinfo_tag,widget_value)
+                    self.log.info(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")
+                    # self.log.warning(f"Unhandled case: {widget_value}")
+                    pass
+
+    def process_gui_update(self, old_selection: list[LoadedComicInfo], new_selection: list[LoadedComicInfo]):
+        self._serialize_gui_to_cinfo()
+        unsaved_changes = self.merge_changed_metadata(old_selection)
+
+        self.show_not_saved_indicator(old_selection, mark_saved=not unsaved_changes)
+        self.widget_mngr.clean_widgets()
+        # Display new selection data
+        self._serialize_cinfolist_to_gui(new_selection)
+
+    def pre_process(self) -> None:
+        """
+        Handles UI stuff to be started prior to processing such as converting ui data to comicinfo and starting the timer
+        """
+        if not self.selected_files_path:
+            raise NoFilesSelected()
+        self.control_buttons(enabled=False)
+        self.changes_saved.place_forget()
+        # self.loaded_cinfo_list_to_process = self.get_selected_loaded_cinfo_list()
+        self.progress_bar.start(len(self.loaded_cinfo_list))
+        # Make sure current view is saved:
+        # self._serialize_gui_to_cinfo()
+        # self.merge_changed_metadata(self.selected_files_path)
+        self.process_gui_update(self.selected_items,self.selected_items)
+        try:
+            # self._serialize_gui_to_cinfo()
+            # self.merge_changed_metadata(self.loaded_cinfo_list)
+            self.process()
+        finally:
+            self.progress_bar.stop()
+        self.new_edited_cinfo = None  # Nulling value to be safe
+        self.control_buttons(enabled=True)
+
+class _ProcessingModule(App):
+    ...
+
+
+

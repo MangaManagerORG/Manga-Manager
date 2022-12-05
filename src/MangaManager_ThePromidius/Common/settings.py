@@ -120,7 +120,6 @@ class Settings:
             section_class = SettingsSection(section, registered_settings_sections.get(section))
             register_section(section, section_class)
             setattr(self, section_class.section_name, section_class)
-            print("sdSAd")
 
 
 ###
@@ -160,6 +159,5 @@ registered_settings_sections = {
                 "tooltip": "The starting point where the glob will begin looking for files that match the pattern"
             }
         ]
-
     }
 }

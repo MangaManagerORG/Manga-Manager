@@ -26,6 +26,7 @@ _LOG_TAG_WEBP = "Convert Webp"
 _LOG_TAG_WRITE_META = 'Write Meta'
 settings = settings_class.get_setting("main")
 
+
 class LoadedComicInfo:
     """
         Helper class that loads the info that is required by the tools
@@ -55,6 +56,7 @@ class LoadedComicInfo:
     cached_image_last: ImageTk.PhotoImage = None
     has_changes = False
     changed_tags = []
+
     @property
     def cinfo_object(self):
         return self._cinfo_object
@@ -74,6 +76,12 @@ class LoadedComicInfo:
         if self.cinfo_object:
             return self.cinfo_object.get_Number()
 
+    def is_metadata_modified(self, cinfo_tag_list_to_check: list[str]) -> bool:
+        self.has_changes = any(
+            (self.cinfo_object.get_attr_by_name(cinfo_tag) != self.original_cinfo_object.get_attr_by_name(cinfo_tag)
+             for cinfo_tag in cinfo_tag_list_to_check))
+        return self.has_changes
+
     def __init__(self, path, comicinfo: ComicInfo = None):
         """
 
@@ -81,6 +89,7 @@ class LoadedComicInfo:
         :param comicinfo: The data class to be applied
         :raises BadZipFile: The file can't be read or is not a valid zip file
         """
+
         self.file_path = path
         self.file_name = os.path.basename(path)
         logger.info(f"[{'Opening File':13s}] '{os.path.basename(self.file_path)}'")
@@ -95,7 +104,7 @@ class LoadedComicInfo:
     def chapter(self, value):
         self.cinfo_object.set_Number(value)
 
-    def write_metadata(self,auto_unmark_changes=False):
+    def write_metadata(self, auto_unmark_changes=False):
         # print(self.cinfo_object.__dict__)
         logger.debug(f"[{'BEGIN WRITE':13s}] Writing metadata to file '{self.file_path}'")
         # logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] ComicInfo file found in old file")
@@ -122,7 +131,6 @@ class LoadedComicInfo:
 
         """
         logger.debug(f"[{'Processing':13s}] Starting")
-
 
         # Check to just append metadata if no cinfo in already in file or no webp conversion ordered
         if write_metadata and not convert_to_webp and not self.has_metadata:
@@ -227,7 +235,7 @@ class LoadedComicInfo:
             raise BadZipFile()
         return self
 
-    def load_cover_info(self,cache_cover_bytes):
+    def load_cover_info(self, cache_cover_bytes):
         try:
             with zipfile.ZipFile(self.file_path, 'r') as self.archive:
                 self._load_cover_info(cache_cover_bytes)
@@ -238,7 +246,10 @@ class LoadedComicInfo:
         return self
 
     def _load_cover_info(self, cache_cover_bytes=True):
-        self.cover_filename, self.cover_filename_last = obtain_cover_filename(self.archive.namelist())
+        cover_info = obtain_cover_filename(self.archive.namelist())
+        if not cover_info:
+            return
+        self.cover_filename, self.cover_filename_last = cover_info
 
         if not self.cover_filename:
             logger.warning(f"[{'CoverParsing':13s}] Couldn't parse any cover")
@@ -254,8 +265,7 @@ class LoadedComicInfo:
             if cache_cover_bytes:
                 self.get_cover_image_bytes(back_cover=True)
 
-
-    def get_cover_image_bytes(self, resized=False,back_cover=False) -> IO[bytes] | None:
+    def get_cover_image_bytes(self, resized=False, back_cover=False) -> IO[bytes] | None:
         """
         Opens the cbz and returns the bytes for the parsed cover image
         :return:

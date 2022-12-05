@@ -52,7 +52,6 @@ def obtain_cover_filename(file_list) -> (str,str):
     if cover:
         cover = cover[0]
         return cover,latest_cover
-    print("asdasdas")
 
 
 webp_supported_formats = (".png", ".jpeg", ".jpg")

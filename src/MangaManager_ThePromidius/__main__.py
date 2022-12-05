@@ -6,6 +6,7 @@ import pathlib
 import sys
 from logging.handlers import RotatingFileHandler
 
+from src.MangaManager_ThePromidius import MM_PATH
 from src.MangaManager_ThePromidius.Common.errors import NoFilesSelected
 from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
 # from Common.settings import Settings
@@ -17,8 +18,7 @@ from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerGUI import App
 
 
 # exit()
-PROJECT_PATH = pathlib.Path(__file__).parent
-SETTING_PATH = pathlib.Path(PROJECT_PATH, "settings.json")
+PROJECT_PATH = MM_PATH
 LOGS_PATH = pathlib.Path(f"{PROJECT_PATH}/logs/")
 LOGS_PATH.mkdir(parents=True, exist_ok=True)
 LOGFILE_PATH = pathlib.Path(LOGS_PATH, "MangaManager.log")
@@ -27,12 +27,12 @@ LOGFILE_PATH = pathlib.Path(LOGS_PATH, "MangaManager.log")
 logger = logging.getLogger()
 logging.getLogger('PIL').setLevel(logging.WARNING)
 
-rotating_file_handler = RotatingFileHandler(LOGFILE_PATH, maxBytes=5725760,
+rotating_file_handler = RotatingFileHandler(LOGFILE_PATH, maxBytes=10_000_000,
                                             backupCount=2)
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)20s - %(levelname)8s - %(message)s',
-                    handlers=[logging.StreamHandler(sys.stdout)]  # , rotating_file_handler]
+                    handlers=[logging.StreamHandler(sys.stdout), rotating_file_handler]
                     # filename='/tmp/myapp.log'
                     )
 
@@ -73,6 +73,6 @@ if __name__ == '__main__':
         selected_files = get_selected_files(args.selected_files_cli)
 
     else:
-        logger.info(f"Starting: GUI Manga Manager")
+        logger.info(f"Starting: GUI Manga Manager. Welcome")
         app = MetadataApp()
         app.mainloop()

@@ -59,7 +59,6 @@ class WidgetManager:
             widget.set_default()
             if isinstance(widget, ComboBoxWidget):
                 widget.widget['values'] = widget.default_vals or []
-            widget.update()
 
     def get_tags(self):
         return [tag for tag in self.__dict__]
@@ -170,7 +169,6 @@ class OptionMenuWidget(Widget):
             self.widget_slave['menu'].add_command(label=choice, command=tkinter._setit(self.widget, choice))
 
     def option_select(self, *args):
-        print(self.widget.get())
         self.widget_slave.focus_set()
 
 

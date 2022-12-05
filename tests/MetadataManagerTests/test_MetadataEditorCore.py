@@ -60,14 +60,14 @@ class CoreTesting(unittest.TestCase):
         metadata_2 = LoadedComicInfo(out_tmp_zipname2, comicinfo=cinfo_2)
 
         self.instance.loaded_cinfo_list = [metadata_1, metadata_2]
-        self.instance.loaded_cinfo_list_to_process = self.instance.loaded_cinfo_list
         # There is no edited comicinfo, it should fail
-        self.assertRaises(EditedCinfoNotSet, self.instance.merge_changed_metadata)
+        with self.assertRaises(EditedCinfoNotSet) as cm:
+            self.instance.merge_changed_metadata(self.instance.loaded_cinfo_list)
         new_cinfo = comicinfo.ComicInfo()
         new_cinfo.set_Series(self.instance.MULTIPLE_VALUES_CONFLICT)
         new_cinfo.set_Writer("This is the new writer for both cinfo")
         self.instance.new_edited_cinfo = new_cinfo
-        self.instance.merge_changed_metadata()
+        self.instance.merge_changed_metadata(self.instance.loaded_cinfo_list)
         print("Assert values are kept")
         self.assertEqual("This series from file 1 should be kept", metadata_1.cinfo_object.get_Series())
         self.assertEqual("This series from file 2 should be kept", metadata_2.cinfo_object.get_Series())
@@ -168,7 +168,6 @@ class ErrorHandlingTests(unittest.TestCase):
         self.instance.loaded_cinfo_list = [RaisePermissionError(path) for path in self.test_files_names]
         self.instance.new_edited_cinfo = comicinfo.ComicInfo()
         self.instance.on_writing_error = MagicMock()
-        self.instance.loaded_cinfo_list_to_process = self.instance.loaded_cinfo_list
         self.instance.process()
         self.instance.on_writing_error.assert_called()
 
@@ -186,6 +185,5 @@ class ErrorHandlingTests(unittest.TestCase):
         self.instance.loaded_cinfo_list = [RaisePermissionError(path) for path in self.test_files_names]
         self.instance.new_edited_cinfo = comicinfo.ComicInfo()
         self.instance.on_writing_exception = MagicMock()
-        self.instance.loaded_cinfo_list_to_process = self.instance.loaded_cinfo_list
         self.instance.process()
         self.instance.on_writing_exception.assert_called()

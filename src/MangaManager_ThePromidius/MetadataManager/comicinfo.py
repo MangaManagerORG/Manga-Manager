@@ -18,6 +18,7 @@
 #   PYTHON_TOOLS
 #
 # pragma: no cover
+import logging
 import sys
 
 try:
@@ -31,7 +32,7 @@ import base64
 import datetime as datetime_
 import decimal as decimal_
 from lxml import etree as etree_
-
+logger = logging.getLogger()
 Validate_simpletypes_ = True
 SaveElementTreeNode = True
 TagNamePrefix = ""
@@ -103,7 +104,7 @@ class GdsCollector_(object):  # pragma: no cover
 
     def print_messages(self):
         for msg in self.messages:
-            print("Warning: {}".format(msg))
+            logger.warning("Warning: {}".format(msg))
 
     def write_messages(self, outstream):
         for msg in self.messages:

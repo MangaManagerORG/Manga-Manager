@@ -7,7 +7,7 @@ from io import StringIO
 
 from src.MangaManager_ThePromidius import settings as settings_class
 from src.MangaManager_ThePromidius.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile, \
-    NoModifiedCinfo
+    EditedCinfoNotSet
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from . import comicinfo
 from .comicinfo import ComicInfo
@@ -85,19 +85,22 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
 
     def process(self):
         """
-        Core function
-        Reads the new cinfo class and compares it against all LoadedComicInfo.
-        Applies the changes to the LoadedComicInfo unless the value in cinfo is a special one (-1 -keep current,-2 - clear field)
+        Iterates the list of loaded_cinfo.
+        Skips cinfo that do not have modified metadata
+
+
         :return: list of loadedcinfo that failed to update :
         """
+        LOG_TAG = "[Processing] "
         try:
-            if self.loaded_cinfo_list:
-                if not self.loaded_cinfo_list_to_process:
-                    raise NoModifiedCinfo()
-            else:
+            if not self.loaded_cinfo_list:
                 raise NoComicInfoLoaded()
 
-            for loaded_info in self.loaded_cinfo_list_to_process:
+            for loaded_info in self.loaded_cinfo_list:
+                if not loaded_info.has_changes:
+                    logger.info(LOG_TAG + f"Skipping file processing. No changes to it. File: '{loaded_info.file_name}'")
+                    self.on_processed_item(loaded_info)
+                    continue
                 # noinspection PyBroadException
                 self.preview_export(loaded_info)
                 try:
@@ -115,33 +118,36 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         finally:
             self.loaded_cinfo_list_to_proces: list[LoadedComicInfo] = list()
 
-    def merge_changed_metadata(self, new_edited_cinfo: ComicInfo, loaded_cinfo_list: list[LoadedComicInfo]) -> bool:
+    def merge_changed_metadata(self, loaded_cinfo_list: list[LoadedComicInfo]) -> bool:
         """
         Merges new_edited_cinfo with each individual loaded_cinfo.
         If field is ~~Multiple...Values~~, nothing will be changed.
         Else new_cinfo value will be saved
         :return: True if any loaded_cinfo has changes
         """
-        LOG_TAG = "[Merging]"
+        LOG_TAG = "[Merging] "
         any_has_changes = False
-
+        if not self.new_edited_cinfo:
+            raise EditedCinfoNotSet()
         for loaded_cinfo in loaded_cinfo_list:
-            logger.debug(f"{LOG_TAG} Merging changes to {loaded_cinfo.file_path}")
+            logger.debug(LOG_TAG + f"Merging changes to {loaded_cinfo.file_path}")
             for cinfo_tag in self.cinfo_tags:
-                new_value = str(new_edited_cinfo.get_attr_by_name(cinfo_tag))
+                new_value = str(self.new_edited_cinfo.get_attr_by_name(cinfo_tag))
                 if new_value == self.MULTIPLE_VALUES_CONFLICT:
-                    logger.debug(f"{LOG_TAG} Ignoring {cinfo_tag}. Keeping old values")
+                    logger.debug(LOG_TAG + f"Ignoring {cinfo_tag}. Keeping old values")
                     continue
                 old_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
                 if old_value == new_value:
-                    logger.debug(f"{LOG_TAG} Ignoring {cinfo_tag}. Field has not changed")
+                    logger.debug(LOG_TAG + f"Ignoring {cinfo_tag}. Field has not changed")
                     continue
-                loaded_cinfo.has_changes = True
-                loaded_cinfo.changed_tags.append((cinfo_tag,old_value,new_value))
-                any_has_changes = True
-                logger.debug(f"{LOG_TAG}[{cinfo_tag:15s}] Updating \x1b[31;1mNew\x1b[0m '{old_value}' vs "
+
+                loaded_cinfo.changed_tags.append((cinfo_tag, old_value, new_value))
+                logger.debug(LOG_TAG + f"[{cinfo_tag:15s}] Updating \x1b[31;1mNew\x1b[0m '{old_value}' vs "
                              f"New: '\x1b[33;20m{new_value}\x1b[0m' - Keeping new value")
                 loaded_cinfo.cinfo_object.set_attr_by_name(cinfo_tag, new_value)
+            if loaded_cinfo.is_metadata_modified(self.cinfo_tags):
+                any_has_changes = True
+        self.new_edited_cinfo = None
         return any_has_changes
 
     def open_cinfo_list(self) -> None:
