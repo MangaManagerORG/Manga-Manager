@@ -49,9 +49,15 @@ class LoadedComicInfo:
     file_path: str
     _cinfo_object: ComicInfo
     original_cinfo_object: ComicInfo
-    cover_filename: str | None = None
+
+    # Used to keep original state after being loaded for the first time. Useful to undo sesion changes
+    original_cinfo_object_before_session: ComicInfo
+
     has_metadata: bool = False
     is_cinfo_at_root: bool = False
+
+    cover_filename: str | None = None
+    cover_filename_last: str | None = None
     cached_image: ImageTk.PhotoImage = None
     cached_image_last: ImageTk.PhotoImage = None
     has_changes = False
@@ -262,7 +268,7 @@ class LoadedComicInfo:
         if not self.cover_filename_last:
             logger.warning(f"[{'CoverParsing':13s}] Couldn't parse any back cover")
         else:
-            logger.info(f"[{'CoverParsing':13s}] Back Cover parsed as '{self.cover_filename}'")
+            logger.info(f"[{'CoverParsing':13s}] Back Cover parsed as '{self.cover_filename_last}'")
             if cache_cover_bytes:
                 self.get_cover_image_bytes(back_cover=True)
 
@@ -329,7 +335,7 @@ class LoadedComicInfo:
             except XMLSyntaxError as e:
                 logger.warning(LOG_TAG + f"Failed to parse XML:\n{e}\nAttempting recovery...")
                 try:
-                    self.cinfo_objectcomicinfo = parseString(xml_string, doRecover=True, silence=True)
+                    self.cinfo_object = parseString(xml_string, doRecover=True, silence=True)
                 except XMLSyntaxError:
                     logger.error(f"[{'Reading Meta':13s}] Failed to parse XML: {e} - Recovery attempt failed")
                     raise CorruptedComicInfo(self.file_path)
@@ -338,6 +344,7 @@ class LoadedComicInfo:
                                  f" Please create an issue for further investigation")
                 raise
             logger.debug(LOG_TAG + "Successful")
+            self.original_cinfo_object_before_session = copy.copy(self.cinfo_object)
         else:
             self.cinfo_object = ComicInfo()
             logger.info(LOG_TAG + "No metadata file was found.A new file will be created")

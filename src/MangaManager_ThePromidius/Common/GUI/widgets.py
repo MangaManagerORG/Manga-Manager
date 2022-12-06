@@ -7,9 +7,9 @@ import re
 import tkinter
 from idlelib.tooltip import Hovertip
 from os.path import basename
-from tkinter import OptionMenu, Frame, Label, ttk
+from tkinter import Frame, Label, ttk
 from tkinter.scrolledtext import ScrolledText
-from tkinter.ttk import Combobox
+from tkinter.ttk import Combobox, OptionMenu
 
 from PIL import UnidentifiedImageError
 
@@ -20,6 +20,7 @@ from src.MangaManager_ThePromidius.Common.GUI.scrolledframe import ScrolledFrame
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
 from src.MangaManager_ThePromidius.Common.settings import SettingItem
 from src.MangaManager_ThePromidius.Common.utils import open_settings_folder
+from src.MangaManager_ThePromidius.MetadataManager import comicinfo
 
 INT_PATTERN = re.compile("^-*\d*(?:,?\d+|\.?\d+)?$")
 MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
@@ -42,6 +43,7 @@ class ButtonWidget(tkinter.Button):
         if tooltip:
             self.configure(text=self.cget('text') + '  ⁱ')
             self.tooltip = Hovertip(self, tooltip, 20)
+
 
 class WidgetManager:
     cinfo_tags: list[str] = list()
@@ -75,18 +77,19 @@ class Widget(Frame):
         super(Widget, self).__init__(master)
 
     def set(self, value):
-        if not value:
+        if value is None:
             return
         if not self.validation:
             self.widget.set(value)
             return
-        if validate_int(value):
+
+        if value and validate_int(value):
             if self.validation == "rating" and float(value) < 0 or float(value) > 10:
                 return
             self.widget.set(value)
 
     def set_default(self):
-        self.widget.set(self.default)
+        self.widget.set("")
 
     def get(self):
         return self.widget.get()
@@ -149,24 +152,41 @@ class OptionMenuWidget(Widget):
             label_text = cinfo_name
         self.default = default
         self.name = cinfo_name
-        # Label:
         self.set_label(label_text)
-        # Input:
         # noinspection PyTypeChecker
-
         self.widget = tkinter.StringVar(self, name=cinfo_name, value=default)
         self.widget_slave: OptionMenu = OptionMenu(self, self.widget, *values)
-        self.widget.trace('w', self.option_select)
+        # noinspection PyUnresolvedReferences
         if max_width:
             self.widget_slave.configure(width=max_width)
 
-    def update_menu(self, values) -> None:
-        self.widget.set('')
-        self.widget_slave['menu'].delete(0, 'end')
+    def update_listed_values(self, default_selected, values) -> None:
+        self.widget_slave.set_menu(default_selected, *values)
 
-        # Insert list of new options (tk._setit hooks them up to var)
-        for choice in values:
-            self.widget_slave['menu'].add_command(label=choice, command=tkinter._setit(self.widget, choice))
+    def get_options(self) -> list[str]:
+        values_list = []
+        match self.name:
+            case "AgeRating":
+                values_list = comicinfo.AgeRating.list()
+            case "Format":
+                values_list = comicinfo.format_list
+            case "BlackAndWhite":
+                values_list = comicinfo.YesNo.list()
+            case "Manga":
+                values_list = comicinfo.Manga.list()
+            case _:
+                logger.error(f"Unhandled error. '{self.name}' is not a registered widget whom you can extract options from")
+        return values_list
+
+    def append_first(self, value:str):
+        self.update_listed_values(value,
+            [value] + self.get_options()
+        )
+
+    def remove_first(self):
+        self.update_listed_values(
+            self.get_options()
+        )
 
     def option_select(self, *args):
         self.widget_slave.focus_set()

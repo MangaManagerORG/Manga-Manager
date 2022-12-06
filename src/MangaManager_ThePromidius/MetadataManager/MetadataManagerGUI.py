@@ -344,10 +344,8 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
                                                       width=combo_width,
                                                       ).grid(5, 0)
 
-        format_value_list = ("", "Special", "Reference", "Director's Cut", "Box Set", "Annual", "Anthology", "Epilogue",
-                             "One-Shot", "Prologue", "TPB", "Trade Paper Back", "Omnibus", "Compendium", "Absolute",
-                             "Graphic Novel", "GN", "FCB")
-        self.widget_mngr.Format = OptionMenuWidget(parent_frame, "Format", "Format", 18, "", *format_value_list).grid(5,
+
+        self.widget_mngr.Format = OptionMenuWidget(parent_frame, "Format", "Format", 18, "", *comicinfo.format_list).grid(5,
                                                                                                                       1)
 
         self.widget_mngr.BlackAndWhite = OptionMenuWidget(parent_frame, "BlackAndWhite", "Black And White", 18,
@@ -403,6 +401,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.progress_bar.increase_processed()
         self.update_item_saved_status(loaded_info)
         self.update()
+
     def on_badzipfile_error(self, exception, file_path: LoadedComicInfo):  # pragma: no cover
         mb.showerror("Error loading file",
                      f"Failed to read the file '{file_path}'.\nThis can be caused by wrong file format"
@@ -451,13 +450,14 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
             widget = self.widget_mngr.get_widget(cinfo_tag)
             tag_values = set()
             for loaded_cinfo in loaded_cinfo_list:
-                tag_values.add(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag) or "")
+                tag_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
+                tag_values.add(tag_value if tag_value != widget.default else "")
             tag_values = tuple(tag_values)
             tag_values_len = len(tag_values)
 
             # All files have the same content for this field
 
-            if tag_values_len == 1:
+            if tag_values_len == 1 and tag_values[0] != widget.default:
                 widget.set(tag_values[0])
 
             # Multiple values across different files for this field
@@ -469,6 +469,11 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
             # If it's a combobox update the suggestions listbox with the loaded values
             if isinstance(widget, ComboBoxWidget):
                 widget.widget['values'] = list(tag_values)
+            elif isinstance(widget, OptionMenuWidget):
+                if tag_values_len > 1:
+                    widget.append_first(self.MULTIPLE_VALUES_CONFLICT)
+                else:
+                    widget.update_listed_values(tag_values[0],widget.get_options())
 
     def _serialize_gui_to_cinfo(self):
         """
@@ -490,8 +495,11 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
                     if widget.name == "Format":
                         self.new_edited_cinfo.set_attr_by_name(cinfo_tag, "")
                 case widget.default:  # If it matches the default then do nothing
-                    self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}.")
+                    self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Has default value")
                     pass
+                case "":
+                    self.new_edited_cinfo.set_attr_by_name(cinfo_tag, widget.default)
+                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted")
                 case _:
                     self.new_edited_cinfo.set_attr_by_name(cinfo_tag,widget_value)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")
