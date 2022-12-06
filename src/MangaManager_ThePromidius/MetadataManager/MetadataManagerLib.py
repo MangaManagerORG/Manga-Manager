@@ -9,11 +9,13 @@ from src.MangaManager_ThePromidius import settings as settings_class
 from src.MangaManager_ThePromidius.Common.errors import EditedCinfoNotSet
 from src.MangaManager_ThePromidius.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
-from . import comicinfo
-from .comicinfo import ComicInfo
+from src.MangaManager_ThePromidius.Common.terminalcolors import TerminalColors as TerCol
+from src.MangaManager_ThePromidius.MetadataManager import comicinfo
+from src.MangaManager_ThePromidius.MetadataManager.comicinfo import ComicInfo
 
 logger = logging.getLogger("MetadataManager.Core")
-settings =settings_class.get_setting("main")
+settings = settings_class.get_setting("main")
+
 
 class _IMetadataManagerLib(abc.ABC):
     def on_item_loaded(self, loadedcomicInfo: LoadedComicInfo):
@@ -134,16 +136,16 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
             for cinfo_tag in self.cinfo_tags:
                 new_value = str(self.new_edited_cinfo.get_attr_by_name(cinfo_tag))
                 if new_value == self.MULTIPLE_VALUES_CONFLICT:
-                    logger.debug(LOG_TAG + f"Ignoring {cinfo_tag}. Keeping old values")
+                    logger.trace(LOG_TAG + f"Ignoring {cinfo_tag}. Keeping old values")
                     continue
                 old_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
                 if old_value == new_value:
-                    logger.debug(LOG_TAG + f"Ignoring {cinfo_tag}. Field has not changed")
+                    logger.trace(LOG_TAG + f"Ignoring {cinfo_tag}. Field has not changed")
                     continue
                 if cinfo_tag not in loaded_cinfo.changed_tags:
                     loaded_cinfo.changed_tags.append((cinfo_tag, old_value, new_value))
-                logger.debug(LOG_TAG + f"[{cinfo_tag:15s}] Updating \x1b[31;1mNew\x1b[0m '{old_value}' vs "
-                             f"New: '\x1b[33;20m{new_value}\x1b[0m' - Keeping new value")
+                logger.debug(LOG_TAG + f"[{cinfo_tag:15s}] Updating {TerCol.RED}New{TerCol.RESET} '{old_value}' vs "
+                             f"New: '{TerCol.YELLOW}{new_value}{TerCol.RESET}' - Keeping new value")
                 loaded_cinfo.cinfo_object.set_attr_by_name(cinfo_tag, new_value)
             loaded_cinfo.has_changes = True
             # if loaded_cinfo.is_metadata_modified(self.cinfo_tags):

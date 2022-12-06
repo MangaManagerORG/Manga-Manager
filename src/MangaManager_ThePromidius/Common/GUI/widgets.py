@@ -14,12 +14,12 @@ from tkinter.ttk import Combobox
 from PIL import UnidentifiedImageError
 
 from src.MangaManager_ThePromidius import settings as settings_class
+from src.MangaManager_ThePromidius.Common.GUI.models import LongText
+from src.MangaManager_ThePromidius.Common.GUI.progressbar import ProgressBar
+from src.MangaManager_ThePromidius.Common.GUI.scrolledframe import ScrolledFrame
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
-from .models import LongText
-from .progressbar import ProgressBar
-from .scrolledframe import ScrolledFrame
-from ..settings import SettingItem
-from ..utils import open_settings_folder
+from src.MangaManager_ThePromidius.Common.settings import SettingItem
+from src.MangaManager_ThePromidius.Common.utils import open_settings_folder
 
 INT_PATTERN = re.compile("^-*\d*(?:,?\d+|\.?\d+)?$")
 MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
@@ -31,7 +31,6 @@ settings = settings_class.get_setting("main")
 
 def validate_int(value):
     ilegal_chars = [character for character in str(value) if not INT_PATTERN.match(character)]
-    print(f"Ilegal chars: {ilegal_chars}")
     return not ilegal_chars
 
 
@@ -214,13 +213,7 @@ class CoverFrame(tkinter.Frame):
 
         global window_width, window_height
         if (window_width != event.width):  # or (window_height != event.height)
-            print(f"The width of Toplevel is {window_width}vs{event.width} and the height of Toplevel "
-                  f"is {window_height}vs{event.height}")
-            #
             if 1000 >= event.width:
-                # window_width, window_height = event.width, event.height
-                print(f"The width of Toplevel is {window_width}vs{event.width} and the height of Toplevel "
-                      f"is {window_height}vs{event.height}")
                 self.hide_back_image()
                 window_width, window_height = event.width, event.height
 
@@ -234,7 +227,6 @@ class CoverFrame(tkinter.Frame):
         super(CoverFrame, self).__init__(master, highlightbackground="black", highlightthickness=2)
         self.configure(pady=5)
         canvas_frame = self
-        canvas_frame.configure(background="red")
         master.master.bind("<Configure>", self.rezized)
 
         # canvas_frame.pack(expand=False)
@@ -246,7 +238,7 @@ class CoverFrame(tkinter.Frame):
         # self.grid_rowconfigure(2, weight=1)
         self.grid_columnconfigure(0, weight=1)
         # self.grid_columnconfigure(1, weight=1)
-        images_frame = Frame(canvas_frame, background="yellow")
+        images_frame = Frame(canvas_frame)
 
         images_frame.grid(column=0, row=1, sticky="nsew")
 
@@ -296,7 +288,6 @@ class CoverFrame(tkinter.Frame):
         self.canvas.itemconfig(self.canvas_image, image=loadedcomicinfo.cached_image)
         self.canvas_back.itemconfig(self.canvas_image_last, image=loadedcomicinfo.cached_image_last)
         self.cover_subtitle.configure(text=basename(loadedcomicinfo.file_path))
-        # , image = loadedcomicinfo.cached_image
 
     def create_canvas_image(self):
         try:

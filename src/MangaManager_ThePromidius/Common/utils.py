@@ -22,7 +22,9 @@ ALT_COVER_PATTERN = re.compile(f"(?i)({'|'.join([cover_r3_alt])})")
 IS_IMAGE_PATTERN = re.compile(rf"(?i).*.(?:{'|'.join(IMAGE_EXTENSIONS)})$")
 
 logger = logging.getLogger()
-def obtain_cover_filename(file_list) -> (str,str):
+
+
+def obtain_cover_filename(file_list) -> (str, str):
     """
     Helper function to find a cover file based on a list of filenames
     :param file_list:
@@ -40,18 +42,18 @@ def obtain_cover_filename(file_list) -> (str,str):
                        if IS_IMAGE_PATTERN.findall(filename) and COVER_PATTERN.findall(filename)]
     if possible_covers:
         cover = possible_covers[0]
-        return cover,latest_cover
+        return cover, latest_cover
     # Try to get 0001
     possible_covers = [filename for filename in file_list if ALT_COVER_PATTERN.findall(filename)]
     if possible_covers:
         cover = possible_covers[0]
-        return cover,latest_cover
+        return cover, latest_cover
     # Resource back to first filename available that is a cover
     # list_image_files = (filename for filename in file_list if IS_IMAGE_PATTERN.findall(filename))
     cover = sorted(list_image_files, key=natsort_key_with_path_support, reverse=False)
     if cover:
         cover = cover[0]
-        return cover,latest_cover
+        return cover, latest_cover
 
 
 webp_supported_formats = (".png", ".jpeg", ".jpg")
@@ -178,6 +180,7 @@ def get_estimated_time(start_time: float, processed_files: int, total_files: int
         return f"{int(round(minutes, 0))} minutes and {int(round(seconds, 0))} seconds"
     except ZeroDivisionError:
         return f"{int(round(0, 0))} minutes and {int(round(0, 0))} seconds"
+
 
 def open_settings_folder():
     if sys.platform == 'darwin':

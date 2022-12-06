@@ -197,12 +197,12 @@ class LoadedComicInfo:
                         with zin.open(item) as opened_image:
                             new_filename = getNewWebpFormatName(item.filename)
                             zout.writestr(new_filename, convertToWebp(opened_image))
-                            logger.debug(f"[{_LOG_TAG_WEBP:13s}] Adding converted file '{new_filename}'"
+                            logger.trace(f"[{_LOG_TAG_WEBP:13s}] Adding converted file '{new_filename}'"
                                          f" back to the new tempfile")
                     # Keep the rest of the files.
                     else:
                         zout.writestr(item.filename, zin.read(item.filename))
-                        logger.debug(f"[{_LOG_TAG_WEBP:13s}] Adding '{item.filename}' back to the new tempfile")
+                        logger.trace(f"[{_LOG_TAG_WEBP:13s}] Adding '{item.filename}' back to the new tempfile")
 
         logger.debug(f"[{'Processing':13s}] Data from old file copied to new file")
         # Delete old file and rename new file to old name
@@ -262,7 +262,7 @@ class LoadedComicInfo:
         if not self.cover_filename_last:
             logger.warning(f"[{'CoverParsing':13s}] Couldn't parse any back cover")
         else:
-            logger.info(f"[{'CoverParsing':13s}] Cover parsed as '{self.cover_filename}'")
+            logger.info(f"[{'CoverParsing':13s}] Back Cover parsed as '{self.cover_filename}'")
             if cache_cover_bytes:
                 self.get_cover_image_bytes(back_cover=True)
 
@@ -309,8 +309,7 @@ class LoadedComicInfo:
         :raises CorruptedComicInfo If the metadata file exists but can't be parsed
         :return:
         """
-
-        logger.info(f"[{'Reading Meta':13s}]")
+        LOG_TAG = f"[{'Reading Meta':13s}] "
         try:
             # If Comicinfo is not at root try to grab any ComicInfo.xml in the file
             if "ComicInfo.xml" not in self.archive.namelist():
@@ -328,7 +327,7 @@ class LoadedComicInfo:
             try:
                 self.cinfo_object = parseString(xml_string, silence=True)
             except XMLSyntaxError as e:
-                logger.warning(f"[{'Reading Meta':13s}] Failed to parse XML:\n{e}\nAttempting recovery...")
+                logger.warning(LOG_TAG + f"Failed to parse XML:\n{e}\nAttempting recovery...")
                 try:
                     self.cinfo_objectcomicinfo = parseString(xml_string, doRecover=True, silence=True)
                 except XMLSyntaxError:
@@ -338,7 +337,7 @@ class LoadedComicInfo:
                 logger.exception(f"[{'Reading Meta':13s}] Unhandled error reading metadata."
                                  f" Please create an issue for further investigation")
                 raise
-            logger.debug(f"[{'Reading Meta':13s}] Successful")
+            logger.debug(LOG_TAG + "Successful")
         else:
             self.cinfo_object = ComicInfo()
-            logger.info(f"[{'Reading Meta':13s}] No metadata file was found so a new one will be created")
+            logger.info(LOG_TAG + "No metadata file was found.A new file will be created")

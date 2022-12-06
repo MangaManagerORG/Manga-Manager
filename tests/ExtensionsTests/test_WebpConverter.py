@@ -9,10 +9,11 @@ import zipfile
 from PIL import Image
 
 from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
+from src.MangaManager_ThePromidius.Common.logging_utils import add_trace_level
 from src.MangaManager_ThePromidius.MetadataManager.extensions import webpconverter
 from tests.MetadataManagerTests.common import TKinterTestCase
 
-
+add_trace_level()
 class LoadedComicInfoConversToWebpTests(unittest.TestCase):
     def setUp(self) -> None:
         print(os.getcwd())

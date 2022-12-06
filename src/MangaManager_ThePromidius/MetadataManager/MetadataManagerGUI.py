@@ -217,7 +217,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.control_widgets.append(btn)
 
         # Show Selected Files - ListBox
-        self.files_selected_frame = tkinter.LabelFrame(self.side_info_frame, background="green")
+        self.files_selected_frame = tkinter.LabelFrame(self.side_info_frame)
 
         self.files_selected_frame.selected_files_label = Label(self.files_selected_frame, text="Opened Files:")
         self.files_selected_frame.selected_files_label.pack(expand=False, fill="x", anchor="nw")
@@ -484,17 +484,17 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
 
             match widget_value:
                 case self.MULTIPLE_VALUES_CONFLICT:
-                    self.log.debug(LOG_TAG + f"Omitting {cinfo_tag}. Keeping original")
+                    self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Keeping original")
                     self.new_edited_cinfo.set_attr_by_name(cinfo_tag,self.MULTIPLE_VALUES_CONFLICT)
                 case "None":
                     if widget.name == "Format":
                         self.new_edited_cinfo.set_attr_by_name(cinfo_tag, "")
                 case widget.default:  # If it matches the default then do nothing
-                    self.log.debug(LOG_TAG + f"Omitting {cinfo_tag}.")
+                    self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}.")
                     pass
                 case _:
                     self.new_edited_cinfo.set_attr_by_name(cinfo_tag,widget_value)
-                    self.log.info(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")
+                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")
                     # self.log.warning(f"Unhandled case: {widget_value}")
                     pass
 
