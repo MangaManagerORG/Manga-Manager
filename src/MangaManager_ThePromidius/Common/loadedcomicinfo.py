@@ -49,9 +49,8 @@ class LoadedComicInfo:
     file_path: str
     _cinfo_object: ComicInfo
     original_cinfo_object: ComicInfo
-
     # Used to keep original state after being loaded for the first time. Useful to undo sesion changes
-    original_cinfo_object_before_session: ComicInfo
+    original_cinfo_object_before_session: ComicInfo = None
 
     has_metadata: bool = False
     is_cinfo_at_root: bool = False

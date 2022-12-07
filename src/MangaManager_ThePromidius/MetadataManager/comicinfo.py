@@ -39,9 +39,9 @@ TagNamePrefix = ""
 if sys.version_info.major != 2:
     BaseStrType_ = str
 
-format_list = ("", "Special", "Reference", "Director's Cut", "Box Set", "Annual", "Anthology", "Epilogue",
-                             "One-Shot", "Prologue", "TPB", "Trade Paper Back", "Omnibus", "Compendium", "Absolute",
-                             "Graphic Novel", "GN", "FCB")
+format_list = ("", "Special", "Reference", "Director's Cut", "Box Set", "Annual", "Anthology", "Epilogue", "One-Shot", "Prologue", "TPB", "Trade Paper Back", "Omnibus", "Compendium", "Absolute","Graphic Novel", "GN", "FCB")
+
+
 def parsexml_(infile, parser=None, **kwargs):
     if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
@@ -2808,5 +2808,9 @@ __all__ = [
     "ArrayOfComicPageInfo",
     "ComicInfo",
     "ComicPageInfo",
-    "parseString"
+    "parseString",
+    "format_list",
+    "AgeRating",
+    "Manga",
+    "YesNo"
 ]

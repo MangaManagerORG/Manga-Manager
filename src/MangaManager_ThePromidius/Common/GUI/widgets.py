@@ -7,9 +7,9 @@ import re
 import tkinter
 from idlelib.tooltip import Hovertip
 from os.path import basename
-from tkinter import Frame, Label, ttk
+from tkinter import Frame, Label
 from tkinter.scrolledtext import ScrolledText
-from tkinter.ttk import Combobox, OptionMenu
+from tkinter.ttk import Combobox, OptionMenu, Progressbar
 
 from PIL import UnidentifiedImageError
 
@@ -178,18 +178,11 @@ class OptionMenuWidget(Widget):
                 logger.error(f"Unhandled error. '{self.name}' is not a registered widget whom you can extract options from")
         return values_list
 
-    def append_first(self, value:str):
-        self.update_listed_values(value,
-            [value] + self.get_options()
-        )
+    def append_first(self, value: str):
+        self.update_listed_values(value, [value] + self.get_options())
 
     def remove_first(self):
-        self.update_listed_values(
-            self.get_options()
-        )
-
-    def option_select(self, *args):
-        self.widget_slave.focus_set()
+        self.update_listed_values(self.get_options())
 
 
 class LongTextWidget(Widget):
@@ -518,8 +511,7 @@ class ProgressBarWidget(ProgressBar):
         bar_frame = Frame(pb_frame)
         bar_frame.pack(fill="x", side="top")
         bar_frame.columnconfigure(0, weight=1)
-        self.progress_bar = ttk.Progressbar(bar_frame, length=300,
-                                            mode="determinate")  # create progress bar
+        self.progress_bar = Progressbar(bar_frame, length=300, mode="determinate")  # create progress bar
         self.progress_bar.grid(row=0, column=0, sticky="we")
         self.progress_label = tkinter.StringVar(value="0 %")
         self.label = Label(bar_frame, textvariable=self.progress_label)

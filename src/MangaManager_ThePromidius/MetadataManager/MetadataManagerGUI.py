@@ -344,9 +344,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
                                                       width=combo_width,
                                                       ).grid(5, 0)
 
-
-        self.widget_mngr.Format = OptionMenuWidget(parent_frame, "Format", "Format", 18, "", *comicinfo.format_list).grid(5,
-                                                                                                                      1)
+        self.widget_mngr.Format = OptionMenuWidget(parent_frame, "Format", "Format", 18, "", *comicinfo.format_list).grid(5, 1)
 
         self.widget_mngr.BlackAndWhite = OptionMenuWidget(parent_frame, "BlackAndWhite", "Black And White", 18,
                                                           "Unknown", *("Unknown", "Yes", "No")).grid(6, 0)
@@ -470,10 +468,10 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
             if isinstance(widget, ComboBoxWidget):
                 widget.widget['values'] = list(tag_values)
             elif isinstance(widget, OptionMenuWidget):
-                if tag_values_len > 1:
+                if tag_values_len == 1:
+                    widget.update_listed_values(tag_values[0], widget.get_options())
+                elif tag_values_len > 1:
                     widget.append_first(self.MULTIPLE_VALUES_CONFLICT)
-                else:
-                    widget.update_listed_values(tag_values[0],widget.get_options())
 
     def _serialize_gui_to_cinfo(self):
         """
