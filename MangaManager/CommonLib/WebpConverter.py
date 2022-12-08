@@ -18,7 +18,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 logger = logging.getLogger(__name__)
 
-supportedFormats = (".png", ".jpeg", ".jpg")
+supportedFormats = (".png", ".jpeg", ".jpg",".bmp")
 
 
 
