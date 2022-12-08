@@ -1,7 +1,17 @@
 # Manga Manager
-### (Project not abandoned. I have some feats in the oven. I just don't have time to wrap a release. Will do soon)
+
 [![Python tests](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml) [![Build & publish Docker Images](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Build_Docker_Images.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Build_Docker_Images.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ThePromidius_Manga-Manager&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ThePromidius_Manga-Manager)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ThePromidius_Manga-Manager&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ThePromidius_Manga-Manager)
+
 ## Min required version: Python 3.9
+
+Manga Manager is currently being reworked. Little features will be added to the current codebase. Only fixes and easy
+additions.
+
+Stay tuned in the discord channel. You can try it out by pulling and running in your IDE after adding the folder to the
+PATH
+<br> Branch: `rework/master´
 
 ## What is Manga Manager
 
