@@ -69,7 +69,6 @@ class LoadedComicInfo:
     @cinfo_object.setter
     def cinfo_object(self, value: ComicInfo):
         self._cinfo_object = value
-        self.original_cinfo_object = copy.copy(value)
 
     @property
     def volume(self):
@@ -80,12 +79,6 @@ class LoadedComicInfo:
     def chapter(self):
         if self.cinfo_object:
             return self.cinfo_object.get_Number()
-
-    def is_metadata_modified(self, cinfo_tag_list_to_check: list[str]) -> bool:
-        self.has_changes = any(
-            (self.cinfo_object.get_attr_by_name(cinfo_tag) != self.original_cinfo_object.get_attr_by_name(cinfo_tag)
-             for cinfo_tag in cinfo_tag_list_to_check))
-        return self.has_changes
 
     def __init__(self, path, comicinfo: ComicInfo = None):
         """
@@ -225,6 +218,7 @@ class LoadedComicInfo:
                              f" Aborting and clearing temp files")
             os.remove(tmpname)
             raise
+        self.original_cinfo_object = copy.copy(self.cinfo_object)
         self.has_changes = False
 
     def load_all(self):
@@ -347,3 +341,11 @@ class LoadedComicInfo:
         else:
             self.cinfo_object = ComicInfo()
             logger.info(LOG_TAG + "No metadata file was found.A new file will be created")
+        self.original_cinfo_object = copy.copy(self.cinfo_object)
+        self.original_cinfo_object_before_session = copy.copy(self.cinfo_object)
+
+    def reset_metadata(self):
+        """
+        Returns the metadata to the first state of loaded cinfo
+        """
+        self.cinfo_object = self.original_cinfo_object

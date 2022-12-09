@@ -94,20 +94,22 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         # These are some tricks to make it easier to select files.
         # Saves last opened folder to not have to browse to it again
         if not self.last_folder:
-            initial_dir = main_settings.library_path
+            initial_dir = main_settings.library_path.value
         else:
             initial_dir = self.last_folder
         self.log.debug("Selecting files")
         # Open select files dialog
-        selected_paths_list = askopenfiles(parent=self.master, initialdir=initial_dir,
+        selected_paths_list = askopenfiles(parent=self, initialdir=initial_dir,
                                            title="Select file to apply cover",
                                            filetypes=(("CBZ Files", ".cbz"), ("All Files", "*"),)
                                            # ("Zip files", ".zip"))
-                                           )
+                                           ) or []
+
         if selected_paths_list:
             selected_parent_folder = os.path.dirname(selected_paths_list[0].name)
             if self.last_folder != selected_parent_folder or not self.last_folder:
                 self.last_folder = selected_parent_folder
+
         self.selected_files_path = [file.name for file in selected_paths_list]
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
@@ -132,6 +134,11 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
             self.changes_saved.place_forget()
 
     def update_item_saved_status(self,loaded_cinfo):
+        """
+        Adds a warning in the filename if the loadedcinfo has changes
+        :param loaded_cinfo:
+        :return:
+        """
         self.selected_files_treeview.item(loaded_cinfo.file_path,
                                           text=f"{'⚠' if loaded_cinfo.has_changes else ''}{loaded_cinfo.file_name}")
 
@@ -144,9 +151,8 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         """
         any_has_changes = False
         for loaded_cinfo in loaded_cinfo_list:
-            loaded_cinfo.is_metadata_modified(self.cinfo_tags)
             self.update_item_saved_status(loaded_cinfo)
-            if not any_has_changes and loaded_cinfo.has_changes:
+            if loaded_cinfo.has_changes:
                 any_has_changes = True
         self.are_unsaved_changes(any_has_changes)
 
@@ -220,7 +226,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.files_selected_frame = tkinter.LabelFrame(self.side_info_frame)
 
         self.files_selected_frame.selected_files_label = Label(self.files_selected_frame, text="Opened Files:")
-        self.files_selected_frame.selected_files_label.pack(expand=False, fill="x", anchor="nw")
+        self.files_selected_frame.selected_files_label.pack(expand=False, fill="x")
         # self.selected_files_treeview = ListboxWidget(self.files_selected_frame, selectmode="multiple")
         self.selected_files_treeview = TreeviewWidget(self.files_selected_frame)
         self.selected_files_treeview.pack(expand=True, fill="both")
@@ -230,13 +236,13 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
 
         self.selected_files_treeview.add_hook_item_selected(self.on_file_selection_preview)
 
-        # self.selected_files_treeview.update_cover_image = self.image_cover_frame.update_cover_image
+        # self.selected_files_treview.update_cover_image = self.image_cover_frame.update_cover_image TODO:this is commented check if needed. Levaing it as it is in merge
         self.image_cover_frame.pack(expand=False, fill='x')
         self.files_selected_frame.pack(expand=True, fill="both", pady=(20, 0))
 
         progress_bar_frame = tkinter.Frame(self.side_info_frame)
         self.progress_bar = ProgressBarWidget(progress_bar_frame)
-        progress_bar_frame.pack(expand=True, fill="both", side="bottom")
+        progress_bar_frame.pack(expand=False, fill="both", side="bottom")
 
     def display_widgets(self) -> None:
 
@@ -506,7 +512,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
 
     def process_gui_update(self, old_selection: list[LoadedComicInfo], new_selection: list[LoadedComicInfo]):
         self._serialize_gui_to_cinfo()
-        unsaved_changes = self.merge_changed_metadata(old_selection)
+        self.merge_changed_metadata(old_selection)
 
         self.show_not_saved_indicator(old_selection)
         self.widget_mngr.clean_widgets()
@@ -531,7 +537,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
             self.process()
         finally:
             self.progress_bar.stop()
-            # self.show_not_saved_indicator(self.loaded_cinfo_list)
+        self.show_not_saved_indicator(self.loaded_cinfo_list)
         self.new_edited_cinfo = None  # Nulling value to be safe
         self.control_buttons(enabled=True)
 

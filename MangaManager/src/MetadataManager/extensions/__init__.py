@@ -26,7 +26,6 @@ class ExtensionController:
 
     def load_extensions(self):
         logger.debug(f"Loading extensions. CWD:'{os.getcwd()}")
-        logger.debug("Somethingggg{}")
         modules = glob.glob(os.path.join(self.path_to_extensions, "*.py"))
         logger.debug(f"Found modules: [{', '.join(modules)}]")
         extensions = [os.path.basename(f)[:-3] for f in modules if os.path.isfile(f) and not f.endswith('__init__.py')]

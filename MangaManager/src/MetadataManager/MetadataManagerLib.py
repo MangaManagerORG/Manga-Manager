@@ -71,13 +71,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                              "Manga", "Characters", "Teams", "Locations", "ScanInformation", "StoryArc",
                              "StoryArcNumber", "SeriesGroup", "AgeRating", "CommunityRating",
                              "MainCharacterOrTeam", "Review",
-	    ]
-    # cinfo_tags: list[str] = ['Title', 'Series', 'LocalizedSeries', 'SeriesSort', 'Summary', 'Genre', 'Tags',
-    #                          'AlternateSeries', 'Notes', 'AgeRating', 'CommunityRating', 'ScanInformation', 'StoryArc',
-    #                          'AlternateCount', 'Writer', 'Inker', 'Colorist', 'Letterer', 'CoverArtist', 'Editor',
-    #                          'Translator', 'Publisher', 'Imprint', 'Characters', 'Teams', 'Locations', 'Number',
-    #                          'AlternateNumber', 'Count', 'Volume', 'PageCount', 'Year', 'Month', 'Day',
-    #                          'StoryArcNumber', 'LanguageISO', 'Format', 'BlackAndWhite', 'Manga']
+    ]
     MULTIPLE_VALUES_CONFLICT = "~~## Keep Original Value ##~~"
     tags_with_multiple_values = []
 
@@ -144,12 +138,13 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                     continue
                 if cinfo_tag not in loaded_cinfo.changed_tags:
                     loaded_cinfo.changed_tags.append((cinfo_tag, old_value, new_value))
-                logger.debug(LOG_TAG + f"[{cinfo_tag:15s}] Updating {TerCol.RED}New{TerCol.RESET} '{old_value}' vs "
-                             f"New: '{TerCol.YELLOW}{new_value}{TerCol.RESET}' - Keeping new value")
+                logger.debug(LOG_TAG + f"[{cinfo_tag:15s}] {TerCol.GREEN}Updating{TerCol.RESET} - Old '{TerCol.RED}{old_value}{TerCol.RESET}' vs "
+                             f"New: '{TerCol.YELLOW}{new_value}{TerCol.RESET}' - Keeping {TerCol.YELLOW}new{TerCol.RESET} value")
                 loaded_cinfo.cinfo_object.set_attr_by_name(cinfo_tag, new_value)
-            loaded_cinfo.has_changes = True
+                loaded_cinfo.has_changes = True
+                any_has_changes = True
             # if loaded_cinfo.is_metadata_modified(self.cinfo_tags):
-            any_has_changes = True
+
         self.new_edited_cinfo = None
         return any_has_changes
 
