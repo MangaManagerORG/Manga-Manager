@@ -5,13 +5,13 @@ import logging
 from abc import ABC
 from io import StringIO
 
-from src.MangaManager_ThePromidius import settings as settings_class
-from src.MangaManager_ThePromidius.Common.errors import EditedCinfoNotSet
-from src.MangaManager_ThePromidius.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
-from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
-from src.MangaManager_ThePromidius.Common.terminalcolors import TerminalColors as TerCol
-from src.MangaManager_ThePromidius.MetadataManager import comicinfo
-from src.MangaManager_ThePromidius.MetadataManager.comicinfo import ComicInfo
+from src import settings as settings_class
+from src.Common.errors import EditedCinfoNotSet
+from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
+from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.terminalcolors import TerminalColors as TerCol
+from src.MetadataManager import comicinfo
+from src.MetadataManager.comicinfo import ComicInfo
 
 logger = logging.getLogger("MetadataManager.Core")
 settings = settings_class.get_setting("main")

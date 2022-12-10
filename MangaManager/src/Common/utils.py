@@ -10,8 +10,8 @@ from typing import IO
 
 from PIL import Image
 
-from src.MangaManager_ThePromidius import MM_PATH
-from src.MangaManager_ThePromidius.Common.naturalsorter import natsort_key_with_path_support
+from src import MM_PATH
+from src.Common.naturalsorter import natsort_key_with_path_support
 
 # Patterns for picking cover
 IMAGE_EXTENSIONS = ('png', 'jpg', 'jpeg', 'tiff', 'bmp', 'gif', 'webp')

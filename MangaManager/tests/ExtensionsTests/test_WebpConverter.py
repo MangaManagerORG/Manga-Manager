@@ -8,9 +8,9 @@ import zipfile
 
 from PIL import Image
 
-from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
-from src.MangaManager_ThePromidius.Common.logging_utils import add_trace_level
-from src.MangaManager_ThePromidius.MetadataManager.extensions import webpconverter
+from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.logging_utils import add_trace_level
+from src.MetadataManager.extensions import webpconverter
 from tests.MetadataManagerTests.common import TKinterTestCase
 
 add_trace_level()

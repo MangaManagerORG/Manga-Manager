@@ -10,9 +10,9 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.validation import Validator
 
-from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
-from src.MangaManager_ThePromidius.MetadataManager import comicinfo
-from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
+from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.MetadataManager import comicinfo
+from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
 
 def prompt_autocomplete():

@@ -12,11 +12,11 @@ from typing import IO
 from PIL import Image, ImageTk
 from lxml.etree import XMLSyntaxError
 
-from src.MangaManager_ThePromidius import settings as settings_class
-from src.MangaManager_ThePromidius.Common.errors import CorruptedComicInfo, BadZipFile
-from src.MangaManager_ThePromidius.Common.utils import IS_IMAGE_PATTERN
-from src.MangaManager_ThePromidius.Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp
-from src.MangaManager_ThePromidius.MetadataManager.comicinfo import ComicInfo, parseString
+from src import settings as settings_class
+from src.Common.errors import CorruptedComicInfo, BadZipFile
+from src.Common.utils import IS_IMAGE_PATTERN
+from src.Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp
+from src.MetadataManager.comicinfo import ComicInfo, parseString
 
 logger = logging.getLogger("LoadedCInfo")
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.MangaManager_ThePromidius.MetadataManager import comicinfo
+from src.MetadataManager import comicinfo
 
 
 class Extension(ABC):

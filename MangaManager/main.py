@@ -4,12 +4,12 @@ import glob
 import logging
 import pathlib
 
-from src.MangaManager_ThePromidius import MM_PATH
-from src.MangaManager_ThePromidius.Common.errors import NoFilesSelected
-from src.MangaManager_ThePromidius.Common.logging_utils import setup_logging, add_trace_level
-from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
+from src import MM_PATH
+from src.Common.errors import NoFilesSelected
+from src.Common.logging_utils import setup_logging, add_trace_level
+from src.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
 # from Common.settings import Settings
-from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerGUI import App as MetadataApp
+from src.MetadataManager.MetadataManagerGUI import App as MetadataApp
 
 PROJECT_PATH = MM_PATH
 LOGS_PATH = pathlib.Path(f"{PROJECT_PATH}/logs/")

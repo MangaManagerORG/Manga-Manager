@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from src.MangaManager_ThePromidius.Common.settings import Settings
+from src.Common.settings import Settings
 
 ####
 

@@ -1,6 +1,6 @@
 import unittest
 
-from src.MangaManager_ThePromidius.MetadataManager.comicinfo import AgeRating, Manga, YesNo, format_list
+from src.MetadataManager.comicinfo import AgeRating, Manga, YesNo, format_list
 
 
 class LoadedCInfo_Utils(unittest.TestCase):

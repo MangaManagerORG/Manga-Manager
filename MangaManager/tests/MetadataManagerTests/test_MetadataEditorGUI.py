@@ -2,11 +2,10 @@ import os
 import random
 from tkinter.filedialog import askopenfiles
 
-from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
-from src.MangaManager_ThePromidius.Common.logging_utils import add_trace_level
-from src.MangaManager_ThePromidius.MetadataManager import MetadataManagerGUI
-from src.MangaManager_ThePromidius.MetadataManager import comicinfo
-from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
+from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.logging_utils import add_trace_level
+from src.MetadataManager import MetadataManagerGUI, comicinfo
+from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from tests.MetadataManagerTests.common import create_dummy_files, TKinterTestCase
 
 add_trace_level()

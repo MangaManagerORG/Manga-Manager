@@ -5,8 +5,8 @@ import tempfile
 import unittest
 import zipfile
 
-from src.MangaManager_ThePromidius.Common.loadedcomicinfo import obtain_cover_filename, LoadedComicInfo
-from src.MangaManager_ThePromidius.MetadataManager import comicinfo
+from src.Common.loadedcomicinfo import obtain_cover_filename, LoadedComicInfo
+from src.MetadataManager import comicinfo
 
 TEST_COMIC_INFO_STRING = """
 <ComicInfo>

@@ -1,7 +1,7 @@
 import copy
 from configparser import ConfigParser
 
-# from src.MangaManager_ThePromidius import CONFIG_PATH
+# from src import CONFIG_PATH
 from typing import MutableMapping
 
 CONFIG_PATH = ""

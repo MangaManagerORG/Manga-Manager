@@ -7,22 +7,22 @@ import tkinter
 from tkinter import Tk, Frame, Label, messagebox as mb, ttk
 
 #
-from src.MangaManager_ThePromidius.Common.errors import NoFilesSelected
-from src.MangaManager_ThePromidius.Common.utils import get_platform
-from src.MangaManager_ThePromidius.MetadataManager.extensions import GUIExtensionManager
+from src.Common.errors import NoFilesSelected
+from src.Common.utils import get_platform
+from src.MetadataManager.extensions import GUIExtensionManager
 
 if get_platform() == "linux":
-    from src.MangaManager_ThePromidius.Common.GUI.FileChooserWindow import askopenfiles
+    from src.Common.GUI.FileChooserWindow import askopenfiles
 else:
     from tkinter.filedialog import askopenfiles
 #
-from src.MangaManager_ThePromidius.MetadataManager import comicinfo
-from src.MangaManager_ThePromidius.MetadataManager.MetadataManagerLib import MetadataManagerLib
-from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
-from src.MangaManager_ThePromidius.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget
-from src.MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget, WidgetManager, CoverFrame, ButtonWidget, SettingsWidgetManager, TreeviewWidget, ProgressBarWidget
+from src.MetadataManager import comicinfo
+from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
+from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget
+from src.Common.GUI.widgets import ScrolledFrameWidget, WidgetManager, CoverFrame, ButtonWidget, SettingsWidgetManager, TreeviewWidget, ProgressBarWidget
 
-from src.MangaManager_ThePromidius import settings as settings_class
+from src import settings as settings_class
 main_settings = settings_class.get_setting("main")
 
 

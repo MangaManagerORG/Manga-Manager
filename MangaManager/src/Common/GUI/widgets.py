@@ -13,14 +13,14 @@ from tkinter.ttk import Combobox, OptionMenu, Progressbar
 
 from PIL import UnidentifiedImageError
 
-from src.MangaManager_ThePromidius import settings as settings_class
-from src.MangaManager_ThePromidius.Common.GUI.models import LongText
-from src.MangaManager_ThePromidius.Common.GUI.progressbar import ProgressBar
-from src.MangaManager_ThePromidius.Common.GUI.scrolledframe import ScrolledFrame
-from src.MangaManager_ThePromidius.Common.loadedcomicinfo import LoadedComicInfo
-from src.MangaManager_ThePromidius.Common.settings import SettingItem
-from src.MangaManager_ThePromidius.Common.utils import open_settings_folder
-from src.MangaManager_ThePromidius.MetadataManager import comicinfo
+from src import settings as settings_class
+from src.Common.GUI.models import LongText
+from src.Common.GUI.progressbar import ProgressBar
+from src.Common.GUI.scrolledframe import ScrolledFrame
+from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.settings import SettingItem
+from src.Common.utils import open_settings_folder
+from src.MetadataManager import comicinfo
 
 INT_PATTERN = re.compile("^-*\d*(?:,?\d+|\.?\d+)?$")
 MULTIPLE_FILES_SELECTED = "Multiple Files Selected"

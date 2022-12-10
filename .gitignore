@@ -15,8 +15,8 @@
 /dist/MangaManager.exe
 /MangaManager.spec
 /config.ini
-/src/MangaManager_ThePromidius/logs/MangaManager.log
-/src/MangaManager_ThePromidius/config.ini
+/src/src/MangaManager_ThePromidius/logs/MangaManager.log
+/src/src/MangaManager_ThePromidius/config.ini
 /Manga Manager.spec
 /build/__main__/__main__.exe.manifest
 /build/__main__/__main__.pkg

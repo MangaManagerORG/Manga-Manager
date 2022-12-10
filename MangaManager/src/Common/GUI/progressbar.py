@@ -3,7 +3,7 @@ import logging
 import time
 from threading import Timer
 
-from src.MangaManager_ThePromidius.Common.utils import get_elapsed_time, get_estimated_time
+from src.Common.utils import get_elapsed_time, get_estimated_time
 
 logger = logging.getLogger()
 

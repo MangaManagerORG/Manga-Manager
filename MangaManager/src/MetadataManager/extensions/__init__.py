@@ -5,7 +5,7 @@ import os
 import tkinter
 from tkinter import ttk
 
-from src.MangaManager_ThePromidius.Common.Templates.extension import Extension
+from src.Common.Templates.extension import Extension
 
 #
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class ExtensionController:
         logger.debug(f"Found extensions: [{', '.join(extensions)}]")
         for ext in extensions:
             self.loaded_extensions.append(importlib.import_module(f'.extensions.{ext}',
-                                                                  package="src.MangaManager_ThePromidius"
+                                                                  package="src"
                                                                           ".MetadataManager").ExtensionAppGUI())
 
     def load_settings(self):
