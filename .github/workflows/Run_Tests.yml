@@ -29,7 +29,7 @@ jobs:
 
         -   name: Run the tests
             run: |
-                python3 -m unittest discover -s tests -t .
+                python3 -m unittest discover -s MangaManager/tests -t MangaManager/
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
