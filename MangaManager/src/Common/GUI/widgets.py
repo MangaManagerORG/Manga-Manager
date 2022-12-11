@@ -13,13 +13,13 @@ from tkinter.ttk import Combobox, OptionMenu, Progressbar, Treeview, Style
 
 from PIL import UnidentifiedImageError
 
-from src import settings as settings_class
+from src import settings as settings_class, MM_PATH
 from src.Common.GUI.models import LongText
 from src.Common.GUI.progressbar import ProgressBar
 from src.Common.GUI.scrolledframe import ScrolledFrame
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.settings import SettingItem
-from src.Common.utils import open_settings_folder
+from src.Common.utils import open_folder
 from src.MetadataManager import comicinfo
 
 INT_PATTERN = re.compile("^-*\d*(?:,?\d+|\.?\d+)?$")
@@ -390,7 +390,7 @@ class SettingsWidgetManager:
                      command=self.parse_ui_settings_process).pack()
         ButtonWidget(master=control_frame, text="Open Settings Folder",
                      tooltip="Opens the folder where Manga Manager stores it's files",
-                     command=open_settings_folder).pack()
+                     command=lambda x:open_folder(path=MM_PATH)).pack()
         # for setting_section in settings_class.__dict__.sort(key=):
         self.settings_widget = {}
         for settings_section in settings_class.factory:
@@ -457,8 +457,11 @@ class TreeviewWidget(Treeview):
         self.ctx_menu.add_command(label="{clicked_file}", state="disabled")
         self.ctx_menu.add_separator()
         self.ctx_menu.add_command(label="Open in Explorer", command=self.open_in_explorer)
-        self.ctx_menu.add_command(label="Reset changes", command=self.reset_loadedcinfo_changes)
-
+        self.ctx_menu.add_command(label="Reset changes", command=self.reset_loadedcinfo_changes,state="disabled")
+        # """
+        # to get cinfo from selection
+        #  cinfo = self.selected_files_treeview.content.get(event)
+        #  """
 
     def clear(self):
         self.delete(*self.get_children())
@@ -508,6 +511,7 @@ class TreeviewWidget(Treeview):
             # mouse pointer over item
             self.selection_set(iid)
             self.ctx_menu.entryconfigure(0, label=iid)
+            self.ctx_menu.entryconfigure(2,command=lambda x=iid: self.open_in_explorer(x))
             self.ctx_menu.post(event.x_root, event.y_root)
         else:
             # mouse pointer not over item

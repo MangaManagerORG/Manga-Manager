@@ -8,7 +8,7 @@ from tkinter import Tk, Frame, Label, messagebox as mb, ttk
 
 #
 from src.Common.errors import NoFilesSelected
-from src.Common.utils import get_platform
+from src.Common.utils import get_platform, open_folder
 from src.MetadataManager.extensions import GUIExtensionManager
 
 if get_platform() == "linux":
@@ -228,9 +228,11 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.files_selected_frame.selected_files_label = Label(self.files_selected_frame, text="Opened Files:")
         self.files_selected_frame.selected_files_label.pack(expand=False, fill="x")
         # self.selected_files_treeview = ListboxWidget(self.files_selected_frame, selectmode="multiple")
-        self.selected_files_treeview = TreeviewWidget(self.files_selected_frame)
+        self.selected_files_treeview = TreeviewWidget
+        self.selected_files_treeview.open_in_explorer = self._treeview_open_explorer
+        self.selected_files_treeview.reset_loadedcinfo_changes = self._treview_reset
+        self.selected_files_treeview = self.selected_files_treeview(self.files_selected_frame)
         self.selected_files_treeview.pack(expand=True, fill="both")
-
         # Selected Covers
         self.image_cover_frame = CoverFrame(self.side_info_frame)
 
@@ -244,6 +246,11 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.progress_bar = ProgressBarWidget(progress_bar_frame)
         progress_bar_frame.pack(expand=False, fill="both", side="bottom")
 
+    def _treeview_open_explorer(self, file):
+        open_folder(os.path.dirname(file),file)
+        ...
+    def _treview_reset(self,event=None):
+        ...
     def display_widgets(self) -> None:
 
         #################

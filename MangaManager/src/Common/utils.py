@@ -10,7 +10,6 @@ from typing import IO
 
 from PIL import Image
 
-from src import MM_PATH
 from src.Common.naturalsorter import natsort_key_with_path_support
 
 # Patterns for picking cover
@@ -182,20 +181,19 @@ def get_estimated_time(start_time: float, processed_files: int, total_files: int
         return f"{int(round(0, 0))} minutes and {int(round(0, 0))} seconds"
 
 
-def open_settings_folder():
-    if sys.platform == 'darwin':
-        def openFolder(path):
-            subprocess.check_call(['open', '--', path])
-    elif sys.platform == 'linux2':
-        def openFolder(path):
-            subprocess.check_call(['xdg-open', '--', path])
-    elif sys.platform == 'win32':
-        def openFolder(path):
-            subprocess.check_call(['explorer', path])
-    else:
-        logger.error(f"Couldn't detect platform. Can't open settings folder. Please navigate to {MM_PATH}")
-        return
+def open_folder(folder_path, selected_file: str = None):
     try:
-        openFolder(MM_PATH)
+        if sys.platform == 'darwin':
+            subprocess.check_call(['open', '--', folder_path])
+        elif sys.platform == 'linux2':
+            subprocess.check_call(['xdg-open', '--', folder_path])
+        elif sys.platform == 'win32':
+            if selected_file:
+                subprocess.Popen(f'explorer /select, "{os.path.abspath(selected_file)}"',shell=True)
+            else:
+                subprocess.check_call(['explorer', folder_path])
+        else:
+            logger.error(f"Couldn't detect platform. Can't open settings folder. Please navigate to {folder_path}")
+            return
     except Exception:
         logger.exception("Exception opening the settings folder")
