@@ -421,13 +421,13 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
                      f"Skipping file...")
 
     def on_writing_exception(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
-        self.progress_bar.increase_failed()
+        self.pb.increase_failed()
         mb.showerror("Unhandled exception",
                      "There was an exception that was not handled while writing the changes to the file."
                      "Please check the logs and raise an issue so this can be investigated")
 
     def on_writing_error(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
-        self.progress_bar.increase_failed()
+        self.pb.increase_failed()
         mb.showerror("Error writing to file",
                      "There was an error writing to the file. Please check the logs.")
 
@@ -535,7 +535,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
         self.control_buttons(enabled=False)
         self.changes_saved.place_forget()
         # self.loaded_cinfo_list_to_process = self.get_selected_loaded_cinfo_list()
-        self.progress_bar.start(len(self.loaded_cinfo_list))
+        self.pb.start(len(self.loaded_cinfo_list))
         # Make sure current view is saved:
         self.process_gui_update(self.selected_items,self.selected_items)
         try:
@@ -543,7 +543,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
             # self.merge_changed_metadata(self.loaded_cinfo_list)
             self.process()
         finally:
-            self.progress_bar.stop()
+            self.pb.stop()
         self.show_not_saved_indicator(self.loaded_cinfo_list)
         self.new_edited_cinfo = None  # Nulling value to be safe
         self.control_buttons(enabled=True)

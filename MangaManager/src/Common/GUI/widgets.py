@@ -569,13 +569,16 @@ class ProgressBarWidget(ProgressBar):
         self.pb_label.pack(expand=False, fill="x", side="right")
         logger.info("Initialized progress bar")
 
+    def update_progress_label(self):
+        self.pb_label_variable.set(self.label_text)
+
     def _update(self):
 
         if not self.timer:
             return
         if self.processed >= self.total:
             self.timer.stop()
-        self.pb_label_variable.set(self.label_text)
+        self.update_progress_label()
         self.style.configure('text.Horizontal.TProgressbar',
                              text='{:g} %'.format(round(self.percentage, 2)))  # update label
         self.progress_bar['value'] = self.percentage
