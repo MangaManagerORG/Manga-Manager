@@ -7,9 +7,10 @@ import pathlib
 from src import MM_PATH
 from src.Common.errors import NoFilesSelected
 from src.Common.logging_utils import setup_logging, add_trace_level
+from src.MetadataManager import execute_gui
 from src.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
+
 # from Common.settings import Settings
-from src.MetadataManager.MetadataManagerGUI import App as MetadataApp
 
 PROJECT_PATH = MM_PATH
 LOGS_PATH = pathlib.Path(f"{PROJECT_PATH}/logs/")
@@ -81,5 +82,4 @@ if __name__ == '__main__':
 
     else:
         logger.info(f"Starting: GUI Manga Manager. Welcome")
-        app = MetadataApp()
-        app.mainloop()
+        execute_gui()
