@@ -49,8 +49,8 @@ class LoadedCInfo_Utils(unittest.TestCase):
         print("Running unit tests for cover filename parsing")
         for filename in list_filenames_to_test:
             with self.subTest(f"Subtest - Parsed name should match {filename[0]}"):
-                selected = obtain_cover_filename(filename[1])[0]
-                print(f"    ┣━━	Selected file is: {selected}")
+                selected = str(obtain_cover_filename(filename[1])[0])
+                print(f"Selected file is: {selected}")
                 self.assertEqual(filename[0], selected)
 
         # self.assertEqual(True, False)  # add assertion here

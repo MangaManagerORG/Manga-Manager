@@ -158,10 +158,18 @@ class ErrorHandlingTests(unittest.TestCase):
     @patch.multiple(MetadataManagerLib.MetadataManagerLib, __abstractmethods__=set())
     def test_on_writing_error(self):
         self.instance = MetadataManagerLib.MetadataManagerLib()
-
+        called = False
         class RaisePermissionError(LoadedComicInfo):
-            def write_metadata(self):
-                raise PermissionError()
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.has_changes = True
+
+            def write_metadata(self, auto_unmark_changes=False):
+                if not called:
+                    raise PermissionError()
+                else:
+                    super().write_metadata(auto_unmark_changes)
+                
 
         MetadataManagerLib.LoadedComicInfo = RaisePermissionError
 
@@ -177,7 +185,10 @@ class ErrorHandlingTests(unittest.TestCase):
         self.instance = MetadataManagerLib.MetadataManagerLib()
 
         class RaisePermissionError(LoadedComicInfo):
-            def write_metadata(self):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.has_changes = True
+            def write_metadata(self, auto_unmark_changes=False):
                 raise Exception()
 
         MetadataManagerLib.LoadedComicInfo = RaisePermissionError

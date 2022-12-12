@@ -8,12 +8,14 @@ import zipfile
 
 from PIL import Image
 
-from src.Common.loadedcomicinfo import LoadedComicInfo
+# from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.logging_utils import add_trace_level
+from src.MetadataManager.MetadataManagerLib import LoadedComicInfo
 from src.MetadataManager.extensions import webpconverter
 from tests.MetadataManagerTests.common import TKinterTestCase
 
 add_trace_level()
+
 class LoadedComicInfoConversToWebpTests(unittest.TestCase):
     def setUp(self) -> None:
         print(os.getcwd())
@@ -83,7 +85,6 @@ class CoreAppTests(unittest.TestCase):
                         print(f"    Asserting file is webp - '{filename}")
                         self.assertEqual("WEBP", image.format)
 
-
 class GuiTests(TKinterTestCase):
     ...
 
@@ -98,6 +99,7 @@ class GuiTests(TKinterTestCase):
         app.preview()
 
         self.root.focus_set()
+        self.root.destroy()
 
 
 if __name__ == '__main__':
