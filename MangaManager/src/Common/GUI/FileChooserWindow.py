@@ -7,7 +7,7 @@ from pathlib import Path
 from tkinter import font
 from tkinter import ttk, Frame
 
-from MangaManager_ThePromidius.Common.GUI.widgets import ScrolledFrameWidget
+from src.Common.GUI.widgets import ScrolledFrameWidget
 
 
 @dataclasses.dataclass
