@@ -29,6 +29,7 @@ def grouper(n, iterable, fillvalue=None):
     # grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
     return itertools.zip_longest(fillvalue=fillvalue, *args)
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -156,41 +157,6 @@ class App(MetadataManagerLib):
         self.running = False
         super(App, self).process()
 
-    #     while True:
-    #         is_valid_tool = Validator.from_callable(
-    #             self._is_valid_tool,
-    #             error_message='Not a valid tool. Select one in the list',
-    #             move_cursor_to_end=False)
-    #         data = {self.cinfo_tags[0]:"abc"}
-    #         multiple_values = False
-    #         choosed_tag = prompt("Select tag to edit (tab to show options): ", completer=WordCompleter(self.cinfo_tags),
-    #                           validator=is_valid_tool, pre_run=prompt_autocomplete)
-    #
-    #
-    #
-    #
-    #
-    #
-    #         for loaded_cinfo in self.loaded_cinfo_list:
-    #             b = loaded_cinfo.cinfo_object.get_attr_by_name(choosed_tag)
-    #             if b:
-    #                 if b not in multiple_values:
-    #                     multiple_values.append(f"{os.path.basename(loaded_cinfo.file_path):80}->{b}")
-    #         for tag in self.cinfo_tags:
-    #
-    #             for i in itertools.zip_longest(tag,textwrap.wrap(self.new_edited_cinfo.get_attr_by_name(tag))):
-    #                 print(f"{i[0] if i[0] else '':80}", i[1])
-    #
-    #
-    #
-    #         textwrap.wrap([tag,self.])
-    #         for i in itertools.zip_longest(*wrapped):
-    #             print(f"{i[0]:80}", i[1])
-    #         if len(multiple_values) > 1:
-    #             print("Multiple values selected:")
-    #             # print("\n".join(multiple_values))
-    #         new_value = prompt(f"{choosed_tag} >", default=self.MULTIPLE_VALUES_CONFLICT,
-    #                            mouse_support=True)
     #
     def _is_valid_tool(self, value):
         return True if value in self.cinfo_tags else False
@@ -210,10 +176,3 @@ class App(MetadataManagerLib):
     def on_writing_exception(self, exception, loaded_info: LoadedComicInfo):
         pass
 
-
-# if __name__ == '__main__':
-#
-#     arguments = argparse.
-#
-#
-#     App(["test_patching/" + path for path in os.listdir("test_patching")])

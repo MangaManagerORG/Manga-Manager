@@ -115,7 +115,8 @@ class Widget(Frame):
 
     def set_label(self, text, tooltip=None):
         self.label = Label(self, text=text)
-        self.label.pack(side="top")
+        if text:
+            self.label.pack(side="top")
         if tooltip:
             self.label.configure(text=self.label.cget('text') + '  ⁱ')
             self.label.tooltip = Hovertip(self.label, tooltip, 20)
@@ -126,7 +127,7 @@ class ComboBoxWidget(Widget):
                  validation=None, tooltip: str = None):
         super(ComboBoxWidget, self).__init__(master)
         # super(Widget, self).__init__()
-        if not label_text:
+        if label_text is None:
             label_text = cinfo_name
         self.name = cinfo_name
         self.default = default
@@ -148,8 +149,10 @@ class ComboBoxWidget(Widget):
 
 
 class OptionMenuWidget(Widget):
-    def __init__(self, master, cinfo_name, label_text=None, max_width=None, default=None, *values):
+    def __init__(self, master, cinfo_name, label_text=None, max_width=None, default=None, values=None):
 
+        if values is None:
+            values = []
         if not label_text:
             label_text = cinfo_name
         super(OptionMenuWidget, self).__init__(master)
@@ -160,13 +163,16 @@ class OptionMenuWidget(Widget):
         self.set_label(label_text)
         # noinspection PyTypeChecker
         self.widget = tkinter.StringVar(self, name=cinfo_name, value=default)
-        self.widget_slave: OptionMenu = OptionMenu(self, self.widget, *values)
+        self.widget_slave: Combobox = Combobox(self, textvariable=self.widget)
+        self.widget_slave.configure(state="readonly")
+        self.update_listed_values(self.default,list(values))
         # noinspection PyUnresolvedReferences
         if max_width:
             self.widget_slave.configure(width=max_width)
 
     def update_listed_values(self, default_selected, values) -> None:
-        self.widget_slave.set_menu(default_selected, *values)
+        self.widget_slave["values"] = list(values)
+        self.widget_slave.set(default_selected)
 
     def get_options(self) -> list[str]:
         values_list = []
@@ -187,7 +193,7 @@ class OptionMenuWidget(Widget):
         self.update_listed_values(value, [value] + self.get_options())
 
     def remove_first(self):
-        self.update_listed_values(self.get_options())
+        self.update_listed_values("", self.get_options())
 
 
 class LongTextWidget(Widget):

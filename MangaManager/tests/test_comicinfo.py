@@ -8,7 +8,7 @@ class LoadedCInfo_Utils(unittest.TestCase):
         classes_to_test_list_implementation = (AgeRating, Manga, YesNo)
 
         for class_ in classes_to_test_list_implementation:
-            with self.subTest("Testing {class_} has list method"):
+            with self.subTest(f"Testing {class_} has list method"):
                 self.assertTrue(len(class_.list()) > 1)
         with self.subTest("Testing format_list is populated"):
             self.assertTrue(len(format_list) > 1)

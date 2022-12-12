@@ -409,7 +409,7 @@ class App(Tk, MetadataManagerLib, GUIExtensionManager):
     ############
 
     def on_processed_item(self, loaded_info: LoadedComicInfo):
-        self.progress_bar.increase_processed()
+        self.pb.increase_processed()
         self.update_item_saved_status(loaded_info)
         self.update()
 
