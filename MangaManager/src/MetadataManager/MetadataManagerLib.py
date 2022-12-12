@@ -5,7 +5,7 @@ import logging
 from abc import ABC
 from io import StringIO
 
-from src import settings as settings_class
+from src import settings_class
 from src.Common.errors import EditedCinfoNotSet
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo

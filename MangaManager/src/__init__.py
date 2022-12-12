@@ -1,16 +1,13 @@
 from pathlib import Path
+_CONFIG_PATH = "config.ini"
+MM_PATH = Path(Path.home(), "MangaManager")
 
 from src.Common.settings import Settings
 
-####
 
-_CONFIG_PATH = "config.ini"
-MM_PATH = Path(Path.home(), "MangaManager")
 MM_PATH.mkdir(exist_ok=True,parents=True)
+CONFIG_PATH = Path(MM_PATH, _CONFIG_PATH)
 
-CONFIG_PATH = Path(MM_PATH,_CONFIG_PATH)
+settings_class = Settings(CONFIG_PATH)
+settings_class.load_settings()
 
-settings = Settings(CONFIG_PATH)
-settings.load_settings()
-
-# IMPORTANT: BREAK LINES IN IMPORTS BREAKS THE BUILDED EXECUTABLES

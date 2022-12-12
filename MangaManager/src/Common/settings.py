@@ -1,21 +1,27 @@
+import configparser
 import copy
 from configparser import ConfigParser
-
 # from src import CONFIG_PATH
 from typing import MutableMapping
+
+import src
+
+layout_factory = {}
 
 CONFIG_PATH = ""
 CPARSER = ConfigParser()
 
+# layout_factory = Layouts.layout_factory
 
 class SettingItem(object):
-    def __init__(self, section, key, name, tooltip, value=None, type_=False):
+    def __init__(self, section, key, name, tooltip, value=None, type_=False, values=[]):
         self.section = section
         self.key = key
         self.name = name
         self.tooltip = tooltip
         self.value = value
         self.type_ = type_
+        self.values = values
 
     def __repr__(self):
         return self.value
@@ -44,9 +50,13 @@ class SettingsSection(object):
         for value in settings_dict.get("values"):
             b = copy.copy(SettingItem)
             b.value = property(lambda self_: CPARSER.get(self_.section, self_.key),
-                               lambda self_, new_value: CPARSER[self_.section].update({self_.key: new_value}))
+                               lambda self_, new_value: CPARSER[self_.section].update({self_.key: new_value or ""}))
             # b.__repr__ = lambda self_: CPARSER.get(self._section_name, value["key"])
-            value["value"] = CPARSER.get(self._section_name, value.get("key"))
+            try:
+                value["value"] = CPARSER.get(self._section_name, value.get("key"))
+            except configparser.NoOptionError:
+                CPARSER.set(self._section_name,value.get("key"), "")
+
             c = b(section_name, **value)
 
             c.__dict__.update(value)
@@ -95,6 +105,7 @@ class Settings:
         global CONFIG_PATH
         CONFIG_PATH = config_path
 
+
     @staticmethod
     def get_setting(section_name) -> SettingsSection:
         return factory.get(section_name)
@@ -124,13 +135,11 @@ class Settings:
 
 ###
 #
-#   Default settings for base modules
+#   Default settings_class for base modules
 #
-
-
 registered_settings_sections = {
     "main": {
-        "pretty_name": "Main settings",
+        "pretty_name": "Main settings_class",
         "values": [
             {
                 "key": "library_path",
@@ -148,6 +157,13 @@ registered_settings_sections = {
                 "tooltip": "If enabled, the covers of the file will be cached and shown in the ui",
                 "type_": "bool"
             },
+            {
+                "key": "selected_layout",
+                "name": "Active layout",
+                "tooltip": "Selects the layout to be displayed",
+                "type_": "optionmenu",
+                "values": []
+            },
         ]
     },
     "WebpConverter": {
@@ -161,3 +177,5 @@ registered_settings_sections = {
         ]
     }
 }
+
+settings_class = Settings(src.MM_PATH)

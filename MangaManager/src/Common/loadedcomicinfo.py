@@ -12,7 +12,7 @@ from typing import IO
 from PIL import Image, ImageTk
 from lxml.etree import XMLSyntaxError
 
-from src import settings as settings_class
+from src import settings_class as settings_class
 from src.Common.errors import CorruptedComicInfo, BadZipFile
 from src.Common.utils import IS_IMAGE_PATTERN
 from src.Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp

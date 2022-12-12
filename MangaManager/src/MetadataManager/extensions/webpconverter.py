@@ -7,7 +7,7 @@ import tkinter
 import tkinter.ttk as ttk
 from tkinter import filedialog
 
-from src import settings as settings_class
+from src import settings_class
 from src.Common.GUI.widgets import ScrolledFrameWidget
 from src.Common.Templates.extension import Extension, ExtensionGUI
 from src.Common.errors import NoFilesSelected
@@ -15,6 +15,8 @@ from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.utils import ShowPathTreeAsDict
 
 settings = settings_class.get_setting("WebpConverter")
+
+
 class ExtensionApp(Extension):
     name = "Webp Converter"
     base_path: str

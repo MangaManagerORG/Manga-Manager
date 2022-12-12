@@ -10,8 +10,6 @@ from src.Common.logging_utils import setup_logging, add_trace_level
 from src.MetadataManager import execute_gui
 from src.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
 
-# from Common.settings import Settings
-
 PROJECT_PATH = MM_PATH
 LOGS_PATH = pathlib.Path(f"{PROJECT_PATH}/logs/")
 LOGS_PATH.mkdir(parents=True, exist_ok=True)

@@ -191,9 +191,9 @@ def open_folder(folder_path, selected_file: str = None):
             if selected_file:
                 subprocess.Popen(f'explorer /select, "{os.path.abspath(selected_file)}"',shell=True)
             else:
-                subprocess.check_call(['explorer', folder_path])
+                subprocess.Popen(f'explorer "{os.path.abspath(folder_path)}"',shell=True)
         else:
-            logger.error(f"Couldn't detect platform. Can't open settings folder. Please navigate to {folder_path}")
+            logger.error(f"Couldn't detect platform. Can't open settings_class folder. Please navigate to {folder_path}")
             return
     except Exception:
-        logger.exception("Exception opening the settings folder")
+        logger.exception(f"Exception opening '{folder_path}' folder")

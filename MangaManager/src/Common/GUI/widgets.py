@@ -13,7 +13,7 @@ from tkinter.ttk import Combobox, OptionMenu, Progressbar, Treeview, Style
 
 from PIL import UnidentifiedImageError
 
-from src import settings as settings_class, MM_PATH
+from src import settings_class, MM_PATH
 from src.Common.GUI.models import LongText
 from src.Common.GUI.progressbar import ProgressBar
 from src.Common.GUI.scrolledframe import ScrolledFrame
@@ -383,7 +383,7 @@ class SettingsWidgetManager:
 
     def __init__(self, parent):
         self.strings_vars: list[tkinter.Variable] = []
-        settings_window = tkinter.Toplevel(parent, pady=30, padx=30)
+        settings_window = self.settings_window = tkinter.Toplevel(parent, pady=30, padx=30)
         settings_window.geometry("900x420")
         settings_window.title("Settings")
 
@@ -396,7 +396,7 @@ class SettingsWidgetManager:
                      command=self.parse_ui_settings_process).pack()
         ButtonWidget(master=control_frame, text="Open Settings Folder",
                      tooltip="Opens the folder where Manga Manager stores it's files",
-                     command=lambda x:open_folder(path=MM_PATH)).pack()
+                     command=lambda x=None: open_folder(folder_path=MM_PATH)).pack()
         # for setting_section in settings_class.__dict__.sort(key=):
         self.settings_widget = {}
         for settings_section in settings_class.factory:
@@ -423,21 +423,34 @@ class SettingsWidgetManager:
             if setting.type_ == "bool":
                 value = True if setting.value else False
                 string_var = SettingBolVar(value=value, name=f"{setting.section}.{setting.key}")
-                string_var.linked_setting = setting
                 entry = tkinter.Checkbutton(row, variable=string_var, onvalue=1, offvalue=0)
                 entry.pack(side="left")
-                self.strings_vars.append(string_var)
+            elif setting.type_ == "optionmenu":
+                string_var = SettingStringVar(value="default", name=f"{setting.section}.{setting.key}")
+                entry = Combobox(master=row, textvariable=string_var, width=30, state="readonly")
+                entry["values"] = setting.values
+                entry.set(str(setting.value))
+                entry.pack(side="left", expand=False, fill="x", padx=(5, 30))
+                entry.set(setting.value)
+                # entry.configure(state="readonly")
+
+                ...
             else:
                 string_var = SettingStringVar(value=setting.value, name=f"{setting.section}.{setting.key}")
-                string_var.linked_setting = setting
-                self.strings_vars.append(string_var)
+
+
                 entry = tkinter.Entry(master=row, width=80, textvariable=string_var)
                 entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
+            self.strings_vars.append(string_var)
+            string_var.linked_setting = setting
             entry.setting_section = section_class._section_name
             entry.setting_name = setting
             self.settings_widget[section_class._section_name][setting] = entry
-            if setting.type_ == "bool":
-                string_var.set(bool(setting))
+            match setting.type_:
+                case "bool":
+                    string_var.set(bool(setting))
+                # case "optionmenu":
+                    # string_var.set(setting.value)
 
 
 def _run_hook(source: list[callable], *args):
@@ -530,6 +543,7 @@ class TreeviewWidget(Treeview):
 
     def reset_loadedcinfo_changes(self, event=None):
         raise NotImplementedError()
+
 
 class ProgressBarWidget(ProgressBar):
     def __init__(self, parent):

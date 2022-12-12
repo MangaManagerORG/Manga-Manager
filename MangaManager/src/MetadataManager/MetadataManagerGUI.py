@@ -23,7 +23,7 @@ from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from src.Common.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, \
     SettingsWidgetManager, ButtonWidget
 
-from src import settings as settings_class
+from src import settings_class
 main_settings = settings_class.get_setting("main")
 
 
