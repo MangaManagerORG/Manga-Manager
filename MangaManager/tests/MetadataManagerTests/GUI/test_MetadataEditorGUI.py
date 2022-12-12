@@ -190,3 +190,9 @@ class CinfoToUiTest(TKinterTestCase):
         # self.assertEqual(app.MULTIPLE_VALUES_CONFLICT, app.new_edited_cinfo.get_Series())
         app.destroy()
 
+
+@parameterized_class(('GUI',), loaded_layouts)
+class GenericUITest(TKinterTestCase):
+    def test_settings_window_correctly_displayed(self):
+        self.root = app = self.GUI()
+        app.show_settings()

@@ -253,7 +253,7 @@ class CoverFrame(tkinter.Frame):
         self.selected_file_path_var = tkinter.StringVar(canvas_frame, value="No file selected")
         self.selected_file_var = tkinter.StringVar(canvas_frame, value="No file selected")
         # canvas_frame.pack(expand=False)
-        self.cover_subtitle = tkinter.Label(canvas_frame, background="violet",textvariable=self.selected_file_var)
+        self.cover_subtitle = tkinter.Label(canvas_frame, background="violet", textvariable=self.selected_file_var)
         self.cover_subtitle.configure(width=25, compound="right", justify="left")
         self.selected_file_var.set('No file selected')
         self.tooltip_filename = Hovertip(self, "No file selected", 20)
@@ -422,7 +422,7 @@ class SettingsWidgetManager:
             label.pack(side="left")
             if setting.tooltip:
                 label.configure(text=label.cget('text') + '  ⁱ')
-                label.tooltip = Hovertip(label, setting.tooltip_filename, 20)
+                label.tooltip = Hovertip(label, setting.tooltip, 20)
 
             if setting.type_ == "bool":
                 value = True if setting.value else False

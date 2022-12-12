@@ -289,7 +289,7 @@ class Layout(GUIApp):
         progress_bar_frame = tkinter.Frame(frame)
         pb = self.pb = ProgressBarWidget(progress_bar_frame)
         pb.progress_bar.configure(length=200)
-        pb.set_template(f"""Processed: {pb.PROCESSED}/{pb.TOTAL} - {pb.ERRORS}""")
+        pb.set_template(f"""Processed: {pb.PROCESSED}/{pb.TOTAL} - {pb.ERRORS} errors""")
         progress_bar_frame.pack(expand=False, fill="both", side="right")
         # label = tkinter.Label(frame,text="ASdsad")
         # label.pack(expand=True,side="right")
