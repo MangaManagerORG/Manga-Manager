@@ -21,9 +21,10 @@ class Layout(GUIApp):
 
 
         # Overview LAYOUT
-        self.control_frame_top = Frame(self.main_frame, background="green")
-        self.control_frame_top.pack(fill="x", side="top")
+        self.control_frame_top = Frame(self.main_frame)
+        self.control_frame_top.pack(fill="x", side="top",padx=70,pady=3)
         self.display_control_frame()
+        ttk.Separator(self.main_frame, orient='horizontal').pack(fill="x")
 
         mid_content_frame = Frame(self.main_frame)
         mid_content_frame.pack(fill="both",expand=True)
@@ -36,8 +37,9 @@ class Layout(GUIApp):
         self.init_main_content_frame()
         self.display_main_content_widgets()
 
+        ttk.Separator(self.main_frame, orient='horizontal').pack(fill="x")
         self.selection_progress_frame_bottom = Frame(self.main_frame)
-        self.selection_progress_frame_bottom.pack(fill="x",side="bottom", pady=(10,5))
+        self.selection_progress_frame_bottom.pack(fill="x",side="bottom", pady=(5,2))
         self.display_bottom_frame()
 
     def display_side_bar(self) -> None:
@@ -99,7 +101,7 @@ class Layout(GUIApp):
         tab_3 = ScrolledFrameWidget(self.notebook, scrolltype="vertical")
         self.numbering_info_frame = tab_3.create_frame()
         self.numbering_info_frame.configure(padx=20)
-        self.notebook.add(tab_3, text="Numbering")
+        self.notebook.add(tab_3, text="Extended")
 
         extension_tab = ScrolledFrameWidget(self.notebook, scrolltype="Vertical")
         self.extensions_tab_frame = extension_tab.create_frame()
@@ -151,14 +153,30 @@ class Layout(GUIApp):
 
         self.widget_mngr.Title = ComboBoxWidget(parent_frame, cinfo_name="Title",
                                                 tooltip="The title of the chapter").pack()
-        self.widget_mngr.Summary = LongTextWidget(parent_frame, cinfo_name="Summary").pack()
+
+        # Summary and Review widget
+        long_text_notebook = Notebook(parent_frame, height=95)
+        long_text_notebook.pack(fill="x", expand=False, pady=(14, 5))
+
+        tab = ScrolledFrameWidget(long_text_notebook, scrolltype="vertical")
+        summary_frame = tab.create_frame(fill="both", expand=True)
+        long_text_notebook.add(tab, text="Summary")
+        self.widget_mngr.Summary = LongTextWidget(summary_frame, cinfo_name="Summary", label_text="").pack(fill="both",
+                                                                                                           expand="True")
+
+        tab = ScrolledFrameWidget(long_text_notebook, scrolltype="vertical",)
+        review_frame = tab.create_frame(fill="both",expand=True)
+        long_text_notebook.add(tab, text="Review")
+        self.widget_mngr.Review = LongTextWidget(review_frame, cinfo_name="Review", label_text="").pack(fill="both",
+                                                                                                        expand="True")
+
         self.widget_mngr.Genre = ComboBoxWidget(parent_frame, cinfo_name="Genre").pack()
         self.widget_mngr.Tags = ComboBoxWidget(parent_frame, cinfo_name="Tags").pack()
         self.widget_mngr.Web = ComboBoxWidget(parent_frame, cinfo_name="Web").pack()
 
         COMBO_WIDTH = 10
         numbering = Frame(parent_frame)
-        numbering.columnconfigure("all",weight=1)
+        numbering.columnconfigure("all", weight=1)
 
         self.widget_mngr.Number = ComboBoxWidget(numbering, "Number", width=COMBO_WIDTH,
                                                  tooltip="The chapter absolute number").grid(0, 0, padx=5)
@@ -183,29 +201,14 @@ class Layout(GUIApp):
                                               validation="int", default="-1").grid(1, 2, padx=5)
         self.widget_mngr.AgeRating = OptionMenuWidget(numbering, "AgeRating", "Age Rating", 18,
                                                       "Unknown", comicinfo.AgeRating.list()).grid(1, 3, padx=5)
-        self.widget_mngr.BlackAndWhite = OptionMenuWidget(numbering, "BlackAndWhite", "Black And White", 18,
-                                                          "Unknown", ("Unknown", "Yes", "No")).grid(1, 4, padx=5)
+
         self.widget_mngr.LanguageISO = ComboBoxWidget(numbering, "LanguageISO", label_text="Language ISO",
                                                       width=COMBO_WIDTH,
-                                                      ).grid(3, 0)
-        self.widget_mngr.AlternateCount = ComboBoxWidget(numbering, cinfo_name="AlternateCount",
-                                                         label_text="Alternate Count",
-                                                         default="-1", validation="int", width=COMBO_WIDTH).grid(3, 1, padx=5)
-        self.widget_mngr.AlternateNumber = ComboBoxWidget(numbering, "AlternateNumber", width=COMBO_WIDTH,
-                                                          label_text="Alt Number", tooltip="Alternate Number", validation="int").grid(3, 2, padx=5)
-        self.widget_mngr.AlternateCount = ComboBoxWidget(numbering, "AlternateCount",
-                                                         label_text="Alt Count", tooltip="Alternate Count",
-                                                         width=COMBO_WIDTH,
-                                                         validation="int", default="-1").grid(3, 3, padx=5)
+                                                      ).grid(1, 4)
+
 
         numbering.pack()
 
-        self.widget_mngr.SeriesGroup = ComboBoxWidget(parent_frame, cinfo_name="SeriesGroup",
-                                                      label_text="Series Group").pack()
-
-
-        self.widget_mngr.AlternateSeries = ComboBoxWidget(parent_frame, cinfo_name="AlternateSeries",
-                                                          label_text="Alternate Series").pack()
         self.widget_mngr.Notes = ComboBoxWidget(parent_frame, cinfo_name="Notes").pack()
 
         #################
@@ -217,7 +220,7 @@ class Layout(GUIApp):
         self.widget_mngr.Inker = ComboBoxWidget(parent_frame, "Inker").pack()
         self.widget_mngr.Colorist = ComboBoxWidget(parent_frame, "Colorist").pack()
         self.widget_mngr.Letterer = ComboBoxWidget(parent_frame, "Letterer").pack()
-        self.widget_mngr.CoverArtist = ComboBoxWidget(parent_frame, "CoverArtist").pack()
+        self.widget_mngr.CoverArtist = ComboBoxWidget(parent_frame, "CoverArtist", label_text="Cover Artist").pack()
         self.widget_mngr.Editor = ComboBoxWidget(parent_frame, "Editor").pack()
         self.widget_mngr.Translator = ComboBoxWidget(parent_frame, "Translator").pack()
         self.widget_mngr.Publisher = ComboBoxWidget(parent_frame, "Publisher").pack()
@@ -225,6 +228,8 @@ class Layout(GUIApp):
         self.widget_mngr.Characters = ComboBoxWidget(parent_frame, "Characters").pack()
         self.widget_mngr.Teams = ComboBoxWidget(parent_frame, "Teams").pack()
         self.widget_mngr.Locations = ComboBoxWidget(parent_frame, "Locations").pack()
+        self.widget_mngr.MainCharacterOrTeam = ComboBoxWidget(parent_frame, "MainCharacterOrTeam",
+                                                              label_text="Main Character Or Team").pack()
 
         #################
         # Numbering column
@@ -233,27 +238,66 @@ class Layout(GUIApp):
         combo_width = 10
 
 
-
-
-
         # self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
         #                                             width=combo_width,
         #                                             validation="int", default="0").grid(2, 1)
 
+        self.widget_mngr.SeriesGroup = ComboBoxWidget(parent_frame, cinfo_name="SeriesGroup",
+                                                      label_text="Series Group").pack()
+
+
+        self.widget_mngr.AlternateSeries = ComboBoxWidget(parent_frame, cinfo_name="AlternateSeries",
+                                                          label_text="Alternate Series").pack()
+
         self.widget_mngr.StoryArcNumber = ComboBoxWidget(parent_frame, "StoryArcNumber", width=combo_width,
-                                                         label_text="Story Arc Number").grid(4, 1)
+                                                         label_text="Story Arc Number").pack()
 
+        numbering = Frame(parent_frame)
+        numbering.columnconfigure("all", weight=1)
+        self.widget_mngr.BlackAndWhite = OptionMenuWidget(numbering, "BlackAndWhite", "Black And White", 18,
+                                                          "Unknown", ("Unknown", "Yes", "No")).grid(0, 0, padx=5)
+        self.widget_mngr.AlternateCount = ComboBoxWidget(numbering, cinfo_name="AlternateCount",
+                                                         label_text="Alternate Count",
+                                                         default="-1", validation="int", width=COMBO_WIDTH).grid(0, 1, padx=5)
+        self.widget_mngr.AlternateNumber = ComboBoxWidget(numbering, "AlternateNumber", width=COMBO_WIDTH,
+                                                          label_text="Alt Number", tooltip="Alternate Number", validation="int").grid(0, 2, padx=5)
+        self.widget_mngr.AlternateCount = ComboBoxWidget(numbering, "AlternateCount",
+                                                         label_text="Alt Count", tooltip="Alternate Count",
+                                                         width=COMBO_WIDTH,
+                                                         validation="int", default="-1").grid(0, 3, padx=5)
+        numbering.pack()
+        self.widget_mngr.CommunityRating = ComboBoxWidget(parent_frame, cinfo_name="CommunityRating",
+                                                          label_text="Community Rating",
+                                                          validation="rating").pack(expand=True, fill="both",
+                                                                                    side="right")
 
+        self.widget_mngr.ScanInformation = ComboBoxWidget(parent_frame, cinfo_name="ScanInformation",
+                                                          label_text="Scan Information").pack()
 
+        self.widget_mngr.StoryArc = ComboBoxWidget(parent_frame, "StoryArc", label_text="Story Arc").pack()
+        self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
+                                                    width=combo_width,
+                                                    validation="int", default="0")
 
 
     def display_bottom_frame(self):
+
         frame = self.selection_progress_frame_bottom
+        # frame.configure(highlightbackground="black",highlightthickness=1)
+        tkinter.Label(frame, text="No files selected", textvariable=self.image_cover_frame.selected_file_path_var).pack(side="left")
 
         progress_bar_frame = tkinter.Frame(frame)
         pb = self.pb = ProgressBarWidget(progress_bar_frame)
+        pb.progress_bar.configure(length=200)
         pb.set_template(f"""Processed: {pb.PROCESSED}/{pb.TOTAL} - {pb.ERRORS}""")
         progress_bar_frame.pack(expand=False, fill="both", side="right")
+        # label = tkinter.Label(frame,text="ASdsad")
+        # label.pack(expand=True,side="right")
+        # self.pb.pb_label = label
+        self.pb.pb_label.pack(side="right")
+        self.pb.progress_bar.pack(side="right",fill="x",expand=True)
+
+
 
     # Implementations
 
@@ -280,20 +324,10 @@ class Layout(GUIApp):
     def not_displayed(self):
         ### NOT DISPLAYED:
         parent_frame = None
-
+        ...
 
 
         # TODO: add global tag and genre
 
 
 
-        self.widget_mngr.CommunityRating = ComboBoxWidget(parent_frame, cinfo_name="CommunityRating",
-                                                          label_text="Community Rating",
-                                                          validation="rating").pack(expand=True, fill="both",
-                                                                                    side="right")
-
-
-        self.widget_mngr.ScanInformation = ComboBoxWidget(parent_frame, cinfo_name="ScanInformation",
-                                                          label_text="Scan Information").pack()
-
-        self.widget_mngr.StoryArc = ComboBoxWidget(parent_frame, "StoryArc", label_text="Story Arc").pack()

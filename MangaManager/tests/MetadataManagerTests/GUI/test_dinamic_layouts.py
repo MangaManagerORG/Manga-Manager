@@ -2,10 +2,8 @@ import glob
 import importlib
 import os
 
-from parameterized import parameterized
-
 from src.MetadataManager import MetadataManagerGUI
-from tests.MetadataManagerTests.common import create_dummy_files, TKinterTestCase
+from tests.MetadataManagerTests.common import create_dummy_files, TKinterTestCase, parameterized_class
 
 layouts_path = os.path.abspath("src/Layouts")
 print(layouts_path)
@@ -23,8 +21,8 @@ print("sdasdsadsa")
 print(loaded_layouts)
 
 
-
-class CinfoToUiTest(TKinterTestCase):
+@parameterized_class(('GUI',), loaded_layouts)
+class DinamicLayoutTests(TKinterTestCase):
     test_files_names = None
 
     def setUp(self) -> None:
@@ -52,9 +50,7 @@ class CinfoToUiTest(TKinterTestCase):
             except Exception as e:
                 print(e)
 
-    @parameterized.expand(
-        loaded_layouts)
-    def test_all_fields_are_populated(self, layout):
-        app = self.root = layout()
-        app.title(f"test_all_fields_are_populated_{layout.name}")
+    def test_all_fields_are_populated(self):
+        app = self.root = self.GUI()
+        app.title(f"test_all_fields_are_populated_{app.name}")
         self.pump_events()

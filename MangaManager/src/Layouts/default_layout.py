@@ -138,7 +138,20 @@ class Layout(GUIApp):
 
         self.widget_mngr.Title = ComboBoxWidget(parent_frame, cinfo_name="Title",
                                                 tooltip="The title of the chapter").pack()
-        self.widget_mngr.Summary = LongTextWidget(parent_frame, cinfo_name="Summary").pack()
+
+        long_text_notebook = Notebook(parent_frame, height=100)
+        long_text_notebook.pack(fill="x",expand=False)
+
+        tab = ScrolledFrameWidget(long_text_notebook, scrolltype="vertical")
+        summary_frame = tab.create_frame(fill="both",expand=True)
+        long_text_notebook.add(tab, text="Summary")
+        self.widget_mngr.Summary = LongTextWidget(summary_frame, cinfo_name="Summary",label_text="").pack()
+
+        tab = ScrolledFrameWidget(long_text_notebook, scrolltype="vertical")
+        review_frame = tab.create_frame()
+        long_text_notebook.add(tab, text="Review")
+        self.widget_mngr.Review = LongTextWidget(review_frame, cinfo_name="Review", label_text="").pack()
+
         self.widget_mngr.Genre = ComboBoxWidget(parent_frame, cinfo_name="Genre").pack()
         self.widget_mngr.Tags = ComboBoxWidget(parent_frame, cinfo_name="Tags").pack()
         self.widget_mngr.Web = ComboBoxWidget(parent_frame, cinfo_name="Web").pack()
@@ -183,6 +196,9 @@ class Layout(GUIApp):
         self.widget_mngr.Characters = ComboBoxWidget(parent_frame, "Characters").pack()
         self.widget_mngr.Teams = ComboBoxWidget(parent_frame, "Teams").pack()
         self.widget_mngr.Locations = ComboBoxWidget(parent_frame, "Locations").pack()
+        self.widget_mngr.MainCharacterOrTeam = ComboBoxWidget(parent_frame, "MainCharacterOrTeam",
+                                                              label_text="Main Character Or Team").pack()
+
 
         #################
         # Numbering column
@@ -202,9 +218,9 @@ class Layout(GUIApp):
                                                          validation="int", default="-1").grid(1, 1)
         self.widget_mngr.Volume = ComboBoxWidget(parent_frame, "Volume", width=combo_width,
                                                  validation="int", default="-1").grid(2, 0)
-        # self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
-        #                                             width=combo_width,
-        #                                             validation="int", default="0").grid(2, 1)
+        self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
+                                                    width=combo_width,
+                                                    validation="int", default="0").grid(2, 1)
         self.widget_mngr.Year = ComboBoxWidget(parent_frame, "Year", width=combo_width,
                                                validation="int", default="-1").grid(3, 0)
         self.widget_mngr.Month = ComboBoxWidget(parent_frame, "Month", width=combo_width,
@@ -225,6 +241,7 @@ class Layout(GUIApp):
         self.widget_mngr.Manga = OptionMenuWidget(parent_frame, "Manga", "Manga", 18,
                                                   "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(6,
                                                                                                                   1)
+
     def on_file_selection_preview(self, *args):
         """
         Method called when the users selects one or more files to previe the metadata

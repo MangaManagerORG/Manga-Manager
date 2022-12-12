@@ -3,8 +3,8 @@
     <module name="MangaManagerV2" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
-    <option name="SDK_HOME" value="C:\Program Files\Python310\python.exe" />
-    <option name="SDK_NAME" value="Python 3.10" />
+    <option name="SDK_HOME" value="C:\Users\galla\.virtualenvs\MangaManagerV2\Scripts\python.exe" />
+    <option name="SDK_NAME" value="Python 3.11 (MangaManagerV2)" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/MangaManager" />
     <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="false" />
@@ -17,7 +17,7 @@
       <option name="IS_IGNORE_MISSING_FILES" value="false" />
       <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
       <ENTRIES>
-        <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
       </ENTRIES>
     </EXTENSION>
     <option name="_new_pattern" value="&quot;&quot;" />

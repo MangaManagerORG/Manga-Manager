@@ -153,11 +153,9 @@ class OptionMenuWidget(Widget):
 
         if values is None:
             values = []
-        if not label_text:
+        if label_text is None:
             label_text = cinfo_name
         super(OptionMenuWidget, self).__init__(master)
-        if not label_text:
-            label_text = cinfo_name
         self.default = default
         self.name = cinfo_name
         self.set_label(label_text)
@@ -199,7 +197,7 @@ class OptionMenuWidget(Widget):
 class LongTextWidget(Widget):
     def __init__(self, master, cinfo_name, label_text=None, width: int = None):
         super(LongTextWidget, self).__init__(master)
-        if not label_text:
+        if label_text is None:
             label_text = cinfo_name
         self.set_label(label_text)
         self.default = ""
@@ -221,10 +219,11 @@ class ScrolledFrameWidget(ScrolledFrame):
         self.paned_window.pack(fill="both", expand=True)
         self.pack(expand=True, fill='both', side='top')
 
-    def create_frame(self):
+    def create_frame(self,**kwargs):
         """Creates a subframe and packs it"""
         frame = Frame(self.paned_window)
-        frame.pack()
+        frame.pack(kwargs or {})
+        # frame.pack()
         self.paned_window.add(frame)
         return frame
 
@@ -246,17 +245,18 @@ class CoverFrame(tkinter.Frame):
                     return
                 self.show_back_image()
                 window_width, window_height = event.width, event.height
-
     def __init__(self, master):
         super(CoverFrame, self).__init__(master, highlightbackground="black", highlightthickness=2)
         self.configure(pady=5)
         canvas_frame = self
         master.master.bind("<Configure>", self.rezized)
-
+        self.selected_file_path_var = tkinter.StringVar(canvas_frame, value="No file selected")
+        self.selected_file_var = tkinter.StringVar(canvas_frame, value="No file selected")
         # canvas_frame.pack(expand=False)
-        self.cover_subtitle = tkinter.Label(canvas_frame, background="violet")
-        self.cover_subtitle.configure(text='No file selected', width=25, compound="right", justify="left")
-        self.tooltip = Hovertip(self, "No file selected", 20)
+        self.cover_subtitle = tkinter.Label(canvas_frame, background="violet",textvariable=self.selected_file_var)
+        self.cover_subtitle.configure(width=25, compound="right", justify="left")
+        self.selected_file_var.set('No file selected')
+        self.tooltip_filename = Hovertip(self, "No file selected", 20)
         self.cover_subtitle.grid(row=0, sticky="nsew")
         # self.grid_rowconfigure(0, weight=1)
         # self.grid_rowconfigure(2, weight=1)
@@ -296,10 +296,13 @@ class CoverFrame(tkinter.Frame):
     def update_cover_image(self, loadedcomicinfo_list: list[LoadedComicInfo], multiple=False):
         if len(loadedcomicinfo_list) > 1:
             self.clear()
-            self.cover_subtitle.configure(text=MULTIPLE_FILES_SELECTED)
-            self.tooltip.text = "\n".join(
+            # self.cover_subtitle.configure(text=MULTIPLE_FILES_SELECTED)
+            self.selected_file_var.set(MULTIPLE_FILES_SELECTED)
+            self.selected_file_path_var.set(MULTIPLE_FILES_SELECTED)
+            self.tooltip_filename.text = "\n".join(
                 [os.path.basename(loadedcomicinfo.file_path) for loadedcomicinfo in loadedcomicinfo_list])
             return
+
         if not loadedcomicinfo_list:
             # raise NoFilesSelected()
             return
@@ -308,10 +311,11 @@ class CoverFrame(tkinter.Frame):
             self.clear()
         else:
             self.update_cover_button.grid(column=0, row=1)
-        self.tooltip.text = os.path.basename(loadedcomicinfo.file_path)
+        self.tooltip_filename.text = os.path.basename(loadedcomicinfo.file_path)
         self.canvas.itemconfig(self.canvas_image, image=loadedcomicinfo.cached_image)
         self.canvas_back.itemconfig(self.canvas_image_last, image=loadedcomicinfo.cached_image_last)
-        self.cover_subtitle.configure(text=basename(loadedcomicinfo.file_path))
+        self.selected_file_var.set(basename(loadedcomicinfo.file_path))
+        self.selected_file_path_var.set(loadedcomicinfo.file_path)
 
     def create_canvas_image(self):
         try:
@@ -418,7 +422,7 @@ class SettingsWidgetManager:
             label.pack(side="left")
             if setting.tooltip:
                 label.configure(text=label.cget('text') + '  ⁱ')
-                label.tooltip = Hovertip(label, setting.tooltip, 20)
+                label.tooltip = Hovertip(label, setting.tooltip_filename, 20)
 
             if setting.type_ == "bool":
                 value = True if setting.value else False
@@ -552,11 +556,11 @@ class ProgressBarWidget(ProgressBar):
         pb_frame.pack(expand=False, fill="x")
         super().__init__()
 
-        bar_frame = Frame(pb_frame)
-        bar_frame.pack(fill="x", side="top")
-        bar_frame.columnconfigure(0, weight=1)
+        # bar_frame = Frame(pb_frame)
+        # bar_frame.pack(fill="x", side="top")
+        # bar_frame.columnconfigure(0, weight=1)
 
-        self.style = Style(bar_frame)
+        self.style = Style(pb_frame)
         self.style.layout('text.Horizontal.TProgressbar',
                           [
                               ('Horizontal.Progressbar.trough',
@@ -581,7 +585,7 @@ class ProgressBarWidget(ProgressBar):
                           )
         self.style.configure('text.Horizontal.TProgressbar', text='0 %', anchor='center')
 
-        self.progress_bar = Progressbar(bar_frame, length=10, style='text.Horizontal.TProgressbar',
+        self.progress_bar = Progressbar(pb_frame, length=10, style='text.Horizontal.TProgressbar',
                                             mode="determinate")  # create progress bar
         self.progress_bar.pack(expand=False, fill="x",side="top")
         self.pb_label_variable = tkinter.StringVar(value=self.label_text)

@@ -85,7 +85,7 @@ Estimated time: {self.ESTIMATED_TIME}""")
     def label_text(self):
         return self.template.safe_substitute(
             processed=self.processed,
-            total_files=self.total,
+            total=self.total,
             errors=self.processed_errors,
             elapsed_time=get_elapsed_time(self.start_time),
             estimated_time=get_estimated_time(self.start_time, self.processed, self.total)
