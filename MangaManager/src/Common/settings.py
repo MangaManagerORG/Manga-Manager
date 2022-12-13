@@ -80,11 +80,11 @@ class SettingsSection(object):
     #             )
 
     @classmethod
-    def get(cls, key, *args, **kargs):
+    def get(cls, key, *_, **__):
         return CPARSER.get(cls._section_name, key)
 
     @classmethod
-    def set(cls, key, value, *args, **kargs):
+    def set(cls, key, value, *_, **__):
         CPARSER[cls._section_name][key] = value
 
 

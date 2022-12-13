@@ -30,7 +30,6 @@ def obtain_cover_filename(file_list) -> (str, str):
     :return:
     """
     list_image_files = [filename for filename in file_list if IS_IMAGE_PATTERN.findall(filename)]
-    cover = None
     latest_cover = sorted(list_image_files, key=natsort_key_with_path_support, reverse=True)
     if latest_cover:
         latest_cover = latest_cover[0]

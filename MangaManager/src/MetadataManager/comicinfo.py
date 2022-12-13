@@ -32,6 +32,7 @@ import base64
 import datetime as datetime_
 import decimal as decimal_
 from lxml import etree as etree_
+
 logger = logging.getLogger()
 Validate_simpletypes_ = True
 SaveElementTreeNode = True
@@ -39,7 +40,9 @@ TagNamePrefix = ""
 if sys.version_info.major != 2:
     BaseStrType_ = str
 
-format_list = ("", "Special", "Reference", "Director's Cut", "Box Set", "Annual", "Anthology", "Epilogue", "One-Shot", "Prologue", "TPB", "Trade Paper Back", "Omnibus", "Compendium", "Absolute","Graphic Novel", "GN", "FCB")
+format_list = (
+"", "Special", "Reference", "Director's Cut", "Box Set", "Annual", "Anthology", "Epilogue", "One-Shot", "Prologue",
+"TPB", "Trade Paper Back", "Omnibus", "Compendium", "Absolute", "Graphic Novel", "GN", "FCB")
 
 
 def parsexml_(infile, parser=None, **kwargs):
@@ -178,48 +181,48 @@ class GeneratedsSuper(GeneratedsSuperSuper):  # pragma: no cover
         output.close()
         return strval
 
-    def gds_format_string(self, input_data, input_name=''):
+    def gds_format_string(self, input_data, *_, **__):
         return input_data
 
-    def gds_parse_string(self, input_data, node=None, input_name=''):
+    def gds_parse_string(self, input_data, *_, **__):
         return input_data
 
-    def gds_validate_string(self, input_data, node=None, input_name=''):
+    def gds_validate_string(self, input_data,  *_, **__):
         if not input_data:
             return ''
         else:
             return input_data
 
-    def gds_format_base64(self, input_data, input_name=''):
+    def gds_format_base64(self, input_data, *_, **__):
         return base64.b64encode(input_data).decode('ascii')
 
-    def gds_validate_base64(self, input_data, node=None, input_name=''):
+    def gds_validate_base64(self, input_data, *_, **__):
         return input_data
 
-    def gds_format_integer(self, input_data, input_name=''):
+    def gds_format_integer(self, input_data, *_, **__):
         return '%d' % int(input_data)
 
-    def gds_parse_integer(self, input_data, node=None, input_name=''):
+    def gds_parse_integer(self, input_data, node=None, *_, **__):
         try:
             ival = int(input_data)
         except (TypeError, ValueError) as exp:
             raise_parse_error(node, 'Requires integer value: %s' % exp)
         return ival
 
-    def gds_validate_integer(self, input_data, node=None, input_name=''):
+    def gds_validate_integer(self, input_data, node=None, *_, **__):
         try:
             value = int(input_data)
         except (TypeError, ValueError):
             raise_parse_error(node, 'Requires integer value')
         return value
 
-    def gds_format_integer_list(self, input_data, input_name=''):
+    def gds_format_integer_list(self, input_data, *_, **__):
         if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
             input_data = [str(s) for s in input_data]
         return '%s' % ' '.join(input_data)
 
     def gds_validate_integer_list(
-            self, input_data, node=None, input_name=''):
+            self, input_data, node=None, *_, **__):
         values = input_data.split()
         for value in values:
             try:
@@ -228,30 +231,30 @@ class GeneratedsSuper(GeneratedsSuperSuper):  # pragma: no cover
                 raise_parse_error(node, 'Requires sequence of integer values')
         return values
 
-    def gds_format_float(self, input_data, input_name=''):
+    def gds_format_float(self, input_data, *_, **__):
         return ('%.15f' % float(input_data)).rstrip('0')
 
-    def gds_parse_float(self, input_data, node=None, input_name=''):
+    def gds_parse_float(self, input_data, node=None, *_, **__):
         try:
             fval_ = float(input_data)
         except (TypeError, ValueError) as exp:
             raise_parse_error(node, 'Requires float or double value: %s' % exp)
         return fval_
 
-    def gds_validate_float(self, input_data, node=None, input_name=''):
+    def gds_validate_float(self, input_data, node=None, *_, **__):
         try:
             value = float(input_data)
         except (TypeError, ValueError):
             raise_parse_error(node, 'Requires float value')
         return value
 
-    def gds_format_float_list(self, input_data, input_name=''):
+    def gds_format_float_list(self, input_data, *_, **__):
         if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
             input_data = [str(s) for s in input_data]
         return '%s' % ' '.join(input_data)
 
     def gds_validate_float_list(
-            self, input_data, node=None, input_name=''):
+            self, input_data, node=None, *_, **__):
         values = input_data.split()
         for value in values:
             try:
@@ -260,7 +263,7 @@ class GeneratedsSuper(GeneratedsSuperSuper):  # pragma: no cover
                 raise_parse_error(node, 'Requires sequence of float values')
         return values
 
-    def gds_format_decimal(self, input_data, input_name=''):
+    def gds_format_decimal(self, input_data, *_, **__):
         return_value = '%s' % input_data
         if '.' in return_value:
             return_value = return_value.rstrip('0')
@@ -1108,7 +1111,8 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
     superclass = None
 
     def __init__(self, Title='', Series='', Number='', Count=-1, Volume=-1, AlternateSeries='', SeriesSort='',
-                 LocalizedSeries='', AlternateNumber='', AlternateCount=-1, Summary='', Notes='', Year=-1, Month=-1, Day=-1, Writer='', Penciller='', Inker='',
+                 LocalizedSeries='', AlternateNumber='', AlternateCount=-1, Summary='', Notes='', Year=-1, Month=-1,
+                 Day=-1, Writer='', Penciller='', Inker='',
                  Colorist='', Letterer='', CoverArtist='', Editor='', Translator='', Publisher='', Imprint='', Genre='',
                  Tags='', Web='', PageCount=0, LanguageISO='', Format='', BlackAndWhite='Unknown', Manga='Unknown',
                  Characters='', Teams='', Locations='', ScanInformation='', StoryArc='', StoryArcNumber='',
@@ -1945,7 +1949,7 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
                 namespaceprefix_, eol_))
         if self.MainCharacterOrTeam != "":
             namespaceprefix_ = self.MainCharacterOrTeam_nsprefix_ + ':' if (
-                        UseCapturedNS_ and self.MainCharacterOrTeam_nsprefix_) else ''
+                    UseCapturedNS_ and self.MainCharacterOrTeam_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sMainCharacterOrTeam>%s</%sMainCharacterOrTeam>%s' % (namespaceprefix_, self.gds_encode(
                 self.gds_format_string(quote_xml(self.MainCharacterOrTeam), input_name='MainCharacterOrTeam')),
@@ -1954,8 +1958,8 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
             namespaceprefix_ = self.Review_nsprefix_ + ':' if (UseCapturedNS_ and self.Review_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sReview>%s</%sReview>%s' % (
-            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Review), input_name='Review')),
-            namespaceprefix_, eol_))
+                namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Review), input_name='Review')),
+                namespaceprefix_, eol_))
 
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_

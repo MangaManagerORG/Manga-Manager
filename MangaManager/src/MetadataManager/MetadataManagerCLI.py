@@ -46,7 +46,7 @@ app = None
 
 
 @bindings.add('c-q')
-def _(event):
+def _(*_):
     """Exit when `c-q` is pressed. """
     app.quit()
 

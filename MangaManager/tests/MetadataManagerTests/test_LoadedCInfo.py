@@ -99,7 +99,6 @@ class LoadedComicInfoReadTests(unittest.TestCase):
                 print(e)
 
     def test_simple_read(self):
-        loaded_cinfo_list = []
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Testing individual file read metadata - {i + 1}/{len(self.test_files_names)}"):
                 cinfo = LoadedComicInfo(file_names).load_metadata()

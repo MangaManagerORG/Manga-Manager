@@ -289,7 +289,7 @@ class Layout(GUIApp):
         progress_bar_frame = tkinter.Frame(frame)
         pb = self.pb = ProgressBarWidget(progress_bar_frame)
         pb.progress_bar.configure(length=200)
-        pb.set_template(f"""Processed: {pb.PROCESSED}/{pb.TOTAL} - {pb.ERRORS} errors""")
+        pb.set_template(f"""Processed: {pb.PROCESSED_TAG}/{pb.TOTAL_TAG} - {pb.ERRORS_TAG} errors""")
         progress_bar_frame.pack(expand=False, fill="both", side="right")
         # label = tkinter.Label(frame,text="ASdsad")
         # label.pack(expand=True,side="right")
@@ -318,16 +318,3 @@ class Layout(GUIApp):
             #     # Reads new_edited_cinfo and applies to each loaded cinfo
             self.process_gui_update(old_selection, new_selection)
         self.image_cover_frame.update_cover_image(new_selection)
-
-
-
-    def not_displayed(self):
-        ### NOT DISPLAYED:
-        parent_frame = None
-        ...
-
-
-        # TODO: add global tag and genre
-
-
-

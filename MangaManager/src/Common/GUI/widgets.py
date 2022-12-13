@@ -212,7 +212,7 @@ class LongTextWidget(Widget):
 
 
 class ScrolledFrameWidget(ScrolledFrame):
-    def __init__(self, master, *args, **kwargs):
+    def __init__(self, master, *_, **kwargs):
         super(ScrolledFrameWidget, self).__init__(master, **kwargs)
         self.configure(usemousewheel=True)
         self.paned_window = tkinter.PanedWindow(self.innerframe)
@@ -293,7 +293,7 @@ class CoverFrame(tkinter.Frame):
         self.update_cover_button.grid_remove()
         return
 
-    def update_cover_image(self, loadedcomicinfo_list: list[LoadedComicInfo], multiple=False):
+    def update_cover_image(self, loadedcomicinfo_list: list[LoadedComicInfo], **__):
         if len(loadedcomicinfo_list) > 1:
             self.clear()
             # self.cover_subtitle.configure(text=MULTIPLE_FILES_SELECTED)
@@ -320,13 +320,13 @@ class CoverFrame(tkinter.Frame):
     def create_canvas_image(self):
         try:
             self.canvas_image = self.canvas.create_image(0, 0, anchor=tkinter.NW)
-        except UnidentifiedImageError as e:
+        except UnidentifiedImageError:
             ...
 
     def create_canvas_back_image(self):
         try:
             self.canvas_image_last = self.canvas_back.create_image(0, 0, anchor=tkinter.NW)
-        except UnidentifiedImageError as e:
+        except UnidentifiedImageError:
             ...
 
     def hide_back_image(self):
@@ -379,10 +379,7 @@ class SettingBolVar(tkinter.BooleanVar):
 class SettingsWidgetManager:
     def parse_ui_settings_process(self):
         for stringvar in self.strings_vars:
-            if isinstance(stringvar, tkinter.BooleanVar):
-                stringvar.linked_setting.value = str(stringvar.get())
-            else:
-                stringvar.linked_setting.value = str(stringvar.get())
+            stringvar.linked_setting.value = str(stringvar.get())
         settings_class.save_settings()
 
     def __init__(self, parent):
@@ -489,7 +486,7 @@ class TreeviewWidget(Treeview):
     def clear(self):
         self.delete(*self.get_children())
 
-    def select_all(self, event=None):
+    def select_all(self, *_):
         for item in self.get_children():
             self.selection_add(item)
 
@@ -497,13 +494,13 @@ class TreeviewWidget(Treeview):
         return [self.content.get(item) for item in self.selection()]
 
     def insert(self, loaded_cinfo: LoadedComicInfo, *args, **kwargs):
-        a = super(TreeviewWidget, self).insert("", 'end', loaded_cinfo.file_path, text=loaded_cinfo.file_name, *args,
+        super(TreeviewWidget, self).insert("", 'end', loaded_cinfo.file_path, text=loaded_cinfo.file_name, *args,
                                                **kwargs)
         self.content[loaded_cinfo.file_path] = loaded_cinfo
         # self._call_hook_item_inserted(loaded_cinfo)
         self.select_all()
 
-    def _on_select(self, *args):
+    def _on_select(self, *_):
         prev_selection = copy.copy(self.prev_selection)
         selected = [self.content.get(item) for item in self.selection()]
         self.prev_selection = selected

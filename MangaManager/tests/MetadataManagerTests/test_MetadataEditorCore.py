@@ -62,7 +62,7 @@ class CoreTesting(unittest.TestCase):
 
         self.instance.loaded_cinfo_list = [metadata_1, metadata_2]
         # There is no edited comicinfo, it should fail
-        with self.assertRaises(EditedCinfoNotSet) as cm:
+        with self.assertRaises(EditedCinfoNotSet):
             self.instance.merge_changed_metadata(self.instance.loaded_cinfo_list)
         new_cinfo = comicinfo.ComicInfo()
         new_cinfo.set_Series(self.instance.MULTIPLE_VALUES_CONFLICT)
@@ -121,7 +121,7 @@ class ErrorHandlingTests(unittest.TestCase):
         class RaiseBadZip:
             ...
 
-        def raise_badzip(self, path, comicinfo=None):
+        def raise_badzip(*_, **__):
             raise BadZipFile
 
         RaiseBadZip.__init__ = raise_badzip
@@ -140,7 +140,7 @@ class ErrorHandlingTests(unittest.TestCase):
         class RaiseCorruptedMeta:
             ...
 
-        def raise_badzip(self, path, comicinfo=None):
+        def raise_badzip(*_, **__):
             # Exception raised but then we create a new object with a brand new comicinfo.
             # Fix back patched class and raise exception
             MetadataManagerLib.LoadedComicInfo = LoadedComicInfo

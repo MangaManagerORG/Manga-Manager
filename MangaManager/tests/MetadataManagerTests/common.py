@@ -38,7 +38,7 @@ class TKinterTestCase(unittest.TestCase):
         while self.root.dooneevent(_tkinter.ALL_EVENTS | _tkinter.DONT_WAIT):
             pass
 
-def parameterized_class(attrs, input_values=None, class_name_func=None, classname_func=None):
+def parameterized_class(attrs, input_values=None, classname_func=None,  **__):
     """ Parameterizes a test class by setting attributes on the class.
 
         Can be used in two ways:

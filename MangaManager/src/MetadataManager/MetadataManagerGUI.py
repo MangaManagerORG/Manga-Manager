@@ -78,7 +78,7 @@ class GUIApp(Tk, MetadataManagerLib, GUIExtensionManager):
         Returns the list of selected loaded_cinfo if any is selected. Else returns loaded_cinfo list
         :return:
         """
-        new_selection = self.selected_files_treeview.get_selected() or self.loaded_cinfo_list
+        self.selected_files_treeview.get_selected() or self.loaded_cinfo_list
 
         return self.selected_files_treeview.get_selected() or self.loaded_cinfo_list
 
@@ -300,7 +300,6 @@ class GUIApp(Tk, MetadataManagerLib, GUIExtensionManager):
         self._serialize_cinfolist_to_gui(new_selection)
     def toggle_control_buttons(self, enabled=False) -> None:
         for widget in self.control_widgets:
-            widget: tkinter.Button = widget
             if enabled:
                 widget.configure(state="normal")
             else:

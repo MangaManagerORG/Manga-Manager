@@ -106,7 +106,7 @@ class ApplicationLevelBindManager(object):
                 view_command('scroll', event.delta, 'units')
         else:
             # FIXME: unknown platform scroll method
-            def on_mousewheel(event):
+            def on_mousewheel(*_):
                 pass
 
         return on_mousewheel
@@ -216,7 +216,7 @@ class ScrolledFrame(ttk.Frame):
 
         self.reposition()
 
-    def _reposition(self, event):
+    def _reposition(self, *_):
         self.reposition()
 
     def _getxview(self):

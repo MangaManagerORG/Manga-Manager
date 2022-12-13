@@ -74,7 +74,7 @@ class AutocompleteCombobox(ttk.Combobox):
 
 class TreeviewExplorerWidget(ttk.Treeview):
 
-    def __init__(self,master, *args, **kwargs):
+    def __init__(self,master, *_, **__):
         super(TreeviewExplorerWidget, self).__init__(master)
         self.on_select_hooks:callable = []
         self.nodes:dict = dict()
@@ -124,11 +124,11 @@ class TreeviewExplorerWidget(ttk.Treeview):
 
 
 class FileChooser(tkinter.Toplevel):
-    def __init__(self, parent, initialdir=None, title="", file_types: tuple | None = None, *args, **kwargs):
+    def __init__(self, parent, initialdir=None,*_, **__):
         super(FileChooser, self).__init__(parent)
         self.prev_path = [None]
         self.next_path = [None]
-        self.current_search_path:Path = Path(initialdir) if initialdir else None
+        self.current_search_path: Path = Path(initialdir) if initialdir else None
         self.title("File Selector")
         self.geometry("800x600")
 
@@ -181,7 +181,7 @@ class FileChooser(tkinter.Toplevel):
         self.entry.set_completion_list(self.entry.get(), list_of_files)
         self.entry.event_generate("<Button-1>")
 
-    def change_to_entry(self, event=None):
+    def change_to_entry(self, *_):
         self.clear_search_chilren()
         self.entry = entry = AutocompleteCombobox(self.search_bar)
         entry.set(self.current_search_path)
@@ -194,7 +194,7 @@ class FileChooser(tkinter.Toplevel):
 
         entry.pack(expand=False, fill="x", anchor="center")
 
-    def clear_search_chilren(self, event=None):
+    def clear_search_chilren(self, *_):
         """
         Removes all widgets in the search bar frame
         :param event:
@@ -237,7 +237,7 @@ class FileChooser(tkinter.Toplevel):
             btn.pack(side="left", expand=False, fill="none",)
         self.tree.show_nested_items(current_iter_path,self.glob_entry.get())
 
-    def on_treeview_select(self, *args):
+    def on_treeview_select(self, *_):
         """
         When an item is selected in the treeview.
         If double click and is directory, browse to that folder
@@ -259,7 +259,7 @@ class FileChooser(tkinter.Toplevel):
         self.selection = [DummyFile(str(Path(self.tree.tree.get(item).get("path")))) for item in self.tree.selection()]
         self.destroy()
 
-    def get_selected_files(self, *args):
+    def get_selected_files(self, *_):
 
         self.wm_protocol("WM_DELETE_WINDOW", self.destroy)
         self.wait_window(self)
