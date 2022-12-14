@@ -288,7 +288,7 @@ class LoadedComicInfo:
                 ...
             if resized:
                 return io.BytesIO(image.tobytes())
-            return img_bytes
+        return img_bytes
 
     def load_metadata(self):
         try:

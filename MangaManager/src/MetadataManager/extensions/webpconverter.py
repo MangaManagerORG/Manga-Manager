@@ -8,11 +8,11 @@ import tkinter.ttk as ttk
 from tkinter import filedialog
 
 from src import settings_class
-from src.Common.GUI.widgets import ScrolledFrameWidget
 from src.Common.Templates.extension import Extension, ExtensionGUI
 from src.Common.errors import NoFilesSelected
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.utils import ShowPathTreeAsDict
+from src.MetadataManager.GUI.widgets import ScrolledFrameWidget
 
 settings = settings_class.get_setting("WebpConverter")
 

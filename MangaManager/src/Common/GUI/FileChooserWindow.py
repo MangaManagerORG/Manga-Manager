@@ -7,7 +7,7 @@ from pathlib import Path
 from tkinter import font
 from tkinter import ttk, Frame
 
-from src.Common.GUI.widgets import ScrolledFrameWidget
+from src.MetadataManager.GUI.widgets import ScrolledFrameWidget
 
 
 @dataclasses.dataclass

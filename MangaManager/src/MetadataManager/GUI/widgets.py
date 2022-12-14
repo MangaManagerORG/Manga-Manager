@@ -7,9 +7,9 @@ import re
 import tkinter
 from idlelib.tooltip import Hovertip
 from os.path import basename
-from tkinter import Frame, Label
+# from tkinter import Label
 from tkinter.scrolledtext import ScrolledText
-from tkinter.ttk import Combobox, OptionMenu, Progressbar, Treeview, Style
+from tkinter.ttk import Combobox, OptionMenu, Progressbar, Treeview, Style, Frame, Label, LabelFrame
 
 from PIL import UnidentifiedImageError
 
@@ -253,7 +253,7 @@ class CoverFrame(tkinter.Frame):
         self.selected_file_path_var = tkinter.StringVar(canvas_frame, value="No file selected")
         self.selected_file_var = tkinter.StringVar(canvas_frame, value="No file selected")
         # canvas_frame.pack(expand=False)
-        self.cover_subtitle = tkinter.Label(canvas_frame, background="violet", textvariable=self.selected_file_var)
+        self.cover_subtitle = Label(canvas_frame, background="violet", textvariable=self.selected_file_var)
         self.cover_subtitle.configure(width=25, compound="right", justify="left")
         self.selected_file_var.set('No file selected')
         self.tooltip_filename = Hovertip(self, "No file selected", 20)
@@ -403,7 +403,7 @@ class SettingsWidgetManager:
         for settings_section in settings_class.factory:
             section_class = settings_class.get_setting(settings_section)
 
-            frame = tkinter.LabelFrame(master=self.widgets_frame, text=settings_section)
+            frame = LabelFrame(master=self.widgets_frame, text=settings_section)
             frame.pack(expand=True, fill="both")
 
             self.settings_widget[settings_section] = {}
@@ -415,7 +415,7 @@ class SettingsWidgetManager:
 
             row = tkinter.Frame(parent_frame)
             row.pack(expand=True, fill="x")
-            label = tkinter.Label(master=row, text=setting.name, width=30, justify="right", anchor="e")
+            label = Label(master=row, text=setting.name, width=30, justify="right", anchor="e")
             label.pack(side="left")
             if setting.tooltip:
                 label.configure(text=label.cget('text') + '  ⁱ')
@@ -478,10 +478,7 @@ class TreeviewWidget(Treeview):
         self.ctx_menu.add_separator()
         self.ctx_menu.add_command(label="Open in Explorer", command=self.open_in_explorer)
         self.ctx_menu.add_command(label="Reset changes", command=self.reset_loadedcinfo_changes,state="disabled")
-        # """
-        # to get cinfo from selection
-        #  cinfo = self.selected_files_treeview.content.get(event)
-        #  """
+
 
     def clear(self):
         self.delete(*self.get_children())
@@ -494,7 +491,7 @@ class TreeviewWidget(Treeview):
         return [self.content.get(item) for item in self.selection()]
 
     def insert(self, loaded_cinfo: LoadedComicInfo, *args, **kwargs):
-        super(TreeviewWidget, self).insert("", 'end', loaded_cinfo.file_path, text=loaded_cinfo.file_name, *args,
+        super(TreeviewWidget, self).insert("", 'end', loaded_cinfo.file_path, text=loaded_cinfo.file_name, tags=("darkmode", "important" ),*args,
                                                **kwargs)
         self.content[loaded_cinfo.file_path] = loaded_cinfo
         # self._call_hook_item_inserted(loaded_cinfo)
@@ -586,7 +583,7 @@ class ProgressBarWidget(ProgressBar):
                                             mode="determinate")  # create progress bar
         self.progress_bar.pack(expand=False, fill="x",side="top")
         self.pb_label_variable = tkinter.StringVar(value=self.label_text)
-        self.pb_label = tkinter.Label(pb_frame, justify="right", textvariable=self.pb_label_variable)
+        self.pb_label = Label(pb_frame, justify="right", textvariable=self.pb_label_variable)
         self.pb_label.pack(expand=False, fill="x", side="right")
         logger.info("Initialized progress bar")
 

@@ -20,7 +20,7 @@ from _tkinter import TclError
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
-from src.Common.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, \
+from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, \
     SettingsWidgetManager, ButtonWidget
 
 from src import settings_class
@@ -298,6 +298,7 @@ class GUIApp(Tk, MetadataManagerLib, GUIExtensionManager):
         self.widget_mngr.clean_widgets()
         # Display new selection data
         self._serialize_cinfolist_to_gui(new_selection)
+
     def toggle_control_buttons(self, enabled=False) -> None:
         for widget in self.control_widgets:
             if enabled:

@@ -2,7 +2,7 @@ import tkinter
 from tkinter import Frame, ttk
 from tkinter.ttk import Notebook
 
-from src.Common.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, CoverFrame, ProgressBarWidget, \
+from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, CoverFrame, ProgressBarWidget, \
     ComboBoxWidget, LongTextWidget, OptionMenuWidget
 from src.MetadataManager import comicinfo
 from src.MetadataManager.MetadataManagerGUI import GUIApp
