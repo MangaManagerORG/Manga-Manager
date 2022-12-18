@@ -16,7 +16,6 @@ from src import settings_class as settings_class
 from src.Common.errors import CorruptedComicInfo, BadZipFile
 from src.Common.utils import IS_IMAGE_PATTERN
 from src.Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp
-from src.MetadataManager.comicinfo import ComicInfo, parseString
 
 logger = logging.getLogger("LoadedCInfo")
 
@@ -80,7 +79,7 @@ class LoadedComicInfo:
         if self.cinfo_object:
             return self.cinfo_object.get_Number()
 
-    def __init__(self, path, comicinfo: ComicInfo = None):
+    def __init__(self, path, comicinfo: ComicInfo = None,load_default_metadata=True):
         """
 
         :param path:
@@ -92,7 +91,8 @@ class LoadedComicInfo:
         self.file_name = os.path.basename(path)
         logger.info(f"[{'Opening File':13s}] '{os.path.basename(self.file_path)}'")
         self.cinfo_object = comicinfo
-        self.load_metadata()
+        if load_default_metadata:
+            self.load_metadata()
 
     @volume.setter
     def volume(self, value):
@@ -235,17 +235,17 @@ class LoadedComicInfo:
             raise BadZipFile()
         return self
 
-    def load_cover_info(self, cache_cover_bytes):
+    def load_cover_info(self):
         try:
             with zipfile.ZipFile(self.file_path, 'r') as self.archive:
-                self._load_cover_info(cache_cover_bytes)
+                self._load_cover_info()
         except zipfile.BadZipFile:
             logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",
                          exc_info=False)
             raise BadZipFile()
         return self
 
-    def _load_cover_info(self, cache_cover_bytes=True):
+    def _load_cover_info(self):
         cover_info = obtain_cover_filename(self.archive.namelist())
         if not cover_info:
             return
@@ -255,15 +255,13 @@ class LoadedComicInfo:
             logger.warning(f"[{'CoverParsing':13s}] Couldn't parse any cover")
         else:
             logger.info(f"[{'CoverParsing':13s}] Cover parsed as '{self.cover_filename}'")
-            if cache_cover_bytes:
-                self.get_cover_image_bytes()
+            self.get_cover_image_bytes()
 
         if not self.cover_filename_last:
             logger.warning(f"[{'CoverParsing':13s}] Couldn't parse any back cover")
         else:
             logger.info(f"[{'CoverParsing':13s}] Back Cover parsed as '{self.cover_filename_last}'")
-            if cache_cover_bytes:
-                self.get_cover_image_bytes(back_cover=True)
+            self.get_cover_image_bytes(back_cover=True)
 
     def get_cover_image_bytes(self, resized=False, back_cover=False) -> IO[bytes] | None:
         """
@@ -349,3 +347,4 @@ class LoadedComicInfo:
         Returns the metadata to the first state of loaded cinfo
         """
         self.cinfo_object = self.original_cinfo_object
+from src.MetadataManager.comicinfo import ComicInfo, parseString

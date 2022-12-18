@@ -57,7 +57,7 @@ class LoadedComicInfoConversToWebpTests(unittest.TestCase):
 
     def test_processing_should_convert_to_webp(self):
         file_name = self.test_files_names[0]
-        loaded_cinfo = LoadedComicInfo(file_name).load_cover_info(cache_cover_bytes=False)
+        loaded_cinfo = LoadedComicInfo(file_name).load_cover_info()
         loaded_cinfo.convert_to_webp()
 
         with zipfile.ZipFile(file_name, "r") as zf:
