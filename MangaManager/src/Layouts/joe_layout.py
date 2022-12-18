@@ -2,9 +2,9 @@ import tkinter
 from tkinter import Frame, ttk
 from tkinter.ttk import Notebook
 
-from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, CoverFrame, ProgressBarWidget, \
-    ComboBoxWidget, LongTextWidget, OptionMenuWidget
 from src.MetadataManager import comicinfo
+from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, CoverFrame, \
+    ProgressBarWidget, ComboBoxWidget, LongTextWidget, OptionMenuWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
 
@@ -95,17 +95,20 @@ class Layout(GUIApp):
 
         tab_2 = ScrolledFrameWidget(self.notebook, scrolltype="vertical")
         self.people_info_frame = tab_2.create_frame()
-        self.people_info_frame.configure(padx=20)
+        # self.people_info_frame.configure(padx=20)
         self.notebook.add(tab_2, text="People Info")
 
         tab_3 = ScrolledFrameWidget(self.notebook, scrolltype="vertical")
         self.numbering_info_frame = tab_3.create_frame()
-        self.numbering_info_frame.configure(padx=20)
+        # self.numbering_info_frame.configure(padx=20)
         self.notebook.add(tab_3, text="Extended")
 
         extension_tab = ScrolledFrameWidget(self.notebook, scrolltype="Vertical")
         self.extensions_tab_frame = extension_tab.create_frame()
         self.notebook.add(extension_tab, text="Extensions")
+
+        self.display_extensions(self.extensions_tab_frame)
+
 
         # self.numbering_info_frame = Frame(self.misc_frame_numbering)
         # self.numbering_info_frame.grid(row=0)

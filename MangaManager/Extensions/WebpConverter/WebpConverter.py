@@ -7,8 +7,8 @@ import tkinter
 import tkinter.ttk as ttk
 from tkinter import filedialog
 
+from Extensions.Interface import IExtensionApp
 from src import settings_class
-from src.Common.Templates.extension import Extension, ExtensionGUI
 from src.Common.errors import NoFilesSelected
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.utils import ShowPathTreeAsDict
@@ -17,20 +17,22 @@ from src.MetadataManager.GUI.widgets import ScrolledFrameWidget
 settings = settings_class.get_setting("WebpConverter")
 
 
-class ExtensionApp(Extension):
+class WebpConverter(IExtensionApp):
     name = "Webp Converter"
+    embedded_ui = True
+
     base_path: str
     glob: str = "**/*.cbz"
     selected_files: list[str | pathlib.Path]
+    treeview_frame: ScrolledFrameWidget = None
+    nodes: dict
     def process(self):
         print(self.selected_files)
         for file in self.selected_files:
             LoadedComicInfo(file).convert_to_webp()
 
 
-class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
-    treeview_frame: ScrolledFrameWidget = None
-    nodes: dict
+
 
     def select_base(self):
         self.base_path = filedialog.askdirectory()  # select directory
@@ -67,8 +69,9 @@ class ExtensionAppGUI(ExtensionApp, ExtensionGUI):
         treeview.on_subfolder = self._on_folder
         self.treeview_files = treeview(self.base_path, self.selected_files).get()
 
-    def serve_gui(self, parentframe):
-        frame = ScrolledFrameWidget(parentframe).create_frame()
+    def serve_gui(self):
+
+        frame = ScrolledFrameWidget(self.master_frame).create_frame()
         self.selected_base_path = tkinter.StringVar(None, value=settings.default_base_path )
 
         tkinter.Button(frame, text="Select Base Directory", command=self.select_base).pack()
