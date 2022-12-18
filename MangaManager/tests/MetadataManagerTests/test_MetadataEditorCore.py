@@ -6,8 +6,8 @@ from unittest.mock import patch, MagicMock
 from src.Common.errors import CorruptedComicInfo, NoComicInfoLoaded
 from src.Common.errors import EditedCinfoNotSet, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.Common.logging_utils import add_trace_level
 from src.MetadataManager import MetadataManagerLib, comicinfo
+from src.logging_setup import add_trace_level
 from tests.MetadataManagerTests.common import create_dummy_files
 
 add_trace_level()

@@ -7,11 +7,11 @@ import unittest
 import zipfile
 
 from PIL import Image
-from Extensions.WebpConverter import WebpConverter
 
+from Extensions.WebpConverter import WebpConverter
 from src.MetadataManager.MetadataManagerLib import LoadedComicInfo
 # from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.Common.logging_utils import add_trace_level
+from src.logging_setup import add_trace_level
 from tests.MetadataManagerTests.common import TKinterTestCase
 
 add_trace_level()
@@ -73,7 +73,7 @@ class CoreAppTests(unittest.TestCase):
     tearDown = LoadedComicInfoConversToWebpTests.tearDown
 
     def test_process_flow(self):
-        app = WebpConverter.WebpConverter()
+        app = WebpConverter.WebpConverter(tkinter.Tk())
         app.selected_files = self.test_files_names
         app.process()
         for file_path in self.test_files_names:

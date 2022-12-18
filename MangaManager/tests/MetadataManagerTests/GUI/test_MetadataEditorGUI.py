@@ -2,9 +2,9 @@ import random
 from tkinter.filedialog import askopenfiles
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.Common.logging_utils import add_trace_level
 from src.MetadataManager import comicinfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
+from src.logging_setup import add_trace_level
 from tests.MetadataManagerTests.common import parameterized_class
 
 add_trace_level()

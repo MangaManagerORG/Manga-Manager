@@ -8,7 +8,16 @@
       <excludeFolder url="file://$MODULE_DIR$/.pytest_cache" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.10 (MangaManagerV2) (2)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.11 (MangaManagerV2_3.11)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="jquery-3.6.0" level="application" />
+  </component>
+  <component name="TemplatesService">
+    <option name="TEMPLATE_FOLDERS">
+      <list>
+        <option value="$MODULE_DIR$/MangaManager/src/Common/Templates" />
+        <option value="$MODULE_DIR$/TestWeb/Templates" />
+      </list>
+    </option>
   </component>
 </module>

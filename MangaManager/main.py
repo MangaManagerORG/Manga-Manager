@@ -5,15 +5,17 @@ import logging
 import pathlib
 
 from src import MM_PATH
-from src.Common.errors import NoFilesSelected
-from src.Common.logging_utils import setup_logging, add_trace_level
-from src.MetadataManager import execute_gui
-from src.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
 
 PROJECT_PATH = MM_PATH
 LOGS_PATH = pathlib.Path(f"{PROJECT_PATH}/logs/")
 LOGS_PATH.mkdir(parents=True, exist_ok=True)
 LOGFILE_PATH = pathlib.Path(LOGS_PATH, "MangaManager.log")
+
+from src.Common.errors import NoFilesSelected
+from src.logging_setup import setup_logging, add_trace_level
+from src.MetadataManager import execute_gui
+from src.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
+
 
 add_trace_level()
 
@@ -42,7 +44,6 @@ parser.add_argument('--cli', help="Metadata Editor in CLI mode", action="store",
 parser.add_argument('--webp', help="Webp converter in CLI mode", action="store", dest="selected_files_webp",
                     metavar="--webp <glob-like-path>", required=False, default=False)
 args = parser.parse_args()
-
 
 # Setup logger
 setup_logging(LOGFILE_PATH,args.loglevel)

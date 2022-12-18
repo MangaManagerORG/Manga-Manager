@@ -18,9 +18,9 @@ from src.Common.GUI.models import LongText
 from src.Common.GUI.progressbar import ProgressBar
 from src.Common.GUI.scrolledframe import ScrolledFrame
 from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.Common.settings import SettingItem
 from src.Common.utils import open_folder
 from src.MetadataManager import comicinfo
+from src.settings import SettingItem
 
 INT_PATTERN = re.compile("^-*\d*(?:,?\d+|\.?\d+)?$")
 MULTIPLE_FILES_SELECTED = "Multiple Files Selected"

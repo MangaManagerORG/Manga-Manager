@@ -1,17 +1,21 @@
 import logging
+from os import environ
 from pathlib import Path
-
-# from Extensions.Interface import IExtensionApp
 
 logger = logging.getLogger()
 _CONFIG_PATH = "config.ini"
 MM_PATH = Path(Path.home(), "MangaManager")
-EXTENSIONS_DIR = Path("/Extensions")
+DEV_BUILD = f'{environ.get("$$_ENV_DEVELOPMENT_MM_$$")}'
+DEV_BUILD = DEV_BUILD.lower() == "true"
+if DEV_BUILD:
+    EXTENSIONS_DIR = Path(Path(__file__).parent.parent,"Extensions")
+else:
+    EXTENSIONS_DIR = Path(MM_PATH,"Extensions")
 
-# EXTENSIONS_DIR = Path(Path(__file__).parent.parent,"Extensions")
+EXTENSIONS_DIR.mkdir(exist_ok=True)
 
 
-from src.Common.settings import Settings
+from src.settings import Settings
 
 
 MM_PATH.mkdir(exist_ok=True,parents=True)
@@ -21,12 +25,9 @@ settings_class = Settings(CONFIG_PATH)
 settings_class.load_settings()
 
 
-# from .extension_manager import load_extensions
+from src.extension_manager import load_extensions
 loaded_extensions = []
-# try:
-#     loaded_extensions = load_extensions(EXTENSIONS_DIR)
-# except Exception:
-#     logger.exception("Exception loading the extensions")
-
-
-print("asdsa")
+try:
+    loaded_extensions = load_extensions(EXTENSIONS_DIR)
+except Exception:
+    logger.exception("Exception loading the extensions")
