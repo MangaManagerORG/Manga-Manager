@@ -5,7 +5,8 @@ name: Python tests & Build
 on:
   - push
 #  - pull_request
-
+env:
+  $$_ENV_DEVELOPMENT_MM_$$: true
 jobs:
   build:
     env:
@@ -26,7 +27,7 @@ jobs:
         -   name: Start xvfb
             run: |
                 Xvfb :99 -screen 0 1920x1080x24 &disown
-
+        -   name: Set dev run
         -   name: Run the tests
             run: |
                 python3 -m unittest discover -s MangaManager/tests -t MangaManager/
