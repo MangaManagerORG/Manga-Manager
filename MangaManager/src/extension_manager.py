@@ -1,9 +1,11 @@
 import glob
 import importlib
+import logging
 import os
 
 from Extensions.Interface import IExtensionApp
 
+logger = logging.getLogger()
 
 # Extension loader
 def extract_folder_and_module(file_path):
@@ -39,7 +41,11 @@ def load_extensions(extensions_directory) -> list[IExtensionApp]:
         if extension_file in loaded_extensions:
             continue
         # Import the extension module
-        extension_module = importlib.import_module(f"Extensions.{'.'.join(extract_folder_and_module(extension_file))}",package=EXTENSIONS_DIRECTORY)
+        try:
+            extension_module = importlib.import_module(f"Extensions.{'.'.join(extract_folder_and_module(extension_file))}",package=EXTENSIONS_DIRECTORY)
+        except ModuleNotFoundError:
+            logger.exception(f"Failed to Import Extension: {extension_file}")
+            continue
 
         # Get the ExtensionApp subclasses from the module
         extension_classes = [
