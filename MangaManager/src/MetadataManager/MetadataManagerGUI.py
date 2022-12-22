@@ -6,9 +6,6 @@ import tkinter
 from pathlib import Path
 from tkinter import Tk, Frame, messagebox as mb
 
-from PIL import Image, ImageTk
-from pkg_resources import resource_filename
-
 from src.Common.errors import NoFilesSelected
 from src.Common.utils import get_platform, open_folder
 from src.MetadataManager import comicinfo
@@ -18,7 +15,6 @@ if get_platform() == "linux":
 else:
     from tkinter.filedialog import askopenfiles, askdirectory
 from _tkinter import TclError
-from os.path import abspath
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
@@ -66,17 +62,7 @@ class GUIApp(Tk, MetadataManagerLib):
         # Important:
         self.cinfo_tags = self.widget_mngr.get_tags()
         # print(self.widget_mngr.get_tags())
-        icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
-        image = Image.open(icon_path)
-        button_heigh = tkinter.Button().winfo_reqheight()
-        image = image.resize((button_heigh, image.width), Image.LANCZOS)
 
-        self.OPEN_IMAGE_ICON = ImageTk.PhotoImage(image)
-        icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
-        image = Image.open(icon_path)
-        button_heigh = tkinter.Button().winfo_reqheight()
-        image = image.resize((button_heigh, image.width), Image.LANCZOS)
-        self.OPEN_FOLDER_ICON = ImageTk.PhotoImage(image)
 
     @property
     def prev_selected_items(self):

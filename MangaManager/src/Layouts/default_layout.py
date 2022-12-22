@@ -1,7 +1,10 @@
 import os
 import tkinter
+from os.path import abspath
 from tkinter import Frame
 from tkinter.ttk import Notebook
+
+from pkg_resources import resource_filename
 
 from src.Common.utils import open_folder
 from src.MetadataManager import comicinfo
@@ -69,16 +72,24 @@ class Layout(GUIApp):
         # Action Buttons
         control_frame = Frame(self.side_info_frame)
         control_frame.pack(side="top", fill="both", expand=False, pady=(0, 20))
+
+        icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
         btn = ButtonWidget(master=control_frame, text="Open Files",
-                           tooltip="Load the metadata and cover to edit them", image=self.OPEN_IMAGE_ICON)
+                           tooltip="Load the metadata and cover to edit them")
+        btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+        btn.configure(image=btn.img_ref)
         btn.configure(compound="left")
         btn.configure(command=self.select_files)
-        btn.pack(fill="both", expand=True)
+        btn.pack(side="left")
         self.control_widgets.append(btn)
-        btn = ButtonWidget(master=control_frame, text="Open Folder", image=self.OPEN_FOLDER_ICON)
+
+        btn = ButtonWidget(master=control_frame, text="Open Folder")
+        icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+        btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+        btn.configure(image=btn.img_ref)
         btn.configure(compound="left")
         btn.configure(command=self.select_folder)
-        btn.pack(fill="both", expand=True)
+        btn.pack(side="left")
         self.control_widgets.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes")

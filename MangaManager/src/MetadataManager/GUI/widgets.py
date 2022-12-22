@@ -41,9 +41,8 @@ def validate_int(value) -> bool:
 
 
 class ButtonWidget(tkinter.Button):
-    def __init__(self, tooltip=None, *args, **kwargs):
-
-        super(ButtonWidget, self).__init__(*args, **kwargs)
+    def __init__(self, tooltip=None,image=None, *args, **kwargs):
+        super(ButtonWidget, self).__init__(image=image, *args, **kwargs)
 
         if tooltip:
             self.configure(text=self.cget('text') + '  ⁱ')
