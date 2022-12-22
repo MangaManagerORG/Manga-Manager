@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-#
 import logging
 import os
 import tkinter
+from pathlib import Path
 from tkinter import Tk, Frame, messagebox as mb
+
+from PIL import Image, ImageTk
+from pkg_resources import resource_filename
 
 from src.Common.errors import NoFilesSelected
 from src.Common.utils import get_platform, open_folder
@@ -13,8 +16,9 @@ from src.MetadataManager import comicinfo
 if get_platform() == "linux":
     from src.Common.GUI.FileChooserWindow import askopenfiles
 else:
-    from tkinter.filedialog import askopenfiles
+    from tkinter.filedialog import askopenfiles, askdirectory
 from _tkinter import TclError
+from os.path import abspath
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
@@ -62,6 +66,17 @@ class GUIApp(Tk, MetadataManagerLib):
         # Important:
         self.cinfo_tags = self.widget_mngr.get_tags()
         # print(self.widget_mngr.get_tags())
+        icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
+        image = Image.open(icon_path)
+        button_heigh = tkinter.Button().winfo_reqheight()
+        image = image.resize((button_heigh, image.width), Image.LANCZOS)
+
+        self.OPEN_IMAGE_ICON = ImageTk.PhotoImage(image)
+        icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+        image = Image.open(icon_path)
+        button_heigh = tkinter.Button().winfo_reqheight()
+        image = image.resize((button_heigh, image.width), Image.LANCZOS)
+        self.OPEN_FOLDER_ICON = ImageTk.PhotoImage(image)
 
     @property
     def prev_selected_items(self):
@@ -113,6 +128,32 @@ class GUIApp(Tk, MetadataManagerLib):
                 self.last_folder = selected_parent_folder
 
         self.selected_files_path = [file.name for file in selected_paths_list]
+
+        self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
+        self.open_cinfo_list()
+
+        self._serialize_cinfolist_to_gui()
+        self.inserting_files = False
+    def select_folder(self):
+        # New file selection. Proceed to clean the ui to a new state
+        self.widget_mngr.clean_widgets()
+        self.image_cover_frame.clear()
+        self.selected_files_path = list()
+        self.selected_files_treeview.clear()
+
+        self.inserting_files = True
+        # These are some tricks to make it easier to select files.
+        # Saves last opened folder to not have to browse to it again
+        if not self.last_folder:
+            initial_dir = main_settings.library_path.value
+        else:
+            initial_dir = self.last_folder
+        self.log.debug("Selecting files")
+        # Open select files dialog
+
+        folder_path = askdirectory(initialdir=initial_dir)
+
+        self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
         self.open_cinfo_list()

@@ -70,10 +70,17 @@ class Layout(GUIApp):
         control_frame = Frame(self.side_info_frame)
         control_frame.pack(side="top", fill="both", expand=False, pady=(0, 20))
         btn = ButtonWidget(master=control_frame, text="Open Files",
-                           tooltip="Load the metadata and cover to edit them")
+                           tooltip="Load the metadata and cover to edit them", image=self.OPEN_IMAGE_ICON)
+        btn.configure(compound="left")
         btn.configure(command=self.select_files)
         btn.pack(fill="both", expand=True)
         self.control_widgets.append(btn)
+        btn = ButtonWidget(master=control_frame, text="Open Folder", image=self.OPEN_FOLDER_ICON)
+        btn.configure(compound="left")
+        btn.configure(command=self.select_folder)
+        btn.pack(fill="both", expand=True)
+        self.control_widgets.append(btn)
+
         btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes")
         btn.configure(command=self.pre_process)
         btn.pack(fill="both", expand=True)

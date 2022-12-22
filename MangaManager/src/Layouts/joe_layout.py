@@ -10,6 +10,7 @@ from src.MetadataManager.MetadataManagerGUI import GUIApp
 
 class Layout(GUIApp):
     name = "Joe Layout"
+
     def __init__(self):
         super().__init__()
         self.title("Manga Manager: Joe Layout")
@@ -19,7 +20,6 @@ class Layout(GUIApp):
     # GUI Display Methods
     ############
 
-
         # Overview LAYOUT
         self.control_frame_top = Frame(self.main_frame)
         self.control_frame_top.pack(fill="x", side="top",padx=70,pady=3)
@@ -27,13 +27,13 @@ class Layout(GUIApp):
         ttk.Separator(self.main_frame, orient='horizontal').pack(fill="x")
 
         mid_content_frame = Frame(self.main_frame)
-        mid_content_frame.pack(fill="both",expand=True)
+        mid_content_frame.pack(fill="both", expand=True)
         self.file_selection_frame_left = Frame(mid_content_frame)
         self.file_selection_frame_left.pack(side="left", padx=30, expand=False, fill="both")
         self.display_side_bar()
 
         self.main_content_frame_right = Frame(mid_content_frame,pady=10)
-        self.main_content_frame_right.pack(fill="both", side="right",expand=True,padx=(0,20))
+        self.main_content_frame_right.pack(fill="both", side="right", expand=True, padx=(0, 20))
         self.init_main_content_frame()
         self.display_main_content_widgets()
 
@@ -74,14 +74,20 @@ class Layout(GUIApp):
         control_frame = self.control_frame_top
 
         btn = ButtonWidget(master=control_frame, text="Open Files",
-                           tooltip="Load the metadata and cover to edit them")
+                           tooltip="Load the metadata and cover to edit them", image=self.OPEN_IMAGE_ICON)
+        btn.configure(compound="left")
         btn.configure(command=self.select_files)
         btn.pack(side="left")
         self.control_widgets.append(btn)
 
+        btn = ButtonWidget(master=control_frame, text="Open Folder", image=self.OPEN_FOLDER_ICON)
+        btn.configure(compound="left")
+        btn.configure(command=self.select_folder)
+        btn.pack(side="left")
+        self.control_widgets.append(btn)
         btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes")
         btn.configure(command=self.pre_process)
-        btn.pack(side="left")
+        btn.pack(side="left",fill="y")
         self.control_widgets.append(btn)
 
     def init_main_content_frame(self) -> None:
