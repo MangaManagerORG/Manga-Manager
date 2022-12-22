@@ -2,6 +2,7 @@ import glob
 import importlib
 import logging
 import os
+import sys
 
 from Extensions.Interface import IExtensionApp
 
@@ -26,6 +27,8 @@ loaded_extensions = []
 def load_extensions(extensions_directory) -> list[IExtensionApp]:
     global EXTENSIONS_DIRECTORY
     EXTENSIONS_DIRECTORY = extensions_directory
+    extensions_path = os.path.expanduser(EXTENSIONS_DIRECTORY)
+    sys.path.append(extensions_path)
     global loaded_extensions
     if not EXTENSIONS_DIRECTORY:
         raise FileNotFoundError("The extensions directory is not found")
@@ -42,7 +45,7 @@ def load_extensions(extensions_directory) -> list[IExtensionApp]:
             continue
         # Import the extension module
         try:
-            extension_module = importlib.import_module(f"Extensions.{'.'.join(extract_folder_and_module(extension_file))}",package=EXTENSIONS_DIRECTORY)
+            extension_module = importlib.import_module(f"{'.'.join(extract_folder_and_module(extension_file))}",package=EXTENSIONS_DIRECTORY)
         except ModuleNotFoundError:
             logger.exception(f"Failed to Import Extension: {extension_file}")
             continue

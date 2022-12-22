@@ -276,7 +276,7 @@ class LoadedComicInfo:
         with zipfile.ZipFile(self.file_path, 'r') as zin:
             img_bytes = zin.open(self.cover_filename if not back_cover else self.cover_filename_last)
             image = Image.open(img_bytes)
-            image = image.resize((190, 260), Image.LANCZOS)
+            image = image.resize((190, 260), Image.ANTIALIAS)
             try:
                 if not back_cover:
                     self.cached_image = ImageTk.PhotoImage(image)
