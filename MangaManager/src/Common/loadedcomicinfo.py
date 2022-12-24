@@ -219,7 +219,7 @@ class LoadedComicInfo:
             os.remove(tmpname)
             raise
         self.original_cinfo_object = copy.copy(self.cinfo_object)
-        self.has_changes = False
+        # self.has_changes = False
 
     def load_all(self):
         try:

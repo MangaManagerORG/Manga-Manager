@@ -43,7 +43,7 @@ class GUIApp(Tk, MetadataManagerLib):
 
         self.selected_files_path = None
         self.loaded_cinfo_list: list[LoadedComicInfo] = []
-        self.cinfo_tags: list[str] = []
+        # self.cinfo_tags: list[str] = []
         self.log = logging.getLogger("MetadataManager.GUI")
 
         # MENU
@@ -60,9 +60,14 @@ class GUIApp(Tk, MetadataManagerLib):
         self.bind('<Control-s>', lambda x: self.pre_process())
 
         # Important:
-        self.cinfo_tags = self.widget_mngr.get_tags()
+        # self.cinfo_tags = self.widget_mngr.get_tags()
         # print(self.widget_mngr.get_tags())
-
+    @property
+    def cinfo_tags(self):
+        return self.widget_mngr.cinfo_tags
+    # @cinfo_tags.setter
+    # def cinfo_tags(self, value):
+    #     self.widget_mngr.cinfo_tags = value
 
     @property
     def prev_selected_items(self):

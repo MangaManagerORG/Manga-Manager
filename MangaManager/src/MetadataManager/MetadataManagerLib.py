@@ -88,10 +88,10 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         :return: list of loadedcinfo that failed to update :
         """
         LOG_TAG = "[Processing] "
+        if not self.loaded_cinfo_list:
+            self.loaded_cinfo_list_to_proces: list[LoadedComicInfo] = list()
+            raise NoComicInfoLoaded()
         try:
-            if not self.loaded_cinfo_list:
-                raise NoComicInfoLoaded()
-
             for loaded_cinfo in self.loaded_cinfo_list:
                 if not loaded_cinfo.has_changes:
                     logger.info(LOG_TAG + f"Skipping file processing. No changes to it. File: '{loaded_cinfo.file_name}'")
@@ -123,6 +123,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         """
         LOG_TAG = "[Merging] "
         any_has_changes = False
+
         if not self.new_edited_cinfo:
             raise EditedCinfoNotSet()
         for loaded_cinfo in loaded_cinfo_list:

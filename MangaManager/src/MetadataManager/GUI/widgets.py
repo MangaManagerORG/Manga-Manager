@@ -59,6 +59,10 @@ class WidgetManager:
         self.cinfo_tags.append(name)
         setattr(self, name, widget_frame)
 
+    def __setattr__(self, key, value):
+        self.cinfo_tags.append(key)
+        object.__setattr__(self, key, value)
+
     def clean_widgets(self):
         for widget_name in self.__dict__:
             widget = self.get_widget(widget_name)
@@ -67,7 +71,7 @@ class WidgetManager:
                 widget.widget['values'] = widget.default_vals or []
 
     def get_tags(self):
-        return [tag for tag in self.__dict__]
+        return [tag for tag in self.cinfo_tags]
 
 
 class Widget(Frame):

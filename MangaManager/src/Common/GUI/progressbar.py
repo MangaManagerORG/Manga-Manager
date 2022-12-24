@@ -99,12 +99,16 @@ Estimated time: {self.ESTIMATED_TIME_TAG}""")
     @abc.abstractmethod
     def _update(self):
         ...
+
     def start(self,total):
         self.total = total
         if self.total == -1:
             raise ValueError("Configure the progressbar items first")
         self.start_time = time.time()
+        self.processed = 0
+        self.processed_errors = 0
         self.timer.start()
+
     def stop(self):
         self.timer.stop()
         self._update()
