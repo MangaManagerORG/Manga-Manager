@@ -14,12 +14,12 @@ from tkinter.ttk import Combobox, OptionMenu, Progressbar, Treeview, Style, Fram
 from PIL import UnidentifiedImageError
 
 from src import settings_class, MM_PATH
-from src.Common.GUI.models import LongText
-from src.Common.GUI.progressbar import ProgressBar
-from src.Common.GUI.scrolledframe import ScrolledFrame
 from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.progressbar import ProgressBar
 from src.Common.utils import open_folder
 from src.MetadataManager import comicinfo
+from src.MetadataManager.GUI.longtext import LongText
+from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.settings import SettingItem
 
 INT_PATTERN = re.compile("^-*\d*(?:,?\d+|\.?\d+)?$")

@@ -11,7 +11,7 @@ from src.Common.utils import get_platform, open_folder
 from src.MetadataManager import comicinfo
 
 if get_platform() == "linux":
-    from src.Common.GUI.FileChooserWindow import askopenfiles
+    from src.MetadataManager.GUI.FileChooserWindow import askopenfiles
 else:
     from tkinter.filedialog import askopenfiles, askdirectory
 from _tkinter import TclError
