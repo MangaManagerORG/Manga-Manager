@@ -51,6 +51,9 @@ class DinamicLayoutTests(TKinterTestCase):
                 print(e)
 
     def test_all_fields_are_populated(self):
-        app = self.root = self.GUI()
+        self.root = self.GUI()
+        app:MetadataManagerGUI.GUIApp = self.root
         app.title(f"test_all_fields_are_populated_{app.name}")
+        print("Assert all fields are registered")
+        self.assertTrue(app.widget_mngr.get_tags())
         self.pump_events()

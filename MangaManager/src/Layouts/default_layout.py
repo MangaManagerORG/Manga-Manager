@@ -107,7 +107,7 @@ class Layout(GUIApp):
         self.selected_files_treeview = TreeviewWidget
         self.selected_files_treeview.open_in_explorer = self._treeview_open_explorer
         self.selected_files_treeview.reset_loadedcinfo_changes = self._treview_reset
-        self.selected_files_treeview = self.selected_files_treeview(self.files_selected_frame, padding=[-15, 0, 0, 0])  # padding -15 to remove the left indent
+        self.selected_files_treeview = self.selected_files_treeview(self.files_selected_frame)#, padding=[-15, 0, 0, 0])  # padding -15 to remove the left indent
         self.selected_files_treeview.pack(expand=True, fill="both")
         # Selected Covers
         self.image_cover_frame = CoverFrame(self.side_info_frame)
