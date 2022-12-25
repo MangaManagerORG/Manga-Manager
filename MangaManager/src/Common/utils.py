@@ -4,6 +4,7 @@ import re
 import subprocess
 import sys
 import time
+import urllib.request
 from io import BytesIO
 from pathlib import Path
 from typing import IO
@@ -196,3 +197,28 @@ def open_folder(folder_path, selected_file: str = None):
             return
     except Exception:
         logger.exception(f"Exception opening '{folder_path}' folder")
+
+def get_language_iso_list():
+    with urllib.request.urlopen(
+            'https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry.txt') as response:
+        registry = response.read().decode('utf-8')
+
+    # Split the registry into lines
+    lines = registry.split('\n')
+
+    # Initialize a list to store the language tags
+    tags = []
+
+    # Iterate over the lines
+    for line in lines:
+        # Check if the line starts with 'Language:'
+        if line.startswith('Language:'):
+            # Split the line into fields
+            fields = line.split('\t')
+            # Get the language tag from the second field
+            tag = fields[1]
+            # Add the tag to the list
+            tags.append(tag)
+
+    # Print the list of language tags
+    print(tags)

@@ -37,6 +37,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self.last_folder = ""
 
         # self.wm_minsize(1000, 660)
+        self.tk.eval('package require tile')
         self.geometry("1000x800")
         # super(MetadataManagerLib, self).__init__()
         self.title("Manga Manager")

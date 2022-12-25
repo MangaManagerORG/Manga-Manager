@@ -1,3 +1,4 @@
+import locale
 import tkinter
 from os.path import abspath
 from tkinter import Frame, ttk
@@ -7,7 +8,7 @@ from pkg_resources import resource_filename
 
 from src.MetadataManager import comicinfo
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, CoverFrame, \
-    ProgressBarWidget, ComboBoxWidget, LongTextWidget, OptionMenuWidget
+    ProgressBarWidget, ComboBoxWidget, LongTextWidget, OptionMenuWidget, AutocompleteComboboxWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
 
@@ -221,8 +222,9 @@ class Layout(GUIApp):
         self.widget_mngr.AgeRating = OptionMenuWidget(numbering, "AgeRating", "Age Rating", 18,
                                                       "Unknown", comicinfo.AgeRating.list()).grid(1, 3, padx=5)
 
-        self.widget_mngr.LanguageISO = ComboBoxWidget(numbering, "LanguageISO", label_text="Language ISO",
-                                                      width=COMBO_WIDTH,
+        self.widget_mngr.LanguageISO = AutocompleteComboboxWidget(numbering, "LanguageISO", label_text="Language ISO",
+                                                      width=COMBO_WIDTH,default_values=list(locale.locale_alias.keys())
+
                                                       ).grid(1, 4)
 
 
