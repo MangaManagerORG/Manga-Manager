@@ -76,7 +76,7 @@ class Layout(GUIApp):
 
         icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
         btn = ButtonWidget(master=control_frame, text="Open Files",
-                           tooltip="Load the metadata and cover to edit them")
+                           tooltip="Load the metadata and cover to edit them (Ctrl+O)")
         btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
         btn.configure(image=btn.img_ref)
         btn.configure(compound="left")
@@ -93,7 +93,7 @@ class Layout(GUIApp):
         btn.pack(side="left")
         self.control_widgets.append(btn)
 
-        btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes")
+        btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
         btn.configure(command=self.pre_process)
         btn.pack(fill="both", expand=True)
         self.control_widgets.append(btn)
