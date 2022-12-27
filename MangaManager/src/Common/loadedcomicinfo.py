@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import enum
 import io
 import logging
 import os
@@ -24,6 +25,12 @@ COMICINFO_FILE = 'ComicInfo.xml'
 _LOG_TAG_WEBP = "Convert Webp"
 _LOG_TAG_WRITE_META = 'Write Meta'
 settings = settings_class.get_setting("main")
+
+
+class CoverActions(enum.Enum):
+    REPLACE = 1
+    DELETE = 2
+    APPEND = 3
 
 
 class LoadedComicInfo:
@@ -61,6 +68,9 @@ class LoadedComicInfo:
     has_changes = False
     changed_tags = []
 
+    cover_action: CoverActions = None
+    new_cover_path: str = None
+
     @property
     def cinfo_object(self):
         return self._cinfo_object
@@ -79,7 +89,7 @@ class LoadedComicInfo:
         if self.cinfo_object:
             return self.cinfo_object.get_Number()
 
-    def __init__(self, path, comicinfo: ComicInfo = None,load_default_metadata=True):
+    def __init__(self, path, comicinfo: ComicInfo = None, load_default_metadata=True):
         """
 
         :param path:
@@ -144,7 +154,7 @@ class LoadedComicInfo:
         # After that rename temp file to match old file
 
         # If convert_to_webp is false then we just edit the comicinfo directly
-        elif not convert_to_webp:
+        elif not convert_to_webp and self.cover_action is None:
             with zipfile.ZipFile(self.file_path, "w") as zout:
                 zout.writestr(COMICINFO_FILE, self._export_metadata())
 
