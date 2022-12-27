@@ -70,7 +70,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                              "Imprint", "Genre", "Tags", "Web", "PageCount", "LanguageISO", "Format", "BlackAndWhite",
                              "Manga", "Characters", "Teams", "Locations", "ScanInformation", "StoryArc",
                              "StoryArcNumber", "SeriesGroup", "AgeRating", "CommunityRating",
-                             "MainCharacterOrTeam", "Review",
+                             "MainCharacterOrTeam","Other", "Review",
     ]
     MULTIPLE_VALUES_CONFLICT = "~~## Keep Original Value ##~~"
     tags_with_multiple_values = []

@@ -1116,7 +1116,7 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
                  Colorist='', Letterer='', CoverArtist='', Editor='', Translator='', Publisher='', Imprint='', Genre='',
                  Tags='', Web='', PageCount=0, LanguageISO='', Format='', BlackAndWhite='Unknown', Manga='Unknown',
                  Characters='', Teams='', Locations='', ScanInformation='', StoryArc='', StoryArcNumber='',
-                 SeriesGroup='', AgeRating='Unknown', Pages=None, CommunityRating='', MainCharacterOrTeam='',
+                 SeriesGroup='', AgeRating='Unknown', Pages=None, CommunityRating='', MainCharacterOrTeam='', Other='',
                  Review='', gds_collector_=None, **kwargs_):
         self.gds_collector_ = gds_collector_
         self.gds_elementtree_node_ = None
@@ -1219,6 +1219,8 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
 
         self.MainCharacterOrTeam = MainCharacterOrTeam
         self.MainCharacterOrTeam_nsprefix_ = None
+        self.Other = Other
+        self.Other_nsprefix_ = None
         self.Review = Review
         self.Review_nsprefix_ = None
 
@@ -1511,6 +1513,12 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
     def set_MainCharacterOrTeam(self, MainCharacterOrTeam):
         self.MainCharacterOrTeam = MainCharacterOrTeam
 
+    def get_Other(self):
+        return self.Other
+
+    def set_Other(self, Other):
+        self.Other = Other
+
     def get_Review(self):
         return self.Review
 
@@ -1649,6 +1657,7 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
                 self.Pages is not None or
                 self.CommunityRating != "" or
                 self.MainCharacterOrTeam != "" or
+                self.Other != "" or
                 self.Review != ""
         ):
             return True
@@ -1954,6 +1963,13 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
             outfile.write('<%sMainCharacterOrTeam>%s</%sMainCharacterOrTeam>%s' % (namespaceprefix_, self.gds_encode(
                 self.gds_format_string(quote_xml(self.MainCharacterOrTeam), input_name='MainCharacterOrTeam')),
                                                                                    namespaceprefix_, eol_))
+        if self.Other != "":
+            namespaceprefix_ = self.Other_nsprefix_ + ':' if (
+                    UseCapturedNS_ and self.Other_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%Other>%s</%Other>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Other), input_name='Other')),
+                                                                                   namespaceprefix_, eol_))
         if self.Review != "":
             namespaceprefix_ = self.Review_nsprefix_ + ':' if (UseCapturedNS_ and self.Review_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
@@ -2248,6 +2264,12 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
             value_ = self.gds_validate_string(value_, node, 'MainCharacterOrTeam')
             self.MainCharacterOrTeam = value_
             self.MainCharacterOrTeam_nsprefix_ = child_.prefix
+        elif nodeName_ == 'Other':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'Other')
+            value_ = self.gds_validate_string(value_, node, 'Other')
+            self.Other = value_
+            self.Other_nsprefix_ = child_.prefix
         elif nodeName_ == 'Review':
             value_ = child_.text
             value_ = self.gds_parse_string(value_, node, 'Review')

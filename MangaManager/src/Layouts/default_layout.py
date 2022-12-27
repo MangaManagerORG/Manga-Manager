@@ -219,6 +219,8 @@ class Layout(GUIApp):
         self.widget_mngr.MainCharacterOrTeam = ComboBoxWidget(parent_frame, "MainCharacterOrTeam",
                                                               label_text="Main Character Or Team").pack()
 
+        self.widget_mngr.Other = ComboBoxWidget(parent_frame, "Other").pack()
+
 
         #################
         # Numbering column
