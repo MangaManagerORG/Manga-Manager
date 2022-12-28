@@ -50,13 +50,15 @@ class ComicFrame(Frame):
         frame_buttons.pack(side="bottom", anchor=CENTER, fill="x")
 
 
-
 class CanvasCoverWidget(Canvas):
     overlay_id = None
     overlay_image = None
+    no_image_warning_id = None
 
     action_id = None
     image_id = None
+
+
 class CoverFrame(Frame):
     canvas_cover_image_id = None
     canvas_backcover_image_id = None
@@ -126,19 +128,20 @@ class CoverFrame(Frame):
         self.cover_canvas.overlay_image = ImageTk.PhotoImage(overlay_image, master=self.cover_canvas)
         self.cover_canvas.overlay_id = self.cover_canvas.create_image(150, 150, image=self.cover_canvas.overlay_image, state="hidden")
         self.cover_canvas.action_id = self.cover_canvas.create_text(150, 285, text="", justify="center", fill="yellow",font=('Helvetica 15 bold'))
+        self.cover_canvas.no_image_warning_id = self.cover_canvas.create_text(150, 120, text="No Cover!\nNo images\ncould be\nloaded", justify="center", fill="red",state="hidden",
+                                                                    font=('Helvetica 28 bold'))
         self.cover_canvas.image_id = self.cover_canvas.create_image(0, 0, anchor=NW)
         self.cover_canvas.scale("all", -1, 1, 0.63, 0.87)
         self.cover_canvas.tag_lower(self.cover_canvas.image_id)
         buttons_frame = Frame(self.cover_frame)
         buttons_frame.pack(side="bottom", anchor=CENTER, fill="x")
-
-        btn = Button(buttons_frame, text="✎", command=lambda: self.action(CoverActions.REPLACE, True))
+        btn = Button(buttons_frame, text="✎", command=lambda: self.cover_action(action=CoverActions.REPLACE))
         btn.pack(side="left", fill="x", expand=True)
         self.action_buttons.append(btn)
-        btn = Button(buttons_frame, text="🗑", command=lambda: self.action(CoverActions.DELETE, True))
+        btn = Button(buttons_frame, text="🗑", command=lambda: self.cover_action(action=CoverActions.DELETE))
         btn.pack(side="left", fill="x", expand=True)
         self.action_buttons.append(btn)
-        btn = Button(buttons_frame, text="➕", command=lambda: self.action(CoverActions.APPEND, True))
+        btn = Button(buttons_frame, text="➕", command=lambda: self.cover_action(action=CoverActions.APPEND))
         btn.pack(side="left", fill="x", expand=True)
         self.action_buttons.append(btn)
 
@@ -153,7 +156,7 @@ class CoverFrame(Frame):
 
         self.backcover_canvas.overlay_image = ImageTk.PhotoImage(overlay_image, master=self.backcover_canvas)
         self.backcover_canvas.overlay_id = self.backcover_canvas.create_image(150, 150, image=self.backcover_canvas.overlay_image, state="hidden")
-        self.backcover_canvas.action_id = self.backcover_canvas.create_text(150, 285, text="", justify="center",
+        self.backcover_canvas.action_id = self.backcover_canvas.create_text(150, 285, text="", justify="center",state="hidden",
                                                                         fill="yellow", font=('Helvetica 15 bold'))
         self.backcover_canvas.image_id = self.backcover_canvas.create_image(0, 0, anchor=NW)
         self.backcover_canvas.scale("all", -1, 1, 0.63, 0.87)
@@ -190,55 +193,35 @@ class CoverFrame(Frame):
         # self.update_cover_button.grid(column=0, row=1)
         # self.create_canvas_image()
 
-    def action(self, action_to_do: CoverActions, is_cover_else_backcover: bool, auto_trigger=False):
-        """
-
-        :param action:
-        :param is_cover_else_backcover:
-        :param auto_trigger: Code recycling. When loading the images this fucntions i called. This avoids triggering user-specific actions like selectign a new file
-        :return:
-        """
-        loaded_cinfo = self.displayed_cinfo
-        canva: CanvasCoverWidget = self.get_canvas(is_cover_else_backcover)
-        if is_cover_else_backcover:
-            loaded_cinfo.cover_action = action_to_do
-
-        else:
-            loaded_cinfo.backcover_action = action_to_do
-        action = action_to_do
+    def cover_action(self, loaded_cinfo: LoadedComicInfo = displayed_cinfo, auto_trigger=False, action=None):
+        canva: CanvasCoverWidget = self.cover_canvas
+        loaded_cinfo.cover_action = action
         if loaded_cinfo.new_cover_cache:
-            cover = loaded_cinfo.new_cover_cache if is_cover_else_backcover else loaded_cinfo.new_backcover_cache
+            cover = loaded_cinfo.new_cover_cache
         else:
-            cover = loaded_cinfo.cover_cache if is_cover_else_backcover else loaded_cinfo.backcover_cache
+            cover = loaded_cinfo.cover_cache
+        if not cover:
+            canva.itemconfig(canva.overlay_id, image=canva.overlay_image, state="hidden")
+            canva.itemconfig(canva.no_image_warning_id, state="normal")
+            self.update()
+            return
+        canva.itemconfig(canva.no_image_warning_id, state="hidden")
+        self.update()
 
         canva.itemconfig(canva.overlay_id, image=canva.overlay_image, state="normal")
-
-        match action:
+        canva.itemconfig(canva.image_id, image=cover, state="normal")
+        match loaded_cinfo.cover_action:
             case CoverActions.APPEND | CoverActions.REPLACE:
                 if not auto_trigger:
-                    if is_cover_else_backcover:
-                        self.displayed_cinfo.new_cover_path = askopenfile(initialdir=settings.covers_folder_path).name
-                        canva.itemconfig(canva.image_id, image=loaded_cinfo.new_cover_cache)
-                    else:
-                        self.displayed_cinfo.new_backcover_path = askopenfile(initialdir=settings.covers_folder_path).name
-                        canva.itemconfig(canva.image_id, image=loaded_cinfo.new_backcover_cache)
-                else:
-                    if is_cover_else_backcover:
-                        canva.itemconfig(canva.image_id, image=loaded_cinfo.new_cover_cache)
-                    else:
-                        canva.itemconfig(canva.image_id, image=loaded_cinfo.new_backcover_cache)
-
-                canva.itemconfig(canva.action_id, text="Append" if action == CoverActions.APPEND else "Replace", state="normal")
+                    loaded_cinfo.new_cover_path = askopenfile(initialdir=settings.covers_folder_path).name
+                    cover = loaded_cinfo.new_cover_cache
+                canva.itemconfig(canva.action_id, text="Append" if loaded_cinfo.cover_action == CoverActions.APPEND else "Replace", state="normal")
             case CoverActions.DELETE:
-                item_config = canva.itemconfig(canva.image_id)
-                image = item_config['image']
-                if str(loaded_cinfo.cover_cache if is_cover_else_backcover else loaded_cinfo.backcover_cache) != image[4]:
-                    canva.itemconfig(canva.image_id, image=cover)
                 canva.itemconfig(canva.action_id, text="Delete", state="normal")
             case _:
                 canva.itemconfig(canva.overlay_id, state="hidden")
                 canva.itemconfig(canva.action_id, text="", state="normal")
-                canva.itemconfig(canva.image_id, image=cover, state="normal")
+        canva.itemconfig(canva.image_id, image=cover, state="normal")
         self.update()
     def clear(self):
         # self.update_cover_button.configure(text="Select covers", state="normal")
@@ -274,8 +257,8 @@ class CoverFrame(Frame):
         self.selected_file_path_var.set(loadedcomicinfo.file_path)
 
         # Checks to display actions:
-        self.action(loadedcomicinfo.cover_action,True,auto_trigger=True)
-        self.action(loadedcomicinfo.cover_action, False,auto_trigger=True)
+        self.cover_action(loadedcomicinfo, auto_trigger=True)
+        # self.action(loadedcomicinfo.cover_action, False,auto_trigger=True)
 
     def hide_actions(self):
         self.cover_canvas.itemconfig(self.cover_canvas.overlay_id, state="hidden")
