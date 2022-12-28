@@ -62,15 +62,44 @@ class LoadedComicInfo:
     is_cinfo_at_root: bool = False
 
     cover_filename: str | None = None
-    cover_filename_last: str | None = None
-    cached_image: ImageTk.PhotoImage = None
-    cached_image_last: ImageTk.PhotoImage = None
+    cover_cache: ImageTk.PhotoImage = None
+
+    backcover_filename: str | None = None
+    backcover_cache: ImageTk.PhotoImage = None
+
     has_changes = False
     changed_tags = []
 
     cover_action: CoverActions = None
-    new_cover_path: str = None
+    _new_cover_path: str = None
+    new_cover_cache: ImageTk.PhotoImage = None
 
+    backcover_action: CoverActions = None
+    _new_backcover_path: str = None
+    new_backcover_cache: ImageTk.PhotoImage = None
+
+    @property
+    def new_cover_path(self):
+        return self._new_cover_path
+
+    @new_cover_path.setter
+    def new_cover_path(self,path):
+        image = Image.open(path)
+        image = image.resize((190, 260), Image.ANTIALIAS)
+        self.new_cover_cache = ImageTk.PhotoImage(image)
+        self._new_backcover_path = path
+
+    @property
+    def new_backcover_path(self):
+        return self._new_backcover_path
+
+    @new_backcover_path.setter
+    def new_backcover_path(self, path):
+        with open(path) as img_bytes:
+            image = Image.open(img_bytes)
+            image = image.resize((190, 260), Image.ANTIALIAS)
+            self.new_backcover_cache = ImageTk.PhotoImage(image)
+        self._new_backcover_path = path
     @property
     def cinfo_object(self):
         return self._cinfo_object
@@ -264,7 +293,7 @@ class LoadedComicInfo:
         cover_info = obtain_cover_filename(self.archive.namelist())
         if not cover_info:
             return
-        self.cover_filename, self.cover_filename_last = cover_info
+        self.cover_filename, self.backcover_filename = cover_info
 
         if not self.cover_filename:
             logger.warning(f"[{'CoverParsing':13s}] Couldn't parse any cover")
@@ -272,10 +301,10 @@ class LoadedComicInfo:
             logger.info(f"[{'CoverParsing':13s}] Cover parsed as '{self.cover_filename}'")
             self.get_cover_image_bytes()
 
-        if not self.cover_filename_last:
+        if not self.backcover_filename:
             logger.warning(f"[{'CoverParsing':13s}] Couldn't parse any back cover")
         else:
-            logger.info(f"[{'CoverParsing':13s}] Back Cover parsed as '{self.cover_filename_last}'")
+            logger.info(f"[{'CoverParsing':13s}] Back Cover parsed as '{self.backcover_filename}'")
             self.get_cover_image_bytes(back_cover=True)
 
     def get_cover_image_bytes(self, resized=False, back_cover=False) -> IO[bytes] | None:
@@ -285,18 +314,18 @@ class LoadedComicInfo:
         """
         if not self.file_path or not self.cover_filename:
             return None
-        if back_cover and not self.cover_filename_last:
+        if back_cover and not self.backcover_filename:
             return None
 
         with zipfile.ZipFile(self.file_path, 'r') as zin:
-            img_bytes = zin.open(self.cover_filename if not back_cover else self.cover_filename_last)
+            img_bytes = zin.open(self.cover_filename if not back_cover else self.backcover_filename)
             image = Image.open(img_bytes)
             image = image.resize((190, 260), Image.ANTIALIAS)
             try:
                 if not back_cover:
-                    self.cached_image = ImageTk.PhotoImage(image)
+                    self.cover_cache = ImageTk.PhotoImage(image)
                 else:
-                    self.cached_image_last = ImageTk.PhotoImage(image)
+                    self.backcover_cache = ImageTk.PhotoImage(image)
             except RuntimeError:  # Random patch for some error when running tests
                 ...
             if resized:

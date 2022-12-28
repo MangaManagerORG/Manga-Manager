@@ -7,8 +7,9 @@ from tkinter.ttk import Notebook
 from pkg_resources import resource_filename
 
 from src.MetadataManager import comicinfo
-from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, CoverFrame, \
-    ProgressBarWidget, ComboBoxWidget, LongTextWidget, OptionMenuWidget, AutocompleteComboboxWidget
+from src.MetadataManager.GUI.CoverWidget import CoverFrame
+from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, ProgressBarWidget, \
+    ComboBoxWidget, LongTextWidget, OptionMenuWidget, AutocompleteComboboxWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
 
