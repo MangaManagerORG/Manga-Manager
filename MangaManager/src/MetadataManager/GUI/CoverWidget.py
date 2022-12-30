@@ -202,23 +202,6 @@ class CoverFrame(Frame):
         btn.pack(side="bottom", fill="x", expand=True)
         self.action_buttons.append(btn)
 
-        # self.cover_canvas.itemconfig(self.cover_canvas.image_id, state="hidden")
-        # self.backcover_canvas.itemconfig(self.backcover_canvas.image_id, state="hidden")
-
-        # if settings.cache_cover_images:
-        #     self.hide_back_image()
-        # self.cover_canvas.grid(column=0, row=1,sticky="nsew")
-
-        # self.update_cover_button = ButtonWidget(master=canvas_frame, text='Replace Cover',
-        #                                         tooltip="Click to REPLACE this cover image",
-        #                                         command=lambda: self.opencovers()
-        #                                         )
-        # self.update_cover_button = ButtonWidget(master=canvas_frame, text='Replace Cover',
-        #                                         tooltip="Click to REPLACE this cover image",
-        #                                         command=lambda: self.opencovers
-        #                                         )
-        # self.update_cover_button.grid(column=0, row=1)
-        # self.create_canvas_image()
     def cover_action(self, loaded_cinfo: LoadedComicInfo = None, auto_trigger=False, action=None):
         if loaded_cinfo is None:
             loaded_cinfo = self.displayed_cinfo
@@ -379,15 +362,7 @@ class CoverFrame(Frame):
         self.cover_canvas.tag_lower(self._image_id)
         self._text_id = self.cover_canvas.create_text(150, 285, text="", justify="center", fill="yellow",
                                                       font=('Helvetica 15 bold'))
-        # match action:
-        #     case "replace":
-        #
-        #     case "delete":
-        #         self.cover_canvas.create_text(150, 285, text="<<Delete>>", justify="center", fill="yellow",
-        #                         font=('Helvetica 15 bold'))
-        #     case "append":
-        #         self.cover_canvas.create_text(150, 285, text="<<Append>>", justify="center", fill="yellow",
-        #                         font=('Helvetica 15 bold'))
+
         self.cover_canvas.scale("all", -1, 1, 0.63, 0.87)
 
         self.update()
@@ -397,18 +372,6 @@ class CoverFrame(Frame):
         self.update()
         self.cover_canvas.itemconfig(self._text_id, text="Append")
         self.update()
-
-    # def create_canvas_image(self):
-    # try:
-    #     self.canvas_cover_image_id = self.cover_canvas.create_image(0, 0, anchor=NW)
-    # except UnidentifiedImageError:
-    #     ...
-
-    # def create_canvas_back_image(self):
-    #     try:
-    #         self.canvas_backcover_image_id = self.backcover_canvas.create_image(0, 0, anchor=NW)
-    #     except UnidentifiedImageError:
-    #         ...
 
     def hide_back_image(self):
         self.backcover_frame.pack_forget()

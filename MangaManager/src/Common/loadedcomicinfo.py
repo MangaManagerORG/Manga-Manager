@@ -169,7 +169,7 @@ class LoadedComicInfo:
         self.cinfo_object.export(exported_metadata, 0)
         return exported_metadata.getvalue()
 
-    def _process(self, write_metadata=False, convert_to_webp=False):
+    def _process_(self, write_metadata=False, convert_to_webp=False):
         """
         Renames the ComicInfo.xml file to OLD_Comicinfo.xml.bak
         :return:
@@ -400,4 +400,122 @@ class LoadedComicInfo:
         Returns the metadata to the first state of loaded cinfo
         """
         self.cinfo_object = self.original_cinfo_object
+
+    def _process(self, write_metadata=False, convert_to_webp=False):
+        # Define a dictionary that maps file names to actions
+        if convert_to_webp or any([action for action in (self.cover_action,self.backcover_action) if action == CoverActions.DELETE]):
+            self._recompress(write_metadata,convert_to_webp)
+        else:
+            self.update_files(write_metadata)
+    def _recompress(self,write_metadata, convert_to_webp):
+        # TODO: Handle cover actions
+        # Creates a tempfile in the directory the original file is at
+        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_path))
+        os.close(tmpfd)
+
+        is_metadata_backed = False
+        with zipfile.ZipFile(self.file_path, "r") as zin:
+
+            with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
+                # Write the new metadata once
+                if write_metadata:
+                    self.cinfo_object.set_PageCount(
+                        len([file_ for file_ in zin.namelist() if IS_IMAGE_PATTERN.match(file_)]))
+                    zout.writestr(COMICINFO_FILE, self._export_metadata())
+                    logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
+                    # Directly backup the metadata if it's at root.
+                    if self.is_cinfo_at_root:
+                        zout.writestr(f"Old_{COMICINFO_FILE}.bak", zin.read(COMICINFO_FILE))
+                        logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
+                        is_metadata_backed = True
+
+                # Start iterating files.
+                for item in zin.infolist():
+
+                    if write_metadata:
+                        # Discard old backup
+                        if item.filename == "Old_ComicInfo.xml.bak":  # Skip file, efectively deleting old backup
+                            logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Skipped old backup file")
+                            continue
+                        if item.filename.endswith(COMICINFO_FILE):
+                            # A root-level comicinfo was backed up already. This one is likely not where it should
+                            if is_metadata_backed:
+                                logger.info(f"[{_LOG_TAG_WRITE_META:13s}] Skipped non compliant ComicInfo.xml")
+                                continue
+
+                            # Metadata is not at root. Keep looking for a comicinfo.xml file in the archive.
+                            # Keep the first one found and stop looking for more
+
+                            # If filename is comicinfo save as old_comicinfo.xml
+                            if item.filename.endswith(COMICINFO_FILE):
+                                zout.writestr(f"Old_{item.filename}.bak", zin.read(item.filename))
+                                logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
+                            # Stop accepting more comicinfo files.
+                            is_metadata_backed = True
+                            continue
+
+                    # Convert to webp if option enabled and file is image
+                    if convert_to_webp and IS_IMAGE_PATTERN.match(item.filename):
+                        with zin.open(item) as opened_image:
+                            new_filename = getNewWebpFormatName(item.filename)
+                            zout.writestr(new_filename, convertToWebp(opened_image))
+                            logger.trace(f"[{_LOG_TAG_WEBP:13s}] Adding converted file '{new_filename}'"
+                                         f" back to the new tempfile")
+                    # Keep the rest of the files.
+                    else:
+                        zout.writestr(item.filename, zin.read(item.filename))
+                        logger.trace(f"[{_LOG_TAG_WEBP:13s}] Adding '{item.filename}' back to the new tempfile")
+
+        logger.debug(f"[{'Processing':13s}] Data from old file copied to new file")
+        # Delete old file and rename new file to old name
+        try:
+            os.remove(self.file_path)
+            os.rename(tmpname, self.file_path)
+            logger.debug(f"[{'Processing':13s}] Successfully deleted old file and named tempfile as the old file")
+        # If we fail to delete original file we delete temp file effecively aborting the metadata update
+        except PermissionError:
+            logger.exception(f"[{'Processing':13s}] Permission error. Aborting and clearing temp files")
+            os.remove(tmpname)  # Could be moved to a 'finally'? Don't want to risk it not clearing temp files properly
+            raise
+        except Exception:
+            logger.exception(f"[{'Processing':13s}] Unhandled exception. Create an issue so this gets investigated."
+                             f" Aborting and clearing temp files")
+            os.remove(tmpname)
+            raise
+
+        self.original_cinfo_object = copy.copy(self.cinfo_object)
+    def update_files(self,write_metadata):
+        if write_metadata:
+            # Modify directly if a comicinfo.xml exists else create it
+            if self.has_metadata:
+                with zipfile.ZipFile(self.file_path, "w") as zout:
+                    self.cinfo_object.set_PageCount(len(
+                        [file_ for file_ in zout.namelist() if IS_IMAGE_PATTERN.match(file_)]))
+                    zout.writestr(COMICINFO_FILE, self._export_metadata())
+                    logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] ComicInfo.xml file directly modified")
+            else:
+                with zipfile.ZipFile(self.file_path, mode='a', compression=zipfile.ZIP_STORED) as zout:
+                    self.cinfo_object.set_PageCount(
+                        len([file_ for file_ in zout.namelist() if IS_IMAGE_PATTERN.match(file_)]))
+
+                    zout.writestr(COMICINFO_FILE, self._export_metadata())
+                    logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
+
+        if self.cover_action == CoverActions.APPEND or self.backcover_action == CoverActions.APPEND:
+            with zipfile.ZipFile(self.file_path, mode='a', compression=zipfile.ZIP_STORED) as zout:
+                if self.cover_action == CoverActions.APPEND:
+                    self.append_cover(self.new_cover_path,zout)
+
+                if self.backcover_action == CoverActions.APPEND:
+                    self.append_cover(self.new_backcover_path,zout)
+        # with zipfile.ZipFile(self.file_path, mode='w') as zout:
+        if self.cover_action == CoverActions.REPLACE or self.backcover_action == CoverActions.REPLACE:
+            with zipfile.ZipFile(self.file_path, mode='w', compression=zipfile.ZIP_STORED) as zout:
+                if self.cover_action == CoverActions.APPEND:
+                    self.replace_cover(self.cover_filename, zout, self.new_cover_path)
+
+                if self.backcover_action == CoverActions.APPEND:
+                    self.replace_cover(self.backcover_filename, zout, self.new_backcover_path)
+
+
 from src.MetadataManager.comicinfo import ComicInfo, parseString
