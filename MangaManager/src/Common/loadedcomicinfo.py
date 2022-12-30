@@ -28,6 +28,7 @@ settings = settings_class.get_setting("main")
 
 
 class CoverActions(enum.Enum):
+    RESET = 0 # Cancel current selected action
     REPLACE = 1
     DELETE = 2
     APPEND = 3
@@ -84,10 +85,14 @@ class LoadedComicInfo:
 
     @new_cover_path.setter
     def new_cover_path(self,path):
+        if path is None:
+            self._new_cover_path = None
+            self.new_cover_cache = None
+            return
         image = Image.open(path)
         image = image.resize((190, 260), Image.ANTIALIAS)
         self.new_cover_cache = ImageTk.PhotoImage(image)
-        self._new_backcover_path = path
+        self._new_cover_path = path
 
     @property
     def new_backcover_path(self):
@@ -95,11 +100,15 @@ class LoadedComicInfo:
 
     @new_backcover_path.setter
     def new_backcover_path(self, path):
-        with open(path) as img_bytes:
-            image = Image.open(img_bytes)
-            image = image.resize((190, 260), Image.ANTIALIAS)
-            self.new_backcover_cache = ImageTk.PhotoImage(image)
+        if path is None:
+            self._new_backcover_path = None
+            self.new_backcover_cache = None
+            return
+        image = Image.open(path)
+        image = image.resize((190, 260), Image.ANTIALIAS)
+        self.new_backcover_cache = ImageTk.PhotoImage(image)
         self._new_backcover_path = path
+
     @property
     def cinfo_object(self):
         return self._cinfo_object
