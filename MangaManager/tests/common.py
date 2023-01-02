@@ -1,20 +1,19 @@
 import configparser
 import io
 import os
+import random
 import sys
 import unittest
 import warnings
 import zipfile
-from os.path import basename
 
 import _tkinter
 from PIL import Image
 
 from src.Common.loadedcomicinfo import COMICINFO_FILE, LoadedComicInfo
-from src.MetadataManager.comicinfo import ComicInfo
 
 
-def create_dummy_files(nfiles, metadata: ComicInfo):
+def create_dummy_files(nfiles):
     test_files_names = []
     for i in range(nfiles):
         out_tmp_zipname = f"random_image_{i}_not_image.ext.cbz"
@@ -24,24 +23,21 @@ def create_dummy_files(nfiles, metadata: ComicInfo):
     return test_files_names
 
 
-def create_test_cbz(nfiles,nimages=4, metadata: LoadedComicInfo = None):
-    image = Image.new('RGB', size=(20, 20), color=(255, 73, 95))
-    image.format = "JPEG"
-    # file = tempfile.NamedTemporaryFile(suffix=f'.jpg', prefix=str(i).zfill(3), dir=self.temp_folder)
-    imgByteArr = io.BytesIO()
-    image.save(imgByteArr, format=image.format)
-    imgByteArr = imgByteArr.getvalue()
+def create_test_cbz(nfiles, nimages=4, metadata: LoadedComicInfo = None) -> list[str]:
+    image = Image.new('RGB', (100, 100), 'white')
+    buffer = io.BytesIO()
+    image.save(buffer, 'JPEG')
 
     test_files_names = []
     for i in range(nfiles):
-        out_tmp_zipname = f"random_image_{i}_not_image.ext.cbz"
+        out_tmp_zipname = f"Test__{i}_Generated{random.randint(1, 6000)}.cbz"
         test_files_names.append(out_tmp_zipname)
         with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
             if metadata is not None:
                 # noinspection PyProtectedMember
                 zf.writestr(COMICINFO_FILE, metadata._export_metadata())
             for j in range(nimages):
-                zf.writestr(basename(f"{str(j).zfill(3)}.jpg"), imgByteArr)
+                zf.writestr(f"{str(j).zfill(3)}.png", buffer.getvalue())
 
     return test_files_names
 

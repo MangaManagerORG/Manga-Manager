@@ -63,6 +63,10 @@ class LoadedComicInfo_MetadataTests(unittest.TestCase):
             # Create a random int so the values in the cinfo are unique each test
 
             with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
+                zf.writestr("Dummyfile1.ext", "Dummy")
+                zf.writestr("Dummyfile2.ext", "Dummy")
+                zf.writestr("Dummyfile3.ext", "Dummy")
+                zf.writestr("Dummyfile4.ext", "Dummy")
                 cinfo = comicinfo.ComicInfo()
                 cinfo.set_Series(f"Series-{ai}-{self.random_int}")
                 cinfo.set_Writer(f"Writer-{ai}-{self.random_int}")
@@ -94,13 +98,18 @@ class LoadedComicInfo_MetadataTests(unittest.TestCase):
                 cinfo = LoadedComicInfo(file_names).load_metadata()
                 cinfo.cinfo_object.set_Notes(f"This text was modified - {self.random_int}")
                 cinfo.write_metadata()
+
+
+        print("Test files keep all images")
+        for file_names in self.test_files_names:
+            with zipfile.ZipFile(file_names, "r") as zf:
+                self.assertAlmostEqual(len(zf.namelist()), 5,delta=1)
         # check changes are saved
         print("Testing reading saved values")
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Testing individual write metadata - {i + 1}/{len(self.test_files_names)}"):
                 cinfo = LoadedComicInfo(file_names).load_metadata()
                 self.assertEqual(f"This text was modified - {self.random_int}", cinfo.cinfo_object.get_Notes())
-
                 # self.assertEqual(f"Series-{i}-{self.random_int}", cinfo.cinfo_object.get_Series())
                 # self.assertEqual(f"Writer-{i}-{self.random_int}", cinfo.cinfo_object.get_Writer())
 

@@ -37,12 +37,21 @@ class CoreTesting(unittest.TestCase):
         out_tmp_zipname = f"random_image_1_not_image.ext.cbz"
         out_tmp_zipname2 = f"random_image_1_not_image.ext.cbz"
         self.test_files_names = []
-
+        self.len_file_1 = 5
         with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
             zf.writestr("Dummyfile.ext", "Dummy")
+            zf.writestr("Dummyfile1.ext", "Dummy")
+            zf.writestr("Dummyfile2.ext", "Dummy")
+            zf.writestr("Dummyfile3.ext", "Dummy")
+            zf.writestr("Dummyfile4.ext", "Dummy")
         self.test_files_names.append(out_tmp_zipname)
+        self.len_file_2 = 5
         with zipfile.ZipFile(out_tmp_zipname2, "w") as zf:
             zf.writestr("Dummyfile.ext", "Dummy")
+            zf.writestr("Dummyfile1.ext", "Dummy")
+            zf.writestr("Dummyfile2.ext", "Dummy")
+            zf.writestr("Dummyfile3.ext", "Dummy")
+            zf.writestr("Dummyfile4.ext", "Dummy")
         print(f"     Creating: {out_tmp_zipname2}")  # , self._testMethodName)
         self.test_files_names.append(out_tmp_zipname2)
         # Create a random int so the values in the cinfo are unique each test
