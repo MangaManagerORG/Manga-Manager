@@ -12,9 +12,10 @@ from Extensions.WebpConverter import WebpConverter
 from src.MetadataManager.MetadataManagerLib import LoadedComicInfo
 # from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.logging_setup import add_trace_level
-from tests.MetadataManagerTests.common import TKinterTestCase
+from tests.common import TKinterTestCase
 
 add_trace_level()
+
 
 class LoadedComicInfoConversToWebpTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -84,6 +85,7 @@ class CoreAppTests(unittest.TestCase):
                         image = Image.open(imagebytes)
                         print(f"    Asserting file is webp - '{filename}")
                         self.assertEqual("WEBP", image.format)
+
 
 class GuiTests(TKinterTestCase):
     ...

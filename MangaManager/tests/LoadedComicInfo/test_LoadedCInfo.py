@@ -5,7 +5,7 @@ import tempfile
 import unittest
 import zipfile
 
-from src.Common.loadedcomicinfo import obtain_cover_filename, LoadedComicInfo
+from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager import comicinfo
 
 TEST_COMIC_INFO_STRING = """
@@ -38,25 +38,7 @@ TEST_COMIC_INFO_STRING = """
 """
 
 
-class LoadedCInfo_Utils(unittest.TestCase):
-    def test_CoverParsing(self):
-        list_filenames_to_test = [
-            ("000001.jpg", ("0_ not valid image file 00001.jpg", "000001.jpg", "000002.jpg",
-                            "this is a random image from page 4.png")),
-            ("cover_0001.jpg", ("cover_0001.jpg", "0_ not valid image file 00001.jpg", "000001.jpg", "000002.jpg",
-                                "this is a random image from page 4.png"))
-        ]
-        print("Running unit tests for cover filename parsing")
-        for filename in list_filenames_to_test:
-            with self.subTest(f"Subtest - Parsed name should match {filename[0]}"):
-                selected = str(obtain_cover_filename(filename[1])[0])
-                print(f"Selected file is: {selected}")
-                self.assertEqual(filename[0], selected)
-
-        # self.assertEqual(True, False)  # add assertion here
-
-
-class LoadedComicInfoReadTests(unittest.TestCase):
+class LoadedComicInfo_MetadataTests(unittest.TestCase):
     """
     The purpose of this Test case is to test the LoadedComicInfo class against simple scenarios where
     it's only the comicinfo.xml file

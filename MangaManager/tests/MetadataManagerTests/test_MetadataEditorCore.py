@@ -8,7 +8,7 @@ from src.Common.errors import EditedCinfoNotSet, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager import MetadataManagerLib, comicinfo
 from src.logging_setup import add_trace_level
-from tests.MetadataManagerTests.common import create_dummy_files
+from tests.common import create_dummy_files
 
 add_trace_level()
 

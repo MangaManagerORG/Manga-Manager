@@ -5,7 +5,6 @@ from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager import comicinfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from src.logging_setup import add_trace_level
-from tests.MetadataManagerTests.common import parameterized_class
 
 add_trace_level()
 
@@ -15,7 +14,7 @@ import importlib
 import os
 
 
-from tests.MetadataManagerTests.common import create_dummy_files, TKinterTestCase
+from tests.common import create_dummy_files, TKinterTestCase, parameterized_class
 from src.MetadataManager import MetadataManagerGUI
 
 layouts_path = os.path.abspath("src/Layouts")
@@ -130,6 +129,7 @@ class UiToCinfoTest(TKinterTestCase):
         app.widget_mngr.get_widget("Manga").widget.set("Manga", )
         app.pre_process()
         app.destroy()
+
 
 @parameterized_class(('GUI',), loaded_layouts)
 class CinfoToUiTest(TKinterTestCase):
