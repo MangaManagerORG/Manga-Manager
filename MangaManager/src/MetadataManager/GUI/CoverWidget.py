@@ -207,12 +207,7 @@ class CoverFrame(Frame):
             loaded_cinfo = self.displayed_cinfo
         front_canva: CanvasCoverWidget = self.cover_canvas
         if action is not None:
-            # If reset, undo action changes. Forget about the new cover.
-            if action == CoverActions.RESET:
-                loaded_cinfo.cover_action = None
-                loaded_cinfo.new_cover_path = None
-            else:
-                loaded_cinfo.cover_action = action
+            loaded_cinfo.cover_action = action
         lcinfo_action = loaded_cinfo.cover_action
 
         # If the file has a new cover selected, display the new cover and show "edit overlay"
@@ -260,11 +255,7 @@ class CoverFrame(Frame):
         back_canva: CanvasCoverWidget = self.backcover_canvas
         if action is not None:
             # If reset, undo action changes. Forget about the new cover.
-            if action == CoverActions.RESET:
-                loaded_cinfo.backcover_action = None
-                loaded_cinfo.new_backcover_path = None
-            else:
-                loaded_cinfo.backcover_action = action
+            loaded_cinfo.backcover_action = action
         lcinfo_action = loaded_cinfo.backcover_action
 
         # If the file has a new cover selected, display the new cover and show "edit overlay"

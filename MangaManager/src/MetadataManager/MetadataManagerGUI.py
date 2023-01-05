@@ -45,7 +45,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self.selected_files_path = None
         self.loaded_cinfo_list: list[LoadedComicInfo] = []
         # self.cinfo_tags: list[str] = []
-        self.log = logging.getLogger("MetadataManager.GUI")
+        self.log = logging.getLogger("MetaManager.GUI")
 
         # MENU
         self.main_frame = Frame(self)

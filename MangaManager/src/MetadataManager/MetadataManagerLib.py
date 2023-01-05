@@ -13,7 +13,7 @@ from src.Common.terminalcolors import TerminalColors as TerCol
 from src.MetadataManager import comicinfo
 from src.MetadataManager.comicinfo import ComicInfo
 
-logger = logging.getLogger("MetadataManager.Core")
+logger = logging.getLogger("MetaManager.Core")
 settings = settings_class.get_setting("main")
 
 

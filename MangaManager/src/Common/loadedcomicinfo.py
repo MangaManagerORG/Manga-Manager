@@ -80,13 +80,37 @@ class LoadedComicInfo:
     has_changes = False
     changed_tags = []
 
-    cover_action: CoverActions = None
-    _new_cover_path: str = None
-    new_cover_cache: ImageTk.PhotoImage = None
+    _cover_action: CoverActions | None = None
+    _new_cover_path: str | None = None
+    new_cover_cache: ImageTk.PhotoImage | None = None
 
-    backcover_action: CoverActions = None
-    _new_backcover_path: str = None
-    new_backcover_cache: ImageTk.PhotoImage = None
+    _backcover_action: CoverActions | None = None
+    _new_backcover_path: str | None = None
+    new_backcover_cache: ImageTk.PhotoImage | None = None
+
+    @property
+    def cover_action(self):
+        return self._cover_action
+    @cover_action.setter
+    def cover_action(self, value: CoverActions):
+        if value == CoverActions.RESET:
+            self._new_cover_path = None
+            self.new_cover_cache = None
+            self._cover_action = None
+        else:
+            self._cover_action = value
+    @property
+    def backcover_action(self):
+        return self._backcover_action
+    @backcover_action.setter
+    def backcover_action(self, value: CoverActions):
+        if value == CoverActions.RESET:
+            self._new_backcover_path = None
+            self.new_backcover_cache = None
+            self._backcover_action = None
+        else:
+            self._backcover_action = value
+
 
     @property
     def new_cover_path(self):
@@ -142,6 +166,15 @@ class LoadedComicInfo:
         if self.cinfo_object:
             return self.cinfo_object.get_Number()
 
+    @volume.setter
+    def volume(self, value):
+        self.cinfo_object.set_Volume(value)
+
+    @chapter.setter
+    def chapter(self, value):
+        self.cinfo_object.set_Number(value)
+
+
     def __init__(self, path, comicinfo: ComicInfo = None, load_default_metadata=True):
         """
 
@@ -157,13 +190,6 @@ class LoadedComicInfo:
         if load_default_metadata:
             self.load_metadata()
 
-    @volume.setter
-    def volume(self, value):
-        self.cinfo_object.set_Volume(value)
-
-    @chapter.setter
-    def chapter(self, value):
-        self.cinfo_object.set_Number(value)
 
     def process(self, write_metadata, convert_to_webp):
         logger.debug(f"[{'BEGIN PROCESSING':13s}] Writing metadata to file '{self.file_path}'")
@@ -325,7 +351,7 @@ class LoadedComicInfo:
         # Creates a tempfile in the directory the original file is at
         tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_path))
         os.close(tmpfd)
-        initial_file_count = 0
+        initial_file_count = -1
         final_file_count = -1
         is_metadata_backed = False
         with zipfile.ZipFile(self.file_path, "r") as zin:
@@ -404,6 +430,11 @@ class LoadedComicInfo:
                         continue
                     # Copy the rest of the images as they are
                     self._save_converted_image(zin, item, zout, convert_to_webp)
+
+        # Reset cover flags
+        self.cover_action = CoverActions.RESET
+        self.backcover_action = CoverActions.RESET
+
 
         logger.debug(f"[{'Processing':13s}] Data from old file copied to new file")
         # Delete old file and rename new file to old name
