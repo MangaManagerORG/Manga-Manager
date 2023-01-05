@@ -323,7 +323,7 @@ class CoverFrame(Frame):
             self.selected_file_path_var.set(MULTIPLE_FILES_SELECTED)
             self.tooltip_filename.text = "\n".join(
                 [basename(loadedcomicinfo.file_path) for loadedcomicinfo in loadedcomicinfo_list])
-            self.update()
+            # self.update()
             return
 
         if not loadedcomicinfo_list:

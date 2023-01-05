@@ -311,7 +311,6 @@ class GUIApp(Tk, MetadataManagerLib):
                         self.new_edited_cinfo.set_attr_by_name(cinfo_tag, "")
                 case widget.default:  # If it matches the default then do nothing
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Has default value")
-                    pass
                 case "":
                     self.new_edited_cinfo.set_attr_by_name(cinfo_tag, widget.default)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted")
@@ -319,7 +318,6 @@ class GUIApp(Tk, MetadataManagerLib):
                     self.new_edited_cinfo.set_attr_by_name(cinfo_tag, widget_value)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")
                     # self.log.warning(f"Unhandled case: {widget_value}")
-                    pass
 
     def process_gui_update(self, old_selection: list[LoadedComicInfo], new_selection: list[LoadedComicInfo]):
         self._serialize_gui_to_cinfo()

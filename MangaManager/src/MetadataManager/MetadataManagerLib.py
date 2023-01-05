@@ -144,6 +144,9 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 loaded_cinfo.cinfo_object.set_attr_by_name(cinfo_tag, new_value)
                 loaded_cinfo.has_changes = True
                 any_has_changes = True
+            if any((loaded_cinfo.cover_action is not None,loaded_cinfo.backcover_action is not None)):
+                any_has_changes = True
+                loaded_cinfo.has_changes = True
             # if loaded_cinfo.is_metadata_modified(self.cinfo_tags):
 
         self.new_edited_cinfo = None
