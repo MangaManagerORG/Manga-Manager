@@ -66,7 +66,7 @@ class LoadedComicInfo:
     _cinfo_object: ComicInfo
     original_cinfo_object: ComicInfo
     # Used to keep original state after being loaded for the first time. Useful to undo sesion changes
-    original_cinfo_object_before_session: ComicInfo = None
+    original_cinfo_object_before_session: ComicInfo | None = None
 
     has_metadata: bool = False
     is_cinfo_at_root: bool = False
@@ -220,6 +220,7 @@ class LoadedComicInfo:
     def load_all(self):
         try:
             # Fixme: skip folders
+            # Update: 05-01-23 At this point i don't remember why the fix me. I'm leaving it there.
             with zipfile.ZipFile(self.file_path, 'r') as self.archive:
                 self.load_cover_info()
                 if not self.cinfo_object:
@@ -344,15 +345,13 @@ class LoadedComicInfo:
         """
         self.cinfo_object = self.original_cinfo_object
 
-    def _process(self, write_metadata=False, convert_to_webp=False,**_):
+    def _process(self, write_metadata=False, convert_to_webp=False, **_):
         self._recompress(write_metadata, convert_to_webp)
 
     def _recompress(self, write_metadata, convert_to_webp):
         # Creates a tempfile in the directory the original file is at
         tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_path))
         os.close(tmpfd)
-        initial_file_count = -1
-        final_file_count = -1
         is_metadata_backed = False
         with zipfile.ZipFile(self.file_path, "r") as zin:
             initial_file_count = len(zin.namelist())

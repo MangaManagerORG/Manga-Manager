@@ -50,7 +50,6 @@ class GUIApp(Tk, MetadataManagerLib):
         # MENU
         self.main_frame = Frame(self)
 
-        # self.main_frame = ScrolledFrameWidget(self,scrolltype="both").create_frame()
         self.main_frame.pack(expand=True, fill="both")
 
         ButtonWidget(master=self, text="⚙ Settings", font=('Arial', 10), command=self.show_settings).place(
@@ -60,15 +59,9 @@ class GUIApp(Tk, MetadataManagerLib):
         self.bind('<Control-o>', lambda x: self.select_files())
         self.bind('<Control-s>', lambda x: self.pre_process())
 
-        # Important:
-        # self.cinfo_tags = self.widget_mngr.get_tags()
-        # print(self.widget_mngr.get_tags())
     @property
     def cinfo_tags(self):
         return self.widget_mngr.cinfo_tags
-    # @cinfo_tags.setter
-    # def cinfo_tags(self, value):
-    #     self.widget_mngr.cinfo_tags = value
 
     @property
     def prev_selected_items(self):
@@ -198,14 +191,14 @@ class GUIApp(Tk, MetadataManagerLib):
     # INTERFACE IMPLEMENTATIONS
     ############
 
-    def on_item_loaded(self, loadedcomicInfo: LoadedComicInfo):
+    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo):
         """
         Called by backend when an item gets added to the loaded comic info list
         :param loadedcomicInfo:
         :return:
         """
-        self.selected_files_treeview.insert(loadedcomicInfo)
-        self.image_cover_frame.update_cover_image([loadedcomicInfo])
+        self.selected_files_treeview.insert(loaded_cinfo)
+        self.image_cover_frame.update_cover_image([loaded_cinfo])
         self.update()
 
     #########################################################
@@ -343,13 +336,10 @@ class GUIApp(Tk, MetadataManagerLib):
             raise NoFilesSelected()
         self.toggle_control_buttons(enabled=False)
         self.changes_saved.place_forget()
-        # self.loaded_cinfo_list_to_process = self.get_selected_loaded_cinfo_list()
         self.pb.start(len(self.loaded_cinfo_list))
         # Make sure current view is saved:
         self.process_gui_update(self.selected_items, self.selected_items)
         try:
-            # self._serialize_gui_to_cinfo()
-            # self.merge_changed_metadata(self.loaded_cinfo_list)
             self.process()
         finally:
             self.pb.stop()

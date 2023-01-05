@@ -17,8 +17,6 @@ window_width, window_height = 0, 0
 class ComicFrame(Frame):
     def __init__(self, parent, loaded_cinfo):
         super().__init__(parent)
-        # frame = Frame(self)
-        # frame.pack()
         self.loaded_cinfo: LoadedComicInfo = loaded_cinfo
         self.configure(highlightthickness=1, highlightcolor="grey", highlightbackground="grey")
         # create the first canvas
@@ -43,7 +41,7 @@ class ComicFrame(Frame):
 
         # bind the click event to the on_clicked_canvas method
 
-    def print_canvas(self, frame, loaded_cinfo, front_or_back):
+    def print_canvas(self, frame, _, front_or_back):
         if front_or_back not in ("front", "back"):
             return
         frame_buttons = self.frame_buttons = Frame(frame)

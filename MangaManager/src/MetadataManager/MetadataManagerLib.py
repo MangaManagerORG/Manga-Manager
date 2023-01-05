@@ -18,7 +18,7 @@ settings = settings_class.get_setting("main")
 
 
 class _IMetadataManagerLib(abc.ABC):
-    def on_item_loaded(self, loadedcomicInfo: LoadedComicInfo):
+    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo):
         """
         Called when a loadedcomicinfo is loaded
         :return:
