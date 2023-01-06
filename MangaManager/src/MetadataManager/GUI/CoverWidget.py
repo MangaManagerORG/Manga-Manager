@@ -1,10 +1,11 @@
 import pathlib
 from idlelib.tooltip import Hovertip
-from os.path import basename
+from os.path import basename, abspath
 from tkinter import Frame, Label, StringVar, Event, Canvas, NW, CENTER, Button
 from tkinter.filedialog import askopenfile
 
 from PIL import Image, ImageTk
+from pkg_resources import resource_filename
 
 from src import settings_class
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
@@ -12,7 +13,7 @@ from src.MetadataManager.GUI.widgets import MULTIPLE_FILES_SELECTED
 
 settings = settings_class.get_setting("main")
 window_width, window_height = 0, 0
-
+action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
 
 class ComicFrame(Frame):
     def __init__(self, parent, loaded_cinfo):
@@ -97,22 +98,17 @@ class CoverFrame(Frame):
         master.master.bind("<Configure>", self.resized)
         self.selected_file_path_var = StringVar(canvas_frame, value="No file selected")
         self.selected_file_var = StringVar(canvas_frame, value="No file selected")
-        # canvas_frame.pack(expand=False)
         self.cover_subtitle = Label(canvas_frame, background="violet", textvariable=self.selected_file_var)
         self.cover_subtitle.configure(width=25, compound="right", justify="left")
         self.selected_file_var.set('No file selected')
         self.tooltip_filename = Hovertip(self, "No file selected", 20)
         self.cover_subtitle.grid(row=0, sticky="nsew")
-        # self.grid_rowconfigure(0, weight=1)
-        # self.grid_rowconfigure(2, weight=1)
         self.grid_columnconfigure(0, weight=1)
-        # self.grid_columnconfigure(1, weight=1)
         images_frame = Frame(canvas_frame)
 
         images_frame.grid(column=0, row=1, sticky="nsew")
 
-        overlay_image = Image.open(pathlib.Path(
-            r"I:\Mi unidad\Programacion\Python\MangaManagerV2\MangaManager\res\cover_action_template.png"))
+        overlay_image = Image.open(action_template)
         overlay_image = overlay_image.resize((190, 260), Image.ANTIALIAS)
 
         # COVER
@@ -297,12 +293,9 @@ class CoverFrame(Frame):
         self.update()
 
     def clear(self):
-        # self.update_cover_button.configure(text="Select covers", state="normal")
-        # self.update_cover_button.grid()
         self.cover_canvas.itemconfig(self.cover_canvas.image_id, state="hidden")
         self.backcover_canvas.itemconfig(self.backcover_canvas.image_id, state="hidden")
         self.hide_actions()
-        return
 
     def update_cover_image(self, loadedcomicinfo_list: list[LoadedComicInfo], **__):
         if len(loadedcomicinfo_list) > 1:
@@ -341,10 +334,10 @@ class CoverFrame(Frame):
         self.backcover_canvas.itemconfig(self.backcover_canvas.overlay_id, state="hidden")
         self.backcover_canvas.itemconfig(self.backcover_canvas.action_id, state="hidden")
 
-    def display_action(self, action: str = None):
+    def display_action(self, _: str = None):
 
         image = Image.open(
-            pathlib.Path(r"I:\Mi unidad\Programacion\Python\MangaManagerV2\MangaManager\res\cover_action_template.png"))
+            pathlib.Path(action_template))
         image = image.resize((190, 260), Image.ANTIALIAS)
         self.watermark = ImageTk.PhotoImage(image, master=self.cover_canvas)
         self._watermark_image_id = self.cover_canvas.create_image(150, 150, image=self.watermark)
