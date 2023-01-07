@@ -147,6 +147,8 @@ class Layout(GUIApp):
         tkinter.Label(frame).pack(side="top")  # Dummy label so button is centered
         ButtonWidget(master=frame, text="⋯", tooltip="If one file selected, load the filename",
                      command=self._fill_filename).pack(side="bottom")
+        ButtonWidget(master=frame, text="⋯F", tooltip="If one file selected, load the folder name",
+                     command=self._fill_foldername).pack(side="right")
 
         self.widget_mngr.LocalizedSeries = ComboBoxWidget(parent_frame, cinfo_name="LocalizedSeries",
                                                           label_text="LocalizedSeries",

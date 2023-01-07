@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import glob
 import logging
 import os
 import tkinter
-from pathlib import Path
 from tkinter import Tk, Frame, messagebox as mb
 
 from src.Common.errors import NoFilesSelected
@@ -77,7 +77,6 @@ class GUIApp(Tk, MetadataManagerLib):
         Returns the list of selected loaded_cinfo if any is selected. Else returns loaded_cinfo list
         :return:
         """
-        self.selected_files_treeview.get_selected() or self.loaded_cinfo_list
 
         return self.selected_files_treeview.get_selected() or self.loaded_cinfo_list
 
@@ -137,8 +136,9 @@ class GUIApp(Tk, MetadataManagerLib):
         # Open select files dialog
 
         folder_path = askdirectory(initialdir=initial_dir)
-
-        self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
+        self.selected_files_path = glob.glob(root_dir=folder_path,pathname=os.path.join(folder_path,"**/*.cbz"),recursive=True)
+        # TODO: Auto select recursive or not
+        # self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
         self.open_cinfo_list()
@@ -351,7 +351,21 @@ class GUIApp(Tk, MetadataManagerLib):
     def _fill_filename(self):
         if len(self.selected_items) == 1:
             self.widget_mngr.get_widget("Series").set(self.selected_items[0].file_name)
-
+    def _fill_foldername(self):
+        if len(self.selected_items) == 1:
+            self.widget_mngr.get_widget("Series").set(os.path.basename(os.path.dirname(self.selected_items[0].file_path)))
+        else:
+            for loaded_cinfo in self.selected_items:
+                _ = loaded_cinfo.cinfo_object
+                loaded_cinfo.cinfo_object.set_Series(os.path.basename(os.path.dirname(loaded_cinfo.file_path)))
+                loaded_cinfo.has_changes = True
+            # self._serialize_gui_to_cinfo()
+            #
+            # self.merge_changed_metadata(self.selected_items)
+            self.show_not_saved_indicator(self.selected_items)
+            self.widget_mngr.clean_widgets()
+            # Display new selection data
+            self._serialize_cinfolist_to_gui(self.selected_items)
     def _treeview_open_explorer(self, file):
         open_folder(os.path.dirname(file), file)
         ...

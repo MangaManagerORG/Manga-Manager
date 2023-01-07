@@ -165,6 +165,8 @@ class Layout(GUIApp):
         self.widget_mngr.Series.label = label
         ButtonWidget(master=frame, text="⋯", tooltip="If one file selected, load the filename",
                      command=self._fill_filename).pack(side="right")
+        ButtonWidget(master=frame, text="⋯F", tooltip="If one file selected, load the filename",
+                     command=self._fill_foldername).pack(side="right")
 
         self.widget_mngr.LocalizedSeries = ComboBoxWidget(parent_frame, cinfo_name="LocalizedSeries",
                                                           label_text="LocalizedSeries",

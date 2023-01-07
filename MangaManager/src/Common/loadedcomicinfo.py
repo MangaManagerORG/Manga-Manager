@@ -346,7 +346,15 @@ class LoadedComicInfo:
         self.cinfo_object = self.original_cinfo_object
 
     def _process(self, write_metadata=False, convert_to_webp=False, **_):
-        self._recompress(write_metadata, convert_to_webp)
+
+        if write_metadata and not convert_to_webp and not self.has_metadata:
+            with zipfile.ZipFile(self.file_path, mode='a', compression=zipfile.ZIP_STORED) as zf:
+                # We finally append our new ComicInfo file
+                zf.writestr(COMICINFO_FILE, self._export_metadata())
+                logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
+            self.has_metadata = True
+        else:
+            self._recompress(write_metadata, convert_to_webp)
 
     def _recompress(self, write_metadata, convert_to_webp):
         # Creates a tempfile in the directory the original file is at
@@ -368,6 +376,7 @@ class LoadedComicInfo:
                         zout.writestr(f"Old_{COMICINFO_FILE}.bak", zin.read(COMICINFO_FILE))
                         logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
                         is_metadata_backed = True
+                    self.has_metadata = True
 
                 # Append the cover if the action is append
                 if self.cover_action == CoverActions.APPEND:

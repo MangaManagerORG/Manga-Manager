@@ -1967,7 +1967,7 @@ class ComicInfo(GeneratedsSuper):  # pragma: no cover
             namespaceprefix_ = self.Other_nsprefix_ + ':' if (
                     UseCapturedNS_ and self.Other_nsprefix_) else ''
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%Other>%s</%Other>%s' % (namespaceprefix_, self.gds_encode(
+            outfile.write('<%sOther>%s</%sOther>%s' % (namespaceprefix_, self.gds_encode(
                 self.gds_format_string(quote_xml(self.Other), input_name='Other')),
                                                                                    namespaceprefix_, eol_))
         if self.Review != "":
