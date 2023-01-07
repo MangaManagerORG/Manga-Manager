@@ -82,7 +82,7 @@ class Layout(GUIApp):
         btn.configure(compound="left")
         btn.configure(command=self.select_files)
         btn.pack(side="left")
-        self.control_widgets.append(btn)
+        self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
@@ -91,12 +91,12 @@ class Layout(GUIApp):
         btn.configure(compound="left")
         btn.configure(command=self.select_folder)
         btn.pack(side="left")
-        self.control_widgets.append(btn)
+        self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
         btn.configure(command=self.pre_process)
         btn.pack(fill="both", expand=True)
-        self.control_widgets.append(btn)
+        self.control_mngr.append(btn)
 
         # Show Selected Files - ListBox
         self.files_selected_frame = tkinter.LabelFrame(self.side_info_frame)
@@ -145,10 +145,15 @@ class Layout(GUIApp):
         frame = Frame(frame)
         frame.pack(side="right")
         tkinter.Label(frame).pack(side="top")  # Dummy label so button is centered
-        ButtonWidget(master=frame, text="⋯", tooltip="If one file selected, load the filename",
-                     command=self._fill_filename).pack(side="bottom")
-        ButtonWidget(master=frame, text="⋯F", tooltip="If one file selected, load the folder name",
-                     command=self._fill_foldername).pack(side="right")
+        btn = ButtonWidget(master=frame, text="⋯", tooltip="If one file selected, load the filename",
+                     command=self._fill_filename)
+        self.control_mngr.append(btn)
+        btn.pack(side="bottom")
+        btn = ButtonWidget(master=frame, text="⋯F", tooltip="If one file selected, load the folder name",
+                     command=self._fill_foldername)
+        self.control_mngr.append(btn)
+        btn.pack(side="right")
+
 
         self.widget_mngr.LocalizedSeries = ComboBoxWidget(parent_frame, cinfo_name="LocalizedSeries",
                                                           label_text="LocalizedSeries",

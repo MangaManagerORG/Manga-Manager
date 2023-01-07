@@ -178,6 +178,10 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 logger.error("Bad zip file. Either the format is not correct or the file is broken", exc_info=False)
                 self.on_badzipfile_error(e, file_path=file_path)
                 continue
+            except EOFError as e:
+                logger.error("Bad zip file. The file seems to be broken", exc_info=True)
+                self.on_badzipfile_error(e, file_path=file_path)
+                continue
             self.loaded_cinfo_list.append(loaded_cinfo)
             self.on_item_loaded(loaded_cinfo)
         logger.debug("Files selected")

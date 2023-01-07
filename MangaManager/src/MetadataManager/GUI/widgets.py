@@ -66,9 +66,39 @@ class WidgetManager:
             if isinstance(widget, ComboBoxWidget):
                 widget.widget['values'] = widget.default_vals or []
 
+    def toggle_widgets(self,enabled=True):
+        for widget_name in self.__dict__:
+            widget = self.get_widget(widget_name)
+            if isinstance(widget, LongTextWidget) or isinstance(widget, OptionMenuWidget) :
+                widget.widget_slave.configure(state="normal" if enabled else "disabled")
+            else:
+                widget.widget.configure(state="normal" if enabled else "disabled")
+
     def get_tags(self):
         return [tag for tag in self.cinfo_tags]
 
+
+class ControlManager:
+    """
+    """
+    control_button_set = set()
+    control_hooks = []  # Callables to call when it should lock or unlock
+
+    def add(self, widget: tkinter.Widget):
+        self.control_button_set.add(widget)
+
+    def append(self, widget: tkinter.Widget):
+        self.control_button_set.add(widget)
+
+    def toggle(self, enabled=True):
+        for widget in self.control_button_set:
+            widget.configure(state="normal" if enabled else "disabled")
+
+    def lock(self):
+        self.toggle(False)
+
+    def unlock(self):
+        self.toggle(True)
 
 class Widget(Frame):
     validation: str | None = None
@@ -206,9 +236,6 @@ class AutocompleteComboboxWidget(Widget):
             self.autocomplete()
         # No need for up/down, we'll jump to the popup
         # list at the position of the autocompletion
-
-
-
 
 
 class OptionMenuWidget(Widget):

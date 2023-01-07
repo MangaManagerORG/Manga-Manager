@@ -18,7 +18,8 @@ from _tkinter import TclError
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
-from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, SettingsWidgetManager, ButtonWidget
+from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, SettingsWidgetManager, \
+    ButtonWidget, ControlManager
 
 from src import settings_class
 
@@ -33,7 +34,7 @@ class GUIApp(Tk, MetadataManagerLib):
     def __init__(self):
         super(GUIApp, self).__init__()
         self.widget_mngr = WidgetManager()
-        self.control_widgets = []  # widgets that should be disabled while processing
+        self.control_mngr = ControlManager()  # widgets that should be disabled while processing
         self.last_folder = ""
 
         # self.wm_minsize(1000, 660)
@@ -86,6 +87,8 @@ class GUIApp(Tk, MetadataManagerLib):
 
     def select_files(self):
         # New file selection. Proceed to clean the ui to a new state
+        self.control_mngr.lock()
+        self.widget_mngr.toggle_widgets(False)
         self.widget_mngr.clean_widgets()
         self.image_cover_frame.clear()
         self.selected_files_path = list()
@@ -118,8 +121,12 @@ class GUIApp(Tk, MetadataManagerLib):
 
         self._serialize_cinfolist_to_gui()
         self.inserting_files = False
+        self.control_mngr.unlock()
+        self.widget_mngr.toggle_widgets(enabled=True)
     def select_folder(self):
         # New file selection. Proceed to clean the ui to a new state
+        self.control_mngr.lock()
+        self.widget_mngr.toggle_widgets(enabled=False)
         self.widget_mngr.clean_widgets()
         self.image_cover_frame.clear()
         self.selected_files_path = list()
@@ -145,6 +152,8 @@ class GUIApp(Tk, MetadataManagerLib):
 
         self._serialize_cinfolist_to_gui()
         self.inserting_files = False
+        self.control_mngr.unlock()
+        self.widget_mngr.toggle_widgets(enabled=True)
 
     def show_settings(self):
         print("Show_settings")
@@ -322,7 +331,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self._serialize_cinfolist_to_gui(new_selection)
 
     def toggle_control_buttons(self, enabled=False) -> None:
-        for widget in self.control_widgets:
+        for widget in self.control_mngr:
             if enabled:
                 widget.configure(state="normal")
             else:
@@ -334,7 +343,7 @@ class GUIApp(Tk, MetadataManagerLib):
         """
         if not self.selected_files_path:
             raise NoFilesSelected()
-        self.toggle_control_buttons(enabled=False)
+        self.control_mngr.toggle(enabled=False)
         self.changes_saved.place_forget()
         self.pb.start(len(self.loaded_cinfo_list))
         # Make sure current view is saved:
@@ -345,7 +354,7 @@ class GUIApp(Tk, MetadataManagerLib):
             self.pb.stop()
         self.show_not_saved_indicator(self.loaded_cinfo_list)
         self.new_edited_cinfo = None  # Nulling value to be safe
-        self.toggle_control_buttons(enabled=True)
+        self.control_mngr.toggle(enabled=True)
 
     # Unique methods
     def _fill_filename(self):

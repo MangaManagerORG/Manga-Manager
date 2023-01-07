@@ -86,7 +86,7 @@ class Layout(GUIApp):
         btn.configure(compound="left")
         btn.configure(command=self.select_files)
         btn.pack(side="left")
-        self.control_widgets.append(btn)
+        self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
@@ -95,12 +95,12 @@ class Layout(GUIApp):
         btn.configure(compound="left")
         btn.configure(command=self.select_folder)
         btn.pack(side="left")
-        self.control_widgets.append(btn)
+        self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
         btn.configure(command=self.pre_process)
         btn.pack(side="left",fill="y")
-        self.control_widgets.append(btn)
+        self.control_mngr.append(btn)
 
     def init_main_content_frame(self) -> None:
         self.notebook = Notebook(self.main_content_frame_right)
@@ -163,11 +163,14 @@ class Layout(GUIApp):
                                                  tooltip="The name of the series").pack(side="left", expand=True,
                                                                                         fill="x")
         self.widget_mngr.Series.label = label
-        ButtonWidget(master=frame, text="⋯", tooltip="If one file selected, load the filename",
-                     command=self._fill_filename).pack(side="right")
-        ButtonWidget(master=frame, text="⋯F", tooltip="If one file selected, load the filename",
-                     command=self._fill_foldername).pack(side="right")
-
+        btn = ButtonWidget(master=frame, text="⋯", tooltip="If one file selected, load the filename",
+                     command=self._fill_filename)
+        btn.pack(side="right")
+        self.control_mngr.append(btn)
+        btn = ButtonWidget(master=frame, text="⋯F", tooltip="If one file selected, load the filename",
+                     command=self._fill_foldername)
+        btn.pack(side="right")
+        self.control_mngr.append(btn)
         self.widget_mngr.LocalizedSeries = ComboBoxWidget(parent_frame, cinfo_name="LocalizedSeries",
                                                           label_text="LocalizedSeries",
                                                           tooltip="The translated series name").pack()

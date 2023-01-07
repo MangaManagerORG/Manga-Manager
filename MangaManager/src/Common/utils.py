@@ -68,6 +68,7 @@ def clean_filename(sourcestring, removestring=" %:/,.\\[]<>*?\""):
     # remove the undesireable characters
     return ''.join([c for c in sourcestring if c not in removestring])
 
+
 def find_chapter(text):
     r = r"(?i)(?:chapter|ch)(?:\s|\.)?(?:\s|\.)?(\d+)"
     match = re.findall(r, text)
@@ -84,6 +85,8 @@ def fetch_chapter(text):
 def fetch_volume(text):
     r = r"(?i)(?:volume|vol|v)(?:\s|\.)?(?:\s|\.)?(\d+)"
     return re.findall(r, text)
+
+
 def obtain_cover_filename(file_list) -> (str, str):
     """
     Helper function to find a cover file based on a list of filenames
