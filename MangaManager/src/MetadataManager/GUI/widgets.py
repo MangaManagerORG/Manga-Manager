@@ -100,6 +100,7 @@ class ControlManager:
     def unlock(self):
         self.toggle(True)
 
+
 class Widget(Frame):
     validation: str | None = None
     widget_slave = None
@@ -522,13 +523,8 @@ class TreeviewWidget(Treeview):
 class ProgressBarWidget(ProgressBar):
     def __init__(self, parent):
         pb_frame = Frame(parent)
-        # pb_frame =parent
         pb_frame.pack(expand=False, fill="x")
         super().__init__()
-
-        # bar_frame = Frame(pb_frame)
-        # bar_frame.pack(fill="x", side="top")
-        # bar_frame.columnconfigure(0, weight=1)
 
         self.style = Style(pb_frame)
         self.style.layout('text.Horizontal.TProgressbar',
