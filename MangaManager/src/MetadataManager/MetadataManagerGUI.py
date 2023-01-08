@@ -243,6 +243,10 @@ class GUIApp(Tk, MetadataManagerLib):
                        "The file data couldn't be parsed probably because of corrupted data or bad format.\n"
                        f"Recovery was attempted and failed.\nCreating new metadata object...")
 
+    def on_manga_not_found(self, exception, series_name):   # pragma: no cover
+        mb.showerror("Couldn't find matching series",
+                     f"The metadata source couldn't find the series '{series_name}'")
+
     #########################################################
     # Processing Methods
     ############
@@ -387,3 +391,15 @@ class GUIApp(Tk, MetadataManagerLib):
         for loaded_extension in loaded_extensions:
             tkinter.Button(parent_frame, text=loaded_extension.name, command=lambda load_ext=loaded_extension:
                            load_ext(parent_frame)).pack(side="top")
+
+    def process_fetch_online(self):
+        series_name = self.widget_mngr.get_widget("Series").get()
+        if series_name in (None, "", self.MULTIPLE_VALUES_CONFLICT):
+            mb.showwarning("Not a valid series name", "The current series name is empty or not valid.")
+            self.log.info("Not a valid series name - The current series name is empty or not valid.")
+            return
+        cinfo = self.fetch_online(series_name)
+        if cinfo is None:
+            return
+
+        self._serialize_cinfolist_to_gui([LoadedComicInfo(None,cinfo,load_default_metadata=False)])

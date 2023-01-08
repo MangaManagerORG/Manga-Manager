@@ -318,8 +318,8 @@ class CoverFrame(Frame):
         else:
             # self.update_cover_button.grid(column=0, row=1)
             ...
-        self.tooltip_filename.text = basename(loadedcomicinfo.file_path)
-        self.selected_file_var.set(basename(loadedcomicinfo.file_path))
+        self.tooltip_filename.text = loadedcomicinfo.file_name
+        self.selected_file_var.set(loadedcomicinfo.file_name)
         self.selected_file_path_var.set(loadedcomicinfo.file_path)
 
         # Checks to display actions:

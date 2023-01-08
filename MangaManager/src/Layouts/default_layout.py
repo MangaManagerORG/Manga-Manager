@@ -93,6 +93,20 @@ class Layout(GUIApp):
         btn.pack(side="left")
         self.control_mngr.append(btn)
 
+        btn = ButtonWidget(master=control_frame, text="Clear", tooltip="Clean the metadata from the current view")
+        btn.configure(command=self.widget_mngr.clean_widgets)
+        btn.pack(side="left", fill="y")
+        self.control_mngr.append(btn)
+
+        btn = ButtonWidget(master=control_frame, text="Fetch online")
+        # icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+        # btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+        # btn.configure(image=btn.img_ref)
+        btn.configure(compound="left")
+        btn.configure(command=self.process_fetch_online)
+        btn.pack(side="left")
+        self.control_mngr.append(btn)
+
         btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
         btn.configure(command=self.pre_process)
         btn.pack(fill="both", expand=True)

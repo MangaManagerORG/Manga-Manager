@@ -5,8 +5,9 @@ import logging
 from abc import ABC
 from io import StringIO
 
+from ExternalSources.Sources.AniList.AniList import AniList
 from src import settings_class
-from src.Common.errors import EditedCinfoNotSet
+from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.terminalcolors import TerminalColors as TerCol
@@ -55,6 +56,11 @@ class _IMetadataManagerLib(abc.ABC):
         Called when an unhandled exception occurred trying to save the file
         """
 
+    @abc.abstractmethod
+    def on_manga_not_found(self, exception, series_name):
+        """
+        Called when a series is not found in the api
+        """
 
 class MetadataManagerLib(_IMetadataManagerLib, ABC):
     """
@@ -197,5 +203,13 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         # print(loaded_cinfo.cinfo_object is None)
         loaded_cinfo.cinfo_object.export(export, 0)
         print(export.getvalue())
+
+    def fetch_online(self,series_name):
+        try:
+            return AniList.get_cinfo(series_name)
+        except MangaNotFoundError as e:
+            logger.exception(str(e))
+            self.on_manga_not_found(e, series_name)
+            return None
 
 

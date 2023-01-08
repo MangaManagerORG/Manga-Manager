@@ -183,9 +183,9 @@ class LoadedComicInfo:
         :raises BadZipFile: The file can't be read or is not a valid zip file
         """
 
-        self.file_path = path
-        self.file_name = os.path.basename(path)
-        logger.info(f"[{'Opening File':13s}] '{os.path.basename(self.file_path)}'")
+        self.file_path = path or None
+        self.file_name = None if path is None else os.path.basename(path)
+        logger.info(f"[{'Opening File':13s}] '{self.file_name}'")
         self.cinfo_object = comicinfo
         if load_default_metadata:
             self.load_metadata()

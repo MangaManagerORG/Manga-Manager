@@ -44,7 +44,7 @@ class Layout(GUIApp):
 
         ttk.Separator(self.main_frame, orient='horizontal').pack(fill="x")
         self.selection_progress_frame_bottom = Frame(self.main_frame)
-        self.selection_progress_frame_bottom.pack(fill="x",side="bottom", pady=(5,2))
+        self.selection_progress_frame_bottom.pack(fill="x", side="bottom", pady=(5, 2))
         self.display_bottom_frame()
 
     def display_side_bar(self) -> None:
@@ -97,10 +97,26 @@ class Layout(GUIApp):
         btn.pack(side="left")
         self.control_mngr.append(btn)
 
+        btn = ButtonWidget(master=control_frame, text="Clear", tooltip="Clean the metadata from the current view")
+        btn.configure(command=self.widget_mngr.clean_widgets)
+        btn.pack(side="left", fill="y")
+        self.control_mngr.append(btn)
+
+        btn = ButtonWidget(master=control_frame, text="Fetch online")
+        # icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+        # btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+        # btn.configure(image=btn.img_ref)
+        btn.configure(compound="left")
+        btn.configure(command=self.process_fetch_online)
+        btn.pack(side="left")
+        self.control_mngr.append(btn)
+
         btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
         btn.configure(command=self.pre_process)
         btn.pack(side="left",fill="y")
         self.control_mngr.append(btn)
+
+
 
     def init_main_content_frame(self) -> None:
         self.notebook = Notebook(self.main_content_frame_right)
@@ -136,20 +152,7 @@ class Layout(GUIApp):
 
     def display_main_content_widgets(self) -> None:
         style = ttk.Style()
-        # style.theme_use("clam")
-        # style.layout('TCombobox')
-        # style.element_options('Combobox.border')
-        print(style.theme_names())
-        # style.configure("TMenubutton",anchor="center", borderwidth=4, bordercolor='#00FF00', background="white",)
-        #                 highlightbackground="black",
-        #                 height=2
 
-                                #fieldbackground="#1d2128",
-                              # foreground="#8b9ebf",
-                              # darkcolor="lime",
-                              # selectbackground="grey",
-                              # lightcolor="lime"
-                              # )
         #################
         # Basic info - first column
         #################
@@ -216,9 +219,6 @@ class Layout(GUIApp):
         self.widget_mngr.Manga = OptionMenuWidget(numbering, "Manga", "Manga", 18,
                                                   "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(0,4, padx=5)
 
-
-
-
         self.widget_mngr.Year = ComboBoxWidget(numbering, "Year", width=COMBO_WIDTH,
                                                validation="int", default="-1").grid(1, 0, padx=5)
         self.widget_mngr.Month = ComboBoxWidget(numbering, "Month", width=COMBO_WIDTH,
@@ -263,7 +263,6 @@ class Layout(GUIApp):
         # Numbering column
         # #################
         parent_frame = self.numbering_info_frame
-        combo_width = 10
 
 
         # self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
@@ -276,37 +275,35 @@ class Layout(GUIApp):
 
         self.widget_mngr.AlternateSeries = ComboBoxWidget(parent_frame, cinfo_name="AlternateSeries",
                                                           label_text="Alternate Series").pack()
+        self.widget_mngr.StoryArc = ComboBoxWidget(parent_frame, "StoryArc", label_text="Story Arc").pack()
 
-        self.widget_mngr.StoryArcNumber = ComboBoxWidget(parent_frame, "StoryArcNumber", width=combo_width,
-                                                         label_text="Story Arc Number").pack()
 
         numbering = Frame(parent_frame)
-        numbering.columnconfigure("all", weight=1)
-        self.widget_mngr.BlackAndWhite = OptionMenuWidget(numbering, "BlackAndWhite", "Black And White", 18,
-                                                          "Unknown", ("Unknown", "Yes", "No")).grid(0, 0, padx=5)
-        self.widget_mngr.AlternateCount = ComboBoxWidget(numbering, cinfo_name="AlternateCount",
-                                                         label_text="Alternate Count",
-                                                         default="-1", validation="int", width=COMBO_WIDTH).grid(0, 1, padx=5)
-        self.widget_mngr.AlternateNumber = ComboBoxWidget(numbering, "AlternateNumber", width=COMBO_WIDTH,
-                                                          label_text="Alt Number", tooltip="Alternate Number", validation="int").grid(0, 2, padx=5)
+        
         self.widget_mngr.AlternateCount = ComboBoxWidget(numbering, "AlternateCount",
                                                          label_text="Alt Count", tooltip="Alternate Count",
                                                          width=COMBO_WIDTH,
-                                                         validation="int", default="-1").grid(0, 3, padx=5)
-        numbering.pack()
-        self.widget_mngr.CommunityRating = ComboBoxWidget(parent_frame, cinfo_name="CommunityRating",
-                                                          label_text="Community Rating",
-                                                          validation="rating").pack(expand=True, fill="both",
-                                                                                    side="right")
+                                                         validation="int", default="-1").pack(side="left",expand=True,fill="x", padx=10)
+        self.widget_mngr.AlternateNumber = ComboBoxWidget(numbering, "AlternateNumber", width=COMBO_WIDTH,
+                                                          label_text="Alt Number", tooltip="Alternate Number",
+                                                          validation="int").pack(side="left",expand=True,fill="x", padx=10)
 
+        self.widget_mngr.StoryArcNumber = ComboBoxWidget(numbering, "StoryArcNumber", width=COMBO_WIDTH,
+                                                         label_text="Story Arc Number").pack(side="left",expand=True,fill="x", padx=10)
+
+        self.widget_mngr.CommunityRating = ComboBoxWidget(numbering, cinfo_name="CommunityRating",
+                                                          label_text="Community Rating",
+                                                          width=COMBO_WIDTH,
+                                                          validation="rating").pack(side="left",expand=True,fill="x")
+        self.widget_mngr.BlackAndWhite = OptionMenuWidget(numbering, "BlackAndWhite", "Black And White", 18,
+                                                          "Unknown", ("Unknown", "Yes", "No")).pack(side="left",expand=True,fill="x", padx=10)
+        numbering.pack(fill="x")
+
+        self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
+                                                    width=COMBO_WIDTH,
+                                                    validation="int", default="0")
         self.widget_mngr.ScanInformation = ComboBoxWidget(parent_frame, cinfo_name="ScanInformation",
                                                           label_text="Scan Information").pack()
-
-        self.widget_mngr.StoryArc = ComboBoxWidget(parent_frame, "StoryArc", label_text="Story Arc").pack()
-        self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
-                                                    width=combo_width,
-                                                    validation="int", default="0")
-
 
     def display_bottom_frame(self):
 
@@ -319,16 +316,11 @@ class Layout(GUIApp):
         pb.progress_bar.configure(length=200)
         pb.set_template(f"""Processed: {pb.PROCESSED_TAG}/{pb.TOTAL_TAG} - {pb.ERRORS_TAG} errors""")
         progress_bar_frame.pack(expand=False, fill="both", side="right")
-        # label = tkinter.Label(frame,text="ASdsad")
-        # label.pack(expand=True,side="right")
-        # self.pb.pb_label = label
         self.pb.pb_label.pack(side="right")
-        self.pb.progress_bar.pack(side="right",fill="x",expand=True)
-
+        self.pb.progress_bar.pack(side="right", fill="x", expand=True)
 
 
     # Implementations
-
     def on_file_selection_preview(self, *args):
         """
         Method called when the users selects one or more files to previe the metadata
