@@ -23,6 +23,69 @@ IS_IMAGE_PATTERN = re.compile(rf"(?i).*.(?:{'|'.join(IMAGE_EXTENSIONS)})$")
 
 logger = logging.getLogger()
 
+def remove_text_inside_brackets(text, brackets="()[]"):
+    count = [0] * (len(brackets) // 2)  # count open/close brackets
+    saved_chars = []
+    for character in text:
+        for i, b in enumerate(brackets):
+            if character == b:  # found bracket
+                kind, is_close = divmod(i, 2)
+                count[kind] += (-1) ** is_close  # `+1`: open, `-1`: close
+                if count[kind] < 0:  # unbalanced bracket
+                    count[kind] = 0  # keep it
+                else:  # found bracket to remove
+                    break
+        else:  # character is not a [balanced] bracket
+            if not any(count):  # outside brackets
+                saved_chars.append(character)
+    return (''.join(saved_chars)).strip()
+
+import unicodedata
+
+def normalize_filename(filename):
+    # Normalize the filename using the NFC form
+    normalized_filename = unicodedata.normalize('NFC', filename)
+    # Replace all non-ASCII characters with their ASCII equivalents
+    ascii_filename = normalized_filename.encode('ascii', 'ignore').decode('ascii')
+    return ascii_filename
+def clean_filename(sourcestring, removestring=" %:/,.\\[]<>*?\""):
+    """Clean a string by removing selected characters.
+
+    Creates a legal and 'clean' source string from a string by removing some
+    clutter and  characters not allowed in filenames.
+    A default set is given but the user can override the default string.
+
+    Args:
+        | sourcestring (string): the string to be cleaned.
+        | removestring (string): remove all these characters from the string (optional).
+
+    Returns:
+        | (string): A cleaned-up string.
+
+    Raises:
+        | No exception is raised.
+    """
+    # remove the undesireable characters
+    return ''.join([c for c in sourcestring if c not in removestring])
+
+
+def find_chapter(text):
+    r = r"(?i)(?:chapter|ch)(?:\s|\.)?(?:\s|\.)?(\d+)"
+    match = re.findall(r, text)
+    if match:
+        return match[0]
+    return match
+
+
+def fetch_chapter(text):
+    r = r"(?i)(?:chapter|ch|#)(?:\s|\.)?(?:\s|\.)?(\d+)"
+    return re.findall(r, text)
+
+
+def fetch_volume(text):
+    r = r"(?i)(?:volume|vol|v)(?:\s|\.)?(?:\s|\.)?(\d+)"
+    return re.findall(r, text)
+
 
 def obtain_cover_filename(file_list) -> (str, str):
     """

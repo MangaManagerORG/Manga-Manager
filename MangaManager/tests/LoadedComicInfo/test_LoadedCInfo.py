@@ -5,7 +5,7 @@ import tempfile
 import unittest
 import zipfile
 
-from src.Common.loadedcomicinfo import obtain_cover_filename, LoadedComicInfo
+from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager import comicinfo
 
 TEST_COMIC_INFO_STRING = """
@@ -38,25 +38,7 @@ TEST_COMIC_INFO_STRING = """
 """
 
 
-class LoadedCInfo_Utils(unittest.TestCase):
-    def test_CoverParsing(self):
-        list_filenames_to_test = [
-            ("000001.jpg", ("0_ not valid image file 00001.jpg", "000001.jpg", "000002.jpg",
-                            "this is a random image from page 4.png")),
-            ("cover_0001.jpg", ("cover_0001.jpg", "0_ not valid image file 00001.jpg", "000001.jpg", "000002.jpg",
-                                "this is a random image from page 4.png"))
-        ]
-        print("Running unit tests for cover filename parsing")
-        for filename in list_filenames_to_test:
-            with self.subTest(f"Subtest - Parsed name should match {filename[0]}"):
-                selected = str(obtain_cover_filename(filename[1])[0])
-                print(f"Selected file is: {selected}")
-                self.assertEqual(filename[0], selected)
-
-        # self.assertEqual(True, False)  # add assertion here
-
-
-class LoadedComicInfoReadTests(unittest.TestCase):
+class LoadedComicInfo_MetadataTests(unittest.TestCase):
     """
     The purpose of this Test case is to test the LoadedComicInfo class against simple scenarios where
     it's only the comicinfo.xml file
@@ -81,6 +63,10 @@ class LoadedComicInfoReadTests(unittest.TestCase):
             # Create a random int so the values in the cinfo are unique each test
 
             with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
+                zf.writestr("Dummyfile1.ext", "Dummy")
+                zf.writestr("Dummyfile2.ext", "Dummy")
+                zf.writestr("Dummyfile3.ext", "Dummy")
+                zf.writestr("Dummyfile4.ext", "Dummy")
                 cinfo = comicinfo.ComicInfo()
                 cinfo.set_Series(f"Series-{ai}-{self.random_int}")
                 cinfo.set_Writer(f"Writer-{ai}-{self.random_int}")
@@ -112,13 +98,18 @@ class LoadedComicInfoReadTests(unittest.TestCase):
                 cinfo = LoadedComicInfo(file_names).load_metadata()
                 cinfo.cinfo_object.set_Notes(f"This text was modified - {self.random_int}")
                 cinfo.write_metadata()
+
+
+        print("Test files keep all images")
+        for file_names in self.test_files_names:
+            with zipfile.ZipFile(file_names, "r") as zf:
+                self.assertAlmostEqual(len(zf.namelist()), 5,delta=1)
         # check changes are saved
         print("Testing reading saved values")
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Testing individual write metadata - {i + 1}/{len(self.test_files_names)}"):
                 cinfo = LoadedComicInfo(file_names).load_metadata()
                 self.assertEqual(f"This text was modified - {self.random_int}", cinfo.cinfo_object.get_Notes())
-
                 # self.assertEqual(f"Series-{i}-{self.random_int}", cinfo.cinfo_object.get_Series())
                 # self.assertEqual(f"Writer-{i}-{self.random_int}", cinfo.cinfo_object.get_Writer())
 

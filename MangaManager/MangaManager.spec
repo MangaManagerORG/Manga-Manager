@@ -3,11 +3,11 @@
 
 block_cipher = None
 added_files = [
-         ( 'MangaManager/res/*', 'res' ),
+         ( 'res/*', 'res' ),
          ]
 
 a = Analysis(
-    ['MangaManager\\main.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
     datas=added_files,
@@ -30,7 +30,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='Manga Manager',
+    name='MangaManager',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -43,5 +43,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['MangaManager/res/icon.ico'],
+    icon=['res/icon.ico'],
 )

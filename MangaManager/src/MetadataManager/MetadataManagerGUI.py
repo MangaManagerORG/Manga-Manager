@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import glob
 import logging
 import os
 import tkinter
-from pathlib import Path
 from tkinter import Tk, Frame, messagebox as mb
 
 from src.Common.errors import NoFilesSelected
@@ -18,7 +18,8 @@ from _tkinter import TclError
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
-from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, SettingsWidgetManager, ButtonWidget
+from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, SettingsWidgetManager, \
+    ButtonWidget, ControlManager
 
 from src import settings_class
 
@@ -33,7 +34,7 @@ class GUIApp(Tk, MetadataManagerLib):
     def __init__(self):
         super(GUIApp, self).__init__()
         self.widget_mngr = WidgetManager()
-        self.control_widgets = []  # widgets that should be disabled while processing
+        self.control_mngr = ControlManager()  # widgets that should be disabled while processing
         self.last_folder = ""
 
         # self.wm_minsize(1000, 660)
@@ -45,12 +46,11 @@ class GUIApp(Tk, MetadataManagerLib):
         self.selected_files_path = None
         self.loaded_cinfo_list: list[LoadedComicInfo] = []
         # self.cinfo_tags: list[str] = []
-        self.log = logging.getLogger("MetadataManager.GUI")
+        self.log = logging.getLogger("MetaManager.GUI")
 
         # MENU
         self.main_frame = Frame(self)
 
-        # self.main_frame = ScrolledFrameWidget(self,scrolltype="both").create_frame()
         self.main_frame.pack(expand=True, fill="both")
 
         ButtonWidget(master=self, text="⚙ Settings", font=('Arial', 10), command=self.show_settings).place(
@@ -60,15 +60,9 @@ class GUIApp(Tk, MetadataManagerLib):
         self.bind('<Control-o>', lambda x: self.select_files())
         self.bind('<Control-s>', lambda x: self.pre_process())
 
-        # Important:
-        # self.cinfo_tags = self.widget_mngr.get_tags()
-        # print(self.widget_mngr.get_tags())
     @property
     def cinfo_tags(self):
         return self.widget_mngr.cinfo_tags
-    # @cinfo_tags.setter
-    # def cinfo_tags(self, value):
-    #     self.widget_mngr.cinfo_tags = value
 
     @property
     def prev_selected_items(self):
@@ -84,7 +78,6 @@ class GUIApp(Tk, MetadataManagerLib):
         Returns the list of selected loaded_cinfo if any is selected. Else returns loaded_cinfo list
         :return:
         """
-        self.selected_files_treeview.get_selected() or self.loaded_cinfo_list
 
         return self.selected_files_treeview.get_selected() or self.loaded_cinfo_list
 
@@ -94,6 +87,8 @@ class GUIApp(Tk, MetadataManagerLib):
 
     def select_files(self):
         # New file selection. Proceed to clean the ui to a new state
+        self.control_mngr.lock()
+        self.widget_mngr.toggle_widgets(False)
         self.widget_mngr.clean_widgets()
         self.image_cover_frame.clear()
         self.selected_files_path = list()
@@ -126,8 +121,12 @@ class GUIApp(Tk, MetadataManagerLib):
 
         self._serialize_cinfolist_to_gui()
         self.inserting_files = False
+        self.control_mngr.unlock()
+        self.widget_mngr.toggle_widgets(enabled=True)
     def select_folder(self):
         # New file selection. Proceed to clean the ui to a new state
+        self.control_mngr.lock()
+        self.widget_mngr.toggle_widgets(enabled=False)
         self.widget_mngr.clean_widgets()
         self.image_cover_frame.clear()
         self.selected_files_path = list()
@@ -144,14 +143,17 @@ class GUIApp(Tk, MetadataManagerLib):
         # Open select files dialog
 
         folder_path = askdirectory(initialdir=initial_dir)
-
-        self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
+        self.selected_files_path = glob.glob(root_dir=folder_path,pathname=os.path.join(folder_path,"**/*.cbz"),recursive=True)
+        # TODO: Auto select recursive or not
+        # self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
         self.open_cinfo_list()
 
         self._serialize_cinfolist_to_gui()
         self.inserting_files = False
+        self.control_mngr.unlock()
+        self.widget_mngr.toggle_widgets(enabled=True)
 
     def show_settings(self):
         print("Show_settings")
@@ -198,14 +200,14 @@ class GUIApp(Tk, MetadataManagerLib):
     # INTERFACE IMPLEMENTATIONS
     ############
 
-    def on_item_loaded(self, loadedcomicInfo: LoadedComicInfo):
+    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo):
         """
         Called by backend when an item gets added to the loaded comic info list
         :param loadedcomicInfo:
         :return:
         """
-        self.selected_files_treeview.insert(loadedcomicInfo)
-        self.image_cover_frame.update_cover_image([loadedcomicInfo])
+        self.selected_files_treeview.insert(loaded_cinfo)
+        self.image_cover_frame.update_cover_image([loaded_cinfo])
         self.update()
 
     #########################################################
@@ -311,7 +313,6 @@ class GUIApp(Tk, MetadataManagerLib):
                         self.new_edited_cinfo.set_attr_by_name(cinfo_tag, "")
                 case widget.default:  # If it matches the default then do nothing
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Has default value")
-                    pass
                 case "":
                     self.new_edited_cinfo.set_attr_by_name(cinfo_tag, widget.default)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted")
@@ -319,7 +320,6 @@ class GUIApp(Tk, MetadataManagerLib):
                     self.new_edited_cinfo.set_attr_by_name(cinfo_tag, widget_value)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")
                     # self.log.warning(f"Unhandled case: {widget_value}")
-                    pass
 
     def process_gui_update(self, old_selection: list[LoadedComicInfo], new_selection: list[LoadedComicInfo]):
         self._serialize_gui_to_cinfo()
@@ -331,7 +331,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self._serialize_cinfolist_to_gui(new_selection)
 
     def toggle_control_buttons(self, enabled=False) -> None:
-        for widget in self.control_widgets:
+        for widget in self.control_mngr:
             if enabled:
                 widget.configure(state="normal")
             else:
@@ -343,27 +343,38 @@ class GUIApp(Tk, MetadataManagerLib):
         """
         if not self.selected_files_path:
             raise NoFilesSelected()
-        self.toggle_control_buttons(enabled=False)
+        self.control_mngr.toggle(enabled=False)
         self.changes_saved.place_forget()
-        # self.loaded_cinfo_list_to_process = self.get_selected_loaded_cinfo_list()
         self.pb.start(len(self.loaded_cinfo_list))
         # Make sure current view is saved:
         self.process_gui_update(self.selected_items, self.selected_items)
         try:
-            # self._serialize_gui_to_cinfo()
-            # self.merge_changed_metadata(self.loaded_cinfo_list)
             self.process()
         finally:
             self.pb.stop()
         self.show_not_saved_indicator(self.loaded_cinfo_list)
         self.new_edited_cinfo = None  # Nulling value to be safe
-        self.toggle_control_buttons(enabled=True)
+        self.control_mngr.toggle(enabled=True)
 
     # Unique methods
     def _fill_filename(self):
         if len(self.selected_items) == 1:
             self.widget_mngr.get_widget("Series").set(self.selected_items[0].file_name)
-
+    def _fill_foldername(self):
+        if len(self.selected_items) == 1:
+            self.widget_mngr.get_widget("Series").set(os.path.basename(os.path.dirname(self.selected_items[0].file_path)))
+        else:
+            for loaded_cinfo in self.selected_items:
+                _ = loaded_cinfo.cinfo_object
+                loaded_cinfo.cinfo_object.set_Series(os.path.basename(os.path.dirname(loaded_cinfo.file_path)))
+                loaded_cinfo.has_changes = True
+            # self._serialize_gui_to_cinfo()
+            #
+            # self.merge_changed_metadata(self.selected_items)
+            self.show_not_saved_indicator(self.selected_items)
+            self.widget_mngr.clean_widgets()
+            # Display new selection data
+            self._serialize_cinfolist_to_gui(self.selected_items)
     def _treeview_open_explorer(self, file):
         open_folder(os.path.dirname(file), file)
         ...

@@ -13,12 +13,12 @@ from src.Common.terminalcolors import TerminalColors as TerCol
 from src.MetadataManager import comicinfo
 from src.MetadataManager.comicinfo import ComicInfo
 
-logger = logging.getLogger("MetadataManager.Core")
+logger = logging.getLogger("MetaManager.Core")
 settings = settings_class.get_setting("main")
 
 
 class _IMetadataManagerLib(abc.ABC):
-    def on_item_loaded(self, loadedcomicInfo: LoadedComicInfo):
+    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo):
         """
         Called when a loadedcomicinfo is loaded
         :return:
@@ -70,7 +70,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                              "Imprint", "Genre", "Tags", "Web", "PageCount", "LanguageISO", "Format", "BlackAndWhite",
                              "Manga", "Characters", "Teams", "Locations", "ScanInformation", "StoryArc",
                              "StoryArcNumber", "SeriesGroup", "AgeRating", "CommunityRating",
-                             "MainCharacterOrTeam", "Review",
+                             "MainCharacterOrTeam","Other", "Review",
     ]
     MULTIPLE_VALUES_CONFLICT = "~~## Keep Original Value ##~~"
     tags_with_multiple_values = []
@@ -144,6 +144,9 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 loaded_cinfo.cinfo_object.set_attr_by_name(cinfo_tag, new_value)
                 loaded_cinfo.has_changes = True
                 any_has_changes = True
+            if any((loaded_cinfo.cover_action is not None,loaded_cinfo.backcover_action is not None)):
+                any_has_changes = True
+                loaded_cinfo.has_changes = True
             # if loaded_cinfo.is_metadata_modified(self.cinfo_tags):
 
         self.new_edited_cinfo = None
@@ -173,6 +176,10 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 continue
             except BadZipFile as e:
                 logger.error("Bad zip file. Either the format is not correct or the file is broken", exc_info=False)
+                self.on_badzipfile_error(e, file_path=file_path)
+                continue
+            except EOFError as e:
+                logger.error("Bad zip file. The file seems to be broken", exc_info=True)
                 self.on_badzipfile_error(e, file_path=file_path)
                 continue
             self.loaded_cinfo_list.append(loaded_cinfo)

@@ -1,10 +1,16 @@
 import configparser
+import io
+import os
+import random
 import sys
 import unittest
 import warnings
 import zipfile
 
 import _tkinter
+from PIL import Image
+
+from src.Common.loadedcomicinfo import COMICINFO_FILE, LoadedComicInfo
 
 
 def create_dummy_files(nfiles):
@@ -15,6 +21,49 @@ def create_dummy_files(nfiles):
         with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
             zf.writestr("Dummyfile.ext", "Dummy")
     return test_files_names
+
+
+def create_test_cbz(nfiles, nimages=4, metadata: LoadedComicInfo = None) -> list[str]:
+    image = Image.new('RGB', (100, 100), 'white')
+    buffer = io.BytesIO()
+    image.save(buffer, 'JPEG')
+
+    test_files_names = []
+    for i in range(nfiles):
+        out_tmp_zipname = f"Test__{i}_Generated{random.randint(1, 6000)}.cbz"
+        test_files_names.append(out_tmp_zipname)
+        with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
+            if metadata is not None:
+                # noinspection PyProtectedMember
+                zf.writestr(COMICINFO_FILE, metadata._export_metadata())
+            for j in range(nimages):
+                zf.writestr(f"{str(j).zfill(3)}.png", buffer.getvalue())
+
+    return test_files_names
+
+
+class CBZManipulationTests(unittest.TestCase):
+    test_files_names = []
+    root = None
+
+    def setUp(self) -> None:
+        print("Super setup")
+        leftover_files = [listed for listed in os.listdir() if listed.startswith("Test__") and listed.endswith(".cbz")]
+        for file in leftover_files:
+            os.remove(file)
+
+    def tearDown(self) -> None:
+        print("Super Teardown:")
+        try:
+            self.root.destroy()
+        except:
+            pass
+        for filename in self.test_files_names:
+            print(f"     Deleting: {filename}")  # , self._testMethodName)
+            try:
+                os.remove(filename)
+            except Exception as e:
+                print(e)
 
 
 class TKinterTestCase(unittest.TestCase):
@@ -37,6 +86,7 @@ class TKinterTestCase(unittest.TestCase):
     def pump_events(self):
         while self.root.dooneevent(_tkinter.ALL_EVENTS | _tkinter.DONT_WAIT):
             pass
+
 
 def parameterized_class(attrs, input_values=None, classname_func=None,  **__):
     """ Parameterizes a test class by setting attributes on the class.

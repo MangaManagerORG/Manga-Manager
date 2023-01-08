@@ -7,8 +7,9 @@ from tkinter.ttk import Notebook
 from pkg_resources import resource_filename
 
 from src.MetadataManager import comicinfo
-from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, CoverFrame, \
-    ProgressBarWidget, ComboBoxWidget, LongTextWidget, OptionMenuWidget, AutocompleteComboboxWidget
+from src.MetadataManager.GUI.CoverWidget import CoverFrame
+from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, ProgressBarWidget, \
+    ComboBoxWidget, LongTextWidget, OptionMenuWidget, AutocompleteComboboxWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
 
@@ -85,7 +86,7 @@ class Layout(GUIApp):
         btn.configure(compound="left")
         btn.configure(command=self.select_files)
         btn.pack(side="left")
-        self.control_widgets.append(btn)
+        self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
@@ -94,12 +95,12 @@ class Layout(GUIApp):
         btn.configure(compound="left")
         btn.configure(command=self.select_folder)
         btn.pack(side="left")
-        self.control_widgets.append(btn)
+        self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
         btn.configure(command=self.pre_process)
         btn.pack(side="left",fill="y")
-        self.control_widgets.append(btn)
+        self.control_mngr.append(btn)
 
     def init_main_content_frame(self) -> None:
         self.notebook = Notebook(self.main_content_frame_right)
@@ -162,9 +163,14 @@ class Layout(GUIApp):
                                                  tooltip="The name of the series").pack(side="left", expand=True,
                                                                                         fill="x")
         self.widget_mngr.Series.label = label
-        ButtonWidget(master=frame, text="⋯", tooltip="If one file selected, load the filename",
-                     command=self._fill_filename).pack(side="right")
-
+        btn = ButtonWidget(master=frame, text="⋯", tooltip="If one file selected, load the filename",
+                     command=self._fill_filename)
+        btn.pack(side="right")
+        self.control_mngr.append(btn)
+        btn = ButtonWidget(master=frame, text="⋯F", tooltip="If one file selected, load the filename",
+                     command=self._fill_foldername)
+        btn.pack(side="right")
+        self.control_mngr.append(btn)
         self.widget_mngr.LocalizedSeries = ComboBoxWidget(parent_frame, cinfo_name="LocalizedSeries",
                                                           label_text="LocalizedSeries",
                                                           tooltip="The translated series name").pack()
@@ -251,6 +257,7 @@ class Layout(GUIApp):
         self.widget_mngr.Locations = ComboBoxWidget(parent_frame, "Locations").pack()
         self.widget_mngr.MainCharacterOrTeam = ComboBoxWidget(parent_frame, "MainCharacterOrTeam",
                                                               label_text="Main Character Or Team").pack()
+        self.widget_mngr.Other = ComboBoxWidget(parent_frame, "Other").pack()
 
         #################
         # Numbering column

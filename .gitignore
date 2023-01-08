@@ -5,3 +5,4 @@
 /**/*.log*
 *.pdf
 /instructions_benchmarks.txt
+/.idea/sonarlint/

@@ -2,16 +2,12 @@ from __future__ import annotations
 
 import copy
 import logging
-import os.path
 import re
 import tkinter
 from idlelib.tooltip import Hovertip
-from os.path import basename
 # from tkinter import Label
 from tkinter.scrolledtext import ScrolledText
 from tkinter.ttk import Combobox, OptionMenu, Progressbar, Treeview, Style, Frame, Label, LabelFrame
-
-from PIL import UnidentifiedImageError
 
 from src import settings_class, MM_PATH
 from src.Common.loadedcomicinfo import LoadedComicInfo
@@ -25,7 +21,7 @@ from src.settings import SettingItem
 INT_PATTERN = re.compile("^-*\d*(?:,?\d+|\.?\d+)?$")
 MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
 logger = logging.getLogger()
-window_width, window_height = 0, 0
+
 
 settings = settings_class.get_setting("main")
 
@@ -70,8 +66,39 @@ class WidgetManager:
             if isinstance(widget, ComboBoxWidget):
                 widget.widget['values'] = widget.default_vals or []
 
+    def toggle_widgets(self,enabled=True):
+        for widget_name in self.__dict__:
+            widget = self.get_widget(widget_name)
+            if isinstance(widget, LongTextWidget) or isinstance(widget, OptionMenuWidget) :
+                widget.widget_slave.configure(state="normal" if enabled else "disabled")
+            else:
+                widget.widget.configure(state="normal" if enabled else "disabled")
+
     def get_tags(self):
         return [tag for tag in self.cinfo_tags]
+
+
+class ControlManager:
+    """
+    """
+    control_button_set = set()
+    control_hooks = []  # Callables to call when it should lock or unlock
+
+    def add(self, widget: tkinter.Widget):
+        self.control_button_set.add(widget)
+
+    def append(self, widget: tkinter.Widget):
+        self.control_button_set.add(widget)
+
+    def toggle(self, enabled=True):
+        for widget in self.control_button_set:
+            widget.configure(state="normal" if enabled else "disabled")
+
+    def lock(self):
+        self.toggle(False)
+
+    def unlock(self):
+        self.toggle(True)
 
 
 class Widget(Frame):
@@ -212,9 +239,6 @@ class AutocompleteComboboxWidget(Widget):
         # list at the position of the autocompletion
 
 
-
-
-
 class OptionMenuWidget(Widget):
     def __init__(self, master, cinfo_name, label_text=None, max_width=None, default=None, values=None):
 
@@ -295,120 +319,6 @@ class ScrolledFrameWidget(ScrolledFrame):
         return frame
 
 
-class CoverFrame(tkinter.Frame):
-    canvas_image = None
-    canvas_image_last = None
-
-    def rezized(self, event: tkinter.Event):
-
-        global window_width, window_height
-        if window_width != event.width:
-            if 1000 >= event.width:
-                self.hide_back_image()
-                window_width, window_height = event.width, event.height
-
-            elif 1000 < event.width and window_width + 400 < event.width:
-                if not settings.cache_cover_images:
-                    return
-                self.show_back_image()
-                window_width, window_height = event.width, event.height
-    def __init__(self, master):
-        super(CoverFrame, self).__init__(master, highlightbackground="black", highlightthickness=2)
-        self.configure(pady=5)
-        canvas_frame = self
-        master.master.bind("<Configure>", self.rezized)
-        self.selected_file_path_var = tkinter.StringVar(canvas_frame, value="No file selected")
-        self.selected_file_var = tkinter.StringVar(canvas_frame, value="No file selected")
-        # canvas_frame.pack(expand=False)
-        self.cover_subtitle = Label(canvas_frame, background="violet", textvariable=self.selected_file_var)
-        self.cover_subtitle.configure(width=25, compound="right", justify="left")
-        self.selected_file_var.set('No file selected')
-        self.tooltip_filename = Hovertip(self, "No file selected", 20)
-        self.cover_subtitle.grid(row=0, sticky="nsew")
-        # self.grid_rowconfigure(0, weight=1)
-        # self.grid_rowconfigure(2, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-        # self.grid_columnconfigure(1, weight=1)
-        images_frame = Frame(canvas_frame)
-
-        images_frame.grid(column=0, row=1, sticky="nsew")
-
-        self.canvas = tkinter.Canvas(images_frame)
-        self.canvas.configure(background='#878787', height='260', width='190')
-        self.canvas.pack(side="left")
-        self.canvas_back = tkinter.Canvas(images_frame)
-        self.canvas_back.configure(background='#878227', height='260', width='190')
-        self.canvas_back.pack(side="right")
-        if settings.cache_cover_images:
-            self.hide_back_image()
-        # self.canvas.grid(column=0, row=1,sticky="nsew")
-
-        self.update_cover_button = ButtonWidget(master=canvas_frame, text='Replace Cover',
-                                                tooltip="Click to REPLACE this cover image",
-                                                command=self.opencovers
-                                                )
-        # self.update_cover_button.grid(column=0, row=1)
-        self.create_canvas_image()
-
-    def clear(self):
-        # self.update_cover_button.configure(text="Select covers", state="normal")
-        # self.update_cover_button.grid()
-        self.canvas.delete('all')
-        self.canvas_back.delete('all')
-        self.create_canvas_image()
-        self.create_canvas_back_image()
-        self.update_cover_button.grid_remove()
-        return
-
-    def update_cover_image(self, loadedcomicinfo_list: list[LoadedComicInfo], **__):
-        if len(loadedcomicinfo_list) > 1:
-            self.clear()
-            # self.cover_subtitle.configure(text=MULTIPLE_FILES_SELECTED)
-            self.selected_file_var.set(MULTIPLE_FILES_SELECTED)
-            self.selected_file_path_var.set(MULTIPLE_FILES_SELECTED)
-            self.tooltip_filename.text = "\n".join(
-                [os.path.basename(loadedcomicinfo.file_path) for loadedcomicinfo in loadedcomicinfo_list])
-            return
-
-        if not loadedcomicinfo_list:
-            # raise NoFilesSelected()
-            return
-        loadedcomicinfo = loadedcomicinfo_list[0]
-        if not loadedcomicinfo.cached_image and not loadedcomicinfo.cached_image_last:
-            self.clear()
-        else:
-            self.update_cover_button.grid(column=0, row=1)
-        self.tooltip_filename.text = os.path.basename(loadedcomicinfo.file_path)
-        self.canvas.itemconfig(self.canvas_image, image=loadedcomicinfo.cached_image)
-        self.canvas_back.itemconfig(self.canvas_image_last, image=loadedcomicinfo.cached_image_last)
-        self.selected_file_var.set(basename(loadedcomicinfo.file_path))
-        self.selected_file_path_var.set(loadedcomicinfo.file_path)
-
-    def create_canvas_image(self):
-        try:
-            self.canvas_image = self.canvas.create_image(0, 0, anchor=tkinter.NW)
-        except UnidentifiedImageError:
-            ...
-
-    def create_canvas_back_image(self):
-        try:
-            self.canvas_image_last = self.canvas_back.create_image(0, 0, anchor=tkinter.NW)
-        except UnidentifiedImageError:
-            ...
-
-    def hide_back_image(self):
-        self.canvas_back.pack_forget()
-        self.canvas.pack(side="top")
-
-    def show_back_image(self):
-        self.canvas_back.pack(side="right")
-        self.canvas.pack(side="left")
-
-    def opencovers(self):
-        ...
-
-    def display_next_cover(self, event):
-        ...
 
 
 def center(win):
@@ -613,13 +523,8 @@ class TreeviewWidget(Treeview):
 class ProgressBarWidget(ProgressBar):
     def __init__(self, parent):
         pb_frame = Frame(parent)
-        # pb_frame =parent
         pb_frame.pack(expand=False, fill="x")
         super().__init__()
-
-        # bar_frame = Frame(pb_frame)
-        # bar_frame.pack(fill="x", side="top")
-        # bar_frame.columnconfigure(0, weight=1)
 
         self.style = Style(pb_frame)
         self.style.layout('text.Horizontal.TProgressbar',
