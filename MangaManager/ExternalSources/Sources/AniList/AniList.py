@@ -14,28 +14,28 @@ class AniList(IMetadataSource):
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:
         comicinfo = ComicInfo()
-        a = cls._search_for_manga_title_by_manga_title(series_name, "MANGA", {})
+        content = cls._search_for_manga_title_by_manga_title(series_name, "MANGA", {})
 
-        if a is None:
+        if content is None:
             return None
-        a = a.get("id")
-        b = cls._search_details_by_series_id(a, "MANGA", {})
+        content = content.get("id")
+        data = cls._search_details_by_series_id(content, "MANGA", {})
         print("sdsadas")
-        startdate = b.get("startDate")
-        comicinfo.set_Summary(b.get("description").strip())
+        startdate = data.get("startDate")
+        comicinfo.set_Summary(data.get("description").strip())
         comicinfo.set_Day(startdate.get("day"))
         comicinfo.set_Month(startdate.get("month"))
         comicinfo.set_Year(startdate.get("year"))
-        comicinfo.set_Series(b.get("title").get("romaji").strip())
-        comicinfo.set_Genre(", ".join(b.get("genres")))
-        comicinfo.set_Web(b.get("siteUrl").strip())
+        comicinfo.set_Series(data.get("title").get("romaji").strip())
+        comicinfo.set_Genre(", ".join(data.get("genres")))
+        comicinfo.set_Web(data.get("siteUrl").strip())
         # People
         mapping = {
             "Original Story": "Writer",
             "Character Design": "Penciller",
             "Story & Art": "Inker"
         }
-        staff_list = b["staff"]["edges"]
+        staff_list = data["staff"]["edges"]
 
         for staff in staff_list:
             node = staff["node"]

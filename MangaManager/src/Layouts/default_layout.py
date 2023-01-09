@@ -72,20 +72,26 @@ class Layout(GUIApp):
         control_frame = Frame(frame)
         control_frame.pack(side="top", fill="both", expand=False, pady=(0, 20))
 
-        icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
         btn = ButtonWidget(master=control_frame, text="Open Files",
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
-        btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
-        btn.configure(image=btn.img_ref)
+        try:
+            icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
+            btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+            btn.configure(image=btn.img_ref)
+        except:
+            self.log.exception("Exception loading the open_file icon")
         btn.configure(compound="left")
         btn.configure(command=self.select_files)
         btn.pack(side="left")
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
-        icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
-        btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
-        btn.configure(image=btn.img_ref)
+        try:
+            icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+            btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+            btn.configure(image=btn.img_ref)
+        except:
+            self.log.exception("Exception loading the open_file icon")
         btn.configure(compound="left")
         btn.configure(command=self.select_folder)
         btn.pack(side="left")

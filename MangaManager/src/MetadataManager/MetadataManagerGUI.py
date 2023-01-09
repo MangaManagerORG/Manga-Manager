@@ -123,6 +123,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self.inserting_files = False
         self.control_mngr.unlock()
         self.widget_mngr.toggle_widgets(enabled=True)
+
     def select_folder(self):
         # New file selection. Proceed to clean the ui to a new state
         self.control_mngr.lock()

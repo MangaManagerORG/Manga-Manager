@@ -71,8 +71,11 @@ class WidgetManager:
     def toggle_widgets(self,enabled=True):
         for widget_name in self.__dict__:
             widget = self.get_widget(widget_name)
-            if isinstance(widget, LongTextWidget) or isinstance(widget, OptionMenuWidget) :
+            if isinstance(widget, OptionMenuWidget):
                 widget.widget_slave.configure(state="normal" if enabled else "disabled")
+            elif isinstance(widget, LongTextWidget):
+                # widget.widget_slave.configure(state="normal" if enabled else "readonly")
+                pass
             else:
                 widget.widget.configure(state="normal" if enabled else "disabled")
 

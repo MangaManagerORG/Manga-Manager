@@ -18,7 +18,10 @@ def execute_gui():
         layout_name = "default"
     logger.info(f"Initializing '{layout_name}' layout")
     app = layout_factory.get(layout_name)()
-    app.iconbitmap(icon_path)
+    try:
+        app.iconbitmap(icon_path)
+    except:
+        logger.exception("Exception loading icon")
 
     app.mainloop()
 
