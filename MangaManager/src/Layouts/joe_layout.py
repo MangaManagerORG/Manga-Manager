@@ -85,7 +85,7 @@ class Layout(GUIApp):
         btn.configure(image=btn.img_ref)
         btn.configure(compound="left")
         btn.configure(command=self.select_files)
-        btn.pack(side="left")
+        btn.pack(side="left", fill="y")
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
@@ -94,7 +94,7 @@ class Layout(GUIApp):
         btn.configure(image=btn.img_ref)
         btn.configure(compound="left")
         btn.configure(command=self.select_folder)
-        btn.pack(side="left")
+        btn.pack(side="left", fill="y")
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Clear", tooltip="Clean the metadata from the current view")
@@ -108,7 +108,7 @@ class Layout(GUIApp):
         # btn.configure(image=btn.img_ref)
         btn.configure(compound="left")
         btn.configure(command=self.process_fetch_online)
-        btn.pack(side="left")
+        btn.pack(side="left", fill="y")
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")

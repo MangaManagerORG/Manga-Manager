@@ -11,8 +11,7 @@ class MangaNotFoundError(Exception):
     """
     def __init__(self, manga_title):
         super().__init__(f'"{manga_title}" was not found in the returned results from Anilist '
-                         f'This may be due to a difference in manga series titles, or may be something else entirely. '
-                         f'Please open an issue for investigation.')
+                         f'This may be due to a difference in manga series titles, or may be something else entirely. ')
 
 class EditedCinfoNotSet(RuntimeError):
     def __init__(self, message=None):

@@ -9,6 +9,8 @@ from idlelib.tooltip import Hovertip
 from tkinter.scrolledtext import ScrolledText
 from tkinter.ttk import Combobox, OptionMenu, Progressbar, Treeview, Style, Frame, Label, LabelFrame
 
+import _tkinter
+
 from src import settings_class, MM_PATH
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.progressbar import ProgressBar
@@ -92,7 +94,10 @@ class ControlManager:
 
     def toggle(self, enabled=True):
         for widget in self.control_button_set:
-            widget.configure(state="normal" if enabled else "disabled")
+            try:
+                widget.configure(state="normal" if enabled else "disabled")
+            except _tkinter.TclError as e:
+                logger.exception("Unhandled exception")
 
     def lock(self):
         self.toggle(False)

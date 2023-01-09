@@ -31,7 +31,7 @@ class Layout(GUIApp):
 
     def _initialize_frames(self) -> None:
         # MENU
-
+        self.display_action_bar(self.main_frame)
         self.notebook = Notebook(self.main_frame)
         self.notebook.pack(side="right", expand=True, fill="both")
 
@@ -62,16 +62,14 @@ class Layout(GUIApp):
         # self.main_frame.pack(expand=False, fill='both')
         self.changes_saved = tkinter.Label(master=self, text="Changes are not saved", font=('Arial', 10))
         self.focus()
-
-    def display_side_bar(self) -> None:
+    def display_action_bar(self,frame):
         ################
         # Sidebar actions and covers
         ################
-        self.side_info_frame = Frame(self.main_frame)
-        self.side_info_frame.pack(side="left", padx=30, expand=False, fill="both")
 
-        # Action Buttons
-        control_frame = Frame(self.side_info_frame)
+        #
+        # # Action Buttons
+        control_frame = Frame(frame)
         control_frame.pack(side="top", fill="both", expand=False, pady=(0, 20))
 
         icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
@@ -102,16 +100,19 @@ class Layout(GUIApp):
         # icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
         # btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
         # btn.configure(image=btn.img_ref)
-        btn.configure(compound="left")
+        # btn.configure(compound="left")
         btn.configure(command=self.process_fetch_online)
-        btn.pack(side="left")
+        btn.pack(side="left", fill="y")
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
         btn.configure(command=self.pre_process)
-        btn.pack(fill="both", expand=True)
+        btn.pack(side="left", fill="y")
         self.control_mngr.append(btn)
+    def display_side_bar(self) -> None:
 
+        self.side_info_frame = Frame(self.main_frame)
+        self.side_info_frame.pack(side="left", padx=30, expand=False, fill="both")
         # Show Selected Files - ListBox
         self.files_selected_frame = tkinter.LabelFrame(self.side_info_frame)
 
