@@ -272,6 +272,12 @@ class FileChooser(tkinter.Toplevel):
 
 def askopenfiles(parent,*args, **kwargs):
     # root = tkinter.Tk()
+    from tkinter.filedialog import askopenfiles
+    return askopenfiles(*args,**kwargs)
+
     filechooser = FileChooser(parent,*args,**kwargs)
     selection = filechooser.get_selected_files()
     return selection
+def askdirectory(*args, **kwargs):
+    from tkinter.filedialog import askdirectory
+    return askdirectory(*args, **kwargs)
