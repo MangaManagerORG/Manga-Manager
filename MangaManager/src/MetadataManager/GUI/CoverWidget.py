@@ -164,6 +164,8 @@ class CoverFrame(Frame):
         btn.pack(side="bottom", fill="x", expand=True)
         self.action_buttons.append(btn)
 
+        self.toggle_action_buttons(False)
+
     def cover_action(self, loaded_cinfo: LoadedComicInfo = None, auto_trigger=False, action=None, parent=None, proc_update=True):
         if not parent:
             parent = self
@@ -280,12 +282,18 @@ class CoverFrame(Frame):
             self.tooltip_filename.text = "\n".join(
                 [basename(loadedcomicinfo.file_path) for loadedcomicinfo in loadedcomicinfo_list])
             # self.update()
+            self.toggle_action_buttons(False)
             return
 
         if not loadedcomicinfo_list:
             # raise NoFilesSelected()
+            self.toggle_action_buttons(False)
             return
+
         loadedcomicinfo = loadedcomicinfo_list[0]
+        if loadedcomicinfo.file_path is None:
+            return
+        self.toggle_action_buttons(True)
         self.displayed_cinfo = loadedcomicinfo
         if not loadedcomicinfo.cover_cache and not loadedcomicinfo.backcover_cache:
             self.clear()
@@ -342,3 +350,8 @@ class CoverFrame(Frame):
 
     def display_next_cover(self, event):
         ...
+
+    def toggle_action_buttons(self,enabled=True):
+        for button in self.action_buttons:
+            button:Button
+            button.configure(state="normal" if enabled else "disabled")

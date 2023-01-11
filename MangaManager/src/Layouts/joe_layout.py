@@ -134,9 +134,6 @@ class Layout(GUIApp):
         btn.pack(side="left", fill="y",padx=(20,0))
         self.control_mngr.append(btn)
 
-
-
-
     def init_main_content_frame(self) -> None:
         self.notebook = Notebook(self.main_content_frame_right)
         self.notebook.pack(expand=True, fill="both")
@@ -179,6 +176,7 @@ class Layout(GUIApp):
             raise ValueError("test")
         except:
             self.log.exception("test excte")
+
     def display_main_content_widgets(self) -> None:
         style = ttk.Style()
 
@@ -346,7 +344,6 @@ class Layout(GUIApp):
         progress_bar_frame.pack(expand=False, fill="both", side="right")
         self.pb.pb_label.pack(side="right")
         self.pb.progress_bar.pack(side="right", fill="x", expand=True)
-
 
     # Implementations
     def on_file_selection_preview(self, *args):

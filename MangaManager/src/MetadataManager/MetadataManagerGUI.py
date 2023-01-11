@@ -174,6 +174,7 @@ class GUIApp(Tk, MetadataManagerLib):
     def show_settings(self):
         print("Show_settings")
         SettingsWidgetManager(self)
+
     def show_about(self):
 
         toplevel = tkinter.Toplevel(self)
@@ -183,6 +184,7 @@ class GUIApp(Tk, MetadataManagerLib):
         tkinter.Label(toplevel,text=f"Version number: {__version__}", font=("Helvetica", 12), justify="left").pack(fill="x")
         # create close button
         ButtonWidget(master=toplevel, text="Close", command=toplevel.destroy).pack()
+
     def are_unsaved_changes(self, exist_unsaved_changes=False):
         """
         Displays the text "unsaved changes"
@@ -390,6 +392,7 @@ class GUIApp(Tk, MetadataManagerLib):
     def _fill_filename(self):
         if len(self.selected_items) == 1:
             self.widget_mngr.get_widget("Series").set(self.selected_items[0].file_name)
+
     def _fill_foldername(self):
         if len(self.selected_items) == 1:
             self.widget_mngr.get_widget("Series").set(os.path.basename(os.path.dirname(self.selected_items[0].file_path)))
@@ -405,6 +408,7 @@ class GUIApp(Tk, MetadataManagerLib):
             self.widget_mngr.clean_widgets()
             # Display new selection data
             self._serialize_cinfolist_to_gui(self.selected_items)
+
     def _treeview_open_explorer(self, file):
         open_folder(os.path.dirname(file), file)
         ...

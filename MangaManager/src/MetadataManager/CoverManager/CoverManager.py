@@ -63,22 +63,18 @@ class ComicFrame(CoverFrame):
         btn = Button(btn_frame, text="✎", command=lambda:
         self.cover_action(self.loaded_cinfo, action=CoverActions.REPLACE, parent=self))
         btn.pack(side="left", fill="x", expand=True)
-        self.action_buttons.append(btn)
 
         btn = Button(btn_frame, text="🗑", command=lambda:
         self.cover_action(self.loaded_cinfo, action=CoverActions.DELETE))
         btn.pack(side="left", fill="x", expand=True)
-        self.action_buttons.append(btn)
 
         btn = Button(btn_frame, text="➕", command=lambda:
         self.cover_action(self.loaded_cinfo, action=CoverActions.APPEND, parent=self))
         btn.pack(side="left", fill="x", expand=True)
-        self.action_buttons.append(btn)
 
         btn = Button(btn_frame, text="Reset", command=lambda:
         self.cover_action(self.loaded_cinfo, action=CoverActions.RESET))
         btn.pack(side="left", fill="x", expand=True)
-        self.action_buttons.append(btn)
         self.cover_action(self.loaded_cinfo, auto_trigger=True,proc_update=False)
 
         # BACK COVER
@@ -109,22 +105,18 @@ class ComicFrame(CoverFrame):
         btn = Button(btn_frame, text="✎", command=lambda:
         self.backcover_action(self.loaded_cinfo, action=CoverActions.REPLACE, parent=self))
         btn.pack(side="left", fill="x", expand=True)
-        self.action_buttons.append(btn)
 
         btn = Button(btn_frame, text="🗑", command=lambda:
         self.backcover_action(self.loaded_cinfo, action=CoverActions.DELETE))
         btn.pack(side="left", fill="x", expand=True)
-        self.action_buttons.append(btn)
 
         btn = Button(btn_frame, text="➕", command=lambda:
         self.backcover_action(self.loaded_cinfo, action=CoverActions.APPEND, parent=self))
         btn.pack(side="left", fill="x", expand=True)
-        self.action_buttons.append(btn)
 
         btn = Button(btn_frame, text="Reset", command=lambda:
         self.backcover_action(self.loaded_cinfo, action=CoverActions.RESET))
         btn.pack(side="left", fill="x", expand=True)
-        self.action_buttons.append(btn)
 
         # Load backcover
         self.backcover_action(self.loaded_cinfo, auto_trigger=True,proc_update=False)

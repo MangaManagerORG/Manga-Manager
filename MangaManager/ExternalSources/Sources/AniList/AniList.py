@@ -122,7 +122,7 @@ class AniList(IMetadataSource):
 
         ret = cls._post(query, variables, logging_info)
         if ret is None:
-            raise MangaNotFoundError(manga_title)
+            raise MangaNotFoundError("AniList",manga_title)
         return ret
 
     @classmethod
