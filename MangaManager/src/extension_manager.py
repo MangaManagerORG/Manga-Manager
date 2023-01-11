@@ -37,7 +37,7 @@ def load_extensions(extensions_directory) -> list[IExtensionApp]:
     extension_files = [extension for extension in
                        glob.glob(os.path.join(EXTENSIONS_DIRECTORY, "*/**.py"), recursive=True)
                        if match_pyfiles_with_foldername(extension)]
-
+    print(f"Found extensions: {extension_files}")
     # Load the extensions
     loaded_extensions = []
     for extension_file in extension_files:

@@ -1,23 +1,23 @@
 import copy
 import tkinter
 from os.path import abspath
-from tkinter import Frame, CENTER, Button, Canvas, NW
+from tkinter import Frame, CENTER, Button, NW
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Treeview
 
 from PIL import Image, ImageTk
 from pkg_resources import resource_filename
 
-from Extensions.Interface import IExtensionApp
 from src import settings_class
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
 from src.MetadataManager.GUI.CoverWidget import CoverFrame, CanvasCoverWidget
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget
+from src.MetadataManager.MetadataManagerGUI import GUIApp
 
-action_template = abspath(resource_filename(__name__, '../../res/cover_action_template.png'))
+action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
 
 
-def on_button_click(mode, loaded_cinfo: LoadedComicInfo, front_or_back):
+def on_button_click(_, loaded_cinfo: LoadedComicInfo, front_or_back):
     print("Clicked button.")
     print(f"Is: {front_or_back}")
     print(f"Path: {loaded_cinfo.file_path}")
@@ -130,11 +130,32 @@ class ComicFrame(CoverFrame):
         self.backcover_action(self.loaded_cinfo, auto_trigger=True,proc_update=False)
 
 
-class CoverManager(IExtensionApp):
+class CoverManager(tkinter.Toplevel):
     name = "CoverManager"
 
     scrolled_widget: Frame
     top_level: tkinter.Toplevel = tkinter.Toplevel
+    #
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.master_frame = self
+
+    def __init__(self, master, super_: GUIApp = None, **kwargs):
+        """
+        Initializes the toplevel window but hides the window.
+        """
+        if self.name is None:  # Check if the "name" attribute has been set
+            raise ValueError(f"Error initializing the {self.__class__.__name__} Extension. The 'name' attribute must be set in the ExtensionApp class.")
+        # if self.embedded_ui:
+        super().__init__(master=master,**kwargs)
+        self.title(self.__class__.name)
+        if super_ is not None:
+            self._super = super_
+        # else:
+        #     frame = tkinter.Frame()
+        #     self.master_frame = frame
+
+        self.serve_gui()
 
     def redraw(self, event):
         """
@@ -178,17 +199,19 @@ class CoverManager(IExtensionApp):
             j += 1
 
     def exit_btn(self):
+        self._super.show_not_saved_indicator()
         self.destroy()
         self.update()
+
     def serve_gui(self):
         """
         This function creates and serves the GUI for the application.
         """
         self.state('zoomed')
-        side_panel_control = Frame(self.master_frame)
+        side_panel_control = Frame(self)
         side_panel_control.pack(side="right", expand=False, fill="y")
         #
-        ctr_btn = Frame(self.master_frame)
+        ctr_btn = Frame(self)
         ctr_btn.pack()
         #
         #
@@ -215,7 +238,7 @@ class CoverManager(IExtensionApp):
         ButtonWidget(master=action_buttons, text="Close window",
                      command=self.exit_btn).pack(fill="x",ipady=10)
 
-        frame = ScrolledFrameWidget(self.master_frame)
+        frame = ScrolledFrameWidget(self)
         frame.pack(fill="both", expand=True)
         self.scrolled_widget = frame.create_frame()
         # scrolled_widget.pack(expand=False,fill="both")
@@ -244,7 +267,7 @@ class CoverManager(IExtensionApp):
             comic_frame.grid()
         self.redraw(None)
 
-    def select_frame(self, event, frame: ComicFrame, pos):
+    def select_frame(self, _, frame: ComicFrame, pos):
         print(pos)
         if (frame, pos) in self.selected_frames:
             # self.tree.get_children()
@@ -261,8 +284,6 @@ class CoverManager(IExtensionApp):
             else:
                 frame.backcover_canvas.configure(highlightbackground="#f0f0f0", highlightcolor="white")
 
-            # frame.configure(highlightbackground="green", highlightcolor="green")
-            # frame.frame_buttons.configure(background="green")
         else:
             node = self.tree.insert('', 'end', text="1", values=(frame.loaded_cinfo.file_name, pos))
             self.tree_dict[node] = {"cinfo": frame.loaded_cinfo, "type": pos}

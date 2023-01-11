@@ -183,13 +183,15 @@ class GUIApp(Tk, MetadataManagerLib):
         except TclError:  # Tests fails due to not being correctly populated. Log and skip
             self.log.error(f"Error updating saved status for item {loaded_cinfo.file_path}")
 
-    def show_not_saved_indicator(self, loaded_cinfo_list):
+    def show_not_saved_indicator(self, loaded_cinfo_list=None):
         """
         Shows a litle triangle while files are not saved.
         :param loaded_cinfo_list:
         :param mark_saved:
         :return:
         """
+        if loaded_cinfo_list is None:
+            loaded_cinfo_list = self.loaded_cinfo_list
         any_has_changes = False
         for loaded_cinfo in loaded_cinfo_list:
             self.update_item_saved_status(loaded_cinfo)
@@ -391,7 +393,7 @@ class GUIApp(Tk, MetadataManagerLib):
         from src import loaded_extensions
         for loaded_extension in loaded_extensions:
             tkinter.Button(parent_frame, text=loaded_extension.name, command=lambda load_ext=loaded_extension:
-                           load_ext(parent_frame)).pack(side="top")
+                           load_ext(parent_frame, super_=self)).pack(side="top")
 
     def process_fetch_online(self):
         series_name = self.widget_mngr.get_widget("Series").get()

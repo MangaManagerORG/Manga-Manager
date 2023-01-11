@@ -99,6 +99,7 @@ class LoadedComicInfo:
             self._cover_action = None
         else:
             self._cover_action = value
+            self.has_changes = True
     @property
     def backcover_action(self):
         return self._backcover_action
@@ -110,6 +111,7 @@ class LoadedComicInfo:
             self._backcover_action = None
         else:
             self._backcover_action = value
+            self.has_changes = True
 
 
     @property

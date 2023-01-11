@@ -7,6 +7,7 @@ from tkinter.ttk import Notebook
 from pkg_resources import resource_filename
 
 from src.MetadataManager import comicinfo
+from src.MetadataManager.CoverManager.CoverManager import CoverManager
 from src.MetadataManager.GUI.CoverWidget import CoverFrame
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, ProgressBarWidget, \
     ComboBoxWidget, LongTextWidget, OptionMenuWidget, AutocompleteComboboxWidget
@@ -121,6 +122,12 @@ class Layout(GUIApp):
         btn.configure(command=self.pre_process)
         btn.pack(side="left",fill="y")
         self.control_mngr.append(btn)
+
+        btn = ButtonWidget(master=control_frame, text="Cover Manager", tooltip="Opens covermanager for the loaded files")
+        btn.configure(command=lambda: CoverManager(self, self))
+        btn.pack(side="left", fill="y",padx=(20,0))
+        self.control_mngr.append(btn)
+
 
 
 

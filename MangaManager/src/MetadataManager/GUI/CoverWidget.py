@@ -15,38 +15,6 @@ settings = settings_class.get_setting("main")
 window_width, window_height = 0, 0
 action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
 
-class ComicFrame(Frame):
-    def __init__(self, parent, loaded_cinfo):
-        super().__init__(parent)
-        self.loaded_cinfo: LoadedComicInfo = loaded_cinfo
-        self.configure(highlightthickness=1, highlightcolor="grey", highlightbackground="grey")
-        # create the first canvas
-        frame = self.canvas1_frame = Frame(self, background="grey", highlightcolor="grey", highlightthickness=6)
-        frame.pack(side="left")
-        canvas1 = self.canvas1 = Canvas(frame)
-        canvas1.configure(height='260', width='190')
-        canvas1.pack(side="top", expand=False, anchor=CENTER)
-        # print the image in the first canvas
-        canvas1.create_image(0, 0, image=loaded_cinfo.cached_image, anchor="nw")
-        self.print_canvas(frame, loaded_cinfo, "front")
-
-        # create the second canvas
-        frame = self.canvas2_frame = Frame(self, background="grey", highlightcolor="grey", highlightthickness=6)
-        frame.pack(side="right")
-        canvas2 = self.canvas2 = Canvas(frame)
-        canvas2.configure(height='260', width='190')
-        canvas2.pack(side="top", expand=False, anchor=CENTER)
-        # print the image in the second canvas
-        canvas2.create_image(0, 0, image=loaded_cinfo.cached_image_last, anchor="nw")
-        self.print_canvas(frame, loaded_cinfo, "back")
-
-        # bind the click event to the on_clicked_canvas method
-
-    def print_canvas(self, frame, _, front_or_back):
-        if front_or_back not in ("front", "back"):
-            return
-        frame_buttons = self.frame_buttons = Frame(frame)
-        frame_buttons.pack(side="bottom", anchor=CENTER, fill="x")
 
 
 class CanvasCoverWidget(Canvas):
@@ -196,7 +164,9 @@ class CoverFrame(Frame):
         btn.pack(side="bottom", fill="x", expand=True)
         self.action_buttons.append(btn)
 
-    def cover_action(self, loaded_cinfo: LoadedComicInfo = None, auto_trigger=False, action=None):
+    def cover_action(self, loaded_cinfo: LoadedComicInfo = None, auto_trigger=False, action=None, parent=None, proc_update=True):
+        if not parent:
+            parent = self
         if loaded_cinfo is None:
             loaded_cinfo = self.displayed_cinfo
         front_canva: CanvasCoverWidget = self.cover_canvas
@@ -214,12 +184,13 @@ class CoverFrame(Frame):
             front_canva.itemconfig(front_canva.no_image_warning_id, state="normal")
             front_canva.itemconfig(front_canva.action_id, text="")
             front_canva.itemconfig(front_canva.image_id, state="hidden")
-            self.update()
+            if proc_update:
+                self.update()
             return
         # A cover exists. Hide warning
         front_canva.itemconfig(front_canva.no_image_warning_id, state="hidden")
-
-        self.update()
+        if proc_update:
+            self.update()
 
         front_canva.itemconfig(front_canva.overlay_id, image=front_canva.overlay_image, state="normal")
         front_canva.itemconfig(front_canva.image_id, image=cover, state="normal")
@@ -227,7 +198,7 @@ class CoverFrame(Frame):
             case CoverActions.APPEND | CoverActions.REPLACE:
                 # If the function was manually called, ask the user to select the new cover
                 if not auto_trigger:
-                    new_cover_file = askopenfile(initialdir=settings.covers_folder_path).name
+                    new_cover_file = askopenfile(parent=parent, initialdir=settings.covers_folder_path).name
                     loaded_cinfo.new_cover_path = new_cover_file
                     cover = loaded_cinfo.new_cover_cache
                 # Show the Action label
@@ -243,7 +214,9 @@ class CoverFrame(Frame):
         front_canva.itemconfig(front_canva.image_id, image=cover, state="normal")
         self.update()
 
-    def backcover_action(self, loaded_cinfo: LoadedComicInfo = None, auto_trigger=False, action=None):
+    def backcover_action(self, loaded_cinfo: LoadedComicInfo = None, auto_trigger=False, action=None, parent=None, proc_update=True):
+        if not parent:
+            parent = self
         if loaded_cinfo is None:
             loaded_cinfo = self.displayed_cinfo
         back_canva: CanvasCoverWidget = self.backcover_canvas
@@ -262,12 +235,13 @@ class CoverFrame(Frame):
             back_canva.itemconfig(back_canva.no_image_warning_id, state="normal")
             back_canva.itemconfig(back_canva.action_id, text="")
             back_canva.itemconfig(back_canva.image_id, state="hidden")
-
-            self.update()
+            if proc_update:
+                self.update()
             return
         # A cover exists. Hide warning
         back_canva.itemconfig(back_canva.no_image_warning_id, state="hidden")
-        self.update()
+        if proc_update:
+            self.update()
 
 
         back_canva.itemconfig(back_canva.overlay_id, image=back_canva.overlay_image, state="normal")
@@ -276,7 +250,7 @@ class CoverFrame(Frame):
             case CoverActions.APPEND | CoverActions.REPLACE:
                 # If the function was manually called, ask the user to select the new cover
                 if not auto_trigger:
-                    new_cover_file = askopenfile(initialdir=settings.covers_folder_path).name
+                    new_cover_file = askopenfile(parent=parent, initialdir=settings.covers_folder_path).name
                     loaded_cinfo.new_backcover_path = new_cover_file
                     cover = loaded_cinfo.new_backcover_cache
                 # Show the Action label
