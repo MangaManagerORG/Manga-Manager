@@ -14,7 +14,10 @@ class AniList(IMetadataSource):
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:
         comicinfo = ComicInfo()
-        content = cls._search_for_manga_title_by_manga_title(series_name, "MANGA", {})
+        try:
+            content = cls._search_for_manga_title_by_manga_title(series_name, "MANGA", {})
+        except MangaNotFoundError:
+            content = cls.search_for_manga_title_by_manga_title_with_adult(series_name, "MANGA", {})
 
         if content is None:
             return None
@@ -122,6 +125,28 @@ class AniList(IMetadataSource):
             raise MangaNotFoundError(manga_title)
         return ret
 
+    @classmethod
+    def search_for_manga_title_by_manga_title_with_adult(cls, manga_title, format_, logging_info):
+        query = '''
+            query search_manga_by_manga_title ($manga_title: String, $format: MediaFormat) {
+              Media (search: $manga_title, type: MANGA, format: $format) {
+                id
+                title {
+                  romaji
+                  english
+                  native
+                }
+                synonyms
+              }
+            }
+            '''
+
+        variables = {
+            'manga_title': manga_title,
+            'format': format_
+        }
+
+        return cls._post(query, variables, logging_info)
     @classmethod
     def _search_details_by_series_id(cls, series_id, format_, logging_info):
         query = '''
