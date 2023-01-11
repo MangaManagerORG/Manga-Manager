@@ -159,7 +159,7 @@ registered_settings_sections = {
             },
             {
                 "key": "selected_layout",
-                "name": "Active layout",
+                "name": "* Active layout",
                 "tooltip": "Selects the layout to be displayed",
                 "type_": "optionmenu",
                 "values": []

@@ -4,7 +4,10 @@ import glob
 import logging
 import os
 import tkinter
+from os.path import abspath
 from tkinter import Tk, Frame, messagebox as mb
+
+from pkg_resources import resource_filename
 
 from src.Common.errors import NoFilesSelected
 from src.Common.utils import get_platform, open_folder
@@ -19,9 +22,10 @@ from _tkinter import TclError
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, SettingsWidgetManager, \
-    ButtonWidget, ControlManager
+    ButtonWidget, ControlManager, HyperlinkLabel
 
 from src import settings_class
+from src.__version__ import __version__
 
 main_settings = settings_class.get_setting("main")
 
@@ -52,13 +56,24 @@ class GUIApp(Tk, MetadataManagerLib):
         self.main_frame = Frame(self)
 
         self.main_frame.pack(expand=True, fill="both")
-
-        ButtonWidget(master=self, text="⚙ Settings", font=('Arial', 10), command=self.show_settings).place(
-            anchor=tkinter.NE, relx=1)
+        frame = Frame(self)
+        frame.place(anchor=tkinter.NE, relx=1)
+        ButtonWidget(master=frame, text="⚙ Settings", font=('Arial', 10), command=self.show_settings).pack(side="left")
+        ButtonWidget(master=frame, text="About", font=('Arial', 10), command=self.show_about).pack(side="left")
 
         # Add binds
         self.bind('<Control-o>', lambda x: self.select_files())
         self.bind('<Control-s>', lambda x: self.pre_process())
+
+        # Icons
+        icon_path = abspath(resource_filename(__name__, '../../res/clear_icon.png'))
+        self.clear_icon = tkinter.PhotoImage(name="clear_icon", master=self, file=icon_path)
+
+        icon_path = abspath(resource_filename(__name__, '../../res/fetch_online_ico.png'))
+        self.fetch_online_icon = tkinter.PhotoImage(name="fetch_online_icon", master=self, file=icon_path)
+
+        icon_path = abspath(resource_filename(__name__, '../../res/save_icon.png'))
+        self.save_icon = tkinter.PhotoImage(name="save_icon", master=self, file=icon_path)
 
     @property
     def cinfo_tags(self):
@@ -159,7 +174,15 @@ class GUIApp(Tk, MetadataManagerLib):
     def show_settings(self):
         print("Show_settings")
         SettingsWidgetManager(self)
+    def show_about(self):
 
+        toplevel = tkinter.Toplevel(self)
+        HyperlinkLabel(toplevel, "Github repo: ","https://github.com/MangaManagerORG/Manga-Manager").pack(fill="x")
+        tkinter.Label(toplevel, text="Software licensed under the GNU General Public License v3.0", font=("Helvetica", 12), justify="left").pack(fill="x")
+        tkinter.Label(toplevel,text="Get support in a GitHub discussion or Kavita discord", font=("Helvetica", 12), justify="left").pack(fill="x")
+        tkinter.Label(toplevel,text=f"Version number: {__version__}", font=("Helvetica", 12), justify="left").pack(fill="x")
+        # create close button
+        ButtonWidget(master=toplevel, text="Close", command=toplevel.destroy).pack()
     def are_unsaved_changes(self, exist_unsaved_changes=False):
         """
         Displays the text "unsaved changes"

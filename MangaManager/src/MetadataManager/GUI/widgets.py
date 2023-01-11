@@ -4,6 +4,7 @@ import copy
 import logging
 import re
 import tkinter
+import webbrowser
 from idlelib.tooltip import Hovertip
 # from tkinter import Label
 from tkinter.scrolledtext import ScrolledText
@@ -83,6 +84,29 @@ class WidgetManager:
         return [tag for tag in self.cinfo_tags]
 
 
+class HyperlinkLabel(Frame):
+    def __init__(self, master=None, text="", url="", **kwargs):
+        Frame.__init__(self, master, **kwargs)
+        self.url = url
+        self.label = Label(self,text=text, font=("Helvetica", 12), justify="left")
+        self.label.pack(side="left")
+        self.url_label = Label(self, text=url, font=("Helvetica", 12), justify="left")
+        self.url_label.configure(foreground="blue", underline=True)
+        self.url_label.pack(side="left")
+        self.url_label.bind("<1>", lambda e: self.open_url())
+        self.url_label.bind("<Enter>", lambda e: self.configure(cursor="hand2"))
+        self.url_label.bind("<Leave>", lambda e: self.configure(cursor=""))
+
+    def open_url(self):
+        webbrowser.open(self.url)
+
+    def set_text(self, text):
+        self.configure(text=text)
+
+    def set_url(self, url):
+        self.url = url
+
+
 class ControlManager:
     """
     """
@@ -148,7 +172,7 @@ class Widget(Frame):
         widget = self.widget_slave or self.widget
         widget.pack(fill="both", side="top")
 
-        super(Frame, self).grid(row=row, column=column, sticky="ew", **kwargs)
+        super(Frame, self).grid(row=row, column=column, sticky="we", **kwargs)
         return self
 
     def set_label(self, text, tooltip=None):
@@ -248,7 +272,7 @@ class AutocompleteComboboxWidget(Widget):
 
 
 class OptionMenuWidget(Widget):
-    def __init__(self, master, cinfo_name, label_text=None, max_width=None, default=None, values=None):
+    def __init__(self, master, cinfo_name, label_text=None,width=None, max_width=None, default=None, values=None):
 
         if values is None:
             values = []
@@ -262,6 +286,8 @@ class OptionMenuWidget(Widget):
         self.widget = tkinter.StringVar(self, name=cinfo_name, value=default)
         self.widget_slave: Combobox = Combobox(self, textvariable=self.widget)
         self.widget_slave.configure(state="readonly")
+        if width:
+            self.widget_slave.configure(width=width)
         self.update_listed_values(self.default,list(values))
         # noinspection PyUnresolvedReferences
         if max_width:
@@ -394,7 +420,8 @@ class SettingsWidgetManager:
             self.settings_widget[settings_section] = {}
             self.print_setting_entry(frame, section_class)
             center(settings_window)
-
+        frame = Label(master=self.widgets_frame, text="\nNote: Fields marked with * needs a restart to take effect")
+        frame.pack(expand=True, fill="both")
     def print_setting_entry(self, parent_frame, section_class):
         for i, setting in enumerate(section_class.settings):
 
