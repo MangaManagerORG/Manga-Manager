@@ -43,7 +43,7 @@ class GUIApp(Tk, MetadataManagerLib):
 
         # self.wm_minsize(1000, 660)
         self.tk.eval('package require tile')
-        self.geometry("1000x800")
+        self.geometry("1000x820")
         # super(MetadataManagerLib, self).__init__()
         self.title("Manga Manager")
 
@@ -64,6 +64,7 @@ class GUIApp(Tk, MetadataManagerLib):
         # Add binds
         self.bind('<Control-o>', lambda x: self.select_files())
         self.bind('<Control-s>', lambda x: self.pre_process())
+        self.bind('<Control-f>', lambda x: self.fetch_online(self.widget_mngr.get_widget("Series")))
 
         # Icons
         icon_path = abspath(resource_filename(__name__, '../../res/clear_icon.png'))
@@ -180,7 +181,8 @@ class GUIApp(Tk, MetadataManagerLib):
         toplevel = tkinter.Toplevel(self)
         HyperlinkLabel(toplevel, "Github repo: ","https://github.com/MangaManagerORG/Manga-Manager").pack(fill="x")
         tkinter.Label(toplevel, text="Software licensed under the GNU General Public License v3.0", font=("Helvetica", 12), justify="left").pack(fill="x")
-        tkinter.Label(toplevel,text="Get support in a GitHub discussion or Kavita discord", font=("Helvetica", 12), justify="left").pack(fill="x")
+        HyperlinkLabel(toplevel, "Get support in a GitHub discussion or Kavita discord", "https://discord.gg/kavita-821879810934439936").pack(fill="x")
+        tkinter.Label(toplevel,text="", font=("Helvetica", 12), justify="left").pack(fill="x")
         tkinter.Label(toplevel,text=f"Version number: {__version__}", font=("Helvetica", 12), justify="left").pack(fill="x")
         # create close button
         ButtonWidget(master=toplevel, text="Close", command=toplevel.destroy).pack()

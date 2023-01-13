@@ -245,7 +245,7 @@ class Layout(GUIApp):
         self.widget_mngr.Teams = ComboBoxWidget(parent_frame, "Teams").pack()
         self.widget_mngr.Locations = ComboBoxWidget(parent_frame, "Locations").pack()
         self.widget_mngr.MainCharacterOrTeam = ComboBoxWidget(parent_frame, "MainCharacterOrTeam",
-                                                              label_text="Main Character Or Team").pack()
+                                                              label_text="Main Character or Team").pack()
 
         self.widget_mngr.Other = ComboBoxWidget(parent_frame, "Other").pack()
 

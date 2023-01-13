@@ -165,6 +165,7 @@ class Layout(GUIApp):
         self.display_extensions(self.extensions_tab_frame)
 
 
+
         # self.numbering_info_frame = Frame(self.misc_frame_numbering)
         # self.numbering_info_frame.grid(row=0)
 
@@ -172,10 +173,6 @@ class Layout(GUIApp):
         self.focus()
         self.log.warn("warn test")
         self.log.error("error test")
-        try:
-            raise ValueError("test")
-        except:
-            self.log.exception("test excte")
 
     def display_main_content_widgets(self) -> None:
         style = ttk.Style()
@@ -188,7 +185,7 @@ class Layout(GUIApp):
         frame = Frame(parent_frame)
         frame.pack(fill="both", side="top")
         label = tkinter.Label(frame,text="Series")
-        label.pack(fill="x",expand=True,side="top")
+        label.pack(fill="x",expand=False,side="top")
         self.widget_mngr.Series = ComboBoxWidget(frame, cinfo_name="Series", label_text="",
                                                  tooltip="The name of the series").pack(side="left", expand=True,
                                                                                         fill="x")
@@ -232,42 +229,40 @@ class Layout(GUIApp):
 
         COMBO_WIDTH = 17
         numbering = Frame(parent_frame)
-        numbering.columnconfigure("all", weight=1, uniform="same")
-
+        numbering.columnconfigure("all", weight=0)
+        numbering.pack(fill="both", expand=True)
 
         self.widget_mngr.Number = ComboBoxWidget(numbering, "Number", width=COMBO_WIDTH,
-                                                 tooltip="The chapter absolute number").grid(0, 0, padx=5)
+                                                 tooltip="The chapter absolute number").grid(0, 0)
         self.widget_mngr.Volume = ComboBoxWidget(numbering, "Volume", width=COMBO_WIDTH,
-                                                 validation="int", default="-1").grid(0, 1, padx=5)
+                                                 validation="int", default="-1").grid(0, 1)
 
         self.widget_mngr.Count = ComboBoxWidget(numbering, "Count", width=COMBO_WIDTH,
-                                                validation="int", default="-1").grid(0, 2, padx=5)
+                                                validation="int", default="-1").grid(0, 2)
         self.widget_mngr.Format = OptionMenuWidget(numbering, "Format", "Format", COMBO_WIDTH, 18, "",
-                                                   comicinfo.format_list).grid(0, 3, padx=5)
+                                                   comicinfo.format_list).grid(0, 3)
         self.widget_mngr.Manga = OptionMenuWidget(numbering, "Manga", "Manga", COMBO_WIDTH, 18,
-                                                  "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(0,4, padx=5)
+                                                  "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(0,4)
 
         self.widget_mngr.Year = ComboBoxWidget(numbering, "Year", width=COMBO_WIDTH,
-                                               validation="int", default="-1").grid(1, 0, padx=5)
+                                               validation="int", default="-1").grid(1, 0)
         self.widget_mngr.Month = ComboBoxWidget(numbering, "Month", width=COMBO_WIDTH,
-                                                validation="int", default="-1").grid(1, 1, padx=5)
+                                                validation="int", default="-1").grid(1, 1)
         self.widget_mngr.Day = ComboBoxWidget(numbering, "Day", width=COMBO_WIDTH,
-                                              validation="int", default="-1").grid(1, 2, padx=5)
+                                              validation="int", default="-1").grid(1, 2)
         self.widget_mngr.AgeRating = OptionMenuWidget(numbering, "AgeRating", "Age Rating", COMBO_WIDTH, 18,
-                                                      "Unknown", comicinfo.AgeRating.list()).grid(1, 3, padx=5)
+                                                      "Unknown", comicinfo.AgeRating.list()).grid(1, 3)
 
         self.widget_mngr.LanguageISO = ComboBoxWidget(numbering, "LanguageISO", label_text="Language ISO",
-                                                      width=8, default="", default_values=list(locale.locale_alias.keys())).grid(1, 4, padx=5)
-
-
-        numbering.pack()
+                                                      width=8, default="", default_values=list(locale.locale_alias.keys())).grid(1, 4)
 
         self.widget_mngr.Notes = ComboBoxWidget(parent_frame, cinfo_name="Notes").pack()
 
         #################
         # People column
         #################
-        parent_frame = self.people_info_frame
+        parent_frame = Frame(self.people_info_frame, padx=20)
+        parent_frame.pack(side="right", expand=True, fill="both")
         self.widget_mngr.Writer = ComboBoxWidget(parent_frame, "Writer").pack()
         self.widget_mngr.Penciller = ComboBoxWidget(parent_frame, "Penciller").pack()
         self.widget_mngr.Inker = ComboBoxWidget(parent_frame, "Inker").pack()
@@ -288,7 +283,10 @@ class Layout(GUIApp):
         #################
         # Numbering column
         # #################
-        parent_frame = self.numbering_info_frame
+        # parent_frame = Frame(self.numbering_info_frame, padx=20)
+        # parent_frame.pack(side="right", expand=False, fill="both")
+        parent_frame = Frame(self.numbering_info_frame,padx=20)
+        parent_frame.pack(side="right", expand=True, fill="both")
 
 
         # self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
@@ -305,25 +303,25 @@ class Layout(GUIApp):
 
 
         numbering = Frame(parent_frame)
-        
+        numbering.pack(fill="x")
         self.widget_mngr.AlternateCount = ComboBoxWidget(numbering, "AlternateCount",
                                                          label_text="Alt Count", tooltip="Alternate Count",
                                                          width=COMBO_WIDTH,
-                                                         validation="int", default="-1").pack(side="left",expand=True,fill="x", padx=10)
+                                                         validation="int", default="-1").pack(side="left",expand=False,fill="x")
         self.widget_mngr.AlternateNumber = ComboBoxWidget(numbering, "AlternateNumber", width=COMBO_WIDTH,
                                                           label_text="Alt Number", tooltip="Alternate Number",
-                                                          validation="int").pack(side="left",expand=True,fill="x", padx=10)
+                                                          validation="int").pack(side="left",expand=False,fill="x", padx=10)
 
         self.widget_mngr.StoryArcNumber = ComboBoxWidget(numbering, "StoryArcNumber", width=COMBO_WIDTH,
-                                                         label_text="Story Arc Number").pack(side="left",expand=True,fill="x", padx=10)
+                                                         label_text="Story Arc Number").pack(side="left",expand=False,fill="x")
 
         self.widget_mngr.CommunityRating = ComboBoxWidget(numbering, cinfo_name="CommunityRating",
                                                           label_text="Community Rating",
                                                           width=COMBO_WIDTH,
-                                                          validation="rating").pack(side="left",expand=True,fill="x")
+                                                          validation="rating").pack(side="left",expand=False,fill="x")
         self.widget_mngr.BlackAndWhite = OptionMenuWidget(numbering, "BlackAndWhite", "Black And White", COMBO_WIDTH, 18,
-                                                          "Unknown", ("Unknown", "Yes", "No")).pack(side="left",expand=True,fill="x", padx=10)
-        numbering.pack(fill="x")
+                                                          "Unknown", ("Unknown", "Yes", "No")).pack(side="left", expand=False,fill="x")
+
 
         self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
                                                     width=COMBO_WIDTH,
