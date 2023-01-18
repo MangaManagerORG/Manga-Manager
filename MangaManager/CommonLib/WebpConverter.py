@@ -193,6 +193,11 @@ if __name__ == '__main__':
                         logger.error(f"Error processing '{cbzFilepath}': {str(e)}", exc_info=True)
                         os.remove(self._tmpname)
                         continue
+
+                    except Exception as e:
+                        logger.exception(f"Unhandled error processing '{cbzFilepath}'")
+                        os.remove(self._tmpname)
+                        continue
                     _printProgressBar(total=total)
             finally:
                 global_iteration = total
@@ -205,24 +210,33 @@ if __name__ == '__main__':
             with zipfile.ZipFile(file_path, 'r') as zin:
                 with zipfile.ZipFile(self._tmpname, 'w') as zout:
                     for zipped_file in zin.infolist():
-                        logger.debug(f"processing '{zipped_file.filename}'")
-                        # logger.debug(f"Processing file {zipped_file.filename}")
-                        file_format = re.findall(r"(?i)\.[a-z]+$", zipped_file.filename)
-                        if file_format:
-                            file_format = file_format[0]
-                        else:  # File doesn't have an extension, it is a folder. skip it
+                        try:
+                            logger.debug(f"processing '{zipped_file.filename}'")
+                            # logger.debug(f"Processing file {zipped_file.filename}")
+                            file_format = re.findall(r"(?i)\.[a-z]+$", zipped_file.filename)
+                            if file_format:
+                                file_format = file_format[0]
+                            else:  # File doesn't have an extension, it is a folder. skip it
+                                zout.writestr(zipped_file.filename, zin.read(zipped_file.filename))
+                                logger.debug(f"Added '{zipped_file.filename}' to new tempfile. File was not processed")
+                                continue
+                            file_name = zipped_file.filename.replace(file_format, "")
+                            if file_format in self._supported_formats:
+                                with zin.open(zipped_file) as open_zipped_file:
+                                    try:
+                                        zout.writestr(file_name + ".webp", convertToWebp(open_zipped_file))
+                                        logger.debug(
+                                            f"Added converted to webp file '{zipped_file.filename}' to new file")
+                                        continue
+                                    except Exception:
+                                        logger.exception("Unhandled error when writing converted ")
+                                    # logger.debug(f"Added '{zipped_file.filename}' to new tempfile")
+
                             zout.writestr(zipped_file.filename, zin.read(zipped_file.filename))
                             logger.debug(f"Added '{zipped_file.filename}' to new tempfile. File was not processed")
-                            continue
-                        file_name = zipped_file.filename.replace(file_format, "")
-                        if file_format in self._supported_formats:
-                            with zin.open(zipped_file) as open_zipped_file:
-                                zout.writestr(file_name + ".webp", convertToWebp(open_zipped_file))
-                                logger.debug(f"Added converted to webp file '{zipped_file.filename}' to new file")
-                                # logger.debug(f"Added '{zipped_file.filename}' to new tempfile")
-                                continue
-                        zout.writestr(zipped_file.filename, zin.read(zipped_file.filename))
-                        logger.debug(f"Added '{zipped_file.filename}' to new tempfile. File was not processed")
+                        except Exception:
+                            logger.exception(
+                                f"Fatal unhandled exception saving '{zipped_file.filename}' from  {os.path.basename(file_path)}")
 
         class RepeatedTimer(object):
             def __init__(self, interval, total):
@@ -379,6 +393,11 @@ else:
                     processed_counter += 1
                 except zipfile.BadZipfile as e:
                     logger.error(f"Error processing '{cbzFilepath}': {str(e)}", exc_info=True)
+                    os.remove(self._tmpname)
+                    processed_errors += 1
+                    continue
+                except Exception as e:
+                    logger.exception(f"Error processing '{cbzFilepath}'")
                     os.remove(self._tmpname)
                     processed_errors += 1
                     continue
