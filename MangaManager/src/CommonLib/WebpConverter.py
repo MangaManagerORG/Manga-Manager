@@ -105,7 +105,7 @@ if __name__ == '__main__':
             return f"{int(round(0, 0))} minutes and {int(round(0, 0))} seconds"
 
 else:
-    from CommonLib.HelperFunctions import get_estimated_time, get_elapsed_time
+    from src.CommonLib.HelperFunctions import get_estimated_time, get_elapsed_time
     import tkinter as tk
     from tkinter.filedialog import askopenfiles
     from tkinter.ttk import Style, Progressbar

@@ -8,8 +8,8 @@ from tkinter.filedialog import askopenfiles
 
 from PIL import ImageTk, Image, UnidentifiedImageError
 
-from CommonLib.ProgressBarWidget import ProgressBar
-from CommonLib.ScrolledFrame import ScrolledFrame
+from src.CommonLib.ProgressBarWidget import ProgressBar
+from src.CommonLib.ScrolledFrame import ScrolledFrame
 from .CoverDownloader import App as CoverDownloaderApp
 from .cbz_handler import SetCover
 from .errors import NoCoverFile

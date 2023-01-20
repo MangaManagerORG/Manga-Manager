@@ -1,12 +1,17 @@
+import io
+import os
 import pathlib
 import random
+import tempfile
 import tkinter as tk
 import unittest
+import zipfile
 
 from PIL import Image
 
-from MangaManager.VolumeManager import VolumeManager
-from MetadataManagerLib.cbz_handler import *
+from src.MetadataManagerLib import ComicInfo
+from src.MetadataManagerLib.cbz_handler import ReadComicInfo
+from src.VolumeManager import VolumeManager
 
 
 class VolumeManagerTester(unittest.TestCase):

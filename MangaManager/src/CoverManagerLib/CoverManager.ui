@@ -1,0 +1,414 @@
+<?xml version='1.0' encoding='utf-8'?>
+<interface version="1.2">
+  <object class="tk.Frame" id="_frame_coversetter">
+    <property name="height">600</property>
+    <property name="padx">20</property>
+    <property name="pady">20</property>
+    <property name="width">900</property>
+    <layout manager="pack">
+      <property name="anchor">s</property>
+      <property name="expand">true</property>
+      <property name="fill">y</property>
+      <property name="side">top</property>
+    </layout>
+    <containerlayout manager="pack">
+      <property name="anchor">center</property>
+    </containerlayout>
+    <child>
+      <object class="tk.Frame" id="frame_10">
+        <property name="height">200</property>
+        <property name="width">200</property>
+        <layout manager="pack">
+          <property name="side">bottom</property>
+        </layout>
+        <child>
+          <object class="ttk.Separator" id="separator_1">
+            <property name="orient">horizontal</property>
+            <layout manager="pack">
+              <property name="anchor">center</property>
+              <property name="fill">x</property>
+              <property name="pady">20 0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Frame" id="_frame_6">
+            <property name="height">30</property>
+            <property name="width">200</property>
+            <layout manager="pack">
+              <property name="pady">20 0</property>
+              <property name="side">top</property>
+            </layout>
+            <containerlayout manager="grid">
+              <property name="anchor">center</property>
+              <property name="propagate">False</property>
+              <property type="col" id="0" name="pad">40</property>
+            </containerlayout>
+            <child>
+              <object class="tk.Button" id="_button4_proceed">
+                <property name="command" type="command" cbtype="simple">process</property>
+                <property name="text" translatable="yes">Process</property>
+                <layout manager="grid">
+                  <property name="column">0</property>
+                  <property name="padx">10</property>
+                  <property name="row">0</property>
+                  <property name="sticky">ew</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="tk.Button" id="_button_7_clearqueue">
+                <property name="command" type="command" cbtype="simple">clearqueue</property>
+                <property name="compound">top</property>
+                <property name="font">TkTextFont</property>
+                <property name="text" translatable="yes">Clear Queue</property>
+                <layout manager="grid">
+                  <property name="column">1</property>
+                  <property name="row">0</property>
+                  <property name="sticky">ew</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Frame" id="_settings">
+            <property name="height">160</property>
+            <property name="highlightbackground">black</property>
+            <property name="highlightcolor">black</property>
+            <property name="highlightthickness">1</property>
+            <property name="width">390</property>
+            <layout manager="pack">
+              <property name="anchor">center</property>
+              <property name="expand">true</property>
+              <property name="padx">30</property>
+              <property name="pady">15</property>
+              <property name="side">left</property>
+            </layout>
+            <child>
+              <object class="ttk.Label" id="_label_2_settings">
+                <property name="anchor">center</property>
+                <property name="text" translatable="yes">Settings</property>
+                <layout manager="grid">
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                  <property name="sticky">ew</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="tk.Checkbutton" id="_checkbox0_settings">
+                <property name="text" translatable="yes">Display next cover after adding a file to the queue</property>
+                <property name="variable">boolean:checkbox0_settings_val</property>
+                <layout manager="grid">
+                  <property name="column">0</property>
+                  <property name="ipadx">5</property>
+                  <property name="row">1</property>
+                  <property name="sticky">w</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="tk.Checkbutton" id="_checkbox1_settings">
+                <property name="text" translatable="yes">Open File selector dialog after adding to queue</property>
+                <property name="variable">boolean:checkbox1_settings_val</property>
+                <layout manager="grid">
+                  <property name="column">0</property>
+                  <property name="ipadx">5</property>
+                  <property name="row">2</property>
+                  <property name="sticky">w</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="tk.Checkbutton" id="_checkbox2_settings">
+                <property name="text" translatable="yes">Convert images to webp (may take a lot of time)</property>
+                <property name="variable">double:checkbox1_settings_val</property>
+                <layout manager="grid">
+                  <property name="column">0</property>
+                  <property name="ipadx">5</property>
+                  <property name="row">3</property>
+                  <property name="sticky">w</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Frame" id="_progressbar_frame">
+            <property name="height">160</property>
+            <property name="width">390</property>
+            <layout manager="pack">
+              <property name="anchor">n</property>
+              <property name="expand">true</property>
+              <property name="padx">30</property>
+              <property name="pady">15</property>
+              <property name="side">right</property>
+            </layout>
+            <child>
+              <object class="ttk.Progressbar" id="progressbar_1">
+                <property name="length">400</property>
+                <property name="orient">horizontal</property>
+                <layout manager="grid">
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                  <property name="sticky">ew</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="tk.Label" id="label_1">
+                <property name="justify">right</property>
+                <property name="relief">flat</property>
+                <property name="text" translatable="yes">################################################
+                  GET elapsed time
+                </property>
+                <layout manager="grid">
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                  <property name="sticky">e</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Frame" id="frame_9">
+        <property name="height">200</property>
+        <property name="width">200</property>
+        <layout manager="pack">
+          <property name="expand">true</property>
+          <property name="fill">y</property>
+          <property name="side">top</property>
+        </layout>
+        <child>
+          <object class="pygubu.builder.widgets.tkscrolledframe" id="tkscrolledframe_1">
+            <property name="scrolltype">vertical</property>
+            <property name="usemousewheel">true</property>
+            <layout manager="pack">
+              <property name="anchor">center</property>
+              <property name="expand">true</property>
+              <property name="fill">y</property>
+              <property name="side">left</property>
+            </layout>
+            <child>
+              <object class="tk.Frame" id="_canvas_frame">
+                <property name="height">200</property>
+                <property name="width">200</property>
+                <layout manager="pack">
+                  <property name="expand">false</property>
+                  <property name="fill">both</property>
+                </layout>
+                <child>
+                  <object class="tk.Canvas" id="_canvas1_coverimage">
+                    <property name="background">#878787</property>
+                    <property name="height">260</property>
+                    <property name="width">190</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Label" id="_label_coverimagetitle">
+                    <property name="text" translatable="yes">OPEN ONE OR MORE IMAGES</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Button" id="_button3_load_images">
+                    <property name="command" type="command" cbtype="simple">opencovers</property>
+                    <property name="text" translatable="yes">Select covers</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Button" id="_button1_next">
+                    <property name="command" type="command" cbtype="simple">display_next_cover</property>
+                    <property name="justify">center</property>
+                    <property name="text" translatable="yes">Next cover</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="row">2</property>
+                      <property name="sticky">ew</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="tk.Frame" id="_controller_buttons_frame">
+                <property name="height">200</property>
+                <property name="highlightbackground">grey</property>
+                <property name="highlightcolor">grey</property>
+                <property name="highlightthickness">1</property>
+                <property name="padx">10</property>
+                <property name="pady">10</property>
+                <property name="width">200</property>
+                <layout manager="pack">
+                  <property name="expand">false</property>
+                  <property name="fill">both</property>
+                </layout>
+                <child>
+                  <object class="tk.Label" id="_do_overwrite_first_label">
+                    <property name="text" translatable="yes">Replace current cover?</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="padx">5</property>
+                      <property name="row">0</property>
+                      <property name="sticky">ew</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Button" id="_overwrite_yes_button">
+                    <property name="command" type="command" cbtype="simple">set_do_overwrite_first_label</property>
+                    <property name="text" translatable="yes">No</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="pady">5</property>
+                      <property name="row">1</property>
+                      <property name="sticky">ew</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Separator" id="_separator_2">
+                    <property name="orient">horizontal</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="pady">5</property>
+                      <property name="row">2</property>
+                      <property name="sticky">ew</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Button" id="_button2_openfile">
+                    <property name="command" type="command" cbtype="simple">add_file_to_list</property>
+                    <property name="text" translatable="yes">Open File to Apply this cover</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="pady">5</property>
+                      <property name="row">3</property>
+                      <property name="sticky">ew</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Button" id="_button5_delete_covers">
+                    <property name="command" type="command" cbtype="simple">add_file_to_list</property>
+                    <property name="text" translatable="yes">Delete covers</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="pady">5</property>
+                      <property name="row">4</property>
+                      <property name="sticky">ew</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Button" id="_button6_reselect_covers">
+                    <property name="command" type="command" cbtype="simple">opencovers</property>
+                    <property name="text" translatable="yes">Select new set of covers</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="pady">5</property>
+                      <property name="row">5</property>
+                      <property name="sticky">ew</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="tk.Button" id="_button_8_recover">
+                    <property name="command" type="command" cbtype="simple">recover</property>
+                    <property name="text" translatable="yes">Recover covers</property>
+                    <layout manager="grid">
+                      <property name="column">0</property>
+                      <property name="row">6</property>
+                      <property name="sticky">ew</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Frame" id="frame_7">
+            <property name="height">200</property>
+            <property name="width">200</property>
+            <layout manager="pack">
+              <property name="anchor">center</property>
+              <property name="expand">false</property>
+              <property name="fill">both</property>
+              <property name="padx">25 30</property>
+              <property name="side">right</property>
+            </layout>
+            <containerlayout manager="pack">
+              <property name="anchor">center</property>
+            </containerlayout>
+            <child>
+              <object class="ttk.Treeview" id="_treeview1">
+                <property name="selectmode">none</property>
+                <property name="style">Treeview</property>
+                <property name="takefocus">false</property>
+                <layout manager="pack">
+                  <property name="anchor">center</property>
+                  <property name="expand">true</property>
+                  <property name="fill">both</property>
+                  <property name="side">top</property>
+                </layout>
+                <child>
+                  <object class="ttk.Treeview.Column" id="column3">
+                    <property name="column_anchor">w</property>
+                    <property name="heading_anchor">center</property>
+                    <property name="minwidth">20</property>
+                    <property name="stretch">true</property>
+                    <property name="text" translatable="yes">Queue</property>
+                    <property name="tree_column">false</property>
+                    <property name="visible">true</property>
+                    <property name="width">400</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Treeview.Column" id="overwrite">
+                    <property name="column_anchor">center</property>
+                    <property name="heading_anchor">center</property>
+                    <property name="minwidth">20</property>
+                    <property name="stretch">false</property>
+                    <property name="text" translatable="yes">Overwrite</property>
+                    <property name="tree_column">false</property>
+                    <property name="visible">true</property>
+                    <property name="width">60</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="ttk.Treeview.Column" id="index">
+                    <property name="column_anchor">w</property>
+                    <property name="heading_anchor">w</property>
+                    <property name="minwidth">20</property>
+                    <property name="stretch">false</property>
+                    <property name="text" translatable="yes"></property>
+                    <property name="tree_column">true</property>
+                    <property name="visible">false</property>
+                    <property name="width">80</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
