@@ -5,9 +5,9 @@ import urllib.request
 
 import requests
 
-from CommonLib.HelperFunctions import create_settings, cleanFilename, check_url_isImage
-from CommonLib.ProgressBarWidget import ProgressBar
-from CoverManagerLib.errors import UrlNotFound
+from src.CommonLib.HelperFunctions import create_settings, cleanFilename, check_url_isImage
+from src.CommonLib.ProgressBarWidget import ProgressBar
+from src.CoverManagerLib.errors import UrlNotFound
 
 logger = logging.getLogger(__name__)
 ScriptDir = os.path.dirname(__file__)

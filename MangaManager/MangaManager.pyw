@@ -11,13 +11,12 @@ import tkinter as tk
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-from CommonLib import SettingsWindow
-from CommonLib import WebpConverter
-from CommonLib.HelperFunctions import create_settings
-from ConvertersLib.epub2cbz import epub2cbz
-from CoverManagerLib import CoverManager
-from MetadataManagerLib import MetadataManager
-from VolumeManager import VolumeManager
+from src.CommonLib import SettingsWindow, WebpConverter
+from src.CommonLib.HelperFunctions import create_settings
+from src.ConvertersLib.epub2cbz import epub2cbz
+from src.CoverManagerLib import CoverManager
+from src.MetadataManagerLib import MetadataManager
+from src.VolumeManager import VolumeManager
 
 
 # <Arguments parser>

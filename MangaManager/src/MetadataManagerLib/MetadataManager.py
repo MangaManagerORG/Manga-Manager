@@ -33,8 +33,8 @@ else:
     from tkinter.scrolledtext import ScrolledText
 
     from lxml.etree import XMLSyntaxError
-    from CommonLib.ScrolledFrame import ScrolledFrame
-    from CommonLib.ProgressBarWidget import ProgressBar
+    from src.CommonLib.ScrolledFrame import ScrolledFrame
+    from src.CommonLib.ProgressBarWidget import ProgressBar
     from . import ComicInfo
     from . import models
     from .cbz_handler import ReadComicInfo, WriteComicInfo

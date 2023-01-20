@@ -7,8 +7,8 @@ import zipfile
 
 from PIL import Image
 
-from CoverManagerLib.cbz_handler import SetCover
-from CoverManagerLib.models import cover_process_item_info
+from src.CoverManagerLib.cbz_handler import SetCover
+from src.CoverManagerLib.models import cover_process_item_info
 
 
 class CoverManagerTester(unittest.TestCase):
