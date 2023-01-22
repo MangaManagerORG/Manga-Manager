@@ -3,8 +3,8 @@ import time
 import tkinter as tk
 from tkinter import ttk
 
-from CommonLib.HelperFunctions import get_elapsed_time
-from CommonLib.HelperFunctions import get_estimated_time
+from src.CommonLib.HelperFunctions import get_elapsed_time
+from src.CommonLib.HelperFunctions import get_estimated_time
 
 logger = logging.getLogger(__name__)
 

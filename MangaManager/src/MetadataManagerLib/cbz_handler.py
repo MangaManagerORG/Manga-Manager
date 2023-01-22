@@ -5,9 +5,9 @@ import zipfile
 
 from lxml.etree import XMLSyntaxError
 
-if __name__.startswith("MetadataManagerLib") or __name__ == 'MangaManager.MetadataManagerLib.cbz_handler':
-    from .errors import NoMetadataFileFound, CorruptedComicInfo
-    from .models import *
+if __name__ != "__main__":
+    from src.MetadataManagerLib.errors import NoMetadataFileFound, CorruptedComicInfo
+    from src.MetadataManagerLib.models import *
     # from . import ComicInfo
 else:
     name = __name__

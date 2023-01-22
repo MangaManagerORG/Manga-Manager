@@ -6,15 +6,55 @@ import tempfile
 import time
 import zipfile
 from io import BytesIO
+from typing import IO
 
 from PIL import Image
+###########
+# Fix for #97 Where it failed loading truncated files (missing blocks)
+from PIL import ImageFile
 
-# import CommonLib.HelperFunctions
-
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+###########
 
 logger = logging.getLogger(__name__)
 
-supportedFormats = (".png", ".jpeg", ".jpg")
+supportedFormats = (".png", ".jpeg", ".jpg",".bmp")
+
+
+
+def getNewWebpFormatName(currentName: str) -> str:
+    filename, file_format = os.path.splitext(currentName)
+    if filename.endswith("."):
+        filename = filename.strip(".")
+    return filename + ".webp"
+
+
+def convertToWebp(image_bytes_to_convert: IO[bytes]) -> bytes:
+    """
+    Converts the provided image to webp and returns the converted image bytes
+    :param image_bytes_to_convert: The image that has to be converted
+    :return:
+    """
+    # TODO: Bulletproof image passed not image
+    image = Image.open(image_bytes_to_convert).convert()
+    # print(image.size, image.mode, len(image.getdata()))
+    converted_image = BytesIO()
+
+    image.save(converted_image, format="webp")
+    image.close()
+    return converted_image.getvalue()
+
+
+def get_file_format(path) -> tuple[str, str]:
+    """
+
+    :param path:
+    :return:
+    """
+    return os.path.splitext(path)
+
+
+
 if __name__ == '__main__':
     import argparse
 
@@ -65,9 +105,8 @@ if __name__ == '__main__':
             return f"{int(round(0, 0))} minutes and {int(round(0, 0))} seconds"
 
 else:
-    from CommonLib.HelperFunctions import get_estimated_time, get_elapsed_time
+    from src.CommonLib.HelperFunctions import get_estimated_time, get_elapsed_time
     import tkinter as tk
-
     from tkinter.filedialog import askopenfiles
     from tkinter.ttk import Style, Progressbar
 
@@ -106,23 +145,6 @@ def _printProgressBar(total, prefix='', suffix='', decimals=1, length=100, fill=
         print("Processing Finished")
 
 
-def getNewWebpFormatName(currentName: str) -> str:
-    filename, file_format = os.path.splitext(currentName)
-    if filename.endswith("."):
-        filename = filename.strip(".")
-    return filename + ".webp"
-
-
-def convertToWebp(open_zipped_file) -> bytes:
-    # TODO: Bulletproof image passed not image
-    image = Image.open(open_zipped_file)
-    # print(image.size, image.mode, len(image.getdata()))
-    converted_image = BytesIO()
-    image.save(converted_image, format="webp")
-    image.close()
-    logger.debug("Successfully converted image to webp")
-    return converted_image.getvalue()
-
 
 from threading import Timer
 
@@ -157,13 +179,23 @@ if __name__ == '__main__':
                     os.close(tmpfd)
                     try:
                         self._process(cbzFilepath)
-
-                        os.remove(self.zipFilePath)
-                        os.rename(self._tmpname, self.zipFilePath)
-                        # time.sleep(2)
-                        logger.debug(f"Done processing '{os.path.basename(self.pathList[i])}'")
+                        original_size = os.path.getsize(cbzFilepath)
+                        newfile_size = os.path.getsize(self._tmpname)
+                        if original_size > newfile_size:
+                            os.remove(self.zipFilePath)
+                            os.rename(self._tmpname, self.zipFilePath)
+                            logger.debug(f"Done processing '{os.path.basename(self.pathList[i])}'")
+                        else:
+                            logger.warning(f"New file bigger than source. Deleting converted file. Source: '"
+                                           f"{os.path.basename(self.pathList[i])}'")
+                            os.remove(self._tmpname)
                     except zipfile.BadZipfile as e:
                         logger.error(f"Error processing '{cbzFilepath}': {str(e)}", exc_info=True)
+                        os.remove(self._tmpname)
+                        continue
+
+                    except Exception as e:
+                        logger.exception(f"Unhandled error processing '{cbzFilepath}'")
                         os.remove(self._tmpname)
                         continue
                     _printProgressBar(total=total)
@@ -178,23 +210,33 @@ if __name__ == '__main__':
             with zipfile.ZipFile(file_path, 'r') as zin:
                 with zipfile.ZipFile(self._tmpname, 'w') as zout:
                     for zipped_file in zin.infolist():
-                        # logger.debug(f"Processing file {zipped_file.filename}")
-                        file_format = re.findall(r"(?i)\.[a-z]+$", zipped_file.filename)
-                        if file_format:
-                            file_format = file_format[0]
-                        else:  # File doesn't have an extension, it is a folder. skip it
+                        try:
+                            logger.debug(f"processing '{zipped_file.filename}'")
+                            # logger.debug(f"Processing file {zipped_file.filename}")
+                            file_format = re.findall(r"(?i)\.[a-z]+$", zipped_file.filename)
+                            if file_format:
+                                file_format = file_format[0]
+                            else:  # File doesn't have an extension, it is a folder. skip it
+                                zout.writestr(zipped_file.filename, zin.read(zipped_file.filename))
+                                logger.debug(f"Added '{zipped_file.filename}' to new tempfile. File was not processed")
+                                continue
+                            file_name = zipped_file.filename.replace(file_format, "")
+                            if file_format in self._supported_formats:
+                                with zin.open(zipped_file) as open_zipped_file:
+                                    try:
+                                        zout.writestr(file_name + ".webp", convertToWebp(open_zipped_file))
+                                        logger.debug(
+                                            f"Added converted to webp file '{zipped_file.filename}' to new file")
+                                        continue
+                                    except Exception:
+                                        logger.exception("Unhandled error when writing converted ")
+                                    # logger.debug(f"Added '{zipped_file.filename}' to new tempfile")
+
                             zout.writestr(zipped_file.filename, zin.read(zipped_file.filename))
                             logger.debug(f"Added '{zipped_file.filename}' to new tempfile. File was not processed")
-                            continue
-                        file_name = zipped_file.filename.replace(file_format, "")
-                        if file_format in self._supported_formats:
-                            with zin.open(zipped_file) as open_zipped_file:
-                                zout.writestr(file_name + ".webp", convertToWebp(open_zipped_file))
-                                logger.debug(f"Converted '{zipped_file.filename}' to webp")
-                                # logger.debug(f"Added '{zipped_file.filename}' to new tempfile")
-                                continue
-                        zout.writestr(zipped_file.filename, zin.read(zipped_file.filename))
-                        logger.debug(f"Added '{zipped_file.filename}' to new tempfile. File was not processed")
+                        except Exception:
+                            logger.exception(
+                                f"Fatal unhandled exception saving '{zipped_file.filename}' from  {os.path.basename(file_path)}")
 
         class RepeatedTimer(object):
             def __init__(self, interval, total):
@@ -337,18 +379,29 @@ else:
                 # logger.info("Processing...")
                 try:
                     self._process(cbzFilepath, self._tmpname)
+                    original_size = os.path.getsize(cbzFilepath)
+                    newfile_size = os.path.getsize(self._tmpname)
 
-                    os.remove(self.zipFilePath)
-                    os.rename(self._tmpname, self.zipFilePath)
-                    logger.info(f"Done")
-                    # time.sleep(2)
-                    logger.info(f"Processed '{os.path.basename(self.cbzFilePathList[i])}'")
+                    if original_size > newfile_size:
+                        os.remove(self.zipFilePath)
+                        os.rename(self._tmpname, self.zipFilePath)
+                        logger.debug(f"Done processing '{os.path.basename(self.zipFilePath)}'")
+                    else:
+                        logger.warning(
+                            f"New file bigger than source. Deleting converted file. Source: '{os.path.basename(self.zipFilePath)}'")
+                        os.remove(self._tmpname)
                     processed_counter += 1
                 except zipfile.BadZipfile as e:
                     logger.error(f"Error processing '{cbzFilepath}': {str(e)}", exc_info=True)
                     os.remove(self._tmpname)
                     processed_errors += 1
                     continue
+                except Exception as e:
+                    logger.exception(f"Error processing '{cbzFilepath}'")
+                    os.remove(self._tmpname)
+                    processed_errors += 1
+                    continue
+
                 if self._initialized_UI:
                     pb_root.update()
                     percentage = ((processed_counter + processed_errors) / total) * 100
@@ -366,6 +419,7 @@ else:
             with zipfile.ZipFile(cbzFilepath, 'r') as zin:
                 with zipfile.ZipFile(tmp_path, 'w') as zout:
                     for zipped_file in zin.infolist():
+                        logger.debug(f"processing '{zipped_file.filename}'")
                         # logger.debug(f"Processing file {zipped_file.filename}")
                         file_format = re.findall(r"(?i)\.[a-z]+$", zipped_file.filename)
                         if file_format:
@@ -378,7 +432,7 @@ else:
                         if file_format in self._supported_formats:
                             with zin.open(zipped_file) as open_zipped_file:
                                 zout.writestr(file_name + ".webp", convertToWebp(open_zipped_file))
-                                logger.debug(f"Converted '{zipped_file.filename}' to webp")
+                                logger.debug(f"Added converted to webp file '{zipped_file.filename}' to new file")
                                 # logger.debug(f"Added '{zipped_file.filename}' to new tempfile")
                                 continue
                         zout.writestr(zipped_file.filename, zin.read(zipped_file.filename))

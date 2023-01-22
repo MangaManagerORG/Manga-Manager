@@ -11,12 +11,12 @@ import tkinter as tk
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-from CommonLib import WebpConverter
-from CommonLib.HelperFunctions import create_settings
-from ConvertersLib.epub2cbz import epub2cbz
-from CoverManagerLib import CoverManager
-from MetadataManagerLib import MetadataManager
-from VolumeManager import VolumeManager
+from src.CommonLib import SettingsWindow, WebpConverter
+from src.CommonLib.HelperFunctions import create_settings
+from src.ConvertersLib.epub2cbz import epub2cbz
+from src.CoverManagerLib import CoverManager
+from src.MetadataManagerLib import MetadataManager
+from src.VolumeManager import VolumeManager
 
 
 # <Arguments parser>
@@ -26,6 +26,9 @@ class ToolS(enum.Enum):
     VOLUME = 3
     EPUB2CBZ = 4
     WEBP = 5
+    SETTINGS = 6
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '-d', '--debug',
@@ -77,7 +80,6 @@ parser.add_argument(
     '-p', '--path',
     type=is_dir_path, dest="active_dir_path")
 
-
 # </Arguments parser>
 
 
@@ -102,9 +104,9 @@ logging.basicConfig(level=logging.DEBUG,
 logger.debug('DEBUG LEVEL - MAIN MODULE')
 logger.info('INFO LEVEL - MAIN MODULE')
 
-
 images_path = pathlib.Path(PROJECT_PATH, "Icons")
-tools = [CoverManager, MetadataManager, VolumeManager, epub2cbz, WebpConverter]
+
+tools = [CoverManager, MetadataManager, VolumeManager, epub2cbz, WebpConverter, SettingsWindow]
 
 
 def load_settings():
@@ -145,6 +147,7 @@ class MangaManager:
     def __init__(self, master: tk.Tk):
         self.master = master
         self.settings = load_settings()
+        self.setting_window: tk.Toplevel = None
 
     def start_ui(self):
         # build ui
@@ -183,8 +186,20 @@ class MangaManager:
         self.frame_1.pack(anchor='center', expand='true', fill='both', side='top')
         self.frame_1.grid_anchor('center')
 
+        self.settings_button = tk.Button(self.master, text="Open Settings", width=40, height=5, highlightcolor="black",
+                                         highlightthickness=3,
+                                         command=self.open_settings)
+        self.settings_button.pack(anchor="s", pady="0 20")
+
         # Main widget
         self.mainwindow = self.master
+
+    def open_settings(self):
+        if self.setting_window is not None:
+            self.setting_window.destroy()
+            # self.setting_window.update()
+        self.setting_window = SettingsWindow.App(self.mainwindow, self.settings, settings_path=SETTING_PATH)
+        self.setting_window.start_ui()
 
     def execute(self, tool: ToolS):
         root2 = tk.Toplevel(self.mainwindow)

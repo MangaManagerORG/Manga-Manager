@@ -1,8 +1,15 @@
+import io
+import os
 import random
+import tempfile
 import tkinter as tk
 import unittest
+import zipfile
 
 from PIL import Image
+
+from src.MetadataManagerLib.cbz_handler import ReadComicInfo
+from src.MetadataManagerLib.models import LoadedComicInfo
 
 comicinfo_23 = """
 <ComicInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -51,8 +58,7 @@ comicinfo_24 = """
 </ComicInfo>
 """
 
-from MetadataManagerLib import MetadataManager, models
-from MetadataManagerLib.cbz_handler import *
+from src.MetadataManagerLib import MetadataManager, models, ComicInfo
 
 
 class ComicInfoClassTester(unittest.TestCase):

@@ -33,8 +33,8 @@ else:
     from tkinter.scrolledtext import ScrolledText
 
     from lxml.etree import XMLSyntaxError
-    from CommonLib.ScrolledFrame import ScrolledFrame
-    from CommonLib.ProgressBarWidget import ProgressBar
+    from src.CommonLib.ScrolledFrame import ScrolledFrame
+    from src.CommonLib.ProgressBarWidget import ProgressBar
     from . import ComicInfo
     from . import models
     from .cbz_handler import ReadComicInfo, WriteComicInfo
@@ -1028,7 +1028,7 @@ class App:
                             self.loadedComicInfo_list.append(loaded_ComIinf)
                         else:
                             continue
-                    # self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
+
                 else:
                     if self._initialized_UI:
                         mb.showwarning("No file selected", "No files were selected.", parent=self.master)
@@ -1042,7 +1042,7 @@ class App:
                         self.loadedComicInfo_list.append(loaded_ComIinf)
                     else:
                         continue
-                    # self.thiselem, self.nextelem = self.nextelem, next(self.licycle)
+
         except CancelComicInfoLoad:
             self.loadedComicInfo_list = []
         except NoFilesSelected:

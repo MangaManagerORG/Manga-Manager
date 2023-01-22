@@ -4,7 +4,7 @@ import re
 import tempfile
 import zipfile
 
-from CommonLib.WebpConverter import convertToWebp, getNewWebpFormatName, supportedFormats
+from src.CommonLib.WebpConverter import convertToWebp, getNewWebpFormatName, supportedFormats
 from . import errors
 from .models import cover_process_item_info
 

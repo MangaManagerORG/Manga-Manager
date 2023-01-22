@@ -1,6 +1,6 @@
 import unittest
 
-from CoverManagerLib.CoverDownloader import App as CoverDownloaderApp
+from src.CoverManagerLib.CoverDownloader import App as CoverDownloaderApp
 
 
 class CoverDownloaderTest(unittest.TestCase):

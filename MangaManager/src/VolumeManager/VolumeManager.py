@@ -11,7 +11,7 @@ from tkinter.filedialog import askopenfiles
 from lxml.etree import XMLSyntaxError
 from typing.io import IO
 
-from CommonLib.ProgressBarWidget import ProgressBar
+from src.CommonLib.ProgressBarWidget import ProgressBar
 from .errors import NoFilesSelected
 from .models import ChapterFileNameData
 
@@ -408,7 +408,7 @@ class App:
 
             for item in self._list_filestorename:
                 try:
-                    from MetadataManagerLib.MetadataManager import App as taggerApp
+                    from src.MetadataManagerLib.MetadataManager import App as taggerApp
                     cominfo_app = taggerApp(disable_metadata_notFound_warning=True)
                     cominfo_app.create_loadedComicInfo_list([item.complete_new_path])
                     cominfo_app.entry_Volume_val.set(item.volume)
