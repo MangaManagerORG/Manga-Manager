@@ -175,7 +175,27 @@ registered_settings_sections = {
                 "tooltip": "The starting point where the glob will begin looking for files that match the pattern"
             }
         ]
+    },
+    "ExternalSources": {
+        "pretty_name": "External Sources Settings",
+        "values": [
+            {
+                "key": "default_metadata_source",
+                "name": "Default metadata source",
+                "tooltip": "The source that will be hit when looking for metadata.",
+                "type_": "optionmenu",
+                "values": []
+            },
+            {
+                "key": "default_cover_source",
+                "name": "Default cover source",
+                "tooltip": "The source that will be hit when looking for cover images.",
+                "type_": "optionmenu",
+                "values": []
+            }
+        ]
     }
+
 }
 
 settings_class = Settings(src.MM_PATH)

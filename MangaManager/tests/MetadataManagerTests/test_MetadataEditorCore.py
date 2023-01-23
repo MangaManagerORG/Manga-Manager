@@ -3,11 +3,11 @@ import unittest
 import zipfile
 from unittest.mock import patch, MagicMock
 
+from logging_setup import add_trace_level
 from src.Common.errors import CorruptedComicInfo, NoComicInfoLoaded
 from src.Common.errors import EditedCinfoNotSet, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager import MetadataManagerLib, comicinfo
-from src.logging_setup import add_trace_level
 from tests.common import create_dummy_files
 
 add_trace_level()

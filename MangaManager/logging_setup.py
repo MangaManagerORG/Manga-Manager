@@ -7,11 +7,13 @@ def trace(self, message, *args, **kws):
     # Yes, logger takes its '*args' as 'args'.
     self._log(logging.TRACE, message, args, **kws)
 
+
 def add_trace_level():
     logging.TRACE = 9
     logging.addLevelName(logging.TRACE, "TRACE")
 
     logging.Logger.trace = trace
+
 
 def setup_logging(LOGFILE_PATH,level=logging.DEBUG):
 

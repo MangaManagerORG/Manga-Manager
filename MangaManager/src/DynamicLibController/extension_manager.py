@@ -4,8 +4,9 @@ import logging
 import os
 import sys
 
-from Extensions.Interface import IExtensionApp
 
+from src import sources_factory
+from Extensions.Interface import IExtensionApp
 logger = logging.getLogger()
 
 # Extension loader
@@ -24,14 +25,14 @@ def match_pyfiles_with_foldername(file_path):
 loaded_extensions = []
 
 
-def load_extensions(extensions_directory) -> list[IExtensionApp]:
-    global EXTENSIONS_DIRECTORY
+
+sources_factory
+
+
+def load_extensions(extensions_directory,) -> list[IExtensionApp]:
     EXTENSIONS_DIRECTORY = extensions_directory
     extensions_path = os.path.expanduser(EXTENSIONS_DIRECTORY)
     sys.path.append(extensions_path)
-    global loaded_extensions
-    if not EXTENSIONS_DIRECTORY:
-        raise FileNotFoundError("The extensions directory is not found")
 
     # Search for Python files in the extensions directory
     extension_files = [extension for extension in

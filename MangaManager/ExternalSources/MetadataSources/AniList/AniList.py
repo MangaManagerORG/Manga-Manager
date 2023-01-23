@@ -2,13 +2,13 @@ import logging
 
 import requests
 
-from ExternalSources.Interface import IMetadataSource
 from src.Common.errors import MangaNotFoundError
+from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
 
 
 class AniList(IMetadataSource):
-
+    name = "AniList"
     _log = logging.getLogger()
 
     @classmethod
@@ -71,7 +71,7 @@ class AniList(IMetadataSource):
 
         cls._log.debug(f'Query: {query}')
         cls._log.debug(f'Variables: {variables}')
-        cls._log.debug(f'Response JSON: {response.json()}')
+        # cls._log.debug(f'Response JSON: {response.json()}')
         try:
             return response.json()['data']['Media']
         except TypeError:

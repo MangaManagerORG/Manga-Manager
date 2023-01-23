@@ -21,8 +21,8 @@ from _tkinter import TclError
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
-from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, SettingsWidgetManager, \
-    ButtonWidget, ControlManager, HyperlinkLabel
+from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget, ControlManager, HyperlinkLabel
+from src.MetadataManager.GUI.settings import SettingsWidgetManager
 
 from src import settings_class
 from src.__version__ import __version__

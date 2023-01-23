@@ -9,9 +9,9 @@ import zipfile
 from PIL import Image
 
 from Extensions.WebpConverter import WebpConverter
-from src.MetadataManager.MetadataManagerLib import LoadedComicInfo
 # from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.logging_setup import add_trace_level
+from logging_setup import add_trace_level
+from src.MetadataManager.MetadataManagerLib import LoadedComicInfo
 from tests.common import TKinterTestCase
 
 add_trace_level()

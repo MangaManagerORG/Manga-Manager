@@ -9,7 +9,8 @@ class IExtensionApp(tkinter.Toplevel, metaclass=abc.ABCMeta):
     name = None
     embedded_ui = False
     master_frame = None
-    _super:src.MetadataManager.MetadataManagerGUI.GUIApp = None
+    master = None
+    _super: src.MetadataManager.MetadataManagerGUI.GUIApp = None
     @final
     def __init__(self, master, super_=None, **kwargs):
         """
@@ -20,7 +21,7 @@ class IExtensionApp(tkinter.Toplevel, metaclass=abc.ABCMeta):
         # if self.embedded_ui:
         super().__init__(master=master,**kwargs)
         self.title(self.__class__.name)
-        self.master_frame = self
+        self.master = self.master_frame = self
         if super_ is not None:
             self._super = super_
         # else:
