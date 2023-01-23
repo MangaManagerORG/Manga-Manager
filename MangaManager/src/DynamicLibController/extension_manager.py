@@ -23,21 +23,16 @@ def match_pyfiles_with_foldername(file_path):
 
 loaded_extensions = []
 
-
-def load_extensions(extensions_directory) -> list[IExtensionApp]:
-    global EXTENSIONS_DIRECTORY
+def load_extensions(extensions_directory,) -> list[IExtensionApp]:
     EXTENSIONS_DIRECTORY = extensions_directory
     extensions_path = os.path.expanduser(EXTENSIONS_DIRECTORY)
     sys.path.append(extensions_path)
-    global loaded_extensions
-    if not EXTENSIONS_DIRECTORY:
-        raise FileNotFoundError("The extensions directory is not found")
 
     # Search for Python files in the extensions directory
     extension_files = [extension for extension in
                        glob.glob(os.path.join(EXTENSIONS_DIRECTORY, "*/**.py"), recursive=True)
                        if match_pyfiles_with_foldername(extension)]
-
+    print(f"Found extensions: {extension_files}")
     # Load the extensions
     loaded_extensions = []
     for extension_file in extension_files:

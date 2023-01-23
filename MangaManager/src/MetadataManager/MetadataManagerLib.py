@@ -5,16 +5,19 @@ import logging
 from abc import ABC
 from io import StringIO
 
-from src import settings_class
-from src.Common.errors import EditedCinfoNotSet
+from src import settings_class, sources_factory
+from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.terminalcolors import TerminalColors as TerCol
 from src.MetadataManager import comicinfo
 from src.MetadataManager.comicinfo import ComicInfo
 
+AniList = [source for source in sources_factory.get("MetadataSources") if source.name == "AniList"]
+
 logger = logging.getLogger("MetaManager.Core")
 settings = settings_class.get_setting("main")
+source_settings = settings_class.get_setting("ExternalSources")
 
 
 class _IMetadataManagerLib(abc.ABC):
@@ -55,6 +58,11 @@ class _IMetadataManagerLib(abc.ABC):
         Called when an unhandled exception occurred trying to save the file
         """
 
+    @abc.abstractmethod
+    def on_manga_not_found(self, exception, series_name):
+        """
+        Called when a series is not found in the api
+        """
 
 class MetadataManagerLib(_IMetadataManagerLib, ABC):
     """
@@ -197,5 +205,18 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         # print(loaded_cinfo.cinfo_object is None)
         loaded_cinfo.cinfo_object.export(export, 0)
         print(export.getvalue())
+
+    def fetch_online(self,series_name):
+
+        selected_source = [source for source in sources_factory["MetadataSources"] if source.name == source_settings.default_metadata_source.value]
+        if not selected_source:
+            raise Exception("Selected metadata source is not loaded.")
+        Source = selected_source[0]
+        try:
+            return Source.get_cinfo(series_name)
+        except MangaNotFoundError as e:
+            logger.exception(str(e))
+            self.on_manga_not_found(e, series_name)
+            return None
 
 

@@ -4,24 +4,28 @@ import glob
 import logging
 import os
 import tkinter
+from os.path import abspath
 from tkinter import Tk, Frame, messagebox as mb
+
+from pkg_resources import resource_filename
 
 from src.Common.errors import NoFilesSelected
 from src.Common.utils import get_platform, open_folder
 from src.MetadataManager import comicinfo
 
 if get_platform() == "linux":
-    from src.MetadataManager.GUI.FileChooserWindow import askopenfiles
+    from src.MetadataManager.GUI.FileChooserWindow import askopenfiles,askdirectory
 else:
     from tkinter.filedialog import askopenfiles, askdirectory
 from _tkinter import TclError
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget, ControlManager, HyperlinkLabel
+from src.MetadataManager.GUI.settings import SettingsWidgetManager
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
-from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, SettingsWidgetManager, \
-    ButtonWidget, ControlManager
 
 from src import settings_class
+from src.__version__ import __version__
 
 main_settings = settings_class.get_setting("main")
 
@@ -39,7 +43,7 @@ class GUIApp(Tk, MetadataManagerLib):
 
         # self.wm_minsize(1000, 660)
         self.tk.eval('package require tile')
-        self.geometry("1000x800")
+        self.geometry("1000x820")
         # super(MetadataManagerLib, self).__init__()
         self.title("Manga Manager")
 
@@ -52,13 +56,25 @@ class GUIApp(Tk, MetadataManagerLib):
         self.main_frame = Frame(self)
 
         self.main_frame.pack(expand=True, fill="both")
-
-        ButtonWidget(master=self, text="⚙ Settings", font=('Arial', 10), command=self.show_settings).place(
-            anchor=tkinter.NE, relx=1)
+        frame = Frame(self)
+        frame.place(anchor=tkinter.NE, relx=1)
+        ButtonWidget(master=frame, text="⚙ Settings", font=('Arial', 10), command=self.show_settings).pack(side="left")
+        ButtonWidget(master=frame, text="About", font=('Arial', 10), command=self.show_about).pack(side="left")
 
         # Add binds
         self.bind('<Control-o>', lambda x: self.select_files())
         self.bind('<Control-s>', lambda x: self.pre_process())
+        self.bind('<Control-f>', lambda x: self.fetch_online(self.widget_mngr.get_widget("Series")))
+
+        # Icons
+        icon_path = abspath(resource_filename(__name__, '../../res/clear_icon.png'))
+        self.clear_icon = tkinter.PhotoImage(name="clear_icon", master=self, file=icon_path)
+
+        icon_path = abspath(resource_filename(__name__, '../../res/fetch_online_ico.png'))
+        self.fetch_online_icon = tkinter.PhotoImage(name="fetch_online_icon", master=self, file=icon_path)
+
+        icon_path = abspath(resource_filename(__name__, '../../res/save_icon.png'))
+        self.save_icon = tkinter.PhotoImage(name="save_icon", master=self, file=icon_path)
 
     @property
     def cinfo_tags(self):
@@ -123,6 +139,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self.inserting_files = False
         self.control_mngr.unlock()
         self.widget_mngr.toggle_widgets(enabled=True)
+
     def select_folder(self):
         # New file selection. Proceed to clean the ui to a new state
         self.control_mngr.lock()
@@ -159,6 +176,17 @@ class GUIApp(Tk, MetadataManagerLib):
         print("Show_settings")
         SettingsWidgetManager(self)
 
+    def show_about(self):
+
+        toplevel = tkinter.Toplevel(self)
+        HyperlinkLabel(toplevel, "Github repo: ","https://github.com/MangaManagerORG/Manga-Manager").pack(fill="x")
+        tkinter.Label(toplevel, text="Software licensed under the GNU General Public License v3.0", font=("Helvetica", 12), justify="left").pack(fill="x")
+        HyperlinkLabel(toplevel, "Get support in a GitHub discussion or Kavita discord", "https://discord.gg/kavita-821879810934439936").pack(fill="x")
+        tkinter.Label(toplevel,text="", font=("Helvetica", 12), justify="left").pack(fill="x")
+        tkinter.Label(toplevel,text=f"Version number: {__version__}", font=("Helvetica", 12), justify="left").pack(fill="x")
+        # create close button
+        ButtonWidget(master=toplevel, text="Close", command=toplevel.destroy).pack()
+
     def are_unsaved_changes(self, exist_unsaved_changes=False):
         """
         Displays the text "unsaved changes"
@@ -182,13 +210,15 @@ class GUIApp(Tk, MetadataManagerLib):
         except TclError:  # Tests fails due to not being correctly populated. Log and skip
             self.log.error(f"Error updating saved status for item {loaded_cinfo.file_path}")
 
-    def show_not_saved_indicator(self, loaded_cinfo_list):
+    def show_not_saved_indicator(self, loaded_cinfo_list=None):
         """
         Shows a litle triangle while files are not saved.
         :param loaded_cinfo_list:
         :param mark_saved:
         :return:
         """
+        if loaded_cinfo_list is None:
+            loaded_cinfo_list = self.loaded_cinfo_list
         any_has_changes = False
         for loaded_cinfo in loaded_cinfo_list:
             self.update_item_saved_status(loaded_cinfo)
@@ -242,6 +272,10 @@ class GUIApp(Tk, MetadataManagerLib):
                        f"Failed to read metadata from '{loaded_info.file_path}'\n"
                        "The file data couldn't be parsed probably because of corrupted data or bad format.\n"
                        f"Recovery was attempted and failed.\nCreating new metadata object...")
+
+    def on_manga_not_found(self, exception, series_name):   # pragma: no cover
+        mb.showerror("Couldn't find matching series",
+                     f"The metadata source couldn't find the series '{series_name}'")
 
     #########################################################
     # Processing Methods
@@ -360,6 +394,7 @@ class GUIApp(Tk, MetadataManagerLib):
     def _fill_filename(self):
         if len(self.selected_items) == 1:
             self.widget_mngr.get_widget("Series").set(self.selected_items[0].file_name)
+
     def _fill_foldername(self):
         if len(self.selected_items) == 1:
             self.widget_mngr.get_widget("Series").set(os.path.basename(os.path.dirname(self.selected_items[0].file_path)))
@@ -375,6 +410,7 @@ class GUIApp(Tk, MetadataManagerLib):
             self.widget_mngr.clean_widgets()
             # Display new selection data
             self._serialize_cinfolist_to_gui(self.selected_items)
+
     def _treeview_open_explorer(self, file):
         open_folder(os.path.dirname(file), file)
         ...
@@ -386,4 +422,16 @@ class GUIApp(Tk, MetadataManagerLib):
         from src import loaded_extensions
         for loaded_extension in loaded_extensions:
             tkinter.Button(parent_frame, text=loaded_extension.name, command=lambda load_ext=loaded_extension:
-                           load_ext(parent_frame)).pack(side="top")
+                           load_ext(parent_frame, super_=self)).pack(side="top")
+
+    def process_fetch_online(self):
+        series_name = self.widget_mngr.get_widget("Series").get()
+        if series_name in (None, "", self.MULTIPLE_VALUES_CONFLICT):
+            mb.showwarning("Not a valid series name", "The current series name is empty or not valid.")
+            self.log.info("Not a valid series name - The current series name is empty or not valid.")
+            return
+        cinfo = self.fetch_online(series_name)
+        if cinfo is None:
+            return
+
+        self._serialize_cinfolist_to_gui([LoadedComicInfo(None,cinfo,load_default_metadata=False)])

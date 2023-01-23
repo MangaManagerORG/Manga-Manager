@@ -31,7 +31,7 @@ class Layout(GUIApp):
 
     def _initialize_frames(self) -> None:
         # MENU
-
+        self.display_action_bar(self.main_frame)
         self.notebook = Notebook(self.main_frame)
         self.notebook.pack(side="right", expand=True, fill="both")
 
@@ -62,42 +62,63 @@ class Layout(GUIApp):
         # self.main_frame.pack(expand=False, fill='both')
         self.changes_saved = tkinter.Label(master=self, text="Changes are not saved", font=('Arial', 10))
         self.focus()
-
-    def display_side_bar(self) -> None:
+    def display_action_bar(self,frame):
         ################
         # Sidebar actions and covers
         ################
-        self.side_info_frame = Frame(self.main_frame)
-        self.side_info_frame.pack(side="left", padx=30, expand=False, fill="both")
 
-        # Action Buttons
-        control_frame = Frame(self.side_info_frame)
+        #
+        # # Action Buttons
+        control_frame = Frame(frame)
         control_frame.pack(side="top", fill="both", expand=False, pady=(0, 20))
 
-        icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
         btn = ButtonWidget(master=control_frame, text="Open Files",
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
-        btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
-        btn.configure(image=btn.img_ref)
+        try:
+            icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
+            btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+            btn.configure(image=btn.img_ref)
+        except:
+            self.log.exception("Exception loading the open_file icon")
         btn.configure(compound="left")
         btn.configure(command=self.select_files)
         btn.pack(side="left")
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
-        icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
-        btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
-        btn.configure(image=btn.img_ref)
+        try:
+            icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+            btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+            btn.configure(image=btn.img_ref)
+        except:
+            self.log.exception("Exception loading the open_file icon")
         btn.configure(compound="left")
         btn.configure(command=self.select_folder)
         btn.pack(side="left")
         self.control_mngr.append(btn)
 
-        btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
-        btn.configure(command=self.pre_process)
-        btn.pack(fill="both", expand=True)
+        btn = ButtonWidget(master=control_frame, text="Clear", tooltip="Clean the metadata from the current view")
+        btn.configure(command=self.widget_mngr.clean_widgets)
+        btn.pack(side="left", fill="y")
         self.control_mngr.append(btn)
 
+        btn = ButtonWidget(master=control_frame, text="Fetch online")
+        # icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+        # btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+        # btn.configure(image=btn.img_ref)
+        # btn.configure(compound="left")
+        btn.configure(command=self.process_fetch_online)
+        btn.pack(side="left", fill="y")
+        self.control_mngr.append(btn)
+
+        btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
+        btn.configure(command=self.pre_process)
+        btn.pack(side="left", fill="y")
+        self.control_mngr.append(btn)
+    def display_side_bar(self) -> None:
+
+        self.side_info_frame = Frame(self.main_frame)
+        self.side_info_frame.pack(side="left", padx=30, expand=False, fill="both")
         # Show Selected Files - ListBox
         self.files_selected_frame = tkinter.LabelFrame(self.side_info_frame)
 
@@ -189,8 +210,8 @@ class Layout(GUIApp):
 
         com_age_rat_frame = Frame(parent_frame)
         com_age_rat_frame.pack(side="top", expand=False, fill="x")
-        self.widget_mngr.AgeRating = OptionMenuWidget(com_age_rat_frame, "AgeRating", "Age Rating", 18,
-                                                      "Unknown", comicinfo.AgeRating.list()).pack(expand=True,
+        self.widget_mngr.AgeRating = OptionMenuWidget(com_age_rat_frame, "AgeRating", "Age Rating", width=18,
+                                                      default="Unknown", values=comicinfo.AgeRating.list()).pack(expand=True,
                                                                                                    fill="both",
                                                                                                    side="left")
 
@@ -224,7 +245,7 @@ class Layout(GUIApp):
         self.widget_mngr.Teams = ComboBoxWidget(parent_frame, "Teams").pack()
         self.widget_mngr.Locations = ComboBoxWidget(parent_frame, "Locations").pack()
         self.widget_mngr.MainCharacterOrTeam = ComboBoxWidget(parent_frame, "MainCharacterOrTeam",
-                                                              label_text="Main Character Or Team").pack()
+                                                              label_text="Main Character or Team").pack()
 
         self.widget_mngr.Other = ComboBoxWidget(parent_frame, "Other").pack()
 
@@ -262,13 +283,13 @@ class Layout(GUIApp):
                                                       width=combo_width,
                                                       ).grid(5, 0)
 
-        self.widget_mngr.Format = OptionMenuWidget(parent_frame, "Format", "Format", 18, "",
-                                                   comicinfo.format_list).grid(5, 1)
+        self.widget_mngr.Format = OptionMenuWidget(parent_frame, "Format", "Format", width=18, default="",
+                                                   values=comicinfo.format_list).grid(5, 1)
 
-        self.widget_mngr.BlackAndWhite = OptionMenuWidget(parent_frame, "BlackAndWhite", "Black And White", 18,
-                                                          "Unknown", ("Unknown", "Yes", "No")).grid(6, 0)
-        self.widget_mngr.Manga = OptionMenuWidget(parent_frame, "Manga", "Manga", 18,
-                                                  "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(6,
+        self.widget_mngr.BlackAndWhite = OptionMenuWidget(parent_frame, cinfo_name="BlackAndWhite", label_text="Black And White", width=18,
+                                                          default="Unknown", values=("Unknown", "Yes", "No")).grid(6, 0)
+        self.widget_mngr.Manga = OptionMenuWidget(parent_frame, "Manga", "Manga", width=18,
+                                                  default="Unknown", values=("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(6,
                                                                                                                   1)
 
     def on_file_selection_preview(self, *args):

@@ -285,3 +285,14 @@ def get_language_iso_list():
 
     # Print the list of language tags
     print(tags)
+
+
+def extract_folder_and_module(file_path):
+    file_name, ext = os.path.splitext(os.path.basename(file_path))
+    dir_name = os.path.basename(os.path.dirname(file_path))
+    return dir_name, file_name
+
+
+def match_pyfiles_with_foldername(file_path):
+    folder, file = extract_folder_and_module(file_path)
+    return folder == file

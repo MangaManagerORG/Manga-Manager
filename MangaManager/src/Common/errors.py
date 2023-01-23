@@ -7,6 +7,15 @@ class NoMetadataFileFound(Exception):
         super().__init__(f"ComicInfo.xml not found inside '{cbz_path}'")
 
 
+class MangaNotFoundError(Exception):
+    """
+    Exception raised when the manga cannot be found in the results from the provided source.
+    """
+    def __init__(self, source, manga_title):
+        super().__init__(f'{source} did not return any results for series name "{manga_title}"'
+                         f'This may be due to a difference in manga series titles')
+
+
 class EditedCinfoNotSet(RuntimeError):
     def __init__(self, message=None):
         super(EditedCinfoNotSet, self).__init__(message)

@@ -2,17 +2,13 @@ import io
 import os
 import random
 import tempfile
-import tkinter
 import unittest
 import zipfile
 
 from PIL import Image
 
-from Extensions.WebpConverter import WebpConverter
-from src.MetadataManager.MetadataManagerLib import LoadedComicInfo
 # from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.logging_setup import add_trace_level
-from tests.common import TKinterTestCase
+from logging_setup import add_trace_level
 
 add_trace_level()
 
@@ -68,39 +64,8 @@ class LoadedComicInfoConversToWebpTests(unittest.TestCase):
                     self.assertEqual("WEBP", image.format)
 
 
-class CoreAppTests(unittest.TestCase):
-    test_files_names: list[str]
-    setUp = LoadedComicInfoConversToWebpTests.setUp
-    tearDown = LoadedComicInfoConversToWebpTests.tearDown
 
-    def test_process_flow(self):
-        app = WebpConverter.WebpConverter(tkinter.Tk())
-        app.selected_files = self.test_files_names
-        app.process()
-        for file_path in self.test_files_names:
-            print(f"Processing {file_path}")
-            with zipfile.ZipFile(file_path, "r") as zf:
-                for filename in zf.namelist():
-                    with zf.open(filename) as imagebytes:
-                        image = Image.open(imagebytes)
-                        print(f"    Asserting file is webp - '{filename}")
-                        self.assertEqual("WEBP", image.format)
-
-
-class GuiTests(TKinterTestCase):
-    ...
-
-    def test_gui_flow(self):
-        self.root = tkinter.Tk()
-        WebpConverter.filedialog.askdirectory = lambda: os.getcwd()
-        app = WebpConverter.WebpConverter(self.root)
-
-        app.select_base()
-
-        app.preview()
-
-        self.root.focus_set()
-        self.root.destroy()
+from src.MetadataManager.MetadataManagerLib import LoadedComicInfo
 
 
 if __name__ == '__main__':

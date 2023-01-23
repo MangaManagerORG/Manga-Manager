@@ -4,19 +4,20 @@ import copy
 import logging
 import re
 import tkinter
+import webbrowser
 from idlelib.tooltip import Hovertip
 # from tkinter import Label
 from tkinter.scrolledtext import ScrolledText
-from tkinter.ttk import Combobox, OptionMenu, Progressbar, Treeview, Style, Frame, Label, LabelFrame
+from tkinter.ttk import Combobox, OptionMenu, Progressbar, Treeview, Style, Frame, Label
 
-from src import settings_class, MM_PATH
+import _tkinter
+
+from src import settings_class
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.progressbar import ProgressBar
-from src.Common.utils import open_folder
 from src.MetadataManager import comicinfo
 from src.MetadataManager.GUI.longtext import LongText
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
-from src.settings import SettingItem
 
 INT_PATTERN = re.compile("^-*\d*(?:,?\d+|\.?\d+)?$")
 MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
@@ -69,13 +70,39 @@ class WidgetManager:
     def toggle_widgets(self,enabled=True):
         for widget_name in self.__dict__:
             widget = self.get_widget(widget_name)
-            if isinstance(widget, LongTextWidget) or isinstance(widget, OptionMenuWidget) :
+            if isinstance(widget, OptionMenuWidget):
                 widget.widget_slave.configure(state="normal" if enabled else "disabled")
+            elif isinstance(widget, LongTextWidget):
+                # widget.widget_slave.configure(state="normal" if enabled else "readonly")
+                pass
             else:
                 widget.widget.configure(state="normal" if enabled else "disabled")
 
     def get_tags(self):
         return [tag for tag in self.cinfo_tags]
+
+
+class HyperlinkLabel(Frame):
+    def __init__(self, master=None, text="", url="", **kwargs):
+        Frame.__init__(self, master, **kwargs)
+        self.url = url
+        self.label = Label(self,text=text, font=("Helvetica", 12), justify="left")
+        self.label.pack(side="left")
+        self.url_label = Label(self, text=url, font=("Helvetica", 12), justify="left")
+        self.url_label.configure(foreground="blue", underline=True)
+        self.url_label.pack(side="left")
+        self.url_label.bind("<1>", lambda e: self.open_url())
+        self.url_label.bind("<Enter>", lambda e: self.configure(cursor="hand2"))
+        self.url_label.bind("<Leave>", lambda e: self.configure(cursor=""))
+
+    def open_url(self):
+        webbrowser.open(self.url)
+
+    def set_text(self, text):
+        self.configure(text=text)
+
+    def set_url(self, url):
+        self.url = url
 
 
 class ControlManager:
@@ -92,7 +119,10 @@ class ControlManager:
 
     def toggle(self, enabled=True):
         for widget in self.control_button_set:
-            widget.configure(state="normal" if enabled else "disabled")
+            try:
+                widget.configure(state="normal" if enabled else "disabled")
+            except _tkinter.TclError as e:
+                logger.exception("Unhandled exception")
 
     def lock(self):
         self.toggle(False)
@@ -140,7 +170,7 @@ class Widget(Frame):
         widget = self.widget_slave or self.widget
         widget.pack(fill="both", side="top")
 
-        super(Frame, self).grid(row=row, column=column, sticky="ew", **kwargs)
+        super(Frame, self).grid(row=row, column=column, sticky="we", **kwargs)
         return self
 
     def set_label(self, text, tooltip=None):
@@ -240,7 +270,7 @@ class AutocompleteComboboxWidget(Widget):
 
 
 class OptionMenuWidget(Widget):
-    def __init__(self, master, cinfo_name, label_text=None, max_width=None, default=None, values=None):
+    def __init__(self, master, cinfo_name, label_text=None,width=None, max_width=None, default=None, values=None):
 
         if values is None:
             values = []
@@ -254,6 +284,8 @@ class OptionMenuWidget(Widget):
         self.widget = tkinter.StringVar(self, name=cinfo_name, value=default)
         self.widget_slave: Combobox = Combobox(self, textvariable=self.widget)
         self.widget_slave.configure(state="readonly")
+        if width:
+            self.widget_slave.configure(width=width)
         self.update_listed_values(self.default,list(values))
         # noinspection PyUnresolvedReferences
         if max_width:
@@ -307,13 +339,13 @@ class ScrolledFrameWidget(ScrolledFrame):
         super(ScrolledFrameWidget, self).__init__(master, **kwargs)
         self.configure(usemousewheel=True)
         self.paned_window = tkinter.PanedWindow(self.innerframe)
-        self.paned_window.pack(fill="both", expand=True)
-        self.pack(expand=True, fill='both', side='top')
+        self.paned_window.pack(fill="both", expand=False)
+        self.pack(expand=False, fill='both', side='top')
 
     def create_frame(self,**kwargs):
         """Creates a subframe and packs it"""
         frame = Frame(self.paned_window)
-        frame.pack(kwargs or {})
+        frame.pack(**kwargs or {})
         # frame.pack()
         self.paned_window.add(frame)
         return frame
@@ -337,98 +369,6 @@ def center(win):
     y = win.winfo_screenheight() // 2 - win_height // 2
     win.geometry('{}x{}+{}+{}'.format(width, height, x, y))
     win.deiconify()
-
-
-class SettingStringVar(tkinter.StringVar):
-
-    def __init__(self, *args, **kwargs):
-        super(SettingStringVar, self).__init__(*args, **kwargs)
-        self.linked_setting: SettingItem = None
-
-
-class SettingBolVar(tkinter.BooleanVar):
-
-    def __init__(self, *args, **kwargs):
-        super(SettingBolVar, self).__init__(*args, **kwargs)
-        self.linked_setting: SettingItem = None
-
-
-class SettingsWidgetManager:
-    def parse_ui_settings_process(self):
-        for stringvar in self.strings_vars:
-            stringvar.linked_setting.value = str(stringvar.get())
-        settings_class.save_settings()
-
-    def __init__(self, parent):
-        self.strings_vars: list[tkinter.Variable] = []
-        settings_window = self.settings_window = tkinter.Toplevel(parent, pady=30, padx=30)
-        settings_window.geometry("900x420")
-        settings_window.title("Settings")
-
-        main_frame = ScrolledFrameWidget(settings_window, scrolltype="vertical").create_frame()
-        self.widgets_frame = tkinter.Frame(main_frame, pady=30, padx=30)
-        self.widgets_frame.pack()
-        control_frame = tkinter.Frame(settings_window)
-        control_frame.pack()
-        ButtonWidget(master=control_frame, text="Save", tooltip="Saves the settings to the config file",
-                     command=self.parse_ui_settings_process).pack()
-        ButtonWidget(master=control_frame, text="Open Settings Folder",
-                     tooltip="Opens the folder where Manga Manager stores it's files",
-                     command=lambda x=None: open_folder(folder_path=MM_PATH)).pack()
-        # for setting_section in settings_class.__dict__.sort(key=):
-        self.settings_widget = {}
-        for settings_section in settings_class.factory:
-            section_class = settings_class.get_setting(settings_section)
-
-            frame = LabelFrame(master=self.widgets_frame, text=settings_section)
-            frame.pack(expand=True, fill="both")
-
-            self.settings_widget[settings_section] = {}
-            self.print_setting_entry(frame, section_class)
-            center(settings_window)
-
-    def print_setting_entry(self, parent_frame, section_class):
-        for i, setting in enumerate(section_class.settings):
-
-            row = tkinter.Frame(parent_frame)
-            row.pack(expand=True, fill="x")
-            label = Label(master=row, text=setting.name, width=30, justify="right", anchor="e")
-            label.pack(side="left")
-            if setting.tooltip:
-                label.configure(text=label.cget('text') + '  ⁱ')
-                label.tooltip = Hovertip(label, setting.tooltip, 20)
-
-            if setting.type_ == "bool":
-                value = True if setting.value else False
-                string_var = SettingBolVar(value=value, name=f"{setting.section}.{setting.key}")
-                entry = tkinter.Checkbutton(row, variable=string_var, onvalue=1, offvalue=0)
-                entry.pack(side="left")
-            elif setting.type_ == "optionmenu":
-                string_var = SettingStringVar(value="default", name=f"{setting.section}.{setting.key}")
-                entry = Combobox(master=row, textvariable=string_var, width=30, state="readonly")
-                entry["values"] = setting.values
-                entry.set(str(setting.value))
-                entry.pack(side="left", expand=False, fill="x", padx=(5, 30))
-                entry.set(setting.value)
-                # entry.configure(state="readonly")
-
-                ...
-            else:
-                string_var = SettingStringVar(value=setting.value, name=f"{setting.section}.{setting.key}")
-
-
-                entry = tkinter.Entry(master=row, width=80, textvariable=string_var)
-                entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
-            self.strings_vars.append(string_var)
-            string_var.linked_setting = setting
-            entry.setting_section = section_class._section_name
-            entry.setting_name = setting
-            self.settings_widget[section_class._section_name][setting] = entry
-            match setting.type_:
-                case "bool":
-                    string_var.set(bool(setting))
-                # case "optionmenu":
-                    # string_var.set(setting.value)
 
 
 def _run_hook(source: list[callable], *args):
