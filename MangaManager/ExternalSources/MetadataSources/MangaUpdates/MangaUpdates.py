@@ -23,13 +23,7 @@ class MangaUpdates(IMetadataSource):
         comicinfo.set_Genre(", ".join([ i["genre"] for i in data["genres"] ]))
         comicinfo.set_Tags(", ".join([ i["category"] for i in data["categories"] ]))
         comicinfo.set_Web(data["url"].strip())
-
-        if data["type"] == "Manga":
-            manga_value = "Yes"
-        else:
-            manga_value = "No"
-        comicinfo.set_Manga(manga_value)
-        
+        comicinfo.set_Manga("Yes" if data["type"] == "Manga" else "No")
         comicinfo.set_Year(data["year"])
 
         # People Info
