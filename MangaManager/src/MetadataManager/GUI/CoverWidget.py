@@ -351,7 +351,7 @@ class CoverFrame(Frame):
     def display_next_cover(self, event):
         ...
 
-    def toggle_action_buttons(self,enabled=True):
+    def toggle_action_buttons(self, enabled=True):
         for button in self.action_buttons:
             button:Button
             try:

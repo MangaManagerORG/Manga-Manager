@@ -2,7 +2,6 @@ import abc
 import tkinter
 from typing import final
 
-import src.MetadataManager.MetadataManagerGUI
 
 
 class IExtensionApp(tkinter.Toplevel, metaclass=abc.ABCMeta):
@@ -10,7 +9,7 @@ class IExtensionApp(tkinter.Toplevel, metaclass=abc.ABCMeta):
     embedded_ui = False
     master_frame = None
     master = None
-    _super: src.MetadataManager.MetadataManagerGUI.GUIApp = None
+    _super= None
     @final
     def __init__(self, master, super_=None, **kwargs):
         """

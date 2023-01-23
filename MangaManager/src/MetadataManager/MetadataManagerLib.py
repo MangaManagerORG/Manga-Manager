@@ -5,13 +5,11 @@ import logging
 from abc import ABC
 from io import StringIO
 
-
 from src import settings_class, sources_factory
 from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.terminalcolors import TerminalColors as TerCol
-from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
 from src.MetadataManager import comicinfo
 from src.MetadataManager.comicinfo import ComicInfo
 
@@ -20,6 +18,7 @@ AniList = [source for source in sources_factory.get("MetadataSources") if source
 logger = logging.getLogger("MetaManager.Core")
 settings = settings_class.get_setting("main")
 source_settings = settings_class.get_setting("ExternalSources")
+
 
 class _IMetadataManagerLib(abc.ABC):
     def on_item_loaded(self, loaded_cinfo: LoadedComicInfo):
@@ -212,7 +211,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         selected_source = [source for source in sources_factory["MetadataSources"] if source.name == source_settings.default_metadata_source.value]
         if not selected_source:
             raise Exception("Selected metadata source is not loaded.")
-        Source: IMetadataSource = selected_source[0]
+        Source = selected_source[0]
         try:
             return Source.get_cinfo(series_name)
         except MangaNotFoundError as e:

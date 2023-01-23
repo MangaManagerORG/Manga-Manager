@@ -26,13 +26,11 @@ class WebpConverter(IExtensionApp):
     selected_files: list[str | pathlib.Path]
     treeview_frame: ScrolledFrameWidget = None
     nodes: dict
+
     def process(self):
         print(self.selected_files)
         for file in self.selected_files:
             LoadedComicInfo(file).convert_to_webp()
-
-
-
 
     def select_base(self):
         self.base_path = filedialog.askdirectory()  # select directory
