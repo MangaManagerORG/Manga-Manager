@@ -4,9 +4,8 @@ import logging
 import os
 import sys
 
-
-from src import sources_factory
 from Extensions.Interface import IExtensionApp
+
 logger = logging.getLogger()
 
 # Extension loader
@@ -23,11 +22,6 @@ def match_pyfiles_with_foldername(file_path):
 
 
 loaded_extensions = []
-
-
-
-sources_factory
-
 
 def load_extensions(extensions_directory,) -> list[IExtensionApp]:
     EXTENSIONS_DIRECTORY = extensions_directory

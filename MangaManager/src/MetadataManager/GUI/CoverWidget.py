@@ -354,4 +354,7 @@ class CoverFrame(Frame):
     def toggle_action_buttons(self,enabled=True):
         for button in self.action_buttons:
             button:Button
-            button.configure(state="normal" if enabled else "disabled")
+            try:
+                button.configure(state="normal" if enabled else "disabled")
+            except:
+                pass
