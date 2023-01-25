@@ -64,6 +64,7 @@ class _IMetadataManagerLib(abc.ABC):
         Called when a series is not found in the api
         """
 
+
 class MetadataManagerLib(_IMetadataManagerLib, ABC):
     """
     The core of metadata editor.
@@ -210,10 +211,11 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
 
         selected_source = [source for source in sources_factory["MetadataSources"] if source.name == source_settings.default_metadata_source.value]
         if not selected_source:
-            raise Exception("Selected metadata source is not loaded.")
-        Source = selected_source[0]
+            raise Exception("Unhandled exception. Metadata sources are not loaded or there's a bug in it."
+                            "Raise an issue if this happens.")
+        source = selected_source[0]
         try:
-            return Source.get_cinfo(series_name)
+            return source.get_cinfo(series_name)
         except MangaNotFoundError as e:
             logger.exception(str(e))
             self.on_manga_not_found(e, series_name)

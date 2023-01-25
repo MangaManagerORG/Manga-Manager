@@ -233,7 +233,7 @@ class GUIApp(Tk, MetadataManagerLib):
     def on_item_loaded(self, loaded_cinfo: LoadedComicInfo):
         """
         Called by backend when an item gets added to the loaded comic info list
-        :param loadedcomicInfo:
+        :param loaded_cinfo:
         :return:
         """
         self.selected_files_treeview.insert(loaded_cinfo)
@@ -403,9 +403,6 @@ class GUIApp(Tk, MetadataManagerLib):
                 _ = loaded_cinfo.cinfo_object
                 loaded_cinfo.cinfo_object.set_Series(os.path.basename(os.path.dirname(loaded_cinfo.file_path)))
                 loaded_cinfo.has_changes = True
-            # self._serialize_gui_to_cinfo()
-            #
-            # self.merge_changed_metadata(self.selected_items)
             self.show_not_saved_indicator(self.selected_items)
             self.widget_mngr.clean_widgets()
             # Display new selection data

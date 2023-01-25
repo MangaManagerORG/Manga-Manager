@@ -6,7 +6,7 @@ from tkinter.ttk import LabelFrame, Label, Combobox
 
 from src import settings_class, MM_PATH
 from src.Common.utils import open_folder
-from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, center
+from src.MetadataManager.GUI.widgets import ButtonWidget, center
 from src.settings import SettingItem
 
 
@@ -22,7 +22,6 @@ class SettingsWidgetManager:
         settings_window.geometry("900x420")
         settings_window.title("Settings")
 
-        # main_frame = ScrolledFrameWidget(settings_window, scrolltype="vertical").create_frame(expand=True,fill="both")
         main_frame = tkinter.Frame(settings_window)
         main_frame.pack(fill="both")
         self.widgets_frame = tkinter.Frame(main_frame, pady=30, padx=30)
@@ -34,7 +33,6 @@ class SettingsWidgetManager:
         ButtonWidget(master=control_frame, text="Open Settings Folder",
                      tooltip="Opens the folder where Manga Manager stores it's files",
                      command=lambda x=None: open_folder(folder_path=MM_PATH)).pack()
-        # for setting_section in settings_class.__dict__.sort(key=):
         self.settings_widget = {}
         for settings_section in settings_class.factory:
             section_class = settings_class.get_setting(settings_section)
@@ -47,6 +45,7 @@ class SettingsWidgetManager:
             center(settings_window)
         frame = Label(master=control_frame, text="\nNote: Fields marked with * needs a restart to take effect")
         frame.pack(expand=True, fill="both")
+
     def print_setting_entry(self, parent_frame, section_class):
         for i, setting in enumerate(section_class.settings):
 
@@ -70,13 +69,8 @@ class SettingsWidgetManager:
                 entry.set(str(setting.value))
                 entry.pack(side="left", expand=False, fill="x", padx=(5, 30))
                 entry.set(setting.value)
-                # entry.configure(state="readonly")
-
-                ...
             else:
                 string_var = SettingStringVar(value=setting.value, name=f"{setting.section}.{setting.key}")
-
-
                 entry = tkinter.Entry(master=row, width=80, textvariable=string_var)
                 entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
             self.strings_vars.append(string_var)
@@ -84,11 +78,8 @@ class SettingsWidgetManager:
             entry.setting_section = section_class._section_name
             entry.setting_name = setting
             self.settings_widget[section_class._section_name][setting] = entry
-            match setting.type_:
-                case "bool":
-                    string_var.set(bool(setting))
-                # case "optionmenu":
-                    # string_var.set(setting.value)
+            if setting.type_ == "bool":
+                string_var.set(bool(setting))
 
 
 class SettingBolVar(tkinter.BooleanVar):

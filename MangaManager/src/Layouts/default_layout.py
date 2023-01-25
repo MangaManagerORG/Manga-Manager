@@ -24,7 +24,6 @@ class Layout(GUIApp):
         self.display_widgets()
         self.display_extensions(self.extensions_tab_frame)
 
-
     #########################################################
     # GUI Display Methods
     ############
@@ -54,12 +53,7 @@ class Layout(GUIApp):
         self.extensions_tab_frame = extension_tab.create_frame()
         self.notebook.add(extension_tab, text="Extensions")
 
-        # self.numbering_info_frame = Frame(self.misc_frame_numbering)
-        # self.numbering_info_frame.grid(row=0)
-
-        # self.main_frame.configure(height='630', width='200')
         self.main_frame.pack(side="top")
-        # self.main_frame.pack(expand=False, fill='both')
         self.changes_saved = tkinter.Label(master=self, text="Changes are not saved", font=('Arial', 10))
         self.focus()
     def display_action_bar(self,frame):
@@ -103,10 +97,6 @@ class Layout(GUIApp):
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Fetch online")
-        # icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
-        # btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
-        # btn.configure(image=btn.img_ref)
-        # btn.configure(compound="left")
         btn.configure(command=self.process_fetch_online)
         btn.pack(side="left", fill="y")
         self.control_mngr.append(btn)
@@ -124,7 +114,6 @@ class Layout(GUIApp):
 
         self.files_selected_frame.selected_files_label = tkinter.Label(self.files_selected_frame, text="Opened Files:")
         self.files_selected_frame.selected_files_label.pack(expand=False, fill="x")
-        # self.selected_files_treeview = ListboxWidget(self.files_selected_frame, selectmode="multiple")
         self.selected_files_treeview = TreeviewWidget
         self.selected_files_treeview.open_in_explorer = self._treeview_open_explorer
         self.selected_files_treeview.reset_loadedcinfo_changes = self._treview_reset
@@ -170,11 +159,10 @@ class Layout(GUIApp):
                      command=self._fill_filename)
         self.control_mngr.append(btn)
         btn.pack(side="bottom")
-        btn = ButtonWidget(master=frame, text="⋯F", tooltip="If one file selected, load the folder name",
+        btn = ButtonWidget(master=frame, text="⋯F", tooltip="If one file selected, load the FOLDER name",
                      command=self._fill_foldername)
         self.control_mngr.append(btn)
         btn.pack(side="right")
-
 
         self.widget_mngr.LocalizedSeries = ComboBoxWidget(parent_frame, cinfo_name="LocalizedSeries",
                                                           label_text="LocalizedSeries",
@@ -248,7 +236,6 @@ class Layout(GUIApp):
                                                               label_text="Main Character or Team").pack()
 
         self.widget_mngr.Other = ComboBoxWidget(parent_frame, "Other").pack()
-
 
         #################
         # Numbering column

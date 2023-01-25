@@ -6,7 +6,6 @@ import re
 import tkinter
 import webbrowser
 from idlelib.tooltip import Hovertip
-# from tkinter import Label
 from tkinter.scrolledtext import ScrolledText
 from tkinter.ttk import Combobox, OptionMenu, Progressbar, Treeview, Style, Frame, Label
 
@@ -121,7 +120,7 @@ class ControlManager:
         for widget in self.control_button_set:
             try:
                 widget.configure(state="normal" if enabled else "disabled")
-            except _tkinter.TclError as e:
+            except _tkinter.TclError:
                 logger.exception("Unhandled exception")
 
     def lock(self):
@@ -186,7 +185,6 @@ class ComboBoxWidget(Widget):
     def __init__(self, master, cinfo_name, label_text=None, default_values=None, width=None, default="",
                  validation=None, tooltip: str = None):
         super(ComboBoxWidget, self).__init__(master)
-        # super(Widget, self).__init__()
         if label_text is None:
             label_text = cinfo_name
         self.name = cinfo_name
@@ -209,7 +207,8 @@ class ComboBoxWidget(Widget):
 
 
 class AutocompleteComboboxWidget(Widget):
-    def __init__(self, master, cinfo_name, label_text=None, default_values=None, width=None, force_validation_from_list = True, tooltip:str = None):
+    def __init__(self, master, cinfo_name, label_text=None, default_values=None, width=None,
+                 force_validation_from_list = True, tooltip:str = None):
         super().__init__(master=master)
         self.name = cinfo_name
         self.default = ""
@@ -271,7 +270,6 @@ class AutocompleteComboboxWidget(Widget):
 
 class OptionMenuWidget(Widget):
     def __init__(self, master, cinfo_name, label_text=None,width=None, max_width=None, default=None, values=None):
-
         if values is None:
             values = []
         if label_text is None:

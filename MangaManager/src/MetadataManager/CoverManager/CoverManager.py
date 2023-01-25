@@ -28,9 +28,7 @@ settings = settings_class.get_setting("main")
 
 class ComicFrame(CoverFrame):
     def __init__(self, master, loaded_cinfo: LoadedComicInfo):
-        # frame = Frame(self)
         super(CoverFrame, self).__init__(master, highlightbackground="black")
-        # frame.pack()
         self.loaded_cinfo: LoadedComicInfo = loaded_cinfo
         self.configure(highlightthickness=2, highlightcolor="grey", highlightbackground="grey", padx=20, pady=20)
 
@@ -127,10 +125,6 @@ class CoverManager(tkinter.Toplevel):
 
     scrolled_widget: Frame
     top_level: tkinter.Toplevel = tkinter.Toplevel
-    #
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.master_frame = self
 
     def __init__(self, master, super_: GUIApp = None, **kwargs):
         """
@@ -143,9 +137,6 @@ class CoverManager(tkinter.Toplevel):
         self.title(self.__class__.name)
         if super_ is not None:
             self._super = super_
-        # else:
-        #     frame = tkinter.Frame()
-        #     self.master_frame = frame
 
         self.serve_gui()
 
@@ -233,15 +224,11 @@ class CoverManager(tkinter.Toplevel):
         frame = ScrolledFrameWidget(self)
         frame.pack(fill="both", expand=True)
         self.scrolled_widget = frame.create_frame()
-        # scrolled_widget.pack(expand=False,fill="both")
-
-        # iterate over the LoadedComicInfo objects in loaded_cinfo_list
 
         self.tree_dict = {}
         self.prev_width = 0
         self.last_folder = ""
         self.selected_frames: list[tuple[ComicFrame, str]] = []
-        # comic_frame.pack()
         # bind the redraw function to the <Configure> event
         # so that it will be called whenever the window is resized
         self.bind("<Configure>", self.redraw)
@@ -262,8 +249,6 @@ class CoverManager(tkinter.Toplevel):
     def select_frame(self, _, frame: ComicFrame, pos):
         print(pos)
         if (frame, pos) in self.selected_frames:
-            # self.tree.get_children()
-            # self.tree.delete(selected_item)
             for children in self.tree.get_children():
                 if self.tree_dict[children]["cinfo"] == frame.loaded_cinfo and self.tree_dict[children]["type"] == pos:
                     self.selected_frames.remove((frame, pos))

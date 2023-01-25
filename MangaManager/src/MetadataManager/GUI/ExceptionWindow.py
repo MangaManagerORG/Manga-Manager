@@ -11,7 +11,6 @@ class ExceptionHandler(logging.Handler):
         self.tree_widget = tree_widget
 
     def emit(self, record):
-        msg = self.format(record)
         ei = record.exc_info
         parent_id = self.tree_widget.insert("", 'end', text=f"{record.levelname:12s} {record.msg}")
         self.tree_widget.dict[parent_id] = record
@@ -21,11 +20,11 @@ class ExceptionHandler(logging.Handler):
             for string in tb_str.split("\n"):
                 self.tree_widget.insert(parent_id, 'end', text=string)
 
+
 class ExceptionFrame(Frame):
     def __init__(self, master=None, **kwargs):
         Frame.__init__(self, master, **kwargs)
         ter_font = Font(family="Consolas", size=6)
-        fontheight = ter_font.metrics()['linespace']
         style = Style()
         style.configure('Terminal.Treeview', font=ter_font)
         self.tree = Treeview(self, style='Terminal.Treeview', show="tree")
@@ -39,7 +38,8 @@ class ExceptionFrame(Frame):
         handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         handler.setLevel(logging.WARNING)
 
-        if not 'unittest' in sys.modules.keys(): # hack for logging in unit tests
+        if 'unittest' not in sys.modules.keys():  # hack for logging in unit tests
             logger.addHandler(handler)
+
     def __del__(self):
         logger.removeHandler(self.handler)

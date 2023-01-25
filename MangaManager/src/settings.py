@@ -1,7 +1,6 @@
 import configparser
 import copy
 from configparser import ConfigParser
-# from src import CONFIG_PATH
 from typing import MutableMapping
 
 import src
@@ -11,10 +10,11 @@ layout_factory = {}
 CONFIG_PATH = ""
 CPARSER = ConfigParser()
 
-# layout_factory = Layouts.layout_factory
 
 class SettingItem(object):
-    def __init__(self, section, key, name, tooltip, value=None, type_=False, values=[]):
+    def __init__(self, section, key, name, tooltip, value=None, type_=False, values=None):
+        if values is None:
+            values = list()
         self.section = section
         self.key = key
         self.name = name
@@ -51,7 +51,6 @@ class SettingsSection(object):
             b = copy.copy(SettingItem)
             b.value = property(lambda self_: CPARSER.get(self_.section, self_.key),
                                lambda self_, new_value: CPARSER[self_.section].update({self_.key: new_value or ""}))
-            # b.__repr__ = lambda self_: CPARSER.get(self._section_name, value["key"])
             try:
                 value["value"] = CPARSER.get(self._section_name, value.get("key"))
             except configparser.NoOptionError:
@@ -64,20 +63,10 @@ class SettingsSection(object):
             self.settings.append(c)
 
         self.__dict__.update(a)
-        # for value_dict in settings_dict["values"]:
-        #     self._register_key(value_dict.get("key"))
 
     @property
     def section_name(self) -> str:
         return self._section_name
-
-    # @classmethod
-    # def _register_key(cls, name):
-    #     setattr(cls, name,
-    #             property(
-    #                 lambda self_: self_.get(name),
-    #                 lambda self_, value: self_.set(name, value))
-    #             )
 
     @classmethod
     def get(cls, key, *_, **__):
@@ -99,12 +88,10 @@ class Settings:
     CPARSER = CPARSER
     factory = factory
 
-
     def __init__(self, config_path):
         self.factory: dict[str:SettingsSection] = factory
         global CONFIG_PATH
         CONFIG_PATH = config_path
-
 
     @staticmethod
     def get_setting(section_name) -> SettingsSection:

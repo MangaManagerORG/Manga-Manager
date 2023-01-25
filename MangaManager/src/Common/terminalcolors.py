@@ -45,30 +45,9 @@ class TerminalColors:
     BG_LIGHT_PURPLE =       "\x1b[105m"
     BG_LIGHT_CYAN =         "\x1b[106m"
     BG_LIGHT_WHITE =        "\x1b[107m"
-# print( "\x1b[7m Reversed")
-# print(TerminalColors.RED + "asdsadsadasdsadsadasd3453244234234")
-# # print("\x1b[31;1m" + "asdsadsadasdsadsadasd3453244234234")
-# print(TerminalColors.BOLD + TerminalColors.RED + "Sdsadsadasda")
 
 
-# import logging
-# logging.getLogger()
-#
-# # print(TerminalColors.BLUE + "Aaaa" + TerminalColors.RESET)
-# print("\x1b[1m" + "aaa")
-# # print("\x1b[21m" + "aaa")
-# # print("\x1b[31m" + "aaa")
-# # print("\x1b[41m" + "aaa")
-# print("\x1b[51m" + "aa sd dad asasd asa")
-# print("sda")
-# print("sda")
-# print("sda")
-# print("sda")
-# print("\x1b[0m ")
-# # TODO: Rectangles for cli
-#
 if __name__ == '__main__':
-
     for color in TerminalColors.__dict__:
         if not color.startswith("_"):
             print(TerminalColors.RESET + f"{color:15s}" + TerminalColors.__dict__[color] + "Addsadsadasdas")

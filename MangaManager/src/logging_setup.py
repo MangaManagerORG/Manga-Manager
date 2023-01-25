@@ -7,14 +7,15 @@ def trace(self, message, *args, **kws):
     # Yes, logger takes its '*args' as 'args'.
     self._log(logging.TRACE, message, args, **kws)
 
+
 def add_trace_level():
     logging.TRACE = 9
     logging.addLevelName(logging.TRACE, "TRACE")
 
     logging.Logger.trace = trace
 
-def setup_logging(LOGFILE_PATH,level=logging.DEBUG):
 
+def setup_logging(LOGFILE_PATH,level=logging.DEBUG):
     # Create our own implementation to have trace logging
 
     # Setup Logger
@@ -30,7 +31,6 @@ def setup_logging(LOGFILE_PATH,level=logging.DEBUG):
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(name)20s - %(levelname)8s - %(message)s',
                         handlers=[stream_handler, rotating_file_handler]
-                        # filename='/tmp/myapp.log'
                         )
 
     logger = logging.getLogger()

@@ -6,20 +6,15 @@ from src.MetadataManager import MetadataManagerGUI
 from tests.common import create_dummy_files, TKinterTestCase, parameterized_class
 
 layouts_path = os.path.abspath("src/Layouts")
-print(layouts_path)
 
 modules = glob.glob(os.path.join(layouts_path, "*.py"))
-print(f"Found modules: [{', '.join(modules)}]")
+
 extensions = [os.path.basename(f)[:-3] for f in modules if os.path.isfile(f) and not f.endswith('__init__.py')]
-print(f"Found extensions: [{', '.join(extensions)}]")
 loaded_layouts = []
 for ext in extensions:
     loaded_layouts.append([importlib.import_module(f'.{ext}',
                                                                   package="src"
                                                                           ".Layouts").Layout])
-print("sdasdsadsa")
-print(loaded_layouts)
-
 
 @parameterized_class(('GUI',), loaded_layouts)
 class DinamicLayoutTests(TKinterTestCase):

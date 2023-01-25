@@ -15,8 +15,8 @@ from lxml.etree import XMLSyntaxError
 
 from src import settings_class as settings_class
 from src.Common.errors import CorruptedComicInfo, BadZipFile
-from src.Common.utils import IS_IMAGE_PATTERN
-from src.Common.utils import obtain_cover_filename, getNewWebpFormatName, convertToWebp
+from src.Common.utils import IS_IMAGE_PATTERN, convert_to_webp
+from src.Common.utils import obtain_cover_filename, get_new_webp_name
 
 logger = logging.getLogger("LoadedCInfo")
 
@@ -407,7 +407,6 @@ class LoadedComicInfo:
                             is_metadata_backed = True
                             continue
 
-
                     # Handle Cover Changes:
                     if item.filename == self.cover_filename:
                         match self.cover_action:
@@ -445,7 +444,6 @@ class LoadedComicInfo:
         self.cover_action = CoverActions.RESET
         self.backcover_action = CoverActions.RESET
 
-
         logger.debug(f"[{'Processing':13s}] Data from old file copied to new file")
         # Delete old file and rename new file to old name
         try:
@@ -471,13 +469,13 @@ class LoadedComicInfo:
 
     @staticmethod
     def _save_converted_image(zin: zipfile.ZipFile, item_: zipfile.ZipInfo, zout: zipfile.ZipFile,
-                              convert_to_webp: bool,
+                              do_convert_to_webp: bool,
                               new_filename=None, image: IO[bytes] = None):
         # Convert to webp if option enabled and file is image
-        if convert_to_webp and IS_IMAGE_PATTERN.match(item_.filename):
+        if do_convert_to_webp and IS_IMAGE_PATTERN.match(item_.filename):
             with zin.open(item_) as opened_image:
-                new_filename = getNewWebpFormatName(new_filename if new_filename is not None else item_.filename)
-                zout.writestr(new_filename, convertToWebp(opened_image if image is None else image))
+                new_filename = get_new_webp_name(new_filename if new_filename is not None else item_.filename)
+                zout.writestr(new_filename, convert_to_webp(opened_image if image is None else image))
                 logger.trace(f"[{_LOG_TAG_RECOMPRESSING:13s}] Adding converted file '{new_filename}' to new tempfile"
                              f" back to the new tempfile")
         # Keep the rest of the files.
@@ -495,13 +493,14 @@ class LoadedComicInfo:
         if convert_to_webp:
             with open(cover_path, "rb") as opened_image:
                 opened_image_io = io.BytesIO(opened_image.read())
-                new_filename = getNewWebpFormatName(new_filename)
-                zout.writestr(new_filename, convertToWebp(opened_image_io))
+                new_filename = get_new_webp_name(new_filename)
+                zout.writestr(new_filename, convert_to_webp(opened_image_io))
                 logger.trace(
                     f"[{_LOG_TAG_RECOMPRESSING:13s}] Adding converted file '{new_filename}' to new tempfile")
         else:
             zout.write(cover_path, new_filename)
             logger.trace(
                 f"[{_LOG_TAG_RECOMPRESSING:13s}] Adding file '{new_filename}' to new tempfile")
+
 
 from src.MetadataManager.comicinfo import ComicInfo, parseString

@@ -121,14 +121,14 @@ def obtain_cover_filename(file_list) -> (str, str):
 webp_supported_formats = (".png", ".jpeg", ".jpg")
 
 
-def getNewWebpFormatName(currentName: str) -> str:
+def get_new_webp_name(currentName: str) -> str:
     filename, file_format = os.path.splitext(currentName)
     if filename.endswith("."):
         filename = filename.strip(".")
     return filename + ".webp"
 
 
-def convertToWebp(image_bytes_to_convert: IO[bytes]) -> bytes:
+def convert_to_webp(image_bytes_to_convert: IO[bytes]) -> bytes:
     """
     Converts the provided image to webp and returns the converted image bytes
     :param image_bytes_to_convert: The image that has to be converted
@@ -176,7 +176,6 @@ class ShowPathTreeAsDict:
         if len(breaked_subpath) == 0:
             return
         if len(breaked_subpath) == 1:
-            # parent_dic[breaked_subpath[0]] = None
             parent_dic["files"].append(breaked_subpath[0])
             self.on_file(parent_dic, breaked_subpath[0])
             return
@@ -187,10 +186,8 @@ class ShowPathTreeAsDict:
         if key not in parent_dic:
             parent_dic[key] = {"subfolders": [], "files": [], "current": Path(parent_dic.get("current"), key)}
             parent_dic["subfolders"].append(key)
-            # parent_dic["current"] = Path(parent_dic.get("current"),key)
             self.on_subfolder(parent_dic, key)
         self._recurse(parent_dic[key], new_chain)
-        return
 
     def get(self):
         return self.new_path_dict
@@ -210,7 +207,7 @@ def get_elapsed_time(start_time: float) -> str:
     :return: "{minutes:int} minutes and {seconds:int} seconds"
     """
     if start_time == -1:
-        return 0
+        return ""
     current_time = time.time()
     seconds = current_time - start_time
     minutes, seconds = divmod(seconds, 60)
@@ -228,16 +225,15 @@ def get_estimated_time(start_time: float, processed_files: int, total_files: int
     :return: "{minutes:int} minutes and {seconds:int} seconds"
     """
     if start_time == -1:
-        return 0
+        return "0"
     try:
         current_time = time.time()
         elapsed_time = current_time - start_time
 
-        time_perFile = elapsed_time / processed_files
+        time_per_file = elapsed_time / processed_files
 
-        estimated_time = time_perFile * (total_files - processed_files)
+        estimated_time = time_per_file * (total_files - processed_files)
 
-        # seconds = current_time - start_time
         minutes, seconds = divmod(estimated_time, 60)
         return f"{int(round(minutes, 0))} minutes and {int(round(seconds, 0))} seconds"
     except ZeroDivisionError:
@@ -260,6 +256,7 @@ def open_folder(folder_path, selected_file: str = None):
             return
     except Exception:
         logger.exception(f"Exception opening '{folder_path}' folder")
+
 
 def get_language_iso_list():
     with urllib.request.urlopen(
@@ -294,5 +291,5 @@ def extract_folder_and_module(file_path):
 
 
 def match_pyfiles_with_foldername(file_path):
-    folder, file = extract_folder_and_module(file_path)
-    return folder == file
+    folder, file_ = extract_folder_and_module(file_path)
+    return folder == file_

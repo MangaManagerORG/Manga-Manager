@@ -22,7 +22,6 @@ class Layout(GUIApp):
         super().__init__()
         self.title("Manga Manager: Joe Layout")
 
-
     #########################################################
     # GUI Display Methods
     ############
@@ -55,13 +54,11 @@ class Layout(GUIApp):
         ################
         self.side_info_frame = self.file_selection_frame_left
 
-
         # Show Selected Files - ListBox
         self.files_selected_frame = tkinter.LabelFrame(self.side_info_frame)
 
         self.files_selected_frame.selected_files_label = tkinter.Label(self.files_selected_frame, text="Opened Files:")
         self.files_selected_frame.selected_files_label.pack(expand=False, fill="x")
-        # self.selected_files_treeview = ListboxWidget(self.files_selected_frame, selectmode="multiple")
         self.selected_files_treeview = TreeviewWidget
         self.selected_files_treeview.open_in_explorer = self._treeview_open_explorer
         self.selected_files_treeview.reset_loadedcinfo_changes = self._treview_reset
@@ -114,8 +111,6 @@ class Layout(GUIApp):
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="  Fetch\n  Online")
-        # icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
-        # btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
         btn.configure(image=self.fetch_online_icon)
         btn.configure(compound="left")
         btn.configure(command=self.process_fetch_online)
@@ -166,16 +161,12 @@ class Layout(GUIApp):
 
 
 
-        # self.numbering_info_frame = Frame(self.misc_frame_numbering)
-        # self.numbering_info_frame.grid(row=0)
-
         self.changes_saved = tkinter.Label(master=self, text="Changes are not saved", font=('Arial', 10))
         self.focus()
         self.log.warn("warn test")
         self.log.error("error test")
 
     def display_main_content_widgets(self) -> None:
-        style = ttk.Style()
 
         #################
         # Basic info - first column
@@ -194,7 +185,7 @@ class Layout(GUIApp):
                      command=self._fill_filename)
         btn.pack(side="right")
         self.control_mngr.append(btn)
-        btn = ButtonWidget(master=frame, text="⋯F", tooltip="If one file selected, load the filename",
+        btn = ButtonWidget(master=frame, text="⋯F", tooltip="If one file selected, load the FOLDER name",
                      command=self._fill_foldername)
         btn.pack(side="right")
         self.control_mngr.append(btn)
@@ -288,19 +279,12 @@ class Layout(GUIApp):
         parent_frame = Frame(self.numbering_info_frame,padx=20)
         parent_frame.pack(side="right", expand=True, fill="both")
 
-
-        # self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
-        #                                             width=combo_width,
-        #                                             validation="int", default="0").grid(2, 1)
-
         self.widget_mngr.SeriesGroup = ComboBoxWidget(parent_frame, cinfo_name="SeriesGroup",
                                                       label_text="Series Group").pack()
-
 
         self.widget_mngr.AlternateSeries = ComboBoxWidget(parent_frame, cinfo_name="AlternateSeries",
                                                           label_text="Alternate Series").pack()
         self.widget_mngr.StoryArc = ComboBoxWidget(parent_frame, "StoryArc", label_text="Story Arc").pack()
-
 
         numbering = Frame(parent_frame)
         numbering.pack(fill="x")
@@ -321,7 +305,6 @@ class Layout(GUIApp):
                                                           validation="rating").pack(side="left",expand=False,fill="x")
         self.widget_mngr.BlackAndWhite = OptionMenuWidget(numbering, "BlackAndWhite", "Black And White", COMBO_WIDTH, 18,
                                                           "Unknown", ("Unknown", "Yes", "No")).pack(side="left", expand=False,fill="x")
-
 
         self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
                                                     width=COMBO_WIDTH,
@@ -353,12 +336,6 @@ class Layout(GUIApp):
         new_selection, old_selection = args
 
         if not self.inserting_files:
-            # self._serialize_gui_to_cinfo()  # Sets new_edited_cinfo
-            # if not old_selection:
-            #     self.merge_changed_metadata(self.selected_items)  # Reads new_edited_cinfo and applies to loaded cinfo
-            # else:
-            #     # Soft-save current modified data
-            #     # Reads new_edited_cinfo and applies to each loaded cinfo
             self.process_gui_update(old_selection, new_selection)
         self.image_cover_frame.update_cover_image(new_selection)
 
