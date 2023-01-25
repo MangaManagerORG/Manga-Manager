@@ -2,6 +2,7 @@ import copy
 import tkinter
 from os.path import abspath
 from tkinter import Frame, CENTER, Button, NW
+from tkinter import messagebox as mb
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Treeview
 
@@ -232,6 +233,12 @@ class CoverManager(tkinter.Toplevel):
         # bind the redraw function to the <Configure> event
         # so that it will be called whenever the window is resized
         self.bind("<Configure>", self.redraw)
+
+        if not self._super.loaded_cinfo_list:
+            mb.showwarning("No files selected", "No files were selected so none will be displayed in cover manager", parent=self)
+            # self.deiconify()
+            self.destroy()
+            return
 
         # self.redraw(None)
         for i, cinfo in enumerate(self._super.loaded_cinfo_list):

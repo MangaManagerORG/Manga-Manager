@@ -9,7 +9,6 @@ from tkinter import Tk, Frame, messagebox as mb
 
 from pkg_resources import resource_filename
 
-from src.Common.errors import NoFilesSelected
 from src.Common.utils import get_platform, open_folder
 from src.MetadataManager import comicinfo
 
@@ -376,7 +375,9 @@ class GUIApp(Tk, MetadataManagerLib):
         Handles UI stuff to be started prior to processing such as converting ui data to comicinfo and starting the timer
         """
         if not self.selected_files_path:
-            raise NoFilesSelected()
+            mb.showwarning("No files selected", "No files were selected.")
+            self.log.warning("No files selected")
+            return
         self.control_mngr.toggle(enabled=False)
         self.changes_saved.place_forget()
         self.pb.start(len(self.loaded_cinfo_list))
@@ -431,4 +432,4 @@ class GUIApp(Tk, MetadataManagerLib):
         if cinfo is None:
             return
 
-        self._serialize_cinfolist_to_gui([LoadedComicInfo(None,cinfo,load_default_metadata=False)])
+        self._serialize_cinfolist_to_gui([LoadedComicInfo(None, cinfo, load_default_metadata=False)])
