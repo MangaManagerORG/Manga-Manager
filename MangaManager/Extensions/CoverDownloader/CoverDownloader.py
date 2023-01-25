@@ -1,17 +1,16 @@
 from tkinter import Label, Frame, Entry
 
 from Extensions.Interface import IExtensionApp
-from ExternalSources.CoverSources import Cover
 from src import settings_class
+from src.DynamicLibController.models.CoverSourceInterface import Cover
 
 settings = settings_class.get_setting("main")
 covers_folder_path = settings.covers_folder_path
 
 
-# logger = logging.getLogger()
-#
 def get_cover_from_source_dummy() -> list[Cover]:
     ...
+
 
 class CoverDownloader(IExtensionApp):
     name = "Cover Downloader"
