@@ -464,6 +464,7 @@ class LoadedComicInfo:
             raise
 
         self.original_cinfo_object = copy.copy(self.cinfo_object)
+        logger.info(f"Succesfully recompressed '{self.file_name}'")
 
     # def replace_cover(self,filename,zout,new_filepath):
 
