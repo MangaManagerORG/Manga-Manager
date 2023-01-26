@@ -340,7 +340,7 @@ class ScrolledFrameWidget(ScrolledFrame):
         self.paned_window.pack(fill="both", expand=False)
         self.pack(expand=False, fill='both', side='top')
 
-    def create_frame(self,**kwargs):
+    def create_frame(self, **kwargs):
         """Creates a subframe and packs it"""
         frame = Frame(self.paned_window)
         frame.pack(**kwargs or {})

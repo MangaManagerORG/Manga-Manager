@@ -12,7 +12,8 @@ from pkg_resources import resource_filename
 from src import settings_class
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
 from src.MetadataManager.GUI.CoverWidget import CoverFrame, CanvasCoverWidget
-from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget
+from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
+from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
 action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
@@ -140,6 +141,7 @@ class CoverManager(tkinter.Toplevel):
             self._super = super_
 
         self.serve_gui()
+        self.bind("<Configure>", self.redraw)
 
     def redraw(self, event):
         """
@@ -222,9 +224,13 @@ class CoverManager(tkinter.Toplevel):
         ButtonWidget(master=action_buttons, text="Close window",
                      command=self.exit_btn).pack(fill="x",ipady=10)
 
-        frame = ScrolledFrameWidget(self)
+        content_frame = Frame(self)
+        content_frame.pack(fill="both", side="left", expand=True)
+
+        frame = ScrolledFrame(master=content_frame, scrolltype="vertical", usemousewheel=True)
         frame.pack(fill="both", expand=True)
-        self.scrolled_widget = frame.create_frame()
+        self.scrolled_widget = frame.innerframe
+
 
         self.tree_dict = {}
         self.prev_width = 0
@@ -232,7 +238,6 @@ class CoverManager(tkinter.Toplevel):
         self.selected_frames: list[tuple[ComicFrame, str]] = []
         # bind the redraw function to the <Configure> event
         # so that it will be called whenever the window is resized
-        self.bind("<Configure>", self.redraw)
 
         if not self._super.loaded_cinfo_list:
             mb.showwarning("No files selected", "No files were selected so none will be displayed in cover manager", parent=self)
