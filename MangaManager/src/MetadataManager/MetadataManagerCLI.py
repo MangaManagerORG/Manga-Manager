@@ -11,6 +11,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.validation import Validator
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.utils import ShowPathTreeAsDict
 from src.MetadataManager import comicinfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
@@ -45,6 +46,7 @@ bindings = KeyBindings()
 app = None
 
 
+
 @bindings.add('c-q')
 def _(*_):
     """Exit when `c-q` is pressed. """
@@ -55,20 +57,32 @@ def _(event:prompt_toolkit.key_binding.KeyPressEvent):
     """Exit when `c-q` is pressed."""
     event.app.exit()
     app.process()
-
+@bindings.add('c-l')
+def _(event:prompt_toolkit.key_binding.KeyPressEvent):
+    """Exit when `c-l` is pressed."""
+    app.tree_selected()
 
 class App(MetadataManagerLib):
+    def on_processed_item(self, loaded_info: LoadedComicInfo):
+        pass
+
+    def on_manga_not_found(self, exception, series_name):
+        pass
+
     def __init__(self, file_paths: list[str]):
+        self.is_cli = True
         self.terminal_height = int(shutil.get_terminal_size().lines)
         self.terminal_width = int(shutil.get_terminal_size().columns)
         self.selected_files_path = file_paths
         self.serve_ui()
+
     def serve_ui(self):
         self.open_cinfo_list()
         # self.merge_changed_metadata()
         global app
         app = self
-        self.new_edited_cinfo = merged_info = self.merge_loaded_metadata()
+        merged_info = self.new_edited_cinfo = comicinfo.ComicInfo()
+        self.merge_changed_metadata(self.loaded_cinfo_list)
         # merged_info.set_Summary(
         #     "3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r\n\nsdad3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r3dsadasasdasdsadsad3422r")
         # print("a")
@@ -109,7 +123,7 @@ class App(MetadataManagerLib):
                 move_cursor_to_end=False)
             choosed_tag = prompt("Select tag to edit (tab to show options): ", completer=WordCompleter(self.cinfo_tags),
                                  validator=is_valid_tag, pre_run=prompt_autocomplete,
-                                 bottom_toolbar="Exit:ctrl+q - Process:ctrl+p",
+                                 bottom_toolbar="Exit:ctrl+q - Process:ctrl+p - Tree Selected:ctrl+l",
                                  key_bindings=bindings)
             if not self.running:
                 return
@@ -157,7 +171,12 @@ class App(MetadataManagerLib):
         self.running = False
         super(App, self).process()
 
-    #
+    def tree_selected(self):
+        print("")
+        # print(path)
+        paths = ShowPathTreeAsDict([lcinfo.file_path for lcinfo in self.loaded_cinfo_list])
+        paths.display_tree()
+
     def _is_valid_tool(self, value):
         return True if value in self.cinfo_tags else False
 

@@ -9,8 +9,6 @@ from io import BytesIO
 from pathlib import Path
 from typing import IO
 
-from PIL import Image
-
 from src.Common.naturalsorter import natsort_key_with_path_support
 
 # Patterns for picking cover
@@ -22,6 +20,12 @@ ALT_COVER_PATTERN = re.compile(f"(?i)({'|'.join([cover_r3_alt])})")
 IS_IMAGE_PATTERN = re.compile(rf"(?i).*.(?:{'|'.join(IMAGE_EXTENSIONS)})$")
 
 logger = logging.getLogger()
+from PIL import Image
+
+try:
+    from anytree import Node, RenderTree
+except ImportError:
+    logger.exception("Failed to import anytree. Some cli functionality might break. Make sure all requirements are installed")
 
 def remove_text_inside_brackets(text, brackets="()[]"):
     count = [0] * (len(brackets) // 2)  # count open/close brackets
@@ -160,9 +164,14 @@ def get_platform():
 
 class ShowPathTreeAsDict:
     """Builds a tree like structure out of a list of paths"""
-
-    def __init__(self, base_path, paths: list):
-
+    def display_tree(self):
+        root = Node("C:\\example")
+        self._build_tree(root, self.new_path_dict)
+        for pre, fill, node in RenderTree(root):
+            print("%s%s" % (pre, node.name))
+    def __init__(self,paths: list,  base_path = None):
+        if not base_path:
+            base_path = os.path.commonprefix(paths)
         new_path_dict = {"subfolders": [],
                          "files": [],
                          "current": Path(base_path)}
@@ -197,6 +206,16 @@ class ShowPathTreeAsDict:
 
     def on_subfolder(self, parent_dict: dict, subfolder):
         ...
+
+    def _build_tree(self, parent, data):
+        for key, value in data.items():
+            if key == "subfolders":
+                for subfolder in value:
+                    subfolder_node = Node(subfolder, parent=parent)
+                    self._build_tree(subfolder_node, data[subfolder])
+            elif key == "files":
+                for file in value:
+                    Node(file, parent=parent)
 
 
 def get_elapsed_time(start_time: float) -> str:

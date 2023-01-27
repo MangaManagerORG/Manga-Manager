@@ -70,6 +70,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
     The core of metadata editor.
     It has the logic to merge all the data of each fields across multiple files.
     """
+    is_cli = False
     selected_files_path = None
     new_edited_cinfo: ComicInfo | None = None
     loaded_cinfo_list: list[LoadedComicInfo] = list()
@@ -174,7 +175,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         for file_path in self.selected_files_path:
             try:
                 loaded_cinfo = LoadedComicInfo(path=file_path)
-                if settings.cache_cover_images:
+                if settings.cache_cover_images and not self.is_cli:
                     loaded_cinfo.load_all()
                 else:
                     loaded_cinfo.load_metadata()

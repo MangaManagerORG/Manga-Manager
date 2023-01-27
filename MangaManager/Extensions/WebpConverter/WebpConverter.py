@@ -80,7 +80,7 @@ class WebpConverter(IExtensionApp):
         self.geometry("300x400")
 
         frame = tkinter.Frame(self.master)
-        frame.pack(fill="both",expand=True,padx=20,pady=20)
+        frame.pack(fill="both",expand=True, padx=20, pady=20)
         self.selected_base_path = tkinter.StringVar(None, value=settings.default_base_path)
 
         tkinter.Button(frame, text="Select Base Directory", command=self.select_base, width=50).pack()
@@ -90,9 +90,9 @@ class WebpConverter(IExtensionApp):
         self.path_glob = tkinter.Entry(frame, width=50)
         self.path_glob.pack()
         #
-        tkinter.Button(frame, text="Preview selected files",pady=6, command=self.preview, width=50).pack(side="top",pady=10)
-        tkinter.Button(frame, text="Process", command=self.process,pady=6, width=50).pack(side="top",pady=10)
-        pb_frame = tkinter.Frame(frame,pady=10, width=60)
+        tkinter.Button(frame, text="Preview selected files", pady=6, command=self.preview, width=50).pack(side="top", pady=10)
+        tkinter.Button(frame, text="Process", command=self.process, pady=6, width=50).pack(side="top", pady=10)
+        pb_frame = tkinter.Frame(frame, pady=10, width=60)
         pb_frame.pack()
         self._progress_bar = ProgressBarWidget(pb_frame)
 
