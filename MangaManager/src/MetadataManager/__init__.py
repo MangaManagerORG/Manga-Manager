@@ -19,9 +19,11 @@ def execute_gui():
     # Populate settings with dynamically loaded classes
     main_settings.selected_layout.values = list(layout_factory)
     source_settings.default_metadata_source.values = list([source.name for source in sources_factory.get("MetadataSources")])
-    source_settings.default_metadata_source.value = "AniList"
+    if not source_settings.default_metadata_source.value:
+        source_settings.default_metadata_source.value = "AniList"
     source_settings.default_cover_source.values = list([source.name for source in sources_factory.get("CoverSources")])
-    source_settings.default_cover_source.value = "MangaDex"
+    if not source_settings.default_cover_source.value:
+        source_settings.default_cover_source.value = "MangaDex"
 
 
 
