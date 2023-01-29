@@ -3,8 +3,10 @@ import importlib
 import logging
 import os
 import sys
+from pathlib import Path
 
 from Extensions.Interface import IExtensionApp
+from src import sub_mm_path
 
 logger = logging.getLogger()
 
@@ -26,7 +28,9 @@ loaded_extensions = []
 
 
 def load_extensions(extensions_directory,) -> list[IExtensionApp]:
-    EXTENSIONS_DIRECTORY = extensions_directory
+    # EXTENSIONS_DIRECTORY = extensions_directory
+
+    EXTENSIONS_DIRECTORY = Path(sub_mm_path, "Extensions")
     extensions_path = os.path.expanduser(EXTENSIONS_DIRECTORY)
     sys.path.append(extensions_path)
 

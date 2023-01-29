@@ -3,7 +3,9 @@
 
 block_cipher = None
 added_files = [
-         ( 'res/*', 'res' ),
+         ( 'res/*', 'res'),
+         ('ExternalSources', 'ExternalSources'),
+         ('Extensions', 'Extensions')
          ]
 
 a = Analysis(
@@ -11,7 +13,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=added_files,
-    hiddenimports=['Extensions','PIL._tkinter_finder'],
+    hiddenimports=['PIL._tkinter_finder'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

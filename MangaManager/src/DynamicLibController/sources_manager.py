@@ -5,7 +5,7 @@ import os
 import sys
 from pathlib import Path
 
-from src import sources_factory
+from src import sources_factory, sub_mm_path
 from src.Common.utils import match_pyfiles_with_foldername
 from src.DynamicLibController.extension_manager import extract_folder_and_module
 from src.DynamicLibController.models.CoverSourceInterface import ICoverSource
@@ -13,7 +13,9 @@ from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSo
 
 logger = logging.getLogger()
 
-SOURCES_DIR = Path(os.getcwd(), "ExternalSources") # Fixme: Harcodign to use local project files
+# SOURCES_DIR = Path(os.getcwd(), "ExternalSources") # Fixme: Harcodign to use local project files
+SOURCES_DIR = Path(sub_mm_path,"ExternalSources")
+logger.info(f"Sources dir: '{SOURCES_DIR}'")
 METADATA_DIR = Path(SOURCES_DIR, "MetadataSources")
 METADATA_DIR.mkdir(exist_ok=True)
 
@@ -34,8 +36,8 @@ metadata_sources = [extension for extension in
                     if match_pyfiles_with_foldername(extension)]
 
 
-logger.debug(f"Found Cover sources: {', '.join(os.path.basename(cover_source) for cover_source in cover_sources)}")
-logger.debug(f"Found Metadata sources: {', '.join(os.path.basename(source_path) for source_path in metadata_sources)}")
+logger.info(f"Found Cover sources: {', '.join(os.path.basename(cover_source) for cover_source in cover_sources)}")
+logger.info(f"Found Metadata sources: {', '.join(os.path.basename(source_path) for source_path in metadata_sources)}")
 # Load metadata
 
 for source_file in cover_sources:
