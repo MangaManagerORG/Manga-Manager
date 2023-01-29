@@ -24,7 +24,7 @@
       </ENTRIES>
     </EXTENSION>
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MangaManager/main.py" />
-    <option name="PARAMETERS" value="--cli &quot;D:\Descargas\ANIME\**\*.cbr&quot;" />
+    <option name="PARAMETERS" value="--cli &quot;D:\Descargas\ANIME\TEST_FILES_MANGA_MANAGER\**\*.cbz&quot;" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="true" />
     <option name="MODULE_MODE" value="false" />

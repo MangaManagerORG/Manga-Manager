@@ -1,4 +1,5 @@
 import copy
+import logging
 import tkinter
 from os.path import abspath
 from tkinter import Frame, CENTER, Button, NW
@@ -26,7 +27,7 @@ def on_button_click(_, loaded_cinfo: LoadedComicInfo, front_or_back):
 
 
 settings = settings_class.get_setting("main")
-
+logger = logging.getLogger()
 
 class ComicFrame(CoverFrame):
     def __init__(self, master, loaded_cinfo: LoadedComicInfo):
@@ -172,7 +173,8 @@ class CoverManager(tkinter.Toplevel):
             return
 
         num_widgets = width // 414
-        #
+        logger.trace(f"Number of widgets per row: {num_widgets}")
+        logger.trace(f"Number of rows: {len(self.scrolled_widget.winfo_children())/num_widgets}")
         # redraw the widgets
         widgets_to_redraw = copy.copy(self.scrolled_widget.winfo_children())  # self.scrolled_widget.grid_slaves()
         i = 0

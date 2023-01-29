@@ -164,11 +164,18 @@ def get_platform():
 
 class ShowPathTreeAsDict:
     """Builds a tree like structure out of a list of paths"""
-    def display_tree(self):
-        root = Node("C:\\example")
+    def display_tree(self) -> int:
+        """
+
+        :return: Number of lines printed
+        """
+        root = Node("Root")
         self._build_tree(root, self.new_path_dict)
+        _counter = 0
         for pre, fill, node in RenderTree(root):
             print("%s%s" % (pre, node.name))
+            _counter+=1
+        return _counter
     def __init__(self,paths: list,  base_path = None):
         if not base_path:
             base_path = os.path.commonprefix(paths)

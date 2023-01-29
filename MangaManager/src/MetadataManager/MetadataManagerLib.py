@@ -3,7 +3,6 @@ from __future__ import annotations
 import abc
 import logging
 from abc import ABC
-from io import StringIO
 
 from src import settings_class, sources_factory
 from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
@@ -202,11 +201,12 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         :param loaded_cinfo:
         :return:
         """
+        ...
         # print(loaded_cinfo.__dict__)
-        export = StringIO()
+        # export = StringIO()
         # print(loaded_cinfo.cinfo_object is None)
-        loaded_cinfo.cinfo_object.export(export, 0)
-        print(export.getvalue())
+        # loaded_cinfo.cinfo_object.export(export, 0)
+        # print(export.getvalue())
 
     def fetch_online(self,series_name):
 
