@@ -157,7 +157,7 @@ class Layout(GUIApp):
         errors_tab.paned_window.pack(fill="both",expand=True)
         self.errors_tab_frame = errors_tab.create_frame(fill="both",expand=True)
         self.notebook.add(errors_tab, text="Errors")
-        ExceptionFrame(master=self.errors_tab_frame).pack(fill="both",expand=True)
+        ExceptionFrame(master=self.errors_tab_frame,is_test=self.is_test).pack(fill="both",expand=True)
 
         self.display_extensions(self.extensions_tab_frame)
 

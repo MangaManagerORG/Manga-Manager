@@ -70,6 +70,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
     It has the logic to merge all the data of each fields across multiple files.
     """
     is_cli = False
+    is_test = False
     selected_files_path = None
     new_edited_cinfo: ComicInfo | None = None
     loaded_cinfo_list: list[LoadedComicInfo] = list()

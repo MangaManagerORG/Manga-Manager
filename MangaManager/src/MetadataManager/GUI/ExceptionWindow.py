@@ -23,7 +23,7 @@ class ExceptionHandler(logging.Handler):
 
 
 class ExceptionFrame(Frame):
-    def __init__(self, master=None, **kwargs):
+    def __init__(self, master=None, is_test=False, **kwargs):
         Frame.__init__(self, master, **kwargs)
         ter_font = Font(family="Consolas", size=6)
         style = Style()
@@ -35,9 +35,9 @@ class ExceptionFrame(Frame):
         handler = self.handler = ExceptionHandler(self.tree)
         handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         handler.setLevel(logging.WARNING)
-        # Fixme While this breaks tests. This check disables GUI logging
-        # if 'unittest' not in sys.modules.keys():  # hack for logging in unit tests
-        logger.addHandler(handler)
+
+        if not is_test:
+            logger.addHandler(handler)
 
     def __del__(self):
         logger.removeHandler(self.handler)

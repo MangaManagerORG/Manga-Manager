@@ -1,10 +1,10 @@
 import random
 from tkinter.filedialog import askopenfiles
 
+from logging_setup import add_trace_level
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager import comicinfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
-from logging_setup import add_trace_level
 
 add_trace_level()
 
@@ -55,6 +55,7 @@ class UiToCinfoTest(TKinterTestCase):
 
     def test_all_ui_fields_loaded(self):
         self.root = app = self.GUI()
+        app.is_test = True
         app.title("test_all_ui_fields_loaded")
         for tag in MetadataManagerLib.cinfo_tags:
             with self.subTest(f"{tag}"):
@@ -64,6 +65,7 @@ class UiToCinfoTest(TKinterTestCase):
 
     def test_all_fields_map_to_cinfo(self):
         self.root = app = self.GUI()
+        app.is_test = True
         app.title("test_all_fields_map_to_cinfo")
         # new_edited = comicinfo.ComicInfo()
         # app.new_edited_cinfo = new_edited
@@ -105,6 +107,7 @@ class UiToCinfoTest(TKinterTestCase):
 
         MetadataManagerGUI.askopenfiles = custom_askopenfiles
         self.root = app = self.GUI()
+        app.is_test = True
         app.title("test_full_flow")
         self.pump_events()
         app.select_files()
@@ -136,7 +139,7 @@ class CinfoToUiTest(TKinterTestCase):
     test_files_names = None
 
     def setUp(self) -> None:
-
+        self.GUI.is_test = True
         leftover_files = [listed for listed in os.listdir() if listed.startswith("Test__") and listed.endswith(".cbz")]
         for file in leftover_files:
             os.remove(file)
@@ -193,6 +196,10 @@ class CinfoToUiTest(TKinterTestCase):
 
 @parameterized_class(('GUI',), loaded_layouts)
 class GenericUITest(TKinterTestCase):
+    def setUp(self):
+        self.GUI.is_test = True
+        super().setUp()
     def test_settings_window_correctly_displayed(self):
         self.root = app = self.GUI()
+
         app.show_settings()
