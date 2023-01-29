@@ -17,7 +17,7 @@ logger.error(f"sub_mm_path:{sub_mm_path}")
 EXTENSIONS_DIR = Path(sub_mm_path, "Extensions")
 EXTENSIONS_DIR.mkdir(exist_ok=True)
 
-SOURCES_DIR = Path(sub_mm_path, "Sources")
+SOURCES_DIR = Path(sub_mm_path, "ExternalSources")
 SOURCES_DIR.mkdir(exist_ok=True)
 
 from src.settings import Settings
