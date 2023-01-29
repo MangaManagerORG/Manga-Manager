@@ -4,7 +4,8 @@ from tkinter import Frame
 from tkinter.font import Font
 from tkinter.ttk import Treeview, Style
 logger = logging.getLogger()
-import sys  # hack for logging in unit tests
+
+
 class ExceptionHandler(logging.Handler):
     def __init__(self, tree_widget):
         logging.Handler.__init__(self)
@@ -31,15 +32,12 @@ class ExceptionFrame(Frame):
         self.tree.style = style
         self.tree.dict = dict()
         self.tree.pack(expand=True, fill='both')
-        self.tree["columns"] = ("#0")
-        self.tree.column("#0", width=200, anchor='w')
-        # self.tree.heading("traceback", text="Traceback")
         handler = self.handler = ExceptionHandler(self.tree)
         handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         handler.setLevel(logging.WARNING)
-
-        if 'unittest' not in sys.modules.keys():  # hack for logging in unit tests
-            logger.addHandler(handler)
+        # Fixme While this breaks tests. This check disables GUI logging
+        # if 'unittest' not in sys.modules.keys():  # hack for logging in unit tests
+        logger.addHandler(handler)
 
     def __del__(self):
         logger.removeHandler(self.handler)

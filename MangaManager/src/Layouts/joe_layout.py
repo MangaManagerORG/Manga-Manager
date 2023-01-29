@@ -153,7 +153,9 @@ class Layout(GUIApp):
         self.notebook.add(extension_tab, text="Extensions")
 
         errors_tab = ScrolledFrameWidget(self.notebook, scrolltype="Vertical")
-        self.errors_tab_frame = errors_tab.create_frame()
+        errors_tab.pack(fill="both",expand=True)
+        errors_tab.paned_window.pack(fill="both",expand=True)
+        self.errors_tab_frame = errors_tab.create_frame(fill="both",expand=True)
         self.notebook.add(errors_tab, text="Errors")
         ExceptionFrame(master=self.errors_tab_frame).pack(fill="both",expand=True)
 

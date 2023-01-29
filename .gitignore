@@ -6,3 +6,5 @@
 *.pdf
 /instructions_benchmarks.txt
 /.idea/sonarlint/
+/MangaManager/build
+/MangaManager/dist

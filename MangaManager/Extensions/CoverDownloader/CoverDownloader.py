@@ -1,6 +1,5 @@
 from tkinter import Label, Frame, Entry
 
-from Extensions.Interface import IExtensionApp
 from src import settings_class
 from src.DynamicLibController.models.CoverSourceInterface import Cover
 
@@ -12,7 +11,7 @@ def get_cover_from_source_dummy() -> list[Cover]:
     ...
 
 
-class CoverDownloader(IExtensionApp):
+class CoverDownloader():#IExtensionApp):
     name = "Cover Downloader"
 
     def serve_gui(self):
