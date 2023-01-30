@@ -1,5 +1,6 @@
 import copy
 import logging
+import platform
 import tkinter
 from os.path import abspath
 from tkinter import Frame, CENTER, Button, NW
@@ -195,7 +196,10 @@ class CoverManager(tkinter.Toplevel):
         """
         This function creates and serves the GUI for the application.
         """
-        self.state('zoomed')
+        if platform.system() == "Linux":
+            self.attributes('-zoomed', True)
+        elif platform.system() == "Windows":
+            self.state('zoomed')
         side_panel_control = Frame(self)
         side_panel_control.pack(side="right", expand=False, fill="y")
         #
