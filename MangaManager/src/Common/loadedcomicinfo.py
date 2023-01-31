@@ -279,7 +279,7 @@ class LoadedComicInfo:
                 else:
                     self.backcover_cache = ImageTk.PhotoImage(image)
             except RuntimeError as e:
-                print(e)# Random patch for some error when running tests
+                print(e)  # Random patch for some error when running tests
                 ...
             if resized:
                 return io.BytesIO(image.tobytes())
@@ -381,15 +381,9 @@ class LoadedComicInfo:
                 # Append the cover if the action is append
                 if self.cover_action == CoverActions.APPEND:
                     self.append_image(zout, self.new_cover_path, False, convert_to_webp)
-                    if self.cover_cache:
-                        self.cover_cache = copy.copy(self.new_cover_cache)
-                        self.new_cover_cache = None
 
                 if self.backcover_action == CoverActions.APPEND:
                     self.append_image(zout, self.new_backcover_path, True, convert_to_webp)
-                    if self.backcover_cache:
-                        self.backcover_cache = copy.copy(self.new_backcover_cache)
-                        self.new_backcover_cache = None
 
                 # Start iterating files.
                 for item in zin.infolist():
@@ -445,6 +439,7 @@ class LoadedComicInfo:
                     # Copy the rest of the images as they are
                     self._save_converted_image(zin, item, zout, convert_to_webp)
 
+        has_cover_action = self.cover_action not in (CoverActions.RESET, None) or self.backcover_action not in (CoverActions.RESET, None)
         # Reset cover flags
         self.cover_action = CoverActions.RESET
         self.backcover_action = CoverActions.RESET
@@ -470,6 +465,10 @@ class LoadedComicInfo:
 
         self.original_cinfo_object = copy.copy(self.cinfo_object)
         logger.info(f"Succesfully recompressed '{self.file_name}'")
+
+        if (self.cover_cache or self.backcover_cache) and has_cover_action:
+            logger.info(f"Updating covers")
+            self.load_cover_info()
 
     # def replace_cover(self,filename,zout,new_filepath):
 
