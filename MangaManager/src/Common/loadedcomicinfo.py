@@ -176,7 +176,6 @@ class LoadedComicInfo:
     def chapter(self, value):
         self.cinfo_object.set_Number(value)
 
-
     def __init__(self, path, comicinfo: ComicInfo = None, load_default_metadata=True):
         """
 
@@ -191,7 +190,6 @@ class LoadedComicInfo:
         self.cinfo_object = comicinfo
         if load_default_metadata:
             self.load_metadata()
-
 
     def process(self, write_metadata, convert_to_webp):
         logger.debug(f"[{'BEGIN PROCESSING':13s}] Writing metadata to file '{self.file_path}'")
@@ -281,7 +279,7 @@ class LoadedComicInfo:
                 else:
                     self.backcover_cache = ImageTk.PhotoImage(image)
             except RuntimeError as e:
-                print(e)# Random patch for some error when running tests
+                print(e)  # Random patch for some error when running tests
                 ...
             if resized:
                 return io.BytesIO(image.tobytes())
@@ -383,6 +381,7 @@ class LoadedComicInfo:
                 # Append the cover if the action is append
                 if self.cover_action == CoverActions.APPEND:
                     self.append_image(zout, self.new_cover_path, False, convert_to_webp)
+
                 if self.backcover_action == CoverActions.APPEND:
                     self.append_image(zout, self.new_backcover_path, True, convert_to_webp)
 
@@ -440,6 +439,7 @@ class LoadedComicInfo:
                     # Copy the rest of the images as they are
                     self._save_converted_image(zin, item, zout, convert_to_webp)
 
+        has_cover_action = self.cover_action not in (CoverActions.RESET, None) or self.backcover_action not in (CoverActions.RESET, None)
         # Reset cover flags
         self.cover_action = CoverActions.RESET
         self.backcover_action = CoverActions.RESET
@@ -465,6 +465,10 @@ class LoadedComicInfo:
 
         self.original_cinfo_object = copy.copy(self.cinfo_object)
         logger.info(f"Succesfully recompressed '{self.file_name}'")
+
+        if (self.cover_cache or self.backcover_cache) and has_cover_action:
+            logger.info(f"Updating covers")
+            self.load_cover_info()
 
     # def replace_cover(self,filename,zout,new_filepath):
 
