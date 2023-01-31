@@ -176,7 +176,6 @@ class LoadedComicInfo:
     def chapter(self, value):
         self.cinfo_object.set_Number(value)
 
-
     def __init__(self, path, comicinfo: ComicInfo = None, load_default_metadata=True):
         """
 
@@ -191,7 +190,6 @@ class LoadedComicInfo:
         self.cinfo_object = comicinfo
         if load_default_metadata:
             self.load_metadata()
-
 
     def process(self, write_metadata, convert_to_webp):
         logger.debug(f"[{'BEGIN PROCESSING':13s}] Writing metadata to file '{self.file_path}'")
@@ -383,8 +381,15 @@ class LoadedComicInfo:
                 # Append the cover if the action is append
                 if self.cover_action == CoverActions.APPEND:
                     self.append_image(zout, self.new_cover_path, False, convert_to_webp)
+                    if self.cover_cache:
+                        self.cover_cache = copy.copy(self.new_cover_cache)
+                        self.new_cover_cache = None
+
                 if self.backcover_action == CoverActions.APPEND:
                     self.append_image(zout, self.new_backcover_path, True, convert_to_webp)
+                    if self.backcover_cache:
+                        self.backcover_cache = copy.copy(self.new_backcover_cache)
+                        self.new_backcover_cache = None
 
                 # Start iterating files.
                 for item in zin.infolist():
