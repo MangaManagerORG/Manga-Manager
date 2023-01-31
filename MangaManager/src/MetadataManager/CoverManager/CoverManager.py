@@ -177,7 +177,7 @@ class CoverManager(tkinter.Toplevel):
         logger.trace(f"Number of widgets per row: {num_widgets}")
         logger.trace(f"Number of rows: {len(self.scrolled_widget.winfo_children())/num_widgets}")
         # redraw the widgets
-        widgets_to_redraw = copy.copy(self.scrolled_widget.winfo_children())  # self.scrolled_widget.grid_slaves()
+        widgets_to_redraw = list(reversed(copy.copy(self.scrolled_widget.winfo_children())))  # self.scrolled_widget.grid_slaves()
         i = 0
         j = 0
         while widgets_to_redraw:
