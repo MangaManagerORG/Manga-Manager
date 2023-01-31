@@ -174,8 +174,11 @@ class CoverManager(tkinter.Toplevel):
             return
 
         num_widgets = width // 414
-        logger.trace(f"Number of widgets per row: {num_widgets}")
-        logger.trace(f"Number of rows: {len(self.scrolled_widget.winfo_children())/num_widgets}")
+        try:
+            logger.trace(f"Number of widgets per row: {num_widgets}")
+            logger.trace(f"Number of rows: {len(self.scrolled_widget.winfo_children())/num_widgets}")
+        except ZeroDivisionError:
+            pass
         # redraw the widgets
         widgets_to_redraw = list(reversed(copy.copy(self.scrolled_widget.winfo_children())))  # self.scrolled_widget.grid_slaves()
         i = 0
