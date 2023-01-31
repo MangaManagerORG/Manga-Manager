@@ -4,13 +4,13 @@ import glob
 import logging
 import os
 import pathlib
+import threading
 import tkinter
 import tkinter.ttk as ttk
 from tkinter import filedialog
 
 from Extensions.Interface import IExtensionApp
 from src import settings_class
-from src.Common.errors import NoFilesSelected
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.utils import ShowPathTreeAsDict
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ProgressBarWidget
@@ -19,27 +19,49 @@ settings = settings_class.get_setting("WebpConverter")
 
 logger = logging.getLogger()
 
+
+def _run_process(list_of_files,progress_bar:ProgressBarWidget):
+    progress_bar.running = True
+    for file in list_of_files:
+        logger.info(f"[WEBP CONVERT] Processing '{file}'")
+        try:
+            # time.sleep(20)
+            LoadedComicInfo(file, load_default_metadata=False).convert_to_webp()
+            progress_bar.increase_processed()
+        except Exception:
+            logger.exception(f"Failed to convert to webp '{file}'")
+            progress_bar.increase_failed()
+    progress_bar.running = False
+
+
 class WebpConverter(IExtensionApp):
     name = "Webp Converter"
     embedded_ui = True
 
-    base_path: str
+    base_path: str = ""
     glob: str = "**/*.cbz"
-    selected_files: list[str | pathlib.Path]
+    _selected_files: list[str | pathlib.Path] = []
     treeview_frame: ScrolledFrameWidget = None
     nodes: dict
     _progress_bar: ProgressBarWidget
 
+    def pb_update(self):
+        if self._progress_bar.running:
+            self._progress_bar._update()
+            self.after(1000, self.pb_update)
+
+    @property
+    def selected_files(self):
+        self._set_input()
+        return self._selected_files
+
     def process(self):
-        # print(self.selected_files)
+        if not self._selected_files:
+            return
         self._progress_bar.start(len(self.selected_files))
-        for file in self.selected_files:
-            try:
-                LoadedComicInfo(file, load_default_metadata=False).convert_to_webp()
-                self._progress_bar.increase_processed()
-            except Exception:
-                self._progress_bar.increase_failed()
-                logger.exception("Failed to convert to webp")
+        th = threading.Thread(target=_run_process, args=(self.selected_files,self._progress_bar))
+        th.start()
+        self.pb_update()
 
     def select_base(self):
         self.base_path = filedialog.askdirectory(parent=self)  # select directory
@@ -60,12 +82,14 @@ class WebpConverter(IExtensionApp):
     def _set_input(self):
         self.glob = self.path_glob.get() or "*.cbz"
         os.chdir(self.base_path)
-        self.selected_files = [
+        logger.debug(f"Looking up files for glob: '{self.glob}'")
+        self._selected_files = [
             pathlib.Path(self.base_path, globbed_file) for globbed_file in glob.glob(self.glob, recursive=True)]
+        logger.debug(f"Found {len(self._selected_files)} files")
 
     def preview(self):
         if not self.base_path:
-            raise NoFilesSelected()
+            return
         self._clear()
         self._set_input()
         abspath = os.path.abspath(self.base_path)
@@ -74,15 +98,15 @@ class WebpConverter(IExtensionApp):
         treeview = ShowPathTreeAsDict
         treeview.on_file = self._on_file
         treeview.on_subfolder = self._on_folder
-        self.treeview_files = treeview(self.base_path, self.selected_files).get()
+        self.treeview_files = treeview(base_path=self.base_path, paths=self.selected_files).get()
 
     def serve_gui(self):
         self.geometry("300x400")
 
         frame = tkinter.Frame(self.master)
         frame.pack(fill="both",expand=True, padx=20, pady=20)
-        self.selected_base_path = tkinter.StringVar(None, value=settings.default_base_path)
-
+        self.selected_base_path = tkinter.StringVar(None, value=settings.default_base_path.value)
+        self.base_path = settings.default_base_path.value
         tkinter.Button(frame, text="Select Base Directory", command=self.select_base, width=50).pack()
         self.base_path_entry = tkinter.Entry(frame, state="readonly", textvariable=self.selected_base_path, width=50)
         self.base_path_entry.pack()

@@ -60,6 +60,7 @@ class RepeatedTimer(object):
 
 
 class ProgressBar(abc.ABC):
+    running = False
     def __init__(self):
 
         self.timer = RepeatedTimer()
@@ -107,7 +108,7 @@ Estimated time: {self.ESTIMATED_TIME_TAG}""")
         self.start_time = time.time()
         self.processed = 0
         self.processed_errors = 0
-        self.timer.start()
+        # self.timer.start()
 
     def stop(self):
         self.timer.stop()
