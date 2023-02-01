@@ -39,8 +39,6 @@ class SettingItem(object):
 class SettingsSection(object):
     _section_name: str
 
-    # @classmethod
-
     def __init__(self, section_name, settings_dict: dict):
         self.settings: list[SettingItem] = []
         self._section_name = section_name
@@ -126,7 +124,7 @@ class Settings:
 #
 registered_settings_sections = {
     "main": {
-        "pretty_name": "Main settings_class",
+        "pretty_name": "Main Settings",
         "values": [
             {
                 "key": "library_path",

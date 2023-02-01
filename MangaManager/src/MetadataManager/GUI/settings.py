@@ -37,7 +37,7 @@ class SettingsWidgetManager:
         for settings_section in settings_class.factory:
             section_class = settings_class.get_setting(settings_section)
 
-            frame = LabelFrame(master=self.widgets_frame, text=settings_section)
+            frame = LabelFrame(master=self.widgets_frame, text=section_class.pname)
             frame.pack(expand=True, fill="both")
 
             self.settings_widget[settings_section] = {}

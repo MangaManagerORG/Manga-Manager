@@ -25,8 +25,6 @@ def execute_gui():
     if not source_settings.default_cover_source.value:
         source_settings.default_cover_source.value = "MangaDex"
 
-
-
     if layout_name not in layout_factory:
         layout_name = "default"
     logger.info(f"Initializing '{layout_name}' layout")
