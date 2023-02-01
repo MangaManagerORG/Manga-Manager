@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  - push
+jobs:
+
+  createrelease:
+    name: Create Release
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get version
+      run: |
+        cd MangaManager
+        python -c "from __version__ import __version__;print(__version__)" > version
+        cat version
+        echo "TAG_NAME=$(cat version)" >> $GITHUB_ENV
+        cd ..
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.CI_TESTING_TOKEN }}
+      with:
+        tag_name: ${{ env.TAG_NAME }}
+        release_name: Release ${{ env.TAG_NAME }}
+        draft: false
+        prerelease: false
+    - name: Output Release URL File
+      run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
+    - name: Save Release URL File for publish
+      uses: actions/upload-artifact@v1
+      with:
+        name: release_url
+        path: release_url.txt
+
+  build:
+    name: Build packages
+    needs: createrelease
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+#          - os: macos-latest
+#            TARGET: macos
+#            CMD_BUILD: >
+#                pyinstaller -F -w -n clipster -i resources/clipster.icns cli.py &&
+#                cd dist/ &&jkddd
+#                zip -r9 clipster clipster.app
+#            OUT_FILE_NAME: clipster.zip
+#            ASSET_MIME: application/zip
+          - os: windows-latest
+            TARGET: windows
+            CMD_BUILD: python -m pyinstaller "MangaManager/MangaManager.spec" --clean
+            OUT_FILE_NAME: MangaManager.exe
+            ASSET_MIME: application/vnd.microsoft.portable-executable
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10.9
+    - name: Install dependencies
+      run: |
+#        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+        python -m pip install PyInstaller
+        cd MangaManager
+    - name: Build with pyinstaller for ${{matrix.TARGET}}
+      run: python -m pyinstaller "MangaManager/MangaManager.spec" --clean
+    - name: Load Release URL File from release job
+      uses: actions/download-artifact@v1
+      with:
+        name: release_url
+    - name: Get Release File Name & Upload URL
+      id: get_release_info
+      shell: bash
+      run: |
+        value=`cat release_url/release_url.txt`
+        echo ::set-output name=upload_url::$value
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.CI_TESTING_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+        asset_path: ./dist/${{ matrix.OUT_FILE_NAME}}
+        asset_name: ${{ matrix.OUT_FILE_NAME}}
+        asset_content_type: ${{ matrix.ASSET_MIME}}
+    - name: Bump version
+      run: |
+        cd MangaManager
+        python -c "from __version__ import __version__; v = __version__.split('.'); v[-1] = str(int(v[-1])+1); __version__ = '.'.join(v) + '-alpha'; open('__version__.py', 'w').write('__version__ = \"'+__version__+'\"')"
+        cd ..
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Bump minor version
