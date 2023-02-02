@@ -74,7 +74,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
     selected_files_path = None
     new_edited_cinfo: ComicInfo | None = None
     loaded_cinfo_list: list[LoadedComicInfo] = list()
-    cinfo_tags: list[str] = ["Title", "Series", "Number", "Count", "Volume", "AlternateSeries", "AlternateNumber",
+    cinfo_tags: list[str] = ["Title", "Series", "LocalizedSeries", "Number", "Count", "Volume", "AlternateSeries", "AlternateNumber",
                              "AlternateCount", "Summary", "Notes", "Year", "Month", "Day", "Writer", "Penciller",
                              "Inker", "Colorist", "Letterer", "CoverArtist", "Editor", "Translator", "Publisher",
                              "Imprint", "Genre", "Tags", "Web", "PageCount", "LanguageISO", "Format", "BlackAndWhite",

@@ -16,6 +16,7 @@ for ext in extensions:
                                                                   package="src"
                                                                           ".Layouts").Layout])
 
+
 @parameterized_class(('GUI',), loaded_layouts)
 class DinamicLayoutTests(TKinterTestCase):
     test_files_names = None
@@ -47,7 +48,7 @@ class DinamicLayoutTests(TKinterTestCase):
 
     def test_all_fields_are_populated(self):
         self.root = self.GUI()
-        app:MetadataManagerGUI.GUIApp = self.root
+        app: MetadataManagerGUI.GUIApp = self.root
         app.is_test = True
         app.title(f"test_all_fields_are_populated_{app.name}")
         print("Assert all fields are registered")

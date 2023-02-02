@@ -31,8 +31,6 @@ for ext in extensions:
                                                                           ".Layouts").Layout])
 
 
-
-
 @parameterized_class(('GUI',), loaded_layouts)
 class UiToCinfoTest(TKinterTestCase):
     test_files_names = None

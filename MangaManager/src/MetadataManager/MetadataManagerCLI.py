@@ -81,8 +81,9 @@ def _(event: prompt_toolkit.key_binding.KeyPressEvent):
     time.sleep(10)
 
 
-
 logger = logging.getLogger()
+
+
 class App(MetadataManagerLib):
     def on_processed_item(self, loaded_info: LoadedComicInfo):
         pass
@@ -119,6 +120,7 @@ class App(MetadataManagerLib):
                 # Append "multiple_values" string to the suggestion listbox
                 tag_values = (self.MULTIPLE_VALUES_CONFLICT,) + tag_values
                 displayed_gui.set_attr_by_name(cinfo_tag, self.MULTIPLE_VALUES_CONFLICT)
+
     def serve_ui(self):
         self.open_cinfo_list()
         # self.merge_changed_metadata()
