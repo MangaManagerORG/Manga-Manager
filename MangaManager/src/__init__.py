@@ -3,6 +3,10 @@ from os import environ
 from os.path import abspath
 from pathlib import Path
 
+import requests  # Needed for sources to work
+
+requests.s3423 = ""  # Random patch so import does not get cleaned up
+
 from pkg_resources import resource_filename
 
 logger = logging.getLogger()
