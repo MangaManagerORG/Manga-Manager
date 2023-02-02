@@ -177,14 +177,22 @@ class GUIApp(Tk, MetadataManagerLib):
 
     def show_about(self):
 
-        toplevel = tkinter.Toplevel(self)
-        HyperlinkLabel(toplevel, "Github repo: ","https://github.com/MangaManagerORG/Manga-Manager").pack(fill="x")
-        tkinter.Label(toplevel, text="Software licensed under the GNU General Public License v3.0", font=("Helvetica", 12), justify="left").pack(fill="x")
-        HyperlinkLabel(toplevel, "Get support in a GitHub discussion or Kavita discord", "https://discord.gg/kavita-821879810934439936").pack(fill="x")
-        tkinter.Label(toplevel,text="", font=("Helvetica", 12), justify="left").pack(fill="x")
-        tkinter.Label(toplevel,text=f"Version number: {__version__}", font=("Helvetica", 12), justify="left").pack(fill="x")
+        top_level = tkinter.Toplevel(self)
+        frame = Frame(top_level)
+        frame.pack(pady=30, padx=30,fill="both")
+        HyperlinkLabel(frame, "Github repo:",url_text="Go to Github rework main page",url="https://github.com/MangaManagerORG/Manga-Manager/tree/rework/master").pack(fill="x", expand=True, side="top", anchor="center")
+        HyperlinkLabel(frame, "Get support:", url_text="Join MangaManager channel in Kavita discord",url="https://discord.gg/kavita-821879810934439936").pack(fill="x", expand=True, side="top", anchor="center")
+        HyperlinkLabel(frame, "Report issue in GitHub",url_text="Create GitHub Issue", url="https://github.com/MangaManagerORG/Manga-Manager/issues/new?assignees=ThePromidius&labels=Rework+Issue&template=rework_issue.md&title=%5BRework+Issue%5D").pack(
+            fill="x", expand=True, side="top", anchor="center")
+        HyperlinkLabel(frame, "Donate in Ko-fi",
+                       "https://ko-fi.com/thepromidius").pack(fill="x", expand=True, side="top", anchor="center")
+        tkinter.Label(frame, text="", font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
+
+        tkinter.Label(frame, text="Software licensed under the GNU General Public License v3.0",
+                      font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
+        tkinter.Label(frame, text=f"Version number: {__version__}", font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
         # create close button
-        ButtonWidget(master=toplevel, text="Close", command=toplevel.destroy).pack()
+        ButtonWidget(master=frame, text="Close", command=frame.destroy).pack()
 
     def are_unsaved_changes(self, exist_unsaved_changes=False):
         """
