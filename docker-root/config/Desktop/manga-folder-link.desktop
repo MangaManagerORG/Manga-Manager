@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Manga Folder
+Comment=Open /manga
+Exec=/usr/bin/Thunar
+Icon=applications-libraries
+Path=/manga
+Terminal=false
+StartupNotify=false

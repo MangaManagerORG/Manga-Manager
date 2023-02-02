@@ -7,6 +7,7 @@ on:
 #  - pull_request
 env:
   $$_ENV_DEVELOPMENT_MM_$$: true
+  IMAGE_NAME: "thepromidius/manga-manager"
 jobs:
   build:
     env:
@@ -102,3 +103,23 @@ jobs:
         with:
           push: true
           tags: ${{ env.IMAGE_NAME }}:test
+  docker_rework:
+    name: Rework Build
+    needs: [ build, sonarcloud ]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/rework/master' }}
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:rework

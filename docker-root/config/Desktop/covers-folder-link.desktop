@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Covers Folder
+Comment=Open /covers
+Exec=/usr/bin/Thunar
+Icon=folder-pictures
+Path=/covers
+Terminal=false
+StartupNotify=false

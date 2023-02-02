@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Manga Manager
+Comment=
+Exec=python /app/main.py
+Icon=
+Path=/app
+Terminal=false
+StartupNotify=false
