@@ -2,10 +2,32 @@ import logging
 
 import requests
 
+from io import StringIO
+from html.parser import HTMLParser
 from src.Common.errors import MangaNotFoundError
 from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
 
+# https://stackoverflow.com/a/925630
+class MLStripper(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.reset()
+        self.strict = False
+        self.convert_charrefs = True
+        self.text = StringIO()
+
+    def handle_data(self, d):
+        self.text.write(d)
+
+    def get_data(self):
+        return self.text.getvalue()
+
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
 
 class AniList(IMetadataSource):
     name = "AniList"
@@ -24,19 +46,48 @@ class AniList(IMetadataSource):
         content = content.get("id")
         data = cls._search_details_by_series_id(content, "MANGA", {})
         print("sdsadas")
+        desc = strip_tags(data.get("description").strip())
+        source_index = desc.find("Source")
+        if source_index != -1:
+            start_index = desc.find("(", 0, source_index)
+            end_index = desc.find(")", source_index)
+            if start_index != -1 and end_index != -1:
+                if desc[start_index - 1] == '\n':
+                    start_index -= 1
+                desc = desc[:start_index] + desc[end_index + 1:]
+        comicinfo.set_Summary(desc.strip())
+
         startdate = data.get("startDate")
-        comicinfo.set_Summary(data.get("description").strip())
         comicinfo.set_Day(startdate.get("day"))
         comicinfo.set_Month(startdate.get("month"))
         comicinfo.set_Year(startdate.get("year"))
-        comicinfo.set_Series(data.get("title").get("romaji").strip())
+
+        # TODO setting prefer english romaji
+        set_english = "english"
+        set_romaji = "romaji"
+        title_english = data.get("title").get(set_english)
+        if title_english:
+            comicinfo.set_Series(title_english.strip())
+            comicinfo.set_LocalizedSeries(data.get("title").get(set_romaji).strip())
+        else:
+            comicinfo.set_Series(data.get("title").get(set_romaji).strip())
+
+        if data.get("volumes"):
+            comicinfo.set_Count(data.get("volumes"))
+
         comicinfo.set_Genre(", ".join(data.get("genres")))
         comicinfo.set_Web(data.get("siteUrl").strip())
         # People
         mapping = {
-            "Original Story": "Writer",
-            "Character Design": "Penciller",
-            "Story & Art": "Inker"
+            "Original Story": ["Writer"],
+            "Story & Art": ["Inker", "Writer"],
+            "Story": ["Writer"],
+            "Art": ["Inker"],
+            # "Character Design": "Penciller",
+            "Assistant": ["Editor"],
+            "Assistant (former)": ["Editor"],
+            "Assistant (mob)": ["Editor"],
+            "Assistant (beta)": ["Editor"]
         }
         staff_list = data["staff"]["edges"]
 
@@ -44,9 +95,13 @@ class AniList(IMetadataSource):
             node = staff["node"]
             name = node["name"]["full"]
             role = staff["role"]
-            mapped_role = mapping.get(role, "")
-            if mapped_role:
-                comicinfo.set_attr_by_name(mapped_role, name.strip())
+            mapped_role_list = mapping.get(role, "")
+            if mapped_role_list:
+                for mapped_role in mapped_role_list:
+                    old_mapped_role = comicinfo.get_attr_by_name(mapped_role).strip()
+                    if old_mapped_role != "":
+                        name = old_mapped_role + ", " + name
+                    comicinfo.set_attr_by_name(mapped_role, name.strip())
             else:
                 print(f"No mapping found for role: {role}")
 
