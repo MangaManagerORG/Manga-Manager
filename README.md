@@ -4,15 +4,13 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ThePromidius_Manga-Manager&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ThePromidius_Manga-Manager)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ThePromidius_Manga-Manager&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ThePromidius_Manga-Manager)
 
-# NOTE: REWORK - STAY TUNED!
+# NOTE: REWORK BETA IS LIVE:
 
 Manga Manager is currently being reworked. Little features will be added to the current codebase. Only fixes and easy
 additions.
-Expected release is expected is february 2023.
 
-Stay tuned in the [Kavita discord channel](https://discord.gg/kavita-821879810934439936).
-You can also try it out by pulling and running in your IDE after adding the folder to the PATH
-<br> Branch: `rework/master´
+Release URL:
+https://github.com/MangaManagerORG/Manga-Manager/releases/tag/v1.0.0-beta.1
 
 ## Min required version: Python 3.9
 
