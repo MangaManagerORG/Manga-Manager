@@ -7,7 +7,7 @@ from enum import StrEnum
 class SettingHeading(StrEnum):
     Main = "Main",
     WebpConverter = "Webp Converter",
-    ExternalSources = "External Sources"
+    ExternalSources = "External Sources",
 
 
 default_settings = {
@@ -23,5 +23,5 @@ default_settings = {
     SettingHeading.ExternalSources: SettingSection("External Sources Settings", [
         SettingControl("default_metadata_source", "Default metadata source", SettingControlType.Options, "The source that will be hit when looking for metadata"),
         SettingControl("default_cover_source", "Default cover source", SettingControlType.Options, "The source that will be hit when looking for cover images"),
-    ])
+    ]),
 }

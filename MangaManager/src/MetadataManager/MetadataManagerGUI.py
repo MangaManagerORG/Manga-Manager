@@ -29,8 +29,6 @@ from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 # from src import settings_class
 from src.__version__ import __version__
 
-main_settings = Settings().get(SettingHeading.Main)
-
 
 class GUIApp(Tk, MetadataManagerLib):
     main_frame: Frame
@@ -155,14 +153,14 @@ class GUIApp(Tk, MetadataManagerLib):
         # These are some tricks to make it easier to select files.
         # Saves last opened folder to not have to browse to it again
         if not self.last_folder:
-            initial_dir = main_settings.library_path.value
+            initial_dir = Settings.get(SettingHeading.Main, 'library_path')
         else:
             initial_dir = self.last_folder
         self.log.debug("Selecting files")
         # Open select files dialog
 
         folder_path = askdirectory(initialdir=initial_dir)
-        self.selected_files_path = glob.glob(root_dir=folder_path,pathname=os.path.join(folder_path,"**/*.cbz"),recursive=True)
+        self.selected_files_path = glob.glob(root_dir=folder_path,pathname=os.path.join(folder_path, "**/*.cbz"),recursive=True)
         # TODO: Auto select recursive or not
         # self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
 
@@ -183,8 +181,8 @@ class GUIApp(Tk, MetadataManagerLib):
         top_level = tkinter.Toplevel(self)
         frame = Frame(top_level)
         frame.pack(pady=30, padx=30,fill="both")
-        HyperlinkLabel(frame, "Github repo:",url_text="Go to Github rework main page",url="https://github.com/MangaManagerORG/Manga-Manager/tree/rework/master").pack(fill="x", expand=True, side="top", anchor="center")
-        HyperlinkLabel(frame, "Get support:", url_text="Join MangaManager channel in Kavita discord",url="https://discord.gg/kavita-821879810934439936").pack(fill="x", expand=True, side="top", anchor="center")
+        HyperlinkLabel(frame, "Github repo:", url_text="Go to Github rework main page", url="https://github.com/MangaManagerORG/Manga-Manager/tree/rework/master").pack(fill="x", expand=True, side="top", anchor="center")
+        HyperlinkLabel(frame, "Get support:", url_text="Join MangaManager channel in Kavita discord", url="https://discord.gg/kavita-821879810934439936").pack(fill="x", expand=True, side="top", anchor="center")
         HyperlinkLabel(frame, "Report issue in GitHub",url_text="Create GitHub Issue", url="https://github.com/MangaManagerORG/Manga-Manager/issues/new?assignees=ThePromidius&labels=Rework+Issue&template=rework_issue.md&title=%5BRework+Issue%5D").pack(
             fill="x", expand=True, side="top", anchor="center")
         HyperlinkLabel(frame, "Donate in Ko-fi",
@@ -302,7 +300,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self.widget_mngr.clean_widgets()
         if loaded_cinfo_list is None:
             loaded_cinfo_list = self.selected_items
-        if main_settings.cache_cover_images:
+        if Settings.get(SettingHeading.Main, 'cache_cover_images'):
             self.image_cover_frame.update_cover_image(loaded_cinfo_list)
 
         # Iterate all cinfo tags. Should there be any values that are not equal. Show "different values selected"

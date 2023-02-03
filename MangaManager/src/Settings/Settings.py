@@ -4,6 +4,7 @@ import os
 import logging
 
 from src.Settings import default_settings
+from src.Settings.SettingSection import SettingSection
 
 logger = logging.getLogger("MangaManager")
 
@@ -26,9 +27,16 @@ class Settings():
     def __init__(self, config_file='settings.ini'):
         self.config_file = config_file
 
+    """
+        Save the current settings from memory to disk
+    """
     def save(self):
-        pass
+        with open(self.config_file, 'w') as configfile:
+            self.config_parser.write(configfile)
 
+    """
+        Load the data from file and populate DefaultSettings
+    """
     def load(self):
         self.config_parser.read(self.config_file)
 
@@ -37,9 +45,24 @@ class Settings():
             for control in default_settings[section].values:
                 control.value = self.get(section, control.key)
 
+    """
+        Get a key's value
+    """
     def get(self, section, key):
         return self.config_parser[section][key].strip()
 
+    """
+        Sets a key's value. Will Save to disk and reload DefaultSettings
+    """
     def set(self, section, key, value):
         self.config_parser[section][key] = value
+        self.save()
+        self.load()
+
+    def add(self, section, setting_section):
+        for control in setting_section.values:
+            if not section in self.config_parser.sections():
+                self.config_parser.add_section(section)
+            self.config_parser[section][control.key] = control.value
+        self.save()
         self.load()

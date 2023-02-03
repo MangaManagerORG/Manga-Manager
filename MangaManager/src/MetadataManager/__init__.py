@@ -20,9 +20,9 @@ def execute_gui():
     if not Settings().get(SettingHeading.ExternalSources, 'default_cover_source') in list([source.name for source in sources_factory.get("CoverSources")]):
         Settings().set(SettingHeading.ExternalSources, 'default_cover_source', 'MangaDex')
 
-    if not Settings().get(SettingHeading.ExternalSources, 'selected_layout') in list(layout_factory):
-        Settings().set(SettingHeading.ExternalSources, 'selected_layout', 'default')
-    layout_name = Settings().get(SettingHeading.ExternalSources, 'selected_layout')
+    if not Settings().get(SettingHeading.Main, 'selected_layout') in list(layout_factory):
+        Settings().set(SettingHeading.Main, 'selected_layout', 'default')
+    layout_name = Settings().get(SettingHeading.Main, 'selected_layout')
 
     logger.info(f"Initializing '{layout_name}' layout")
     app = layout_factory.get(layout_name)()

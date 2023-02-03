@@ -34,28 +34,6 @@ class MangaUpdates(IMetadataSource):
         ])
     ]
 
-    # settings = [
-    #     {
-    #         "pretty_name": "MangaUpdates: Person Mappings",
-    #         "values": [
-    #             {
-    #                 "key": "Author",
-    #                 "type_": SettingControlType.Text,
-    #                 "name": "Author",
-    #                 "tooltip": "Author from source will map to ComicInfo fields",
-    #                 "value": "Writer"
-    #             },
-    #             {
-    #                 "key": "Artist",
-    #                 "type_": SettingControlType.Text,
-    #                 "name": "Artist",
-    #                 "tooltip": "Artist from source will map to ComicInfo fields",
-    #                 "value": "Penciller, Inker, CoverArtist"
-    #             }
-    #         ]
-    #     }
-    # ]
-
     def __init__(self):
         pass
 

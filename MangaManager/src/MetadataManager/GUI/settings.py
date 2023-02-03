@@ -4,6 +4,7 @@ import tkinter
 from idlelib.tooltip import Hovertip
 from tkinter.ttk import LabelFrame, Label, Combobox
 
+from ExternalSources.MetadataSources import providers
 from ExternalSources.MetadataSources.MetadataSourceFactory import ScraperFactory
 from src import MM_PATH
 from src.Common.utils import open_folder
@@ -13,19 +14,14 @@ from src.Settings.DefaultSettings import SettingHeading
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.Settings import Settings
 
-#from src.settings import SettingItem
-
-providers = [ScraperFactory().get_scraper("MangaUpdates"), ScraperFactory().get_scraper("AniList")]
-
 
 class SettingsWidgetManager:
     def parse_ui_settings_process(self):
         for setting_value in self.strings_vars:
-            if 'value' in setting_value.linked_setting:
+            if setting_value.linked_setting:
                 setting_value.linked_setting.value = str(setting_value.get())
-            # else:
-            #     setting_value.linked_setting.
-        #settings_class.save_settings() TODO: Refactor and use new Settings().save()
+
+        Settings().set(setting_value.linked_setting)
 
         # Save Extensions
         # for provider in providers:
@@ -65,16 +61,16 @@ class SettingsWidgetManager:
 
 
         # Populate settings from MetadataSource Extensions
-        for provider in providers:
-            settings = provider.settings
-            for section in settings:
-                print('Setting up settings for ' + provider.name)
-                frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name)
-                frame.pack(expand=True, fill="both")
-
-                self.settings_widget[default_settings[SettingHeading.ExternalSources].pretty_name][section.pretty_name] = {}
-                self.build_setting_entries(frame, section.values, section.pretty_name)
-            center(settings_window)
+        # for provider in providers:
+        #     settings = provider.settings
+        #     for section in settings:
+        #         print('Setting up settings for ' + provider.name)
+        #         frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name)
+        #         frame.pack(expand=True, fill="both")
+        #
+        #         self.settings_widget[default_settings[SettingHeading.ExternalSources].pretty_name][section.pretty_name] = {}
+        #         self.build_setting_entries(frame, section.values, section.pretty_name)
+        #     center(settings_window)
 
         frame = Label(master=control_frame, text="\nNote: Fields marked with * needs a restart to take effect")
         frame.pack(expand=True, fill="both")
@@ -108,7 +104,6 @@ class SettingsWidgetManager:
         self.strings_vars.append(string_var)
 
         string_var.linked_setting = control  # TODO: Make this a SettingControlItem
-
         entry.setting_section = section_name
         # entry.setting_name = setting
         # self.settings_widget[section_name][setting] = entry
@@ -120,40 +115,40 @@ class SettingsWidgetManager:
             self.build_setting_entry(parent_frame, setting, section_name)
 
 
-    def print_setting_entry(self, parent_frame, section_class):
-        for i, setting in enumerate(section_class.settings):
-
-            row = tkinter.Frame(parent_frame)
-            row.pack(expand=True, fill="x")
-            label = Label(master=row, text=setting.name, width=30, justify="right", anchor="e")
-            label.pack(side="left")
-            if setting.tooltip:
-                label.configure(text=label.cget('text') + '  ⁱ')
-                label.tooltip = Hovertip(label, setting.tooltip, 20)
-
-            if setting.type_ == "bool":
-                value = True if setting.value else False
-                string_var = SettingBolVar(value=value, name=f"{setting.section}.{setting.key}")
-                entry = tkinter.Checkbutton(row, variable=string_var, onvalue=1, offvalue=0)
-                entry.pack(side="left")
-            elif setting.type_ == "optionmenu":
-                string_var = SettingStringVar(value="default", name=f"{setting.section}.{setting.key}")
-                entry = Combobox(master=row, textvariable=string_var, width=30, state="readonly")
-                entry["values"] = setting.value
-                entry.set(str(setting.value))
-                entry.pack(side="left", expand=False, fill="x", padx=(5, 30))
-                entry.set(setting.value)
-            else:
-                string_var = SettingStringVar(value=setting.value, name=f"{setting.section}.{setting.key}")
-                entry = tkinter.Entry(master=row, width=80, textvariable=string_var)
-                entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
-            self.strings_vars.append(string_var)
-            string_var.linked_setting = setting
-            entry.setting_section = section_class._section_name
-            entry.setting_name = setting
-            self.settings_widget[section_class._section_name][setting] = entry
-            if setting.type_ == "bool":
-                string_var.set(bool(setting))
+    # def print_setting_entry(self, parent_frame, section_class):
+    #     for i, setting in enumerate(section_class.settings):
+    #
+    #         row = tkinter.Frame(parent_frame)
+    #         row.pack(expand=True, fill="x")
+    #         label = Label(master=row, text=setting.name, width=30, justify="right", anchor="e")
+    #         label.pack(side="left")
+    #         if setting.tooltip:
+    #             label.configure(text=label.cget('text') + '  ⁱ')
+    #             label.tooltip = Hovertip(label, setting.tooltip, 20)
+    #
+    #         if setting.type_ == "bool":
+    #             value = True if setting.value else False
+    #             string_var = SettingBolVar(value=value, name=f"{setting.section}.{setting.key}")
+    #             entry = tkinter.Checkbutton(row, variable=string_var, onvalue=1, offvalue=0)
+    #             entry.pack(side="left")
+    #         elif setting.type_ == "optionmenu":
+    #             string_var = SettingStringVar(value="default", name=f"{setting.section}.{setting.key}")
+    #             entry = Combobox(master=row, textvariable=string_var, width=30, state="readonly")
+    #             entry["values"] = setting.value
+    #             entry.set(str(setting.value))
+    #             entry.pack(side="left", expand=False, fill="x", padx=(5, 30))
+    #             entry.set(setting.value)
+    #         else:
+    #             string_var = SettingStringVar(value=setting.value, name=f"{setting.section}.{setting.key}")
+    #             entry = tkinter.Entry(master=row, width=80, textvariable=string_var)
+    #             entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
+    #         self.strings_vars.append(string_var)
+    #         string_var.linked_setting = setting
+    #         entry.setting_section = section_class._section_name
+    #         entry.setting_name = setting
+    #         self.settings_widget[section_class._section_name][setting] = entry
+    #         if setting.type_ == "bool":
+    #             string_var.set(bool(setting))
 
 
 class SettingBolVar(tkinter.BooleanVar):
