@@ -5,7 +5,12 @@ from src.MetadataManager.comicinfo import ComicInfo
 
 
 class IMetadataSource(abc.ABC):
-    name = None
+    name = ''
+    """
+        A set of settings which will be found in the main settings dialog of Manga Manager and used for the source
+    """
+    settings = []
+
 
     @classmethod
     @abc.abstractmethod

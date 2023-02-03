@@ -9,8 +9,6 @@ from src.Common.utils import update_people_from_mapping
 from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
 
-
-
 class MangaUpdates(IMetadataSource):
     name = "MangaUpdates"
     _log = logging.getLogger()
@@ -25,6 +23,24 @@ class MangaUpdates(IMetadataSource):
                 "CoverArtist"
             ]
     }
+
+    settings = [
+        {
+            "pretty_name": "Person Mappings",
+            "values": [
+                {
+                    "key": "Author",
+                    "type_": "input",
+                    "name": "Author",
+                    "tooltip": "",
+                    "value": "Writer"
+                }
+            ]
+        }
+    ]
+
+    def __init__(self):
+        pass
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:

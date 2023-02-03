@@ -321,7 +321,7 @@ def match_pyfiles_with_foldername(file_path):
     folder, file_ = extract_folder_and_module(file_path)
     return folder == file_
 
-def update_people_from_mapping(people, mapping, comicinfo, name_selector, role_selector):
+def update_people_from_mapping(people: list[object], mapping, comicinfo, name_selector, role_selector):
     if comicinfo is None:
         return
 

@@ -29,6 +29,9 @@ class AniList(IMetadataSource):
         ]
     }
 
+    def __init__(self):
+        pass
+
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:
         comicinfo = ComicInfo()
