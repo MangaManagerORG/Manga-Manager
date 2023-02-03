@@ -4,19 +4,20 @@ import abc
 import logging
 from abc import ABC
 
-from src import settings_class, sources_factory
+from src import sources_factory #settings_class,
 from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.terminalcolors import TerminalColors as TerCol
 from src.MetadataManager import comicinfo
 from src.MetadataManager.comicinfo import ComicInfo
+from src.Settings import default_settings
 
 AniList = [source for source in sources_factory.get("MetadataSources") if source.name == "AniList"]
 
 logger = logging.getLogger("MetaManager.Core")
-settings = settings_class.get_setting("main")
-source_settings = settings_class.get_setting("ExternalSources")
+settings = default_settings["main"]
+source_settings = default_settings["ExternalSources"]
 
 
 class _IMetadataManagerLib(abc.ABC):
@@ -209,9 +210,9 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         # loaded_cinfo.cinfo_object.export(export, 0)
         # print(export.getvalue())
 
-    def fetch_online(self,series_name):
+    def fetch_online(self, series_name):
 
-        selected_source = [source for source in sources_factory["MetadataSources"] if source.name == source_settings.default_metadata_source.value]
+        selected_source = [source for source in sources_factory["MetadataSources"] if source.name == source_settings.get_control('default_metadata_source').value]
         if not selected_source:
             raise Exception("Unhandled exception. Metadata sources are not loaded or there's a bug in it."
                             "Raise an issue if this happens.")

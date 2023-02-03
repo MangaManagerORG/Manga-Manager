@@ -7,3 +7,13 @@ from src.Settings.SettingControl import SettingControl
 class SettingSection:
     pretty_name: str = ''
     values: list[SettingControl] = []
+
+    def __init__(self, name, values=[]):
+        self.pretty_name = name
+        self.values = values
+
+    def get_control(self, key):
+        for v in self.values:
+            if v.key == key:
+                return v
+        return None

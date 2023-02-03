@@ -11,12 +11,12 @@ from tkinter.ttk import Treeview
 from PIL import Image, ImageTk
 from pkg_resources import resource_filename
 
-from src import settings_class
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
 from src.MetadataManager.GUI.CoverWidget import CoverFrame, CanvasCoverWidget
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
+from src.Settings import default_settings
 
 action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
 
@@ -27,7 +27,7 @@ def on_button_click(_, loaded_cinfo: LoadedComicInfo, front_or_back):
     print(f"Path: {loaded_cinfo.file_path}")
 
 
-settings = settings_class.get_setting("main")
+settings = default_settings["main"]
 logger = logging.getLogger()
 
 class ComicFrame(CoverFrame):
@@ -295,7 +295,7 @@ class CoverManager(tkinter.Toplevel):
         new_cover_file = None
         cover = None
         if action == CoverActions.APPEND or action == CoverActions.REPLACE:
-            new_cover_file = askopenfile(parent=self,initialdir=settings.covers_folder_path).name
+            new_cover_file = askopenfile(parent=self,initialdir=settings.get_control('covers_folder_path')).name
 
         for frame, type_ in self.selected_frames:
             # create a ComicFrame for each LoadedComicInfo object

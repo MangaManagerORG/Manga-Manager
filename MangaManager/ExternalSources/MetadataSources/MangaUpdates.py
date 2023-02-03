@@ -8,7 +8,9 @@ from src.Common.errors import MangaNotFoundError
 from src.Common.utils import update_people_from_mapping
 from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
+from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
+from src.Settings.SettingSection import SettingSection
 
 
 class MangaUpdates(IMetadataSource):
@@ -26,26 +28,33 @@ class MangaUpdates(IMetadataSource):
     }
 
     settings = [
-        {
-            "pretty_name": "MangaUpdates: Person Mappings",
-            "values": [
-                {
-                    "key": "Author",
-                    "type_": SettingControlType.Text,
-                    "name": "Author",
-                    "tooltip": "Author from source will map to ComicInfo fields",
-                    "value": "Writer"
-                },
-                {
-                    "key": "Artist",
-                    "type_": SettingControlType.Text,
-                    "name": "Artist",
-                    "tooltip": "Artist from source will map to ComicInfo fields",
-                    "value": "Penciller, Inker, CoverArtist"
-                }
-            ]
-        }
+        SettingSection("MangaUpdates: Person Mappings", [
+            SettingControl("Author", "Author", SettingControlType.Text, "Writer", "Author from source will map to ComicInfo fields"),
+            SettingControl("Artist", "Artist", SettingControlType.Text, "Penciller, Inker, CoverArtist", "Artist from source will map to ComicInfo fields"),
+        ])
     ]
+
+    # settings = [
+    #     {
+    #         "pretty_name": "MangaUpdates: Person Mappings",
+    #         "values": [
+    #             {
+    #                 "key": "Author",
+    #                 "type_": SettingControlType.Text,
+    #                 "name": "Author",
+    #                 "tooltip": "Author from source will map to ComicInfo fields",
+    #                 "value": "Writer"
+    #             },
+    #             {
+    #                 "key": "Artist",
+    #                 "type_": SettingControlType.Text,
+    #                 "name": "Artist",
+    #                 "tooltip": "Artist from source will map to ComicInfo fields",
+    #                 "value": "Penciller, Inker, CoverArtist"
+    #             }
+    #         ]
+    #     }
+    # ]
 
     def __init__(self):
         pass

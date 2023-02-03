@@ -11,7 +11,6 @@ from tkinter.ttk import Combobox, OptionMenu, Progressbar, Treeview, Style, Fram
 
 import _tkinter
 
-from src import settings_class
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.progressbar import ProgressBar
 from src.MetadataManager import comicinfo
@@ -23,7 +22,6 @@ MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
 logger = logging.getLogger()
 
 
-settings = settings_class.get_setting("main")
 
 
 def validate_int(value) -> bool:

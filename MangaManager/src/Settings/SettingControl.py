@@ -8,4 +8,18 @@ class SettingControl(abc.ABC):
     name: str = ''
     tooltip: str | None = ''
     type_: SettingControlType
-    values = ''
+    value = ''
+    """
+    Only applicable for SettingControlType.Options
+    """
+    values: list = []
+
+    def __init__(self, key, name, type_, value='', tooltip=''):
+        self.key = key
+        self.name = name
+        self.type_ = type_
+        self.value = value
+        self.tooltip = tooltip
+
+        if value == '' and type is SettingControlType.Bool:
+            self.value = False

@@ -1,10 +1,11 @@
 from tkinter import Label, Frame, Entry
 
-from src import settings_class
+#from src import settings_class
 from src.DynamicLibController.models.CoverSourceInterface import Cover
+# from src.Settings import default_settings
 
-settings = settings_class.get_setting("main")
-covers_folder_path = settings.covers_folder_path
+# settings = default_settings.get_setting("main")
+# covers_folder_path = settings.get_control('covers_folder_path')
 
 
 def get_cover_from_source_dummy() -> list[Cover]:
