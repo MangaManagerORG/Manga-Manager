@@ -13,6 +13,7 @@ from src.Common.utils import get_platform, open_folder
 from src.MetadataManager import comicinfo
 from src.Settings import default_settings
 from src.Settings.DefaultSettings import SettingHeading
+from src.Settings.Settings import Settings
 
 if get_platform() == "linux":
     from src.MetadataManager.GUI.FileChooserWindow import askopenfiles,askdirectory
@@ -28,7 +29,7 @@ from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 # from src import settings_class
 from src.__version__ import __version__
 
-main_settings = default_settings[SettingHeading.Main]
+main_settings = Settings().get(SettingHeading.Main)
 
 
 class GUIApp(Tk, MetadataManagerLib):
@@ -115,7 +116,7 @@ class GUIApp(Tk, MetadataManagerLib):
         # These are some tricks to make it easier to select files.
         # Saves last opened folder to not have to browse to it again
         if not self.last_folder:
-            initial_dir = main_settings.library_path.value
+            initial_dir = Settings().get(SettingHeading.Main, 'library_path')
         else:
             initial_dir = self.last_folder
         self.log.debug("Selecting files")

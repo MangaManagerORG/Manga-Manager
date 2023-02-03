@@ -10,10 +10,9 @@ from pkg_resources import resource_filename
 # from src import settings_class
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
 from src.MetadataManager.GUI.widgets import MULTIPLE_FILES_SELECTED
-from src.Settings import default_settings
 from src.Settings.DefaultSettings import SettingHeading
+from src.Settings.Settings import Settings
 
-settings = default_settings[SettingHeading.Main]
 window_width, window_height = 0, 0
 action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
 
@@ -56,7 +55,7 @@ class CoverFrame(Frame):
                 window_width, window_height = event.width, event.height
 
             elif 1000 < event.width and window_width + 400 < event.width:
-                if not settings.get_control('cache_cover_images'):
+                if not Settings().get(SettingHeading.Main, 'cache_cover_images'):
                     return
                 self.show_back_image()
                 window_width, window_height = event.width, event.height
@@ -202,7 +201,7 @@ class CoverFrame(Frame):
             case CoverActions.APPEND | CoverActions.REPLACE:
                 # If the function was manually called, ask the user to select the new cover
                 if not auto_trigger:
-                    new_cover_file = askopenfile(parent=parent, initialdir=settings.get_control('covers_folder_path')).name
+                    new_cover_file = askopenfile(parent=parent, initialdir=Settings().get(SettingHeading.Main, 'covers_folder_path')).name
                     loaded_cinfo.new_cover_path = new_cover_file
                     cover = loaded_cinfo.new_cover_cache
                 # Show the Action label
@@ -254,7 +253,7 @@ class CoverFrame(Frame):
             case CoverActions.APPEND | CoverActions.REPLACE:
                 # If the function was manually called, ask the user to select the new cover
                 if not auto_trigger:
-                    new_cover_file = askopenfile(parent=parent, initialdir=settings.get_control('covers_folder_path')).name
+                    new_cover_file = askopenfile(parent=parent, initialdir=Settings().get(SettingHeading.Main, 'covers_folder_path')).name
                     loaded_cinfo.new_backcover_path = new_cover_file
                     cover = loaded_cinfo.new_backcover_cache
                 # Show the Action label

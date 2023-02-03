@@ -11,6 +11,8 @@ from src.MetadataManager.GUI.widgets import ButtonWidget, center
 from src.Settings import default_settings
 from src.Settings.DefaultSettings import SettingHeading
 from src.Settings.SettingControlType import SettingControlType
+from src.Settings.Settings import Settings
+
 #from src.settings import SettingItem
 
 providers = [ScraperFactory().get_scraper("MangaUpdates"), ScraperFactory().get_scraper("AniList")]

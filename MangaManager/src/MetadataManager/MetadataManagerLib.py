@@ -4,21 +4,19 @@ import abc
 import logging
 from abc import ABC
 
-from src import sources_factory #settings_class,
+from src import sources_factory
 from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.terminalcolors import TerminalColors as TerCol
 from src.MetadataManager import comicinfo
 from src.MetadataManager.comicinfo import ComicInfo
-from src.Settings import default_settings
 from src.Settings.DefaultSettings import SettingHeading
+from src.Settings.Settings import Settings
 
 AniList = [source for source in sources_factory.get("MetadataSources") if source.name == "AniList"]
 
 logger = logging.getLogger("MetaManager.Core")
-settings = default_settings[SettingHeading.Main]
-source_settings = default_settings[SettingHeading.ExternalSources]
 
 
 class _IMetadataManagerLib(abc.ABC):
@@ -177,7 +175,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         for file_path in self.selected_files_path:
             try:
                 loaded_cinfo = LoadedComicInfo(path=file_path)
-                if settings.cache_cover_images and not self.is_cli:
+                if Settings().get(SettingHeading.Main, 'cache_cover_images') and not self.is_cli:
                     loaded_cinfo.load_all()
                 else:
                     loaded_cinfo.load_metadata()
