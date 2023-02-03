@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 import requests
@@ -34,6 +36,12 @@ class AniList(IMetadataSource):
         comicinfo.set_Genre(", ".join(data.get("genres")))
         comicinfo.set_Web(data.get("siteUrl").strip())
         # People
+        mapping = {
+            "Original Story": "Writer",
+            "Character Design": "Penciller",
+            "Story & Art": "Inker"
+        }
+
         people_mapping = {
             "Original Story": [
                 "Writer"
@@ -45,6 +53,7 @@ class AniList(IMetadataSource):
                 "Writer",
                 "Penciller",
                 "Inker",
+                "Colorist",
                 "CoverArtist"
             ]
         }
@@ -65,6 +74,7 @@ class AniList(IMetadataSource):
             else:
                 print(f"No mapping found for role: {role}")
 
+        print("asdsadsa")
         return comicinfo
 
     @classmethod

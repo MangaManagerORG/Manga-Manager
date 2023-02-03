@@ -335,12 +335,3 @@ def update_people_from_mapping(people, mapping, comicinfo, name_selector, role_s
                     comicinfo.set_attr_by_name(fields, name.strip())
 
         print(f"No mapping found for: {name} as {role}")
-
-        # if role == "Author":
-        #     for i in mapping["Author"]:
-        #         comicinfo.set_attr_by_name(i, name.strip())
-        # elif role == "Artist":
-        #     for i in mapping["Artist"]:
-        #         comicinfo.set_attr_by_name(i, name.strip())
-        # else:
-        #     print(f"No mapping found for: {name} as {role}")
