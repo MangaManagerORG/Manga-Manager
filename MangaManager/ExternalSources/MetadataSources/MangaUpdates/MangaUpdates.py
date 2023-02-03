@@ -3,8 +3,10 @@ import logging
 import requests
 
 from src.Common.errors import MangaNotFoundError
+from src.Common.utils import update_people_from_mapping
 from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
+
 
 
 class MangaUpdates(IMetadataSource):
@@ -39,17 +41,21 @@ class MangaUpdates(IMetadataSource):
             ]
         }
 
-        for people in data["authors"]:
-            name = people["name"]
-            role = people["type"]
-            if role == "Author":
-                for i in people_mapping["Author"]:
-                    comicinfo.set_attr_by_name(i, name.strip())
-            elif role == "Artist":
-                for i in people_mapping["Artist"]:
-                    comicinfo.set_attr_by_name(i, name.strip())
-            else:
-                print(f"No mapping found for: {name} as {role}")
+        update_people_from_mapping(data["authors"], people_mapping, comicinfo,
+                                   lambda item: item["name"],
+                                   lambda item: item["type"])
+
+        # for people in people_list:
+        #     name = people["name"]
+        #     role = people["type"]
+        #     if role == "Author":
+        #         for i in mapping["Author"]:
+        #             comicinfo.set_attr_by_name(i, name.strip())
+        #     elif role == "Artist":
+        #         for i in mapping["Artist"]:
+        #             comicinfo.set_attr_by_name(i, name.strip())
+        #     else:
+        #         print(f"No mapping found for: {name} as {role}")
         
         comicinfo.set_Publisher(", ".join([ i["publisher_name"] for i in data["publishers"] ]))
 

@@ -52,6 +52,7 @@ def normalize_filename(filename):
     # Replace all non-ASCII characters with their ASCII equivalents
     ascii_filename = normalized_filename.encode('ascii', 'ignore').decode('ascii')
     return ascii_filename
+
 def clean_filename(sourcestring, removestring=" %:/,.\\[]<>*?\""):
     """Clean a string by removing selected characters.
 
@@ -319,3 +320,27 @@ def extract_folder_and_module(file_path):
 def match_pyfiles_with_foldername(file_path):
     folder, file_ = extract_folder_and_module(file_path)
     return folder == file_
+
+def update_people_from_mapping(people, mapping, comicinfo, name_selector, role_selector):
+    if comicinfo is None:
+        return
+
+    for person in people:
+        name = name_selector(person)
+        role = role_selector(person)
+
+        for map_role in mapping:
+            if map_role == role:
+                for fields in mapping[map_role]:
+                    comicinfo.set_attr_by_name(fields, name.strip())
+
+        print(f"No mapping found for: {name} as {role}")
+
+        # if role == "Author":
+        #     for i in mapping["Author"]:
+        #         comicinfo.set_attr_by_name(i, name.strip())
+        # elif role == "Artist":
+        #     for i in mapping["Artist"]:
+        #         comicinfo.set_attr_by_name(i, name.strip())
+        # else:
+        #     print(f"No mapping found for: {name} as {role}")

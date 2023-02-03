@@ -3,6 +3,7 @@ import logging
 import requests
 
 from src.Common.errors import MangaNotFoundError
+from src.Common.utils import update_people_from_mapping
 from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
 
@@ -23,7 +24,7 @@ class AniList(IMetadataSource):
             return None
         content = content.get("id")
         data = cls._search_details_by_series_id(content, "MANGA", {})
-        print("sdsadas")
+
         startdate = data.get("startDate")
         comicinfo.set_Summary(data.get("description").strip())
         comicinfo.set_Day(startdate.get("day"))
@@ -33,11 +34,25 @@ class AniList(IMetadataSource):
         comicinfo.set_Genre(", ".join(data.get("genres")))
         comicinfo.set_Web(data.get("siteUrl").strip())
         # People
-        mapping = {
-            "Original Story": "Writer",
-            "Character Design": "Penciller",
-            "Story & Art": "Inker"
+        people_mapping = {
+            "Original Story": [
+                "Writer"
+            ],
+            "Character Design": [
+                "Penciller"
+            ],
+            "Story & Art": [
+                "Writer",
+                "Penciller",
+                "Inker",
+                "CoverArtist"
+            ]
         }
+
+        update_people_from_mapping(data["staff"]["edges"], people_mapping, comicinfo,
+                                   lambda item: item["node"]["name"]["full"],
+                                   lambda item: item["role"])
+
         staff_list = data["staff"]["edges"]
 
         for staff in staff_list:
@@ -50,7 +65,6 @@ class AniList(IMetadataSource):
             else:
                 print(f"No mapping found for role: {role}")
 
-        print("asdsadsa")
         return comicinfo
 
     @classmethod
@@ -122,7 +136,7 @@ class AniList(IMetadataSource):
 
         ret = cls._post(query, variables, logging_info)
         if ret is None:
-            raise MangaNotFoundError("AniList",manga_title)
+            raise MangaNotFoundError("AniList", manga_title)
         return ret
 
     @classmethod
