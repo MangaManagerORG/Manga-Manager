@@ -39,3 +39,7 @@ class Settings():
 
     def get(self, section, key):
         return self.config_parser[section][key].strip()
+
+    def set(self, section, key, value):
+        self.config_parser[section][key] = value
+        self.load()
