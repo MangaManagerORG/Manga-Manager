@@ -6,9 +6,11 @@ from pkg_resources import resource_filename
 from src import sources_factory
 from src.Layouts import layout_factory
 from src.Settings import default_settings
+from src.Settings.DefaultSettings import SettingHeading
+from src.Settings.Settings import Settings
 
-main_settings = default_settings['main']
-source_settings = default_settings['ExternalSources']
+main_settings = default_settings[SettingHeading.Main]
+source_settings = default_settings[SettingHeading.ExternalSources]
 
 logger = logging.getLogger()
 
@@ -23,7 +25,7 @@ def execute_gui():
     if not source_settings.get_control('default_cover_source').value:
         source_settings.get_control('default_cover_source').value = "MangaDex"
 
-    layout_name = main_settings.get_control('selected_layout').value
+    layout_name = Settings().get(SettingHeading.Main, 'selected_layout')
     main_settings.get_control('selected_layout').value = list(layout_factory)
     if layout_name not in layout_factory:
         layout_name = "default"

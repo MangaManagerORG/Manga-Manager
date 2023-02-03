@@ -12,12 +12,13 @@ from src.Common.terminalcolors import TerminalColors as TerCol
 from src.MetadataManager import comicinfo
 from src.MetadataManager.comicinfo import ComicInfo
 from src.Settings import default_settings
+from src.Settings.DefaultSettings import SettingHeading
 
 AniList = [source for source in sources_factory.get("MetadataSources") if source.name == "AniList"]
 
 logger = logging.getLogger("MetaManager.Core")
-settings = default_settings["main"]
-source_settings = default_settings["ExternalSources"]
+settings = default_settings[SettingHeading.Main]
+source_settings = default_settings[SettingHeading.ExternalSources]
 
 
 class _IMetadataManagerLib(abc.ABC):

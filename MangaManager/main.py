@@ -72,7 +72,7 @@ def get_selected_files(glob_path)-> list[str]:
     return file_paths
 
 # Load the settings on disk. This will create a default settings file if one doesn't already exist
-Settings('settings.ini').create_if_missing().load()
+Settings('settings.ini').load()
 
 if __name__ == '__main__':
     if args.selected_files_cli:

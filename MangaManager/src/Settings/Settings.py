@@ -1,6 +1,9 @@
 import configparser
+import json
 import os
 import logging
+
+from src.Settings import default_settings
 
 logger = logging.getLogger("MangaManager")
 
@@ -9,7 +12,7 @@ class Settings():
     __instance = None
     config_parser = configparser.ConfigParser(interpolation=None)
 
-    def __new__(cls, config_file='settings.ini', thumbs_file='r18-thumbs.csv'):
+    def __new__(cls, config_file='settings.ini'):
         if Settings.__instance is None:
             Settings.__instance = object.__new__(cls)
         Settings.__instance.config_file = os.path.abspath(config_file)
@@ -23,18 +26,16 @@ class Settings():
     def __init__(self, config_file='settings.ini'):
         self.config_file = config_file
 
-    def create_if_missing(self):
-        if not os.path.exists(self.config_file):
-            with open(self.config_file, 'w') as f:
-                f.write('')
-            self.save()
-        return self
-
     def save(self):
         pass
 
     def load(self):
         self.config_parser.read(self.config_file)
+
+        # Update DefaultSettings with values in config
+        for section in self.config_parser.sections():
+            for control in default_settings[section].values:
+                control.value = self.get(section, control.key)
 
     def get(self, section, key):
         return self.config_parser[section][key].strip()

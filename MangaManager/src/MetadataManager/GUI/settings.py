@@ -9,6 +9,7 @@ from src import MM_PATH
 from src.Common.utils import open_folder
 from src.MetadataManager.GUI.widgets import ButtonWidget, center
 from src.Settings import default_settings
+from src.Settings.DefaultSettings import SettingHeading
 from src.Settings.SettingControlType import SettingControlType
 #from src.settings import SettingItem
 
@@ -69,7 +70,7 @@ class SettingsWidgetManager:
                 frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name)
                 frame.pack(expand=True, fill="both")
 
-                self.settings_widget[default_settings['ExternalSources'].pretty_name][section.pretty_name] = {}
+                self.settings_widget[default_settings[SettingHeading.ExternalSources].pretty_name][section.pretty_name] = {}
                 self.build_setting_entries(frame, section.values, section.pretty_name)
             center(settings_window)
 

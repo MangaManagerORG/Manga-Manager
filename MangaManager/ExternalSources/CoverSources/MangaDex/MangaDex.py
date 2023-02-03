@@ -9,10 +9,11 @@ import requests
 from src.Common.utils import clean_filename
 from src.DynamicLibController.models.CoverSourceInterface import ICoverSource, Cover
 from src.Settings import default_settings
+from src.Settings.DefaultSettings import SettingHeading
 
 logger = logging.getLogger()
 
-covers_folder_path = default_settings['main'].get_control('covers_folder_path')
+covers_folder_path = default_settings[SettingHeading.Main].get_control('covers_folder_path')
 
 
 class MangaDex(ICoverSource):

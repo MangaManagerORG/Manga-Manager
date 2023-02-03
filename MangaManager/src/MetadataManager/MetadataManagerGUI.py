@@ -12,6 +12,7 @@ from pkg_resources import resource_filename
 from src.Common.utils import get_platform, open_folder
 from src.MetadataManager import comicinfo
 from src.Settings import default_settings
+from src.Settings.DefaultSettings import SettingHeading
 
 if get_platform() == "linux":
     from src.MetadataManager.GUI.FileChooserWindow import askopenfiles,askdirectory
@@ -27,7 +28,7 @@ from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 # from src import settings_class
 from src.__version__ import __version__
 
-main_settings = default_settings["main"]
+main_settings = default_settings[SettingHeading.Main]
 
 
 class GUIApp(Tk, MetadataManagerLib):

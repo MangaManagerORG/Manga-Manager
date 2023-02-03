@@ -17,6 +17,7 @@ from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 from src.Settings import default_settings
+from src.Settings.DefaultSettings import SettingHeading
 
 action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
 
@@ -27,7 +28,7 @@ def on_button_click(_, loaded_cinfo: LoadedComicInfo, front_or_back):
     print(f"Path: {loaded_cinfo.file_path}")
 
 
-settings = default_settings["main"]
+settings = default_settings[SettingHeading.Main]
 logger = logging.getLogger()
 
 class ComicFrame(CoverFrame):
