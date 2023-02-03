@@ -28,7 +28,7 @@ class MangaUpdates(IMetadataSource):
     }
 
     settings = [
-        SettingSection("MangaUpdates: Person Mappings", [
+        SettingSection("MangaUpdates", [
             SettingControl("Author", "Author", SettingControlType.Text, "Writer", "Author from source will map to ComicInfo fields"),
             SettingControl("Artist", "Artist", SettingControlType.Text, "Penciller, Inker, CoverArtist", "Artist from source will map to ComicInfo fields"),
         ])

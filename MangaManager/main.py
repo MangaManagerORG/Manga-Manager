@@ -73,12 +73,11 @@ def get_selected_files(glob_path)-> list[str]:
     return file_paths
 
 # Load the settings on disk. This will create a default settings file if one doesn't already exist
-Settings('settings.ini').load()
-
 # Load any provider (extension)'s settings
 for provider in providers:
     for setting in provider.settings:
         Settings().add(provider.name, setting)
+Settings('settings.ini').load()
 
 
 if __name__ == '__main__':

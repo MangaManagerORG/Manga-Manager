@@ -1,5 +1,4 @@
 import configparser
-import json
 import os
 import logging
 
@@ -7,6 +6,7 @@ from src.Settings import default_settings
 from src.Settings.SettingSection import SettingSection
 
 logger = logging.getLogger("MangaManager")
+
 
 class Settings():
     """ This is a singleton that holds settings.ini key/values """
@@ -30,6 +30,7 @@ class Settings():
     """
         Save the current settings from memory to disk
     """
+
     def save(self):
         with open(self.config_file, 'w') as configfile:
             self.config_parser.write(configfile)
@@ -37,23 +38,32 @@ class Settings():
     """
         Load the data from file and populate DefaultSettings
     """
+
     def load(self):
         self.config_parser.read(self.config_file)
 
         # Update DefaultSettings with values in config
         for section in self.config_parser.sections():
+            if not section in default_settings:
+                continue
+            #     # Load from provider
+            #     default_settings[section] = SettingSection(section)
+            #     for key, val in list(self.config_parser.items(section)):
+            #         default_settings[section].values = providers
             for control in default_settings[section].values:
                 control.value = self.get(section, control.key)
 
     """
         Get a key's value
     """
+
     def get(self, section, key):
         return self.config_parser[section][key].strip()
 
     """
         Sets a key's value. Will Save to disk and reload DefaultSettings
     """
+
     def set(self, section, key, value):
         self.config_parser[section][key] = value
         self.save()
@@ -63,6 +73,9 @@ class Settings():
         for control in setting_section.values:
             if not section in self.config_parser.sections():
                 self.config_parser.add_section(section)
+                default_settings[section] = setting_section
             self.config_parser[section][control.key] = control.value
+            if not section in default_settings:
+                default_settings[section] = setting_section
         self.save()
         self.load()
