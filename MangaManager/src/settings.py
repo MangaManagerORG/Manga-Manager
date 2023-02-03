@@ -1,9 +1,11 @@
+import abc
 import configparser
 import copy
 from configparser import ConfigParser
-from typing import MutableMapping
+from typing import MutableMapping, List
 
 import src
+from src.Settings.SettingControlType import SettingControlType
 
 layout_factory = {}
 
@@ -91,17 +93,19 @@ class Settings:
         global CONFIG_PATH
         CONFIG_PATH = config_path
 
+    def get_setting_path(self, section_name):
+        return CONFIG_PATH
+
     @staticmethod
     def get_setting(section_name) -> SettingsSection:
         return factory.get(section_name)
 
     @staticmethod
-    def list_settings() -> list[str]:
+    def list_settings() -> list[MutableMapping[str, SettingsSection]]:
         return [setting_key for setting_key in factory]
 
     @staticmethod
     def save_settings() -> None:
-
         with open(CONFIG_PATH, 'w') as f:
             CPARSER.write(f)
 
@@ -129,24 +133,26 @@ registered_settings_sections = {
             {
                 "key": "library_path",
                 "name": "Library path",
+                "type_": SettingControlType.Text,
                 "tooltip": "The path to your library. This location will be opened by default when choosing files",
             },
             {
                 "key": "covers_folder_path",
                 "name": "Covers folder path",
+                "type_": SettingControlType.Text,
                 "tooltip": "The path to your covers. This location will be opened by default when choosing covers"
             },
             {
                 "key": "cache_cover_images",
                 "name": "Cache cover images",
                 "tooltip": "If enabled, the covers of the file will be cached and shown in the ui",
-                "type_": "bool"
+                "type_": SettingControlType.Bool,
             },
             {
                 "key": "selected_layout",
                 "name": "* Active layout",
                 "tooltip": "Selects the layout to be displayed",
-                "type_": "optionmenu",
+                "type_": SettingControlType.Options,
                 "values": []
             },
         ]
@@ -157,6 +163,7 @@ registered_settings_sections = {
             {
                 "key": "default_base_path",
                 "name": "Default base path",
+                "type_": SettingControlType.Text,
                 "tooltip": "The starting point where the glob will begin looking for files that match the pattern"
             }
         ]
@@ -168,14 +175,14 @@ registered_settings_sections = {
                 "key": "default_metadata_source",
                 "name": "Default metadata source",
                 "tooltip": "The source that will be hit when looking for metadata.",
-                "type_": "optionmenu",
+                "type_": SettingControlType.Options,
                 "values": []
             },
             {
                 "key": "default_cover_source",
                 "name": "Default cover source",
                 "tooltip": "The source that will be hit when looking for cover images.",
-                "type_": "optionmenu",
+                "type_": SettingControlType.Options,
                 "values": []
             }
         ]

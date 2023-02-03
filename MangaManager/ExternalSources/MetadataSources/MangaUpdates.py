@@ -8,6 +8,8 @@ from src.Common.errors import MangaNotFoundError
 from src.Common.utils import update_people_from_mapping
 from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
+from src.Settings.SettingControlType import SettingControlType
+
 
 class MangaUpdates(IMetadataSource):
     name = "MangaUpdates"
@@ -19,21 +21,27 @@ class MangaUpdates(IMetadataSource):
             "Artist": [
                 "Penciller",
                 "Inker",
-                "Colorist",
                 "CoverArtist"
             ]
     }
 
     settings = [
         {
-            "pretty_name": "Person Mappings",
+            "pretty_name": "MangaUpdates: Person Mappings",
             "values": [
                 {
                     "key": "Author",
-                    "type_": "input",
+                    "type_": SettingControlType.Text,
                     "name": "Author",
-                    "tooltip": "",
+                    "tooltip": "Author from source will map to ComicInfo fields",
                     "value": "Writer"
+                },
+                {
+                    "key": "Artist",
+                    "type_": SettingControlType.Text,
+                    "name": "Artist",
+                    "tooltip": "Artist from source will map to ComicInfo fields",
+                    "value": "Penciller, Inker, CoverArtist"
                 }
             ]
         }

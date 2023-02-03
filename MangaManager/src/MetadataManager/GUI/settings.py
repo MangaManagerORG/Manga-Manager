@@ -8,14 +8,25 @@ from ExternalSources.MetadataSources.MetadataSourceFactory import ScraperFactory
 from src import settings_class, MM_PATH
 from src.Common.utils import open_folder
 from src.MetadataManager.GUI.widgets import ButtonWidget, center
+from src.Settings.SettingControlType import SettingControlType
 from src.settings import SettingItem
+
+providers = [ScraperFactory().get_scraper("MangaUpdates"), ScraperFactory().get_scraper("AniList")]
 
 
 class SettingsWidgetManager:
     def parse_ui_settings_process(self):
-        for stringvar in self.strings_vars:
-            stringvar.linked_setting.value = str(stringvar.get())
+        for setting_value in self.strings_vars:
+            if 'value' in setting_value.linked_setting:
+                setting_value.linked_setting.value = str(setting_value.get())
+            # else:
+            #     setting_value.linked_setting.
         settings_class.save_settings()
+
+        # Save Extensions
+        for provider in providers:
+            path = settings_class.get_setting_path(provider.name)
+
 
     def __init__(self, parent):
         self.strings_vars: list[tkinter.Variable] = []
@@ -45,10 +56,7 @@ class SettingsWidgetManager:
             self.print_setting_entry(frame, section_class)
             center(settings_window)
 
-        providers = []
-        providers.append(ScraperFactory().get_scraper("MangaUpdates"))
-        providers.append(ScraperFactory().get_scraper("AniList"))
-
+        # Populate settings from MetadataSource Extensions
         for provider in providers:
             settings = provider.settings
             for section in settings:
@@ -59,7 +67,7 @@ class SettingsWidgetManager:
                 self.settings_widget['ExternalSources'][provider.name] = {}
                 self.settings_widget['ExternalSources'][provider.name][section['pretty_name']] = {}
                 self.build_setting_entry(frame, section['values'], section['pretty_name'])
-                center(settings_window)
+            center(settings_window)
 
         frame = Label(master=control_frame, text="\nNote: Fields marked with * needs a restart to take effect")
         frame.pack(expand=True, fill="both")
@@ -76,12 +84,12 @@ class SettingsWidgetManager:
                 label.tooltip = Hovertip(label, setting["tooltip"], 20)
 
             control_type = setting["type_"]
-            if control_type == "bool":
+            if control_type == SettingControlType.Bool:
                 value = True if setting.value else False
                 string_var = SettingBolVar(value=value, name=f"{section_name}.{setting['key']}")
                 entry = tkinter.Checkbutton(row, variable=string_var, onvalue=1, offvalue=0)
                 entry.pack(side="left")
-            elif control_type == "optionmenu":
+            elif control_type == SettingControlType.Options:
                 string_var = SettingStringVar(value="default", name=f"{section_name}.{setting['key']}")
                 entry = Combobox(master=row, textvariable=string_var, width=30, state="readonly")
                 entry["values"] = setting.values
@@ -93,13 +101,13 @@ class SettingsWidgetManager:
                 entry = tkinter.Entry(master=row, width=80, textvariable=string_var)
                 entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
             self.strings_vars.append(string_var)
-            string_var.linked_setting = setting
+            string_var.linked_setting = setting # TODO: Make this a SettingControlItem
 
             entry.setting_section = section_name
-            entry.setting_name = setting
-            self.settings_widget[section_name][setting] = entry
-            if setting.type_ == "bool":
-                string_var.set(bool(setting))
+            # entry.setting_name = setting
+            # self.settings_widget[section_name][setting] = entry
+            # if control_type == "bool":
+            #     string_var.set(bool(setting))
 
     def print_setting_entry(self, parent_frame, section_class):
         for i, setting in enumerate(section_class.settings):
