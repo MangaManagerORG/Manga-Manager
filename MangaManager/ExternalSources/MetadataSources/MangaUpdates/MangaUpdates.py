@@ -14,24 +14,7 @@ from src.MetadataManager.comicinfo import ComicInfo
 class MangaUpdates(IMetadataSource):
     name = "MangaUpdates"
     _log = logging.getLogger()
-
-    @classmethod
-    def get_cinfo(cls, series_name) -> ComicInfo | None:
-        comicinfo = ComicInfo()
-        
-        data = cls._get_series_details(series_name, {})
-
-        #Basic Info
-        comicinfo.set_Series(data["title"].strip())
-        comicinfo.set_Summary(data["description"].strip())
-        comicinfo.set_Genre(", ".join([ i["genre"] for i in data["genres"] ]))
-        comicinfo.set_Tags(", ".join([ i["category"] for i in data["categories"] ]))
-        comicinfo.set_Web(data["url"].strip())
-        comicinfo.set_Manga("Yes" if data["type"] == "Manga" else "No")
-        comicinfo.set_Year(data["year"])
-
-        # People Info
-        people_mapping = {
+    person_mapper = {
             "Author": [
                 "Writer"
             ],
@@ -41,9 +24,25 @@ class MangaUpdates(IMetadataSource):
                 "Colorist",
                 "CoverArtist"
             ]
-        }
+    }
 
-        update_people_from_mapping(data["authors"], people_mapping, comicinfo,
+    @classmethod
+    def get_cinfo(cls, series_name) -> ComicInfo | None:
+        comicinfo = ComicInfo()
+        
+        data = cls._get_series_details(series_name, {})
+
+        # Basic Info
+        comicinfo.set_Series(data["title"].strip())
+        comicinfo.set_Summary(data["description"].strip())
+        comicinfo.set_Genre(", ".join([ i["genre"] for i in data["genres"] ]))
+        comicinfo.set_Tags(", ".join([ i["category"] for i in data["categories"] ]))
+        comicinfo.set_Web(data["url"].strip())
+        comicinfo.set_Manga("Yes" if data["type"] == "Manga" else "No")
+        comicinfo.set_Year(data["year"])
+
+        # People Info
+        update_people_from_mapping(data["authors"], cls.person_mapper, comicinfo,
                                    lambda item: item["name"],
                                    lambda item: item["type"])
 

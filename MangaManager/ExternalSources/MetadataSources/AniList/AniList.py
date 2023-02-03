@@ -13,6 +13,21 @@ from src.MetadataManager.comicinfo import ComicInfo
 class AniList(IMetadataSource):
     name = "AniList"
     _log = logging.getLogger()
+    person_mapper = {
+        "Original Story": [
+            "Writer"
+        ],
+        "Character Design": [
+            "Penciller"
+        ],
+        "Story & Art": [
+            "Writer",
+            "Penciller",
+            "Inker",
+            "Colorist",
+            "CoverArtist"
+        ]
+    }
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:
@@ -35,24 +50,9 @@ class AniList(IMetadataSource):
         comicinfo.set_Series(data.get("title").get("romaji").strip())
         comicinfo.set_Genre(", ".join(data.get("genres")))
         comicinfo.set_Web(data.get("siteUrl").strip())
-        # People
-        people_mapping = {
-            "Original Story": [
-                "Writer"
-            ],
-            "Character Design": [
-                "Penciller"
-            ],
-            "Story & Art": [
-                "Writer",
-                "Penciller",
-                "Inker",
-                "Colorist",
-                "CoverArtist"
-            ]
-        }
 
-        update_people_from_mapping(data["staff"]["edges"], people_mapping, comicinfo,
+        # People
+        update_people_from_mapping(data["staff"]["edges"], cls.person_mapper, comicinfo,
                                    lambda item: item["node"]["name"]["full"],
                                    lambda item: item["role"])
 
