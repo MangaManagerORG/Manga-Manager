@@ -47,18 +47,6 @@ class MangaUpdates(IMetadataSource):
                                    lambda item: item["name"],
                                    lambda item: item["type"])
 
-        # for people in people_list:
-        #     name = people["name"]
-        #     role = people["type"]
-        #     if role == "Author":
-        #         for i in mapping["Author"]:
-        #             comicinfo.set_attr_by_name(i, name.strip())
-        #     elif role == "Artist":
-        #         for i in mapping["Artist"]:
-        #             comicinfo.set_attr_by_name(i, name.strip())
-        #     else:
-        #         print(f"No mapping found for: {name} as {role}")
-        
         comicinfo.set_Publisher(", ".join([ i["publisher_name"] for i in data["publishers"] ]))
 
         # Extended

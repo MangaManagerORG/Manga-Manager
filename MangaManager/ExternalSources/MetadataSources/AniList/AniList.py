@@ -36,12 +36,6 @@ class AniList(IMetadataSource):
         comicinfo.set_Genre(", ".join(data.get("genres")))
         comicinfo.set_Web(data.get("siteUrl").strip())
         # People
-        mapping = {
-            "Original Story": "Writer",
-            "Character Design": "Penciller",
-            "Story & Art": "Inker"
-        }
-
         people_mapping = {
             "Original Story": [
                 "Writer"
@@ -62,19 +56,6 @@ class AniList(IMetadataSource):
                                    lambda item: item["node"]["name"]["full"],
                                    lambda item: item["role"])
 
-        staff_list = data["staff"]["edges"]
-
-        for staff in staff_list:
-            node = staff["node"]
-            name = node["name"]["full"]
-            role = staff["role"]
-            mapped_role = mapping.get(role, "")
-            if mapped_role:
-                comicinfo.set_attr_by_name(mapped_role, name.strip())
-            else:
-                print(f"No mapping found for role: {role}")
-
-        print("asdsadsa")
         return comicinfo
 
     @classmethod
