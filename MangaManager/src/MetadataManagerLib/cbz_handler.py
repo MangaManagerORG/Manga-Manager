@@ -158,6 +158,7 @@ class WriteComicInfo:
     def to_file(self, skip_backup=False, skip_if_comicinfo_is_present=False):
         comicinfo_is_present = False
         with zipfile.ZipFile(self._zipFilePath, 'r') as zin:
+            orig_comp_type = zin.infolist()[0].compress_type
             if "ComicInfo.xml" in zin.namelist():
                 comicinfo_is_present = True
                 logger.debug("[Write] Skipped appending ComicInfo.xml to the file")
@@ -166,7 +167,7 @@ class WriteComicInfo:
                 self._backup()
         if comicinfo_is_present and skip_if_comicinfo_is_present:
             return
-        with zipfile.ZipFile(self._zipFilePath, mode='a', compression=zipfile.ZIP_STORED) as zf:
+        with zipfile.ZipFile(self._zipFilePath, mode='a', compression=orig_comp_type) as zf:
             # We finally append our new ComicInfo file
             zf.writestr("ComicInfo.xml", self._export_io)
             logger.debug("[Write] New ComicInfo.xml added to the file")
