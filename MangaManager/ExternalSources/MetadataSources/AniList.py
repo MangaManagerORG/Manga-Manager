@@ -32,7 +32,7 @@ class AniList(IMetadataSource):
     def __init__(self):
         pass
 
-    def save_settings(self, setting_control):
+    def save_settings(self):
         pass
 
     @classmethod

@@ -1,8 +1,7 @@
-from tkinter import Widget
 from tkinter.scrolledtext import ScrolledText
 
 from src.MetadataManager.GUI.longtext import LongText
-from src.MetadataManager.GUI.widgets import MMWidget
+from .MMWidget import MMWidget
 
 
 class LongTextWidget(MMWidget):

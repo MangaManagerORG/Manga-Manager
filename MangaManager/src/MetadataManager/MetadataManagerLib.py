@@ -4,6 +4,8 @@ import abc
 import logging
 from abc import ABC
 
+from ExternalSources.MetadataSources import ScraperFactory
+
 from src import sources_factory
 from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
@@ -210,14 +212,12 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         # print(export.getvalue())
 
     def fetch_online(self, series_name):
-
-        selected_source = [source for source in sources_factory["MetadataSources"] if source.name == source_settings.get_control('default_metadata_source').value]
+        selected_source = ScraperFactory().get_scraper(Settings().get(SettingHeading.ExternalSources, 'default_metadata_source'))
         if not selected_source:
             raise Exception("Unhandled exception. Metadata sources are not loaded or there's a bug in it."
                             "Raise an issue if this happens.")
-        source = selected_source[0]
         try:
-            return source.get_cinfo(series_name)
+            return selected_source.get_cinfo(series_name)
         except MangaNotFoundError as e:
             logger.exception(str(e))
             self.on_manga_not_found(e, series_name)

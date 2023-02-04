@@ -154,7 +154,7 @@ class GUIApp(Tk, MetadataManagerLib):
         # These are some tricks to make it easier to select files.
         # Saves last opened folder to not have to browse to it again
         if not self.last_folder:
-            initial_dir = Settings.get(SettingHeading.Main, 'library_path')
+            initial_dir = Settings().get(SettingHeading.Main, 'library_path')
         else:
             initial_dir = self.last_folder
         self.log.debug("Selecting files")
@@ -301,7 +301,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self.widget_mngr.clean_widgets()
         if loaded_cinfo_list is None:
             loaded_cinfo_list = self.selected_items
-        if Settings.get(SettingHeading.Main, 'cache_cover_images'):
+        if Settings().get(SettingHeading.Main, 'cache_cover_images'):
             self.image_cover_frame.update_cover_image(loaded_cinfo_list)
 
         # Iterate all cinfo tags. Should there be any values that are not equal. Show "different values selected"

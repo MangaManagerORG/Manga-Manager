@@ -1,5 +1,5 @@
 import tkinter
-from src.MetadataManager.GUI.widgets import MMWidget
+from .MMWidget import MMWidget
 from tkinter.ttk import Combobox
 
 

@@ -3,7 +3,7 @@ import tkinter
 from tkinter.ttk import Combobox
 
 from src.MetadataManager import comicinfo
-from src.MetadataManager.GUI.widgets import MMWidget
+from .MMWidget import MMWidget
 
 logger = logging.getLogger()
 

@@ -13,20 +13,15 @@ class IMetadataSource(abc.ABC):
     """
     settings = []
 
-    def save_setting(self, section_key, key, value):
-        for section in self.settings:
-            if section_key in section:
-                for control in section[section_key]:
-                    if control.key == key:
-                        control.value = value
-
-
     @classmethod
     @abc.abstractmethod
     def get_cinfo(cls, series_name) -> ComicInfo:
         ...
 
-    def save_settings(cls, setting_control: tuple[TypeVar(SettingControl), *TypeVarTuple(string)]):
+    def save_settings(self):
+        """
+        When a setting update occurs, this is invoked and internal state should be updated from Settings()
+        """
         pass
 
     @final

@@ -42,9 +42,9 @@ class SettingsWidgetManager:
             if setting_value.linked_setting:
                 Settings().set(setting_value.linked_section.key, setting_value.linked_setting.key, str(setting_value.get()))
 
-        # Save Extensions
+        # Tell Extensions that an update to Settings has occurred
         for provider in providers:
-            provider.save_settings([lambda: (setting.linked_setting, setting.get()) for setting in self.strings_vars])
+            provider.save_settings()
 
         Settings().save()
 
@@ -66,10 +66,8 @@ class SettingsWidgetManager:
                      tooltip="Opens the folder where Manga Manager stores it's files",
                      command=lambda x=None: open_folder(folder_path=MM_PATH)).pack()
 
-        # TODO: Refactor this into a FrameBuilder
-        # An idea is to actualy have DefaultSettings be completely value empty and use Setting().get() to get the values throughout the code
-        # then in this GUI, we can load the values from settings directly, since DefaultSettings are really JUST for the UI layer.
         self.settings_widget = {}
+        print('Setting up settings for Manga Manager')
         for setting_section in default_settings:
             section = default_settings[setting_section]
 
@@ -80,6 +78,7 @@ class SettingsWidgetManager:
             self.settings_widget[section.pretty_name] = {}
             self.build_setting_entries(frame, section.values, section)
 
+        print('Setting up settings for Extensions')
         for provider in providers:
             settings = provider.settings
             for section in settings:
@@ -109,7 +108,7 @@ class SettingsWidgetManager:
 
         control_type = control.type_
         if control_type == SettingControlType.Bool:
-            value = True if control.value else False
+            value = control.value == 'True'
             string_var = tkinter.BooleanVar(value=value, name=f"{section.pretty_name}.{control.key}")
             entry = tkinter.Checkbutton(row, variable=string_var, onvalue=1, offvalue=0)
             entry.pack(side="left")

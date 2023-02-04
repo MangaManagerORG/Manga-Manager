@@ -11,6 +11,7 @@ from src.MetadataManager.comicinfo import ComicInfo
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
+from src.Settings.Settings import Settings
 
 
 class MangaUpdates(IMetadataSource):
@@ -38,12 +39,12 @@ class MangaUpdates(IMetadataSource):
         pass
 
 
-    def save_settings(self, setting_control: tuple[TypeVar(SettingControl), *TypeVarTuple(string)]):
+    def save_settings(self):
         self._log.debug("Updating settings from Setting GUI")
-        for section in self.settings:
-            for control in self.settings[section].values:
-                control.value = self.get(setting_control[0], setting_control[0])
-        pass
+
+        # Update person_mapper when this is called as it indicates the settings for the provider might have changed
+        self.person_mapper["Author"] = Settings().get(self.name, 'Author').split(',')
+        self.person_mapper["Artist"] = Settings().get(self.name, 'Artist').split(',')
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:

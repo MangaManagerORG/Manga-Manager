@@ -1,7 +1,7 @@
 from tkinter.ttk import Combobox
 
 from src.MetadataManager.GUI.utils import validate_int
-from src.MetadataManager.GUI.widgets import MMWidget
+from .MMWidget import MMWidget
 
 
 class ComboBoxWidget(MMWidget):
