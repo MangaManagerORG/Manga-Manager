@@ -2,8 +2,8 @@ import configparser
 import os
 import logging
 
+from main import providers
 from src.Settings import default_settings
-from src.Settings.SettingSection import SettingSection
 
 logger = logging.getLogger("MangaManager")
 
@@ -45,13 +45,15 @@ class Settings():
         # Update DefaultSettings with values in config
         for section in self.config_parser.sections():
             if not section in default_settings:
-                continue
-            #     # Load from provider
-            #     default_settings[section] = SettingSection(section)
-            #     for key, val in list(self.config_parser.items(section)):
-            #         default_settings[section].values = providers
-            for control in default_settings[section].values:
-                control.value = self.get(section, control.key)
+                # This is an external provider setting, update them
+                for provider in providers:
+                    for setting in list(self.config_parser.items(section)):
+                        provider.save_setting(section, setting)
+            else:
+                for control in default_settings[section].values:
+                    control.value = self.get(section, control.key)
+
+
 
     """
         Get a key's value
@@ -69,13 +71,16 @@ class Settings():
         self.save()
         self.load()
 
-    def add(self, section, setting_section):
-        for control in setting_section.values:
-            if not section in self.config_parser.sections():
-                self.config_parser.add_section(section)
-                default_settings[section] = setting_section
-            self.config_parser[section][control.key] = control.value
-            if not section in default_settings:
-                default_settings[section] = setting_section
-        self.save()
-        self.load()
+    # def add(self, section, setting_section):
+    #     for control in setting_section.values:
+    #         if not section in self.config_parser.sections():
+    #             self.config_parser.add_section(section)
+    #             default_settings[section] = setting_section
+    #         else:
+    #             # I need to override default_settings
+    #             default_settings[section]
+    #         self.config_parser[section][control.key] = control.value
+    #         if not section in default_settings:
+    #             default_settings[section] = setting_section
+    #     self.save()
+    #     self.load()

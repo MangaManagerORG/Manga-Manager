@@ -1,7 +1,9 @@
 import abc
-from typing import final
+import string
+from typing import final, TypeVar, TypeVarTuple
 
 from src.MetadataManager.comicinfo import ComicInfo
+from src.Settings.SettingControl import SettingControl
 
 
 class IMetadataSource(abc.ABC):
@@ -11,11 +13,21 @@ class IMetadataSource(abc.ABC):
     """
     settings = []
 
+    def save_setting(self, section_key, key, value):
+        for section in self.settings:
+            if section_key in section:
+                for control in section[section_key]:
+                    if control.key == key:
+                        control.value = value
+
 
     @classmethod
     @abc.abstractmethod
     def get_cinfo(cls, series_name) -> ComicInfo:
         ...
+
+    def save_settings(cls, setting_control: tuple[TypeVar(SettingControl), *TypeVarTuple(string)]):
+        pass
 
     @final
     def __init__(self, master, super_=None, **kwargs):

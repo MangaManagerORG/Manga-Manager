@@ -6,7 +6,7 @@ import requests
 
 from src.Common.errors import MangaNotFoundError
 from src.Common.utils import update_people_from_mapping
-from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
+from src.DynamicLibController.models.IMetadataSource import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
 
 
@@ -30,6 +30,9 @@ class AniList(IMetadataSource):
     }
 
     def __init__(self):
+        pass
+
+    def save_settings(self, setting_control):
         pass
 
     @classmethod

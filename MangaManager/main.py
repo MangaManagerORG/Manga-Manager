@@ -4,7 +4,7 @@ import glob
 import logging
 from pathlib import Path
 
-from ExternalSources.MetadataSources import providers
+from ExternalSources.MetadataSources import ScraperFactory
 from logging_setup import add_trace_level, setup_logging
 from src.Settings.Settings import Settings
 
@@ -72,11 +72,14 @@ def get_selected_files(glob_path)-> list[str]:
         raise NoFilesSelected()
     return file_paths
 
+# TODO: Load dynamically loaded extensions
+providers = [ScraperFactory().get_scraper("MangaUpdates"), ScraperFactory().get_scraper("AniList")]
+
 # Load the settings on disk. This will create a default settings file if one doesn't already exist
 # Load any provider (extension)'s settings
-for provider in providers:
-    for setting in provider.settings:
-        Settings().add(provider.name, setting)
+# for provider in providers:
+#     for setting in provider.settings:
+#         Settings().add(provider.name, setting)
 Settings('settings.ini').load()
 
 

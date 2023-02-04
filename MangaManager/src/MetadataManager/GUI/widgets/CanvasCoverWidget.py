@@ -9,13 +9,12 @@ from pkg_resources import resource_filename
 
 # from src import settings_class
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
-from src.MetadataManager.GUI.widgets import MULTIPLE_FILES_SELECTED
 from src.Settings.DefaultSettings import SettingHeading
 from src.Settings.Settings import Settings
 
 window_width, window_height = 0, 0
 action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
-
+MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
 
 
 class CanvasCoverWidget(Canvas):

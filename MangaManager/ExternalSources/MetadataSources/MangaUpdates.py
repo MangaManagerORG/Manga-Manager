@@ -1,12 +1,12 @@
-from __future__ import annotations
-
 import logging
+import string
+from typing import TypeVar, TypeVarTuple
 
 import requests
 
 from src.Common.errors import MangaNotFoundError
 from src.Common.utils import update_people_from_mapping
-from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
+from src.DynamicLibController.models.IMetadataSource import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
@@ -28,13 +28,21 @@ class MangaUpdates(IMetadataSource):
     }
 
     settings = [
-        SettingSection("MangaUpdates", [
+        SettingSection("MangaUpdates", "MangaUpdates", [
             SettingControl("Author", "Author", SettingControlType.Text, "Writer", "Author from source will map to ComicInfo fields"),
             SettingControl("Artist", "Artist", SettingControlType.Text, "Penciller, Inker, CoverArtist", "Artist from source will map to ComicInfo fields"),
         ])
     ]
 
     def __init__(self):
+        pass
+
+
+    def save_settings(self, setting_control: tuple[TypeVar(SettingControl), *TypeVarTuple(string)]):
+        self._log.debug("Updating settings from Setting GUI")
+        for section in self.settings:
+            for control in self.settings[section].values:
+                control.value = self.get(setting_control[0], setting_control[0])
         pass
 
     @classmethod

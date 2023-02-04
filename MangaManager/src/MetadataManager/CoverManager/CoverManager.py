@@ -12,7 +12,7 @@ from PIL import Image, ImageTk
 from pkg_resources import resource_filename
 
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
-from src.MetadataManager.GUI.CoverWidget import CoverFrame, CanvasCoverWidget
+from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, CanvasCoverWidget
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp

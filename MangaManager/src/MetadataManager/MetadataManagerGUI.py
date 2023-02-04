@@ -23,7 +23,7 @@ from _tkinter import TclError
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget, ControlManager, HyperlinkLabel
-from src.MetadataManager.GUI.settings import SettingsWidgetManager
+from src.MetadataManager.GUI.SettingsWidgetManager import SettingsWidgetManager
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
 # from src import settings_class
