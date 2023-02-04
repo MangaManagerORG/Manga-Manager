@@ -8,6 +8,10 @@ from src.Common.errors import MangaNotFoundError
 from src.Common.utils import update_people_from_mapping
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
+from src.Settings.SettingControl import SettingControl
+from src.Settings.SettingControlType import SettingControlType
+from src.Settings.SettingSection import SettingSection
+from src.Settings.Settings import Settings
 
 
 class AniList(IMetadataSource):
@@ -24,16 +28,28 @@ class AniList(IMetadataSource):
             "Writer",
             "Penciller",
             "Inker",
-            "Colorist",
             "CoverArtist"
         ]
     }
+
+    settings = [
+        SettingSection(name, name, [
+            SettingControl("Original Story", "Original Story", SettingControlType.Text, "Writer",
+                           "How metadata field will map to ComicInfo fields"),
+            SettingControl("Character Design", "Character Design", SettingControlType.Text, "Penciller",
+                           "How metadata field will map to ComicInfo fields"),
+            SettingControl("Story & Art", "Story & Art", SettingControlType.Text, "Writer, Penciller, Inker, CoverArtist",
+                           "How metadata field will map to ComicInfo fields"),
+        ])
+    ]
 
     def __init__(self):
         pass
 
     def save_settings(self):
-        pass
+        self.person_mapper["Original Story"] = Settings().get(self.name, 'Original Story').split(',')
+        self.person_mapper["Character Design"] = Settings().get(self.name, 'Character Design').split(',')
+        self.person_mapper["Story & Art"] = Settings().get(self.name, 'Story & Art').split(',')
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:

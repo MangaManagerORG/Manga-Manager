@@ -29,9 +29,9 @@ class MangaUpdates(IMetadataSource):
     }
 
     settings = [
-        SettingSection("MangaUpdates", "MangaUpdates", [
-            SettingControl("Author", "Author", SettingControlType.Text, "Writer", "Author from source will map to ComicInfo fields"),
-            SettingControl("Artist", "Artist", SettingControlType.Text, "Penciller, Inker, CoverArtist", "Artist from source will map to ComicInfo fields"),
+        SettingSection(name, name, [
+            SettingControl("Author", "Author", SettingControlType.Text, "Writer", "How metadata field will map to ComicInfo fields"),
+            SettingControl("Artist", "Artist", SettingControlType.Text, "Penciller, Inker, CoverArtist", "How metadata field will map to ComicInfo fields"),
         ])
     ]
 
@@ -40,8 +40,6 @@ class MangaUpdates(IMetadataSource):
 
 
     def save_settings(self):
-        self._log.debug("Updating settings from Setting GUI")
-
         # Update person_mapper when this is called as it indicates the settings for the provider might have changed
         self.person_mapper["Author"] = Settings().get(self.name, 'Author').split(',')
         self.person_mapper["Artist"] = Settings().get(self.name, 'Artist').split(',')
