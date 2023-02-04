@@ -126,12 +126,16 @@ class WriteComicInfo:
                 """
         backup_isdone = False
         with zipfile.ZipFile(self._zipFilePath, 'r') as zin:
+            for s in zin.infolist():
+                if s.file_size != 0:
+                    orig_comp_type = s.compress_type
+                    break
             if not "ComicInfo.xml" in zin.namelist():
                 logger.debug(f"[Backup] Skipping backup. No ComicInfo.xml present")
                 return
             tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self._zipFilePath))
             os.close(tmpfd)
-            with zipfile.ZipFile(tmpname, 'w') as zout:
+            with zipfile.ZipFile(tmpname, 'w', orig_comp_type) as zout:
                 for item in zin.infolist():
                     logger.debug(f"[Backup] Iterating: {item.filename}")
                     if item.filename == "ComicInfo.xml":
@@ -158,7 +162,10 @@ class WriteComicInfo:
     def to_file(self, skip_backup=False, skip_if_comicinfo_is_present=False):
         comicinfo_is_present = False
         with zipfile.ZipFile(self._zipFilePath, 'r') as zin:
-            orig_comp_type = zin.infolist()[0].compress_type
+            for s in zin.infolist():
+                if s.file_size != 0:
+                    orig_comp_type = s.compress_type
+                    break
             if "ComicInfo.xml" in zin.namelist():
                 comicinfo_is_present = True
                 logger.debug("[Write] Skipped appending ComicInfo.xml to the file")
@@ -193,12 +200,16 @@ class WriteComicInfo:
 
         backup_isdone = False
         with zipfile.ZipFile(self._zipFilePath, 'r') as zin:
+            for s in zin.infolist():
+                if s.file_size != 0:
+                    orig_comp_type = s.compress_type
+                    break
             if not "Old_ComicInfo.xml.bak" in zin.namelist():
                 logger.debug(f"[Restore] Skipping restore for '{self._zipFilePath}'. No ComicInfo.xml present")
                 return
             tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self._zipFilePath))
             os.close(tmpfd)
-            with zipfile.ZipFile(tmpname, 'w') as zout:
+            with zipfile.ZipFile(tmpname, 'w', orig_comp_type) as zout:
                 for item in zin.infolist():
                     logger.debug(f"[Restore Backup] Iterating: {item.filename}")
                     if item.filename == "ComicInfo.xml":
