@@ -1,12 +1,12 @@
 import tkinter
-from tkinter import Widget
+from src.MetadataManager.GUI.widgets import MMWidget
 from tkinter.ttk import Combobox
 
 
-class AutocompleteComboboxWidget(Widget):
+class AutocompleteComboboxWidget(MMWidget):
     def __init__(self, master, cinfo_name, label_text=None, default_values=None, width=None,
                  force_validation_from_list = True, tooltip:str = None):
-        super().__init__(master=master)
+        super(AutocompleteComboboxWidget, self).__init__(master=master)
         self.name = cinfo_name
         self.default = ""
         self.set_label(label_text, tooltip)

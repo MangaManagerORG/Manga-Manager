@@ -1,13 +1,15 @@
-from tkinter import Widget
 from tkinter.ttk import Combobox
 
 from src.MetadataManager.GUI.utils import validate_int
+from src.MetadataManager.GUI.widgets import MMWidget
 
 
-class ComboBoxWidget(Widget):
+class ComboBoxWidget(MMWidget):
     def __init__(self, master, cinfo_name, label_text=None, default_values=None, width=None, default="",
                  validation=None, tooltip: str = None):
-        super(ComboBoxWidget, self).__init__(master)
+
+        super(ComboBoxWidget, self).__init__(master=master)
+
         if label_text is None:
             label_text = cinfo_name
         self.name = cinfo_name

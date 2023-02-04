@@ -4,10 +4,10 @@ from src.MetadataManager.GUI.widgets import OptionMenuWidget, LongTextWidget, Co
 class WidgetManager:
     cinfo_tags: list[str] = list()
 
-    def get_widget(self, name) -> ComboBoxWidget | LongTextWidget | OptionMenuWidget:
+    def get_widget(self, name): # -> ComboBoxWidget | LongTextWidget | OptionMenuWidget
         return getattr(self, name)
 
-    def add_widget(self, name, widget_frame: ComboBoxWidget | LongTextWidget | OptionMenuWidget):
+    def add_widget(self, name, widget_frame): # : ComboBoxWidget | LongTextWidget | OptionMenuWidget
         self.cinfo_tags.append(name)
         setattr(self, name, widget_frame)
 

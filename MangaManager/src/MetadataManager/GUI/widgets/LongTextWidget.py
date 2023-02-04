@@ -2,9 +2,10 @@ from tkinter import Widget
 from tkinter.scrolledtext import ScrolledText
 
 from src.MetadataManager.GUI.longtext import LongText
+from src.MetadataManager.GUI.widgets import MMWidget
 
 
-class LongTextWidget(Widget):
+class LongTextWidget(MMWidget):
     def __init__(self, master, cinfo_name, label_text=None, width: int = None):
         super(LongTextWidget, self).__init__(master)
         if label_text is None:
@@ -19,3 +20,4 @@ class LongTextWidget(Widget):
 
         self.widget = LongText(name=cinfo_name)
         self.widget.linked_text_field = self.widget_slave
+

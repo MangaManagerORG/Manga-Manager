@@ -2,13 +2,13 @@ import configparser
 import os
 import logging
 
-from main import providers
+
 from src.Settings import default_settings
 
-logger = logging.getLogger("MangaManager")
+logger = logging.getLogger()
 
 
-class Settings():
+class Settings:
     """ This is a singleton that holds settings.ini key/values """
     __instance = None
     config_parser = configparser.ConfigParser(interpolation=None)
@@ -43,15 +43,16 @@ class Settings():
         self.config_parser.read(self.config_file)
 
         # Update DefaultSettings with values in config
-        for section in self.config_parser.sections():
-            if not section in default_settings:
-                # This is an external provider setting, update them
-                for provider in providers:
-                    for setting in list(self.config_parser.items(section)):
-                        provider.save_setting(section, setting)
-            else:
-                for control in default_settings[section].values:
-                    control.value = self.get(section, control.key)
+        # for section in self.config_parser.sections():
+        #     if not section in default_settings:
+        #         # This is an external provider setting, update them
+        #         # for provider in providers:
+        #         #     for setting in list(self.config_parser.items(section)):
+        #         #         provider.save_setting(section, setting)
+        #         continue
+        #     else:
+        #         for control in default_settings[section].values:
+        #             control.value = self.get(section, control.key)
 
 
 

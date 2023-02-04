@@ -13,7 +13,7 @@ from src.Settings.DefaultSettings import SettingHeading
 from src.Settings.Settings import Settings
 
 window_width, window_height = 0, 0
-action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
+action_template = abspath(resource_filename(__name__, '../../../../res/cover_action_template.png'))
 MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
 
 

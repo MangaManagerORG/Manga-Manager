@@ -16,7 +16,7 @@ class DummyFile:
     def __str__(self):
         return self.name
 
-class AutocompleteCombobox(ttk.Combobox):
+class TreeAutocompleteCombobox(ttk.Combobox):
     def set_completion_list(self,path, completion_list):
         """Use our completion list as our drop down selection menu, arrows move through menu."""
         if not completion_list:
@@ -122,7 +122,7 @@ class TreeviewExplorerWidget(ttk.Treeview):
             self.tree[node] = {"path": str(file.path),
                                "is_dir": False}
 
-
+# TODO: This needs to be a Widget or Window submodule
 class FileChooser(tkinter.Toplevel):
     def __init__(self, parent, initialdir=None,*_, **__):
         super(FileChooser, self).__init__(parent)
@@ -183,7 +183,7 @@ class FileChooser(tkinter.Toplevel):
 
     def change_to_entry(self, *_):
         self.clear_search_chilren()
-        self.entry = entry = AutocompleteCombobox(self.search_bar)
+        self.entry = entry = TreeAutocompleteCombobox(self.search_bar)
         entry.set(self.current_search_path)
         entry.set_completion_list(self.current_search_path, os.listdir(entry.get()))
         entry.bind("<Tab>",lambda x:self.update_suggestions())
@@ -277,6 +277,7 @@ def askopenfiles(parent, *args, **kwargs):
     # filechooser = FileChooser(parent,*args,**kwargs)
     # selection = filechooser.get_selected_files()
     # return selection
+
 def askdirectory(*args, **kwargs):
     from tkinter.filedialog import askdirectory
     return askdirectory(*args, **kwargs)

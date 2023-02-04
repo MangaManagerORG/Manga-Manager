@@ -1,11 +1,11 @@
 from idlelib.tooltip import Hovertip
-from tkinter.ttk import Combobox, OptionMenu, Frame, Widget, Label
+from tkinter.ttk import Combobox, OptionMenu, Frame, Label
 
 from src.MetadataManager.GUI.longtext import LongText
 from src.MetadataManager.GUI.utils import validate_int
 
 
-class Widget(Frame):
+class MMWidget(Frame):
     validation: str | None = None
     widget_slave = None
     widget: Combobox | LongText | OptionMenu
@@ -13,7 +13,7 @@ class Widget(Frame):
     NONE = "~~# None ##~~"
 
     def __init__(self, master):
-        super(Widget, self).__init__(master)
+        super(MMWidget, self).__init__(master)
 
     def set(self, value):
         if value is None:
@@ -33,14 +33,14 @@ class Widget(Frame):
     def get(self):
         return self.widget.get()
 
-    def pack(self, **kwargs) -> Widget:
+    def pack(self, **kwargs):
         widget = self.widget_slave or self.widget
         widget.pack(fill="both", side="top")
 
         super(Frame, self).pack(kwargs or {"fill": "both", "side": "top"})
         return self
 
-    def grid(self, row=None, column=None, **kwargs) -> Widget:
+    def grid(self, row=None, column=None, **kwargs):
         widget = self.widget_slave or self.widget
         widget.pack(fill="both", side="top")
 

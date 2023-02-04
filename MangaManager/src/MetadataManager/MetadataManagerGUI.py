@@ -11,7 +11,7 @@ from pkg_resources import resource_filename
 
 from src.Common.utils import get_platform, open_folder
 from src.MetadataManager import comicinfo
-from src.Settings import default_settings
+from src.MetadataManager.GUI.ControlManager import ControlManager
 from src.Settings.DefaultSettings import SettingHeading
 from src.Settings.Settings import Settings
 
@@ -22,7 +22,8 @@ else:
 from _tkinter import TclError
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget, ControlManager, HyperlinkLabel
+from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget, \
+    HyperlinkLabelWidget
 from src.MetadataManager.GUI.SettingsWidgetManager import SettingsWidgetManager
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
@@ -181,11 +182,11 @@ class GUIApp(Tk, MetadataManagerLib):
         top_level = tkinter.Toplevel(self)
         frame = Frame(top_level)
         frame.pack(pady=30, padx=30,fill="both")
-        HyperlinkLabel(frame, "Github repo:", url_text="Go to Github rework main page", url="https://github.com/MangaManagerORG/Manga-Manager/tree/rework/master").pack(fill="x", expand=True, side="top", anchor="center")
-        HyperlinkLabel(frame, "Get support:", url_text="Join MangaManager channel in Kavita discord", url="https://discord.gg/kavita-821879810934439936").pack(fill="x", expand=True, side="top", anchor="center")
-        HyperlinkLabel(frame, "Report issue in GitHub",url_text="Create GitHub Issue", url="https://github.com/MangaManagerORG/Manga-Manager/issues/new?assignees=ThePromidius&labels=Rework+Issue&template=rework_issue.md&title=%5BRework+Issue%5D").pack(
+        HyperlinkLabelWidget(frame, "Github repo:", url_text="Go to Github rework main page", url="https://github.com/MangaManagerORG/Manga-Manager/tree/rework/master").pack(fill="x", expand=True, side="top", anchor="center")
+        HyperlinkLabelWidget(frame, "Get support:", url_text="Join MangaManager channel in Kavita discord", url="https://discord.gg/kavita-821879810934439936").pack(fill="x", expand=True, side="top", anchor="center")
+        HyperlinkLabelWidget(frame, "Report issue in GitHub",url_text="Create GitHub Issue", url="https://github.com/MangaManagerORG/Manga-Manager/issues/new?assignees=ThePromidius&labels=Rework+Issue&template=rework_issue.md&title=%5BRework+Issue%5D").pack(
             fill="x", expand=True, side="top", anchor="center")
-        HyperlinkLabel(frame, "Donate in Ko-fi",
+        HyperlinkLabelWidget(frame, "Donate in Ko-fi",
                        "https://ko-fi.com/thepromidius").pack(fill="x", expand=True, side="top", anchor="center")
         tkinter.Label(frame, text="", font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
 

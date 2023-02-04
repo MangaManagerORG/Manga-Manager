@@ -47,7 +47,6 @@ logger = logging.getLogger()
 
 
 from src.Common.errors import NoFilesSelected
-from src.MetadataManager import execute_gui
 from src.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
 
 
@@ -95,4 +94,5 @@ if __name__ == '__main__':
 
     else:
         logger.info(f"Starting: GUI Manga Manager. Welcome")
+        from src.MetadataManager import execute_gui
         execute_gui()

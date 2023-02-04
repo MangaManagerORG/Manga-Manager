@@ -7,11 +7,30 @@ from tkinter.ttk import LabelFrame, Label, Combobox
 from main import providers
 from src import MM_PATH
 from src.Common.utils import open_folder
-from src.MetadataManager.GUI.widgets import ButtonWidget, center
+from src.MetadataManager.GUI.utils import center
+from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.Settings import default_settings
 from src.Settings.DefaultSettings import SettingHeading
+from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
+from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
+
+default_settings = {
+    SettingHeading.Main: SettingSection("Main Settings", SettingHeading.Main, [
+        SettingControl("library_path", "Library Path", SettingControlType.Text, "", "The path to your library. This location will be opened by default when choosing files"),
+        SettingControl("covers_folder_path", "Covers folder path", SettingControlType.Text, "", "The path to your covers. This location will be opened by default when choosing covers"),
+        SettingControl("cache_cover_images", "Cache cover images", SettingControlType.Bool, False, "If enabled, the covers of the file will be cached and shown in the ui"),
+        SettingControl("selected_layout", "* Active layout", SettingControlType.Options, "", "Selects the layout to be displayed"),
+    ]),
+    SettingHeading.WebpConverter: SettingSection("Webp Converter Settings", SettingHeading.WebpConverter, [
+        SettingControl("default_base_path", "Default base path", SettingControlType.Text, "", "The starting point where the glob will begin looking for files that match the pattern"),
+    ]),
+    SettingHeading.ExternalSources: SettingSection("External Sources Settings", SettingHeading.ExternalSources, [
+        SettingControl("default_metadata_source", "Default metadata source", SettingControlType.Options, "The source that will be hit when looking for metadata"),
+        SettingControl("default_cover_source", "Default cover source", SettingControlType.Options, "The source that will be hit when looking for cover images"),
+    ]),
+}
 
 
 class SettingsWidgetManager:
@@ -48,6 +67,8 @@ class SettingsWidgetManager:
                      command=lambda x=None: open_folder(folder_path=MM_PATH)).pack()
 
         # TODO: Refactor this into a FrameBuilder
+        # An idea is to actualy have DefaultSettings be completely value empty and use Setting().get() to get the values throughout the code
+        # then in this GUI, we can load the values from settings directly, since DefaultSettings are really JUST for the UI layer.
         self.settings_widget = {}
         for setting_section in default_settings:
             section = default_settings[setting_section]
@@ -66,7 +87,6 @@ class SettingsWidgetManager:
                 frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name)
                 frame.pack(expand=True, fill="both")
 
-
                 self.settings_widget[default_settings[SettingHeading.ExternalSources].pretty_name][section.pretty_name] = {}
                 self.build_setting_entries(frame, section.values, section)
 
@@ -79,6 +99,10 @@ class SettingsWidgetManager:
         row.pack(expand=True, fill="x")
         label = Label(master=row, text=control.name, width=30, justify="right", anchor="e")
         label.pack(side="left")
+
+        # Update the control's value from Settings
+        control.value = Settings().get(section.key, control.key)
+
         if control.tooltip:
             label.configure(text=label.cget('text') + '  ⁱ')
             label.tooltip = Hovertip(label, control.tooltip, 20)

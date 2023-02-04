@@ -1,13 +1,20 @@
-from tkinter import Widget
+import logging
+import tkinter
+from tkinter.ttk import Combobox
+
+from src.MetadataManager import comicinfo
+from src.MetadataManager.GUI.widgets import MMWidget
+
+logger = logging.getLogger()
 
 
-class OptionMenuWidget(Widget):
-    def __init__(self, master, cinfo_name, label_text=None,width=None, max_width=None, default=None, values=None):
+class OptionMenuWidget(MMWidget):
+    def __init__(self, master: tkinter.Frame, cinfo_name, label_text=None, width=None, max_width=None, default=None, values=None):
+        super(OptionMenuWidget, self).__init__(master=master)
         if values is None:
             values = []
         if label_text is None:
             label_text = cinfo_name
-        super(OptionMenuWidget, self).__init__(master)
         self.default = default
         self.name = cinfo_name
         self.set_label(label_text)
@@ -17,7 +24,7 @@ class OptionMenuWidget(Widget):
         self.widget_slave.configure(state="readonly")
         if width:
             self.widget_slave.configure(width=width)
-        self.update_listed_values(self.default,list(values))
+        self.update_listed_values(self.default, list(values))
         # noinspection PyUnresolvedReferences
         if max_width:
             self.widget_slave.configure(width=max_width)
@@ -38,7 +45,7 @@ class OptionMenuWidget(Widget):
             case "Manga":
                 values_list = comicinfo.Manga.list()
             case _:
-                logger.error(f"Unhandled error. '{self.name}' is not a registered widget whom you can extract options from")
+                logger.error(f"Unhandled error. '{self.name}' is not a registered widget which can extract options from")
         return values_list
 
     def append_first(self, value: str):

@@ -9,7 +9,9 @@ class SettingHeading(StrEnum):
     WebpConverter = "Webp Converter",
     ExternalSources = "External Sources",
 
-
+"""
+    These settings are for the SettingsGUI and are mapped by Setting class to/from settings.ini
+"""
 default_settings = {
     SettingHeading.Main: SettingSection("Main Settings", SettingHeading.Main, [
         SettingControl("library_path", "Library Path", SettingControlType.Text, "", "The path to your library. This location will be opened by default when choosing files"),
