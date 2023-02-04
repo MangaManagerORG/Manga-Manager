@@ -5,7 +5,7 @@ from pkg_resources import resource_filename
 
 from src import sources_factory
 from src.Layouts import layout_factory
-from src.Settings.DefaultSettings import SettingHeading
+from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
 logger = logging.getLogger()

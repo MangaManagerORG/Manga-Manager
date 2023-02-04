@@ -7,12 +7,10 @@ import requests
 
 from src.Common.utils import clean_filename
 from src.DynamicLibController.models.CoverSourceInterface import ICoverSource, Cover
-from src.Settings.DefaultSettings import SettingHeading
+from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
 logger = logging.getLogger()
-
-covers_folder_path = Settings().get(SettingHeading.Main, 'covers_folder_path')
 
 
 class MangaDex(ICoverSource):
@@ -53,7 +51,7 @@ class MangaDex(ICoverSource):
 
         normalized_manga_name = (ja_title or cover_attributes.get("title").get("en"))
 
-        destination_dirpath = Path(covers_folder_path, clean_filename(
+        destination_dirpath = Path(Settings().get(SettingHeading.Main, 'covers_folder_path'), clean_filename(
             normalized_manga_name))  # The covers get stored in their own series folder inside the covers directory
         total = len(r_json.get("data"))
         # Todo: Implement progress bar

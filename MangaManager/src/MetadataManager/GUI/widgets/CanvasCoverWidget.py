@@ -9,7 +9,7 @@ from pkg_resources import resource_filename
 
 # from src import settings_class
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
-from src.Settings.DefaultSettings import SettingHeading
+from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
 window_width, window_height = 0, 0

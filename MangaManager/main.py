@@ -65,7 +65,7 @@ class ToolS(enum.Enum):
         return list(map(lambda c: c.name, cls))
 
 
-def get_selected_files(glob_path)-> list[str]:
+def get_selected_files(glob_path) -> list[str]:
     file_paths = glob.glob(glob_path)
     if not file_paths:
         raise NoFilesSelected()
@@ -74,11 +74,7 @@ def get_selected_files(glob_path)-> list[str]:
 # TODO: Load dynamically loaded extensions
 providers = [ScraperFactory().get_scraper("MangaUpdates"), ScraperFactory().get_scraper("AniList")]
 
-# Load the settings on disk. This will create a default settings file if one doesn't already exist
-# Load any provider (extension)'s settings
-# for provider in providers:
-#     for setting in provider.settings:
-#         Settings().add(provider.name, setting)
+# Create initial ini with defaults else load existing
 Settings('settings.ini').load()
 
 

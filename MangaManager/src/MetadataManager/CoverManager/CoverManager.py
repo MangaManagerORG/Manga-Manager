@@ -16,7 +16,7 @@ from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, Canvas
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
-from src.Settings.DefaultSettings import SettingHeading
+from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
 action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))

@@ -9,8 +9,7 @@ from src import MM_PATH
 from src.Common.utils import open_folder
 from src.MetadataManager.GUI.utils import center
 from src.MetadataManager.GUI.widgets import ButtonWidget
-from src.Settings import default_settings
-from src.Settings.DefaultSettings import SettingHeading
+from src.Settings.SettingHeading import SettingHeading
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection

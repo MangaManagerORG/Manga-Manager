@@ -13,7 +13,7 @@ from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.terminalcolors import TerminalColors as TerCol
 from src.MetadataManager import comicinfo
 from src.MetadataManager.comicinfo import ComicInfo
-from src.Settings.DefaultSettings import SettingHeading
+from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
 AniList = [source for source in sources_factory.get("MetadataSources") if source.name == "AniList"]
