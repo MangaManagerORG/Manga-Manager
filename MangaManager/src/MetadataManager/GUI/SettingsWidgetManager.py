@@ -15,24 +15,42 @@ from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 
-default_settings = {
-    SettingHeading.Main: SettingSection("Main Settings", SettingHeading.Main, [
-        SettingControl("library_path", "Library Path", SettingControlType.Text, "", "The path to your library. This location will be opened by default when choosing files"),
-        SettingControl("covers_folder_path", "Covers folder path", SettingControlType.Text, "", "The path to your covers. This location will be opened by default when choosing covers"),
-        SettingControl("cache_cover_images", "Cache cover images", SettingControlType.Bool, False, "If enabled, the covers of the file will be cached and shown in the ui"),
-        SettingControl("selected_layout", "* Active layout", SettingControlType.Options, "", "Selects the layout to be displayed"),
-    ]),
-    SettingHeading.WebpConverter: SettingSection("Webp Converter Settings", SettingHeading.WebpConverter, [
-        SettingControl("default_base_path", "Default base path", SettingControlType.Text, "", "The starting point where the glob will begin looking for files that match the pattern"),
-    ]),
-    SettingHeading.ExternalSources: SettingSection("External Sources Settings", SettingHeading.ExternalSources, [
-        SettingControl("default_metadata_source", "Default metadata source", SettingControlType.Options, "The source that will be hit when looking for metadata"),
-        SettingControl("default_cover_source", "Default cover source", SettingControlType.Options, "The source that will be hit when looking for cover images"),
-    ]),
+setting_control_map = {
+    SettingHeading.Main: {
+        "library_path": SettingControl("library_path", "Library Path", SettingControlType.Text, "", "The path to your library. This location will be opened by default when choosing files"),
+        "covers_folder_path": SettingControl("covers_folder_path", "Covers folder path", SettingControlType.Text, "", "The path to your covers. This location will be opened by default when choosing covers"),
+        "cache_cover_images": SettingControl("cache_cover_images", "Cache cover images", SettingControlType.Bool, False, "If enabled, the covers of the file will be cached and shown in the ui"),
+        "selected_layout": SettingControl("selected_layout", "* Active layout", SettingControlType.Options, "", "Selects the layout to be displayed"),
+    },
+    SettingHeading.WebpConverter: {
+        "default_base_path": SettingControl("default_base_path", "Default base path", SettingControlType.Text, "", "The starting point where the glob will begin looking for files that match the pattern"),
+
+    },
+    SettingHeading.ExternalSources: {
+        "default_metadata_source": SettingControl("default_metadata_source", "Default metadata source", SettingControlType.Options, "The source that will be hit when looking for metadata"),
+        "default_cover_source": SettingControl("default_cover_source", "Default cover source", SettingControlType.Options, "The source that will be hit when looking for cover images"),
+    },
 }
 
 
+def populate_default_settings():
+    default_settings = {}
+
+    for section in setting_control_map:
+        if section not in default_settings:
+            controls = []
+            for (key, value) in setting_control_map[section].items():
+                setting = Settings().get(section, key)
+                if setting is None:
+                    continue
+
+                controls.append(value)
+        default_settings[section] = SettingSection(section, section, controls)
+    return default_settings
+
+
 class SettingsWidgetManager:
+
     def save_settings(self):
         """
         Saves the settings from the GUI to Setting provider and extensions that dynamically loaded their settings
@@ -64,6 +82,8 @@ class SettingsWidgetManager:
         ButtonWidget(master=control_frame, text="Open Settings Folder",
                      tooltip="Opens the folder where Manga Manager stores it's files",
                      command=lambda x=None: open_folder(folder_path=MM_PATH)).pack()
+
+        default_settings = populate_default_settings()
 
         self.settings_widget = {}
         print('Setting up settings for Manga Manager')

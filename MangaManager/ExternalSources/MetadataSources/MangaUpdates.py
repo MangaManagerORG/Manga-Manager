@@ -1,7 +1,4 @@
 import logging
-import string
-from typing import TypeVar, TypeVarTuple
-
 import requests
 
 from src.Common.errors import MangaNotFoundError
