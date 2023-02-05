@@ -10,15 +10,10 @@ import tkinter.ttk as ttk
 from tkinter import filedialog
 
 from Extensions.Interface import IExtensionApp
-#from src import settings_class
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.utils import ShowPathTreeAsDict
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ProgressBarWidget
-from src.Settings import default_settings
 from src.Settings.Settings import Settings
-
-#settings = settings_class.get_setting("WebpConverter")
-#settings = default_settings['WebpConverter']
 
 
 logger = logging.getLogger()

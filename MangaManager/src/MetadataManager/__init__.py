@@ -12,6 +12,7 @@ logger = logging.getLogger()
 
 icon_path = abspath(resource_filename(__name__, '../../res/icon.ico'))
 
+
 def execute_gui():
     # Populate settings with dynamically loaded classes
     if not Settings().get(SettingHeading.ExternalSources, 'default_metadata_source') in list([source.name for source in sources_factory.get("MetadataSources")]):

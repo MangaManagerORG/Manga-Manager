@@ -27,7 +27,6 @@ from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, Wi
 from src.MetadataManager.GUI.SettingsWidgetManager import SettingsWidgetManager
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
-# from src import settings_class
 from src.__version__ import __version__
 
 
