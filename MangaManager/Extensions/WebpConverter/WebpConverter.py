@@ -105,7 +105,7 @@ class WebpConverter(IExtensionApp):
         frame = tkinter.Frame(self.master)
         frame.pack(fill="both", expand=True, padx=20, pady=20)
         default_base_setting = Settings().get('Webp Converter', 'default_base_path')
-        self.selected_base_path = tkinter.StringVar(None, value=default_base_setting.value)
+        self.selected_base_path = tkinter.StringVar(None, value=default_base_setting)
         self.base_path = default_base_setting.value
         tkinter.Button(frame, text="Select Base Directory", command=self.select_base, width=50).pack()
         self.base_path_entry = tkinter.Entry(frame, state="readonly", textvariable=self.selected_base_path, width=50)
