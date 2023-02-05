@@ -2,6 +2,7 @@ import abc
 from typing import final
 
 from src.MetadataManager.comicinfo import ComicInfo
+from src.Settings import Settings
 
 
 class IMetadataSource(abc.ABC):
@@ -23,11 +24,13 @@ class IMetadataSource(abc.ABC):
         pass
 
     @final
-    def __init__(self, master, super_=None, **kwargs):
+    def __init__(self):
         if self.name is None:  # Check if the "name" attribute has been set
             raise ValueError(
                 f"Error initializing the {self.__class__.__name__} Extension. The 'name' attribute must be set in the CoverSource class.")
-        # if self.embedded_ui:
-        super().__init__(master=master, **kwargs)
-        if super_ is not None:
-            self._super = super_
+
+        # Save any default settings to ini
+        for section in self.settings:
+            for control in section.values:
+                Settings().set_default(section.key, control.key, control.value)
+        Settings().save()

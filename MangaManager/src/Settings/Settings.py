@@ -68,10 +68,19 @@ class Settings:
             return None
         return self.config_parser[section][key].strip()
 
+    def set_default(self, section, key, value):
+        """Sets a key's value only if it doesn't exist"""
+        self._create_section(section)
+        if key not in self.config_parser[section]:
+            self.config_parser[section][key] = value
+
     def set(self, section, key, value):
         """Sets a key's value. Will Save to disk and reload Settings"""
-        if section not in self.config_parser:
-            self.config_parser.add_section(section)
+        self._create_section(section)
         self.config_parser[section][key] = value
         self.save()
         self.load()
+
+    def _create_section(self, section):
+        if section not in self.config_parser:
+            self.config_parser.add_section(section)

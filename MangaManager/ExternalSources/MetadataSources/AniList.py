@@ -50,7 +50,7 @@ class AniList(IMetadataSource):
     ]
 
     def __init__(self):
-        pass
+        super(AniList, self).__init__()
 
     def save_settings(self):
         self.person_mapper[AniListPerson.OriginalStory] = Settings().get(self.name, AniListPerson.OriginalStory).split(',')

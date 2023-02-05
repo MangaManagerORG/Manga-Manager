@@ -40,7 +40,7 @@ class MangaUpdates(IMetadataSource):
     ]
 
     def __init__(self):
-        pass
+        super(MangaUpdates, self).__init__()
 
 
     def save_settings(self):
