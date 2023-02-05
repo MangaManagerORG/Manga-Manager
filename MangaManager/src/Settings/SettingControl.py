@@ -1,6 +1,6 @@
 import abc
 
-from src.Settings.SettingControlType import SettingControlType
+from .SettingControlType import SettingControlType
 
 
 class SettingControl(abc.ABC):

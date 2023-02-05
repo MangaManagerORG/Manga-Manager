@@ -4,7 +4,7 @@ import tkinter
 from idlelib.tooltip import Hovertip
 from tkinter.ttk import LabelFrame, Label, Combobox
 
-from ExternalSources.MetadataSources import providers
+from ExternalSources import ScraperFactory
 from src import MM_PATH
 from src.Common.utils import open_folder
 from src.MetadataManager.GUI.utils import center
@@ -31,6 +31,9 @@ setting_control_map = {
         "default_cover_source": SettingControl("default_cover_source", "Default cover source", SettingControlType.Options, "The source that will be hit when looking for cover images"),
     },
 }
+
+# TODO: Load dynamically loaded extensions (this will be moved in another PR)
+providers = [ScraperFactory().get_scraper("MangaUpdates"), ScraperFactory().get_scraper("AniList")]
 
 
 def populate_default_settings():

@@ -4,7 +4,6 @@ import glob
 import logging
 from pathlib import Path
 
-from ExternalSources.MetadataSources import ScraperFactory
 from logging_setup import add_trace_level, setup_logging
 from src.Settings.Settings import Settings
 

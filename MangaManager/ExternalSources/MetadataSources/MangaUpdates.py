@@ -1,4 +1,6 @@
 import logging
+from enum import StrEnum
+
 import requests
 
 from src.Common.errors import MangaNotFoundError
@@ -11,24 +13,29 @@ from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 
 
+class MangaUpdatesPerson(StrEnum):
+    Author = "author",
+    Artist = "artist",
+
+
 class MangaUpdates(IMetadataSource):
     name = "MangaUpdates"
     _log = logging.getLogger()
     person_mapper = {
-            "Author": [
-                "Writer"
-            ],
-            "Artist": [
-                "Penciller",
-                "Inker",
-                "CoverArtist"
-            ]
+        MangaUpdatesPerson.Author: [
+            "Writer"
+        ],
+        MangaUpdatesPerson.Artist: [
+            "Penciller",
+            "Inker",
+            "CoverArtist"
+        ]
     }
 
     settings = [
         SettingSection(name, name, [
-            SettingControl("Author", "Author", SettingControlType.Text, "Writer", "How metadata field will map to ComicInfo fields"),
-            SettingControl("Artist", "Artist", SettingControlType.Text, "Penciller, Inker, CoverArtist", "How metadata field will map to ComicInfo fields"),
+            SettingControl(MangaUpdatesPerson.Author, "Author", SettingControlType.Text, "Writer", "How metadata field will map to ComicInfo fields"),
+            SettingControl(MangaUpdatesPerson.Artist, "Artist", SettingControlType.Text, "Penciller, Inker, CoverArtist", "How metadata field will map to ComicInfo fields"),
         ])
     ]
 
@@ -38,8 +45,8 @@ class MangaUpdates(IMetadataSource):
 
     def save_settings(self):
         # Update person_mapper when this is called as it indicates the settings for the provider might have changed
-        self.person_mapper["Author"] = Settings().get(self.name, 'Author').split(',')
-        self.person_mapper["Artist"] = Settings().get(self.name, 'Artist').split(',')
+        self.person_mapper[MangaUpdatesPerson.Author] = Settings().get(self.name, MangaUpdatesPerson.Author).split(',')
+        self.person_mapper[MangaUpdatesPerson.Artist] = Settings().get(self.name, MangaUpdatesPerson.Artist).split(',')
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:

@@ -10,7 +10,7 @@ default_settings = {
         {"library_path": ""},
         {"covers_folder_path": ""},
         {"cache_cover_images": ""},
-        {"selected_layout": "False"},
+        {"selected_layout": "default"},
     ],
     SettingHeading.WebpConverter: [
         {"default_base_path": ""},
@@ -56,8 +56,9 @@ class Settings:
             # Init default settings and refresh
             for section in default_settings:
                 self.config_parser.add_section(section)
-                for (key, value) in section.items():
-                    self.config_parser[section][key] = value
+                for item in default_settings[section]:
+                    for (key, value) in item.items():
+                        self.config_parser[section][key] = value
             self.save()
 
     def get(self, section, key):
@@ -69,6 +70,8 @@ class Settings:
 
     def set(self, section, key, value):
         """Sets a key's value. Will Save to disk and reload Settings"""
+        if section not in self.config_parser:
+            self.config_parser.add_section(section)
         self.config_parser[section][key] = value
         self.save()
         self.load()

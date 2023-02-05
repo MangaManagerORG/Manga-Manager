@@ -1,4 +1,4 @@
-from src.Settings.SettingControl import SettingControl
+from .SettingControl import SettingControl
 
 
 class SettingSection:

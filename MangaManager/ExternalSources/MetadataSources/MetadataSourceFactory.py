@@ -2,7 +2,7 @@
 from .MangaUpdates import MangaUpdates
 from .AniList import AniList
 
-
+# NOTE: This is a stopgap solution until dynamic loader is implemented
 class ScraperFactory:
     """ Singleton Factory of metadata providers. Pass in the name defined in the provider .name() and an instance will be returned. """
     __instance = None

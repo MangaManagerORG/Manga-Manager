@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-
+from enum import StrEnum
 import requests
 
 from src.Common.errors import MangaNotFoundError
@@ -14,17 +14,23 @@ from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 
 
+class AniListPerson(StrEnum):
+    OriginalStory = "original_story",
+    CharacterDesign = "character_design",
+    StoryAndArt = "story_and_art",
+
+
 class AniList(IMetadataSource):
     name = "AniList"
     _log = logging.getLogger()
     person_mapper = {
-        "Original Story": [
+        AniListPerson.OriginalStory: [
             "Writer"
         ],
-        "Character Design": [
+        AniListPerson.CharacterDesign: [
             "Penciller"
         ],
-        "Story & Art": [
+        AniListPerson.StoryAndArt: [
             "Writer",
             "Penciller",
             "Inker",
@@ -34,11 +40,11 @@ class AniList(IMetadataSource):
 
     settings = [
         SettingSection(name, name, [
-            SettingControl("Original Story", "Original Story", SettingControlType.Text, "Writer",
+            SettingControl(AniListPerson.OriginalStory, "Original Story", SettingControlType.Text, "Writer",
                            "How metadata field will map to ComicInfo fields"),
-            SettingControl("Character Design", "Character Design", SettingControlType.Text, "Penciller",
+            SettingControl(AniListPerson.CharacterDesign, "Character Design", SettingControlType.Text, "Penciller",
                            "How metadata field will map to ComicInfo fields"),
-            SettingControl("Story & Art", "Story & Art", SettingControlType.Text, "Writer, Penciller, Inker, CoverArtist",
+            SettingControl(AniListPerson.StoryAndArt, "Story & Art", SettingControlType.Text, "Writer, Penciller, Inker, CoverArtist",
                            "How metadata field will map to ComicInfo fields"),
         ])
     ]
@@ -47,9 +53,9 @@ class AniList(IMetadataSource):
         pass
 
     def save_settings(self):
-        self.person_mapper["Original Story"] = Settings().get(self.name, 'Original Story').split(',')
-        self.person_mapper["Character Design"] = Settings().get(self.name, 'Character Design').split(',')
-        self.person_mapper["Story & Art"] = Settings().get(self.name, 'Story & Art').split(',')
+        self.person_mapper[AniListPerson.OriginalStory] = Settings().get(self.name, AniListPerson.OriginalStory).split(',')
+        self.person_mapper[AniListPerson.CharacterDesign] = Settings().get(self.name, AniListPerson.CharacterDesign).split(',')
+        self.person_mapper[AniListPerson.StoryAndArt] = Settings().get(self.name, AniListPerson.StoryAndArt).split(',')
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:
