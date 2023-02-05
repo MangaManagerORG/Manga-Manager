@@ -4,7 +4,7 @@ name: Python tests & Build
 
 on:
   - push
-#  - pull_request
+  - pull_request
 env:
   $$_ENV_DEVELOPMENT_MM_$$: true
   IMAGE_NAME: "thepromidius/manga-manager"
