@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 
 from logging_setup import add_trace_level, setup_logging
+from src.Settings.Settings import Settings
 
 add_trace_level()
 
@@ -45,7 +46,6 @@ logger = logging.getLogger()
 
 
 from src.Common.errors import NoFilesSelected
-from src.MetadataManager import execute_gui
 from src.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
 
 
@@ -64,11 +64,14 @@ class ToolS(enum.Enum):
         return list(map(lambda c: c.name, cls))
 
 
-def get_selected_files(glob_path)-> list[str]:
+def get_selected_files(glob_path) -> list[str]:
     file_paths = glob.glob(glob_path)
     if not file_paths:
         raise NoFilesSelected()
     return file_paths
+
+# Create initial ini with defaults else load existing
+Settings('settings.ini').load()
 
 
 if __name__ == '__main__':
@@ -83,4 +86,5 @@ if __name__ == '__main__':
 
     else:
         logger.info(f"Starting: GUI Manga Manager. Welcome")
+        from src.MetadataManager import execute_gui
         execute_gui()

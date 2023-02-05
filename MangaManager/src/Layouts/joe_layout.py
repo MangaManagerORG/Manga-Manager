@@ -8,7 +8,7 @@ from pkg_resources import resource_filename
 
 from src.MetadataManager import comicinfo
 from src.MetadataManager.CoverManager.CoverManager import CoverManager
-from src.MetadataManager.GUI.CoverWidget import CoverFrame
+from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.GUI.ExceptionWindow import ExceptionFrame
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, ProgressBarWidget, \
     ComboBoxWidget, LongTextWidget, OptionMenuWidget

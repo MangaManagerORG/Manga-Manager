@@ -1,15 +1,61 @@
-import logging
+from __future__ import annotations
 
+import logging
+from enum import StrEnum
 import requests
 
 from src.Common.errors import MangaNotFoundError
-from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
+from src.Common.utils import update_people_from_mapping
+from src.DynamicLibController.models.IMetadataSource import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
+from src.Settings.SettingControl import SettingControl
+from src.Settings.SettingControlType import SettingControlType
+from src.Settings.SettingSection import SettingSection
+from src.Settings.Settings import Settings
+
+
+class AniListPerson(StrEnum):
+    OriginalStory = "original_story",
+    CharacterDesign = "character_design",
+    StoryAndArt = "story_and_art",
 
 
 class AniList(IMetadataSource):
     name = "AniList"
     _log = logging.getLogger()
+    person_mapper = {
+        AniListPerson.OriginalStory: [
+            "Writer"
+        ],
+        AniListPerson.CharacterDesign: [
+            "Penciller"
+        ],
+        AniListPerson.StoryAndArt: [
+            "Writer",
+            "Penciller",
+            "Inker",
+            "CoverArtist"
+        ]
+    }
+
+    settings = [
+        SettingSection(name, name, [
+            SettingControl(AniListPerson.OriginalStory, "Original Story", SettingControlType.Text, "Writer",
+                           "How metadata field will map to ComicInfo fields"),
+            SettingControl(AniListPerson.CharacterDesign, "Character Design", SettingControlType.Text, "Penciller",
+                           "How metadata field will map to ComicInfo fields"),
+            SettingControl(AniListPerson.StoryAndArt, "Story & Art", SettingControlType.Text, "Writer, Penciller, Inker, CoverArtist",
+                           "How metadata field will map to ComicInfo fields"),
+        ])
+    ]
+
+    def __init__(self):
+        super(AniList, self).__init__()
+
+    def save_settings(self):
+        self.person_mapper[AniListPerson.OriginalStory] = Settings().get(self.name, AniListPerson.OriginalStory).split(',')
+        self.person_mapper[AniListPerson.CharacterDesign] = Settings().get(self.name, AniListPerson.CharacterDesign).split(',')
+        self.person_mapper[AniListPerson.StoryAndArt] = Settings().get(self.name, AniListPerson.StoryAndArt).split(',')
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:
@@ -23,7 +69,7 @@ class AniList(IMetadataSource):
             return None
         content = content.get("id")
         data = cls._search_details_by_series_id(content, "MANGA", {})
-        print("sdsadas")
+
         startdate = data.get("startDate")
         comicinfo.set_Summary(data.get("description").strip())
         comicinfo.set_Day(startdate.get("day"))
@@ -32,25 +78,12 @@ class AniList(IMetadataSource):
         comicinfo.set_Series(data.get("title").get("romaji").strip())
         comicinfo.set_Genre(", ".join(data.get("genres")))
         comicinfo.set_Web(data.get("siteUrl").strip())
+
         # People
-        mapping = {
-            "Original Story": "Writer",
-            "Character Design": "Penciller",
-            "Story & Art": "Inker"
-        }
-        staff_list = data["staff"]["edges"]
+        update_people_from_mapping(data["staff"]["edges"], cls.person_mapper, comicinfo,
+                                   lambda item: item["node"]["name"]["full"],
+                                   lambda item: item["role"])
 
-        for staff in staff_list:
-            node = staff["node"]
-            name = node["name"]["full"]
-            role = staff["role"]
-            mapped_role = mapping.get(role, "")
-            if mapped_role:
-                comicinfo.set_attr_by_name(mapped_role, name.strip())
-            else:
-                print(f"No mapping found for role: {role}")
-
-        print("asdsadsa")
         return comicinfo
 
     @classmethod
@@ -122,7 +155,7 @@ class AniList(IMetadataSource):
 
         ret = cls._post(query, variables, logging_info)
         if ret is None:
-            raise MangaNotFoundError("AniList",manga_title)
+            raise MangaNotFoundError("AniList", manga_title)
         return ret
 
     @classmethod

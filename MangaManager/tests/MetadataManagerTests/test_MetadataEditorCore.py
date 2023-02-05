@@ -12,6 +12,7 @@ from tests.common import create_dummy_files
 
 add_trace_level()
 
+
 class CoreTesting(unittest.TestCase):
     test_files_names = None
 

@@ -24,18 +24,12 @@ EXTENSIONS_DIR.mkdir(exist_ok=True)
 SOURCES_DIR = Path(sub_mm_path, "ExternalSources")
 SOURCES_DIR.mkdir(exist_ok=True)
 
-from src.settings import Settings
-
 CONFIG_PATH = Path(MM_PATH, _CONFIG_PATH)
-
-settings_class = Settings(CONFIG_PATH)
-settings_class.load_settings()
 
 sources_factory = {
     "MetadataSources": [],
     "CoverSources": []
 }
-
 
 from src.DynamicLibController.extension_manager import load_extensions
 try:

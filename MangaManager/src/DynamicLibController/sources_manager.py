@@ -9,7 +9,7 @@ from src import sources_factory, sub_mm_path
 from src.Common.utils import match_pyfiles_with_foldername
 from src.DynamicLibController.extension_manager import extract_folder_and_module
 from src.DynamicLibController.models.CoverSourceInterface import ICoverSource
-from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
+from src.DynamicLibController.models.IMetadataSource import IMetadataSource
 
 logger = logging.getLogger()
 

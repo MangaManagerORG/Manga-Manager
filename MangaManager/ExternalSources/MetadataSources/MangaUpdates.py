@@ -1,15 +1,52 @@
 import logging
+from enum import StrEnum
 
 import requests
 
 from src.Common.errors import MangaNotFoundError
-from src.DynamicLibController.models.MetadataSourcesInterface import IMetadataSource
+from src.Common.utils import update_people_from_mapping
+from src.DynamicLibController.models.IMetadataSource import IMetadataSource
 from src.MetadataManager.comicinfo import ComicInfo
+from src.Settings.SettingControl import SettingControl
+from src.Settings.SettingControlType import SettingControlType
+from src.Settings.SettingSection import SettingSection
+from src.Settings.Settings import Settings
+
+
+class MangaUpdatesPerson(StrEnum):
+    Author = "author",
+    Artist = "artist",
 
 
 class MangaUpdates(IMetadataSource):
     name = "MangaUpdates"
     _log = logging.getLogger()
+    person_mapper = {
+        MangaUpdatesPerson.Author: [
+            "Writer"
+        ],
+        MangaUpdatesPerson.Artist: [
+            "Penciller",
+            "Inker",
+            "CoverArtist"
+        ]
+    }
+
+    settings = [
+        SettingSection(name, name, [
+            SettingControl(MangaUpdatesPerson.Author, "Author", SettingControlType.Text, "Writer", "How metadata field will map to ComicInfo fields"),
+            SettingControl(MangaUpdatesPerson.Artist, "Artist", SettingControlType.Text, "Penciller, Inker, CoverArtist", "How metadata field will map to ComicInfo fields"),
+        ])
+    ]
+
+    def __init__(self):
+        super(MangaUpdates, self).__init__()
+
+
+    def save_settings(self):
+        # Update person_mapper when this is called as it indicates the settings for the provider might have changed
+        self.person_mapper[MangaUpdatesPerson.Author] = Settings().get(self.name, MangaUpdatesPerson.Author).split(',')
+        self.person_mapper[MangaUpdatesPerson.Artist] = Settings().get(self.name, MangaUpdatesPerson.Artist).split(',')
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:
@@ -17,7 +54,7 @@ class MangaUpdates(IMetadataSource):
         
         data = cls._get_series_details(series_name, {})
 
-        #Basic Info
+        # Basic Info
         comicinfo.set_Series(data["title"].strip())
         comicinfo.set_Summary(data["description"].strip())
         comicinfo.set_Genre(", ".join([ i["genre"] for i in data["genres"] ]))
@@ -27,30 +64,10 @@ class MangaUpdates(IMetadataSource):
         comicinfo.set_Year(data["year"])
 
         # People Info
-        people_mapping = {
-            "Author": [
-                "Writer"
-            ],
-            "Artist": [
-                "Penciller",
-                "Inker",
-                "Colorist",
-                "CoverArtist"
-            ]
-        }
+        update_people_from_mapping(data["authors"], cls.person_mapper, comicinfo,
+                                   lambda item: item["name"],
+                                   lambda item: item["type"])
 
-        for people in data["authors"]:
-            name = people["name"]
-            role = people["type"]
-            if role == "Author":
-                for i in people_mapping["Author"]:
-                    comicinfo.set_attr_by_name(i, name.strip())
-            elif role == "Artist":
-                for i in people_mapping["Artist"]:
-                    comicinfo.set_attr_by_name(i, name.strip())
-            else:
-                print(f"No mapping found for: {name} as {role}")
-        
         comicinfo.set_Publisher(", ".join([ i["publisher_name"] for i in data["publishers"] ]))
 
         # Extended

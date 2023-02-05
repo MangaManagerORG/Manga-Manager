@@ -10,12 +10,11 @@ import tkinter.ttk as ttk
 from tkinter import filedialog
 
 from Extensions.Interface import IExtensionApp
-from src import settings_class
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.utils import ShowPathTreeAsDict
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ProgressBarWidget
+from src.Settings.Settings import Settings
 
-settings = settings_class.get_setting("WebpConverter")
 
 logger = logging.getLogger()
 
@@ -104,9 +103,10 @@ class WebpConverter(IExtensionApp):
         self.geometry("300x400")
 
         frame = tkinter.Frame(self.master)
-        frame.pack(fill="both",expand=True, padx=20, pady=20)
-        self.selected_base_path = tkinter.StringVar(None, value=settings.default_base_path.value)
-        self.base_path = settings.default_base_path.value
+        frame.pack(fill="both", expand=True, padx=20, pady=20)
+        default_base_setting = Settings().get('Webp Converter', 'default_base_path')
+        self.selected_base_path = tkinter.StringVar(None, value=default_base_setting)
+        self.base_path = default_base_setting
         tkinter.Button(frame, text="Select Base Directory", command=self.select_base, width=50).pack()
         self.base_path_entry = tkinter.Entry(frame, state="readonly", textvariable=self.selected_base_path, width=50)
         self.base_path_entry.pack()

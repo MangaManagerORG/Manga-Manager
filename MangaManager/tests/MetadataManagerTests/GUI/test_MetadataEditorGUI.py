@@ -1,22 +1,17 @@
 import random
+import glob
+import importlib
+import os
 from tkinter.filedialog import askopenfiles
 
 from logging_setup import add_trace_level
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.MetadataManager import comicinfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
-
-add_trace_level()
-
-
-import glob
-import importlib
-import os
-
-
 from tests.common import create_dummy_files, TKinterTestCase, parameterized_class
 from src.MetadataManager import MetadataManagerGUI
 
+add_trace_level()
 layouts_path = os.path.abspath("src/Layouts")
 print(layouts_path)
 
@@ -197,6 +192,7 @@ class GenericUITest(TKinterTestCase):
     def setUp(self):
         self.GUI.is_test = True
         super().setUp()
+
     def test_settings_window_correctly_displayed(self):
         self.root = app = self.GUI()
 

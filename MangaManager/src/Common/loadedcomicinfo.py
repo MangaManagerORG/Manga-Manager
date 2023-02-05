@@ -13,7 +13,6 @@ from typing import IO
 from PIL import Image, ImageTk
 from lxml.etree import XMLSyntaxError
 
-from src import settings_class as settings_class
 from src.Common.errors import CorruptedComicInfo, BadZipFile
 from src.Common.utils import IS_IMAGE_PATTERN, convert_to_webp
 from src.Common.utils import obtain_cover_filename, get_new_webp_name
@@ -29,11 +28,6 @@ BACKCOVER_NAME = "9999_Back"
 _LOG_TAG_WEBP = "Convert Webp"
 _LOG_TAG_WRITE_META = 'Write Meta'
 _LOG_TAG_RECOMPRESSING = "Recompressing"
-
-settings = settings_class.get_setting("main")
-
-
-
 
 
 class CoverActions(enum.Enum):
