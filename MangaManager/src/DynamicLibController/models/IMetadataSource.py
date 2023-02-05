@@ -1,9 +1,7 @@
 import abc
-import string
-from typing import final, TypeVar, TypeVarTuple
+from typing import final
 
 from src.MetadataManager.comicinfo import ComicInfo
-from src.Settings.SettingControl import SettingControl
 
 
 class IMetadataSource(abc.ABC):
