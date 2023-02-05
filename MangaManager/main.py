@@ -71,9 +71,6 @@ def get_selected_files(glob_path) -> list[str]:
         raise NoFilesSelected()
     return file_paths
 
-# TODO: Load dynamically loaded extensions
-providers = [ScraperFactory().get_scraper("MangaUpdates"), ScraperFactory().get_scraper("AniList")]
-
 # Create initial ini with defaults else load existing
 Settings('settings.ini').load()
 

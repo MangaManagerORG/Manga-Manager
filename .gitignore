@@ -251,3 +251,6 @@ settings.ini
 /.idea/sonarlint/
 /MangaManager/build
 /MangaManager/dist
+
+# From Tests
+/MangaManager/*.cbz

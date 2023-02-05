@@ -4,7 +4,7 @@ import tkinter
 from idlelib.tooltip import Hovertip
 from tkinter.ttk import LabelFrame, Label, Combobox
 
-from main import providers
+from ExternalSources.MetadataSources import providers
 from src import MM_PATH
 from src.Common.utils import open_folder
 from src.MetadataManager.GUI.utils import center
