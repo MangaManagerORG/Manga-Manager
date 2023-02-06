@@ -23,7 +23,4 @@ def setting_control_to_widget(parent_frame: tkinter.Frame, control: SettingContr
             entry.pack(side="left", expand=False, fill="x", padx=(5, 30))
             entry.set(control.value)
 
-    string_var.linked_setting = control
-    string_var.linked_section = section
-
     return entry, string_var
