@@ -1,4 +1,4 @@
-[![Python tests](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml) [![Build & publish Docker Images](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Build_Docker_Images.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Build_Docker_Images.yml)
+[![Python tests](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml/badge.svg)](https://github.com/ThePromidius/Manga-Manager/actions/workflows/Run_Tests.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ThePromidius_Manga-Manager&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ThePromidius_Manga-Manager)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ThePromidius_Manga-Manager&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ThePromidius_Manga-Manager)
 
