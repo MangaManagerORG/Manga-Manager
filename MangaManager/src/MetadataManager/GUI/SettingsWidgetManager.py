@@ -7,8 +7,10 @@ from tkinter.ttk import LabelFrame, Label, Combobox
 from ExternalSources.MetadataSources.metadata import ScraperFactory
 from src import MM_PATH
 from src.Common.utils import open_folder
+from src.MetadataManager.GUI.SettingWidgetConverter import setting_control_to_widget
 from src.MetadataManager.GUI.utils import center
 from src.MetadataManager.GUI.widgets import ButtonWidget
+from src.MetadataManager.GUI.widgets.FormBundleWidget import FormBundleWidget
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
@@ -130,45 +132,32 @@ class SettingsWidgetManager:
         center(settings_window)
         frame = Label(master=control_frame, text="\nNote: Fields marked with * need a restart to take effect")
         frame.pack(expand=True, fill="both")
+        # TODO: Refactor this so each validation_message is packed under the setting control and is mapped via key
         self.validation_messages = tkinter.StringVar()
         self.validation_messages.set("")
         frame = Label(master=control_frame, textvariable=self.validation_messages)
         frame.pack(expand=True, fill="both")
 
-    def build_setting_entry(self, parent_frame, control, section):
+    def build_setting_entry(self, parent_frame, control: SettingControl, section):
+
+        # row = FormBundleWidget(parent_frame)\
+        #     .with_label(control.name, control.tooltip)
+        #     .with_input()
+
+
         row = tkinter.Frame(parent_frame)
         row.pack(expand=True, fill="x")
         label = Label(master=row, text=control.name, width=30, justify="right", anchor="e")
         label.pack(side="left")
 
-        # Update the control's value from Settings
-        control.value = Settings().get(section.key, control.key)
-
         if control.tooltip:
             label.configure(text=label.cget('text') + '  ⁱ')
             label.tooltip = Hovertip(label, control.tooltip, 20)
 
-        control_type = control.type_
-        if control_type == SettingControlType.Bool:
-            value = control.value == 'True'
-            string_var = tkinter.BooleanVar(value=value, name=f"{section.pretty_name}.{control.key}")
-            entry = tkinter.Checkbutton(row, variable=string_var, onvalue=1, offvalue=0)
-            entry.pack(side="left")
-        elif control_type == SettingControlType.Options:
-            string_var = tkinter.StringVar(value="default", name=f"{section.pretty_name}.{control.key}")
-            entry = Combobox(master=row, textvariable=string_var, width=30, state="readonly")
-            entry["values"] = control.value
-            entry.set(str(control.value))
-            entry.pack(side="left", expand=False, fill="x", padx=(5, 30))
-            entry.set(control.value)
-        else:
-            string_var = tkinter.StringVar(value=control.value, name=f"{section.pretty_name}.{control.key}")
-            entry = tkinter.Entry(master=row, width=80, textvariable=string_var)
-            entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
+        # Update the control's value from Settings
+        control.value = Settings().get(section.key, control.key)
 
-        entry.setting_section = section.pretty_name
-        string_var.linked_setting = control
-        string_var.linked_section = section
+        entry, string_var = setting_control_to_widget(row, control, section)
         self.strings_vars.append(string_var)
 
     def build_setting_entries(self, parent_frame, settings, section):
