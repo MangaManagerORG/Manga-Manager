@@ -4,9 +4,10 @@ import logging
 from enum import StrEnum
 import requests
 
+from common import get_invalid_person_tag
 from src.Common.errors import MangaNotFoundError
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
-from common.models import ComicInfo
+from common.models import ComicInfo, PeopleTags
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
@@ -42,26 +43,31 @@ class AniList(IMetadataSource):
         self.settings = [
             SettingSection(self.name, self.name, [
                 SettingControl(AniListPerson.OriginalStory, "Original Story", SettingControlType.Text, "Writer",
-                               "How metadata field will map to ComicInfo fields", self.validate),
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag),
                 SettingControl(AniListPerson.CharacterDesign, "Character Design", SettingControlType.Text, "Penciller",
-                               "How metadata field will map to ComicInfo fields", self.validate),
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag),
                 SettingControl(AniListPerson.StoryAndArt, "Story & Art", SettingControlType.Text,
                                "Writer, Penciller, Inker, CoverArtist",
-                               "How metadata field will map to ComicInfo fields", self.validate),
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag),
             ])
         ]
 
         super(AniList, self).__init__()
 
-
     def save_settings(self):
-        self.person_mapper[AniListPerson.OriginalStory] = Settings().get(self.name, AniListPerson.OriginalStory).split(',')
-        self.person_mapper[AniListPerson.CharacterDesign] = Settings().get(self.name, AniListPerson.CharacterDesign).split(',')
+        self.person_mapper[AniListPerson.OriginalStory] = Settings().get(self.name, AniListPerson.OriginalStory).split(
+            ',')
+        self.person_mapper[AniListPerson.CharacterDesign] = Settings().get(self.name,
+                                                                           AniListPerson.CharacterDesign).split(',')
         self.person_mapper[AniListPerson.StoryAndArt] = Settings().get(self.name, AniListPerson.StoryAndArt).split(',')
 
-    def validate(self, key, value):
-        return key + ' is invalid'
-        pass
+    @staticmethod
+    def is_valid_person_tag(key, value):
+        invalid_people = get_invalid_person_tag(value)
+
+        if len(invalid_people) == 0:
+            return ""
+        return ", ".join(invalid_people) + " are not a valid tags"
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:
@@ -87,8 +93,8 @@ class AniList(IMetadataSource):
 
         # People
         cls.update_people_from_mapping(data["staff"]["edges"], cls.person_mapper, comicinfo,
-                                   lambda item: item["node"]["name"]["full"],
-                                   lambda item: item["role"])
+                                       lambda item: item["node"]["name"]["full"],
+                                       lambda item: item["role"])
 
         return comicinfo
 
@@ -186,6 +192,7 @@ class AniList(IMetadataSource):
         }
 
         return cls._post(query, variables, logging_info)
+
     @classmethod
     def _search_details_by_series_id(cls, series_id, format_, logging_info):
         query = '''

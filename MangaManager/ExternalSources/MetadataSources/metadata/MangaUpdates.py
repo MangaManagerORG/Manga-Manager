@@ -3,9 +3,10 @@ from enum import StrEnum
 
 import requests
 
+from common import get_invalid_person_tag
 from src.Common.errors import MangaNotFoundError
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
-from common.models import ComicInfo
+from common.models import ComicInfo, PeopleTags
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
@@ -31,21 +32,30 @@ class MangaUpdates(IMetadataSource):
         ]
     }
 
-    settings = [
-        SettingSection(name, name, [
-            SettingControl(MangaUpdatesPerson.Author, "Author", SettingControlType.Text, "Writer", "How metadata field will map to ComicInfo fields"),
-            SettingControl(MangaUpdatesPerson.Artist, "Artist", SettingControlType.Text, "Penciller, Inker, CoverArtist", "How metadata field will map to ComicInfo fields"),
-        ])
-    ]
-
     def __init__(self):
+        self.settings = [
+            SettingSection(self.name, self.name, [
+                SettingControl(MangaUpdatesPerson.Author, "Author", SettingControlType.Text, "Writer",
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag),
+                SettingControl(MangaUpdatesPerson.Artist, "Artist", SettingControlType.Text,
+                               "Penciller, Inker, CoverArtist", "How metadata field will map to ComicInfo fields",
+                               self.is_valid_person_tag),
+            ])
+        ]
         super(MangaUpdates, self).__init__()
-
 
     def save_settings(self):
         # Update person_mapper when this is called as it indicates the settings for the provider might have changed
         self.person_mapper[MangaUpdatesPerson.Author] = Settings().get(self.name, MangaUpdatesPerson.Author).split(',')
         self.person_mapper[MangaUpdatesPerson.Artist] = Settings().get(self.name, MangaUpdatesPerson.Artist).split(',')
+
+    @staticmethod
+    def is_valid_person_tag(key, value):
+        invalid_people = get_invalid_person_tag(value)
+
+        if len(invalid_people) == 0:
+            return ""
+        return ", ".join(invalid_people) + " are not a valid tags"
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:

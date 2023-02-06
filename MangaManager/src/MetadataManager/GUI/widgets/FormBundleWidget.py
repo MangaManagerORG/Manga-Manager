@@ -1,11 +1,5 @@
 from idlelib.tooltip import Hovertip
-from os.path import abspath
 from tkinter import Frame, Label, Entry, Checkbutton, StringVar, BooleanVar, PhotoImage
-
-from PIL import ImageTk
-
-from PIL import Image
-from pkg_resources import resource_filename
 
 from src.MetadataManager.GUI.SettingWidgetConverter import setting_control_to_widget
 from src.MetadataManager.GUI.widgets import ComboBoxWidget

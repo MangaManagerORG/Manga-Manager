@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 comic_info_tag_map = {
     "series": "Series",
     "localized_series": "LocalizedSeries",
+    "series_sort": "SeriesSort",
     "count": "Count",
     "writer": "Writer",
     "penciller": "Penciller",
@@ -21,7 +22,6 @@ comic_info_tag_map = {
     "other": "Other",
     "genre": "Genre",
     "age_rating": "AgeRating",
-    "series_sort": "SeriesSort",
     "series_group": "SeriesGroup",
     "alternate_series": "AlternateSeries",
     "story_arc": "StoryArc",
