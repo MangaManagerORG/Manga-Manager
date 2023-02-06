@@ -152,7 +152,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                     loaded_cinfo.changed_tags.append((cinfo_tag, old_value, new_value))
                 logger.debug(LOG_TAG + f"[{cinfo_tag:15s}] {TerCol.GREEN}Updating{TerCol.RESET} - Old '{TerCol.RED}{old_value}{TerCol.RESET}' vs "
                              f"New: '{TerCol.YELLOW}{new_value}{TerCol.RESET}' - Keeping {TerCol.YELLOW}new{TerCol.RESET} value")
-                loaded_cinfo.cinfo_object.get_by_tag_name(cinfo_tag, new_value)
+                loaded_cinfo.cinfo_object.set_by_tag_name(cinfo_tag, new_value)
                 loaded_cinfo.has_changes = True
                 any_has_changes = True
             if any((loaded_cinfo.cover_action is not None,loaded_cinfo.backcover_action is not None)):

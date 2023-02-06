@@ -70,8 +70,7 @@ class LoadedComicInfo_MetadataTests(unittest.TestCase):
                 cinfo = ComicInfo()
                 cinfo.series = f"Series-{ai}-{self.random_int}"
                 cinfo.writer = f"Writer-{ai}-{self.random_int}"
-                data = io.StringIO(str(cinfo.to_xml()))
-                zf.writestr("ComicInfo.xml", data.getvalue())
+                zf.writestr("ComicInfo.xml", str(cinfo.to_xml()))
             self.initial_dir_count = len(os.listdir(os.getcwd()))
 
     def tearDown(self) -> None:

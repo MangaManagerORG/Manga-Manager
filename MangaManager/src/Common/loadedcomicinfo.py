@@ -7,7 +7,6 @@ import logging
 import os
 import tempfile
 import zipfile
-from io import StringIO
 from typing import IO
 
 from PIL import Image, ImageTk
@@ -209,7 +208,7 @@ class LoadedComicInfo:
         self._process(convert_to_webp=True)
 
     def _export_metadata(self) -> str:
-        return StringIO(self.cinfo_object.to_xml())
+        return str(self.cinfo_object.to_xml())
 
     def load_all(self):
         try:
@@ -316,11 +315,11 @@ class LoadedComicInfo:
                 self.cinfo_object = ComicInfo.from_xml(xml_string)
             except XMLSyntaxError as e:
                 logger.warning(LOG_TAG + f"Failed to parse XML:\n{e}\nAttempting recovery...")
-                try:
-                    self.cinfo_object = ComicInfo.from_xml(xml_string) # TODO: Figure out how to doRecover on ET
-                except XMLSyntaxError:
-                    logger.error(f"[{'Reading Meta':13s}] Failed to parse XML: {e} - Recovery attempt failed")
-                    raise CorruptedComicInfo(self.file_path)
+                # try:
+                #     self.cinfo_object = ComicInfo.from_xml(xml_string)
+                # except XMLSyntaxError:
+                #     logger.error(f"[{'Reading Meta':13s}] Failed to parse XML: {e} - Recovery attempt failed")
+                #     raise CorruptedComicInfo(self.file_path)
             except Exception:
                 logger.exception(f"[{'Reading Meta':13s}] Unhandled error reading metadata."
                                  f" Please create an issue for further investigation")

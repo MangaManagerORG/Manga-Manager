@@ -353,17 +353,17 @@ class GUIApp(Tk, MetadataManagerLib):
             match widget_value:
                 case self.MULTIPLE_VALUES_CONFLICT:
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Keeping original")
-                    self.new_edited_cinfo.get_by_tag_name(cinfo_tag, self.MULTIPLE_VALUES_CONFLICT)
+                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, self.MULTIPLE_VALUES_CONFLICT)
                 case "None":
                     if widget.name == "Format":
-                        self.new_edited_cinfo.get_by_tag_name(cinfo_tag, "")
+                        self.new_edited_cinfo.set_by_tag_name(cinfo_tag, "")
                 case widget.default:  # If it matches the default then do nothing
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Has default value")
                 case "":
-                    self.new_edited_cinfo.get_by_tag_name(cinfo_tag, widget.default)
+                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, widget.default)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted")
                 case _:
-                    self.new_edited_cinfo.get_by_tag_name(cinfo_tag, widget_value)
+                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, widget_value)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")
                     # self.log.warning(f"Unhandled case: {widget_value}")
 

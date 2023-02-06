@@ -115,7 +115,6 @@ class ComicInfo:
 
     @classmethod
     def from_xml(cls, xml_string):
-        xml_string = xml_string.replace("\\n", "")
         root = ET.ElementTree(ET.fromstring(xml_string, parser=ET.XMLParser(encoding='utf-8')))
         comic_info = cls()
         for prop in [a for a in dir(comic_info) if not a.startswith('__') and not callable(getattr(comic_info, a))]:
@@ -133,4 +132,4 @@ class ComicInfo:
             if node.text is None:
                 node.text = ''
 
-        return ET.tostring(root, encoding="UTF-8", xml_declaration=True, method='xml')
+        return ET.tostring(root, encoding="UTF-8", xml_declaration=True, method='xml').decode("utf8")
