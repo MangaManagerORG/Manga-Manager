@@ -1,13 +1,10 @@
+import json
 import locale
 import tkinter
-from os.path import abspath
 from tkinter import Frame, ttk
 from tkinter.ttk import Notebook
 
-from pkg_resources import resource_filename
-
-#from src.MetadataManager import comicinfo
-from common.models import ComicInfo, Formats, AgeRating
+from common.models import Formats, AgeRating
 from src.Common import ResourceLoader
 from src.MetadataManager.CoverManager.CoverManager import CoverManager
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
@@ -16,7 +13,11 @@ from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, T
     ComboBoxWidget, LongTextWidget, OptionMenuWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
-languages = list(locale.locale_alias.keys())
+#languages = list(locale.locale_alias.keys())
+f = open(ResourceLoader.get('languages.json'), 'r')
+data = json.loads(f.read())
+languages = [l["isoCode"] for l in data]
+f.close()
 
 
 class JoeLayout(GUIApp):
