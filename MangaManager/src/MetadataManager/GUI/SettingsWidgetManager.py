@@ -70,7 +70,7 @@ class SettingsWidgetManager:
 
         for bundle in self.bundles:
             if bundle.control:
-                Settings().set(bundle.section.key, bundle.control.key, str(bundle.input_var.get()))
+                Settings().set(bundle.section.key, bundle.control.key, bundle.format_output())
 
         # Tell Extensions that an update to Settings has occurred
         for provider in providers:

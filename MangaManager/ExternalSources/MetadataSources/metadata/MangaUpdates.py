@@ -36,10 +36,10 @@ class MangaUpdates(IMetadataSource):
         self.settings = [
             SettingSection(self.name, self.name, [
                 SettingControl(MangaUpdatesPerson.Author, "Author", SettingControlType.Text, "Writer",
-                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag),
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
                 SettingControl(MangaUpdatesPerson.Artist, "Artist", SettingControlType.Text,
                                "Penciller, Inker, CoverArtist", "How metadata field will map to ComicInfo fields",
-                               self.is_valid_person_tag),
+                               self.is_valid_person_tag, self.trim),
             ])
         ]
         super(MangaUpdates, self).__init__()
@@ -56,6 +56,13 @@ class MangaUpdates(IMetadataSource):
         if len(invalid_people) == 0:
             return ""
         return ", ".join(invalid_people) + " are not a valid tags"
+
+    @staticmethod
+    def trim(value):
+        ret = value.strip()
+        if ret.endswith(','):
+            return ret[0:-1]
+        return ret
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:

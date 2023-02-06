@@ -1,5 +1,4 @@
 import json
-import locale
 import tkinter
 from tkinter import Frame, ttk
 from tkinter.ttk import Notebook
@@ -13,7 +12,6 @@ from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, T
     ComboBoxWidget, LongTextWidget, OptionMenuWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
-#languages = list(locale.locale_alias.keys())
 f = open(ResourceLoader.get('languages.json'), 'r')
 data = json.loads(f.read())
 languages = [l["isoCode"] for l in data]

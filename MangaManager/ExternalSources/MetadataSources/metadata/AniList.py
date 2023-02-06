@@ -43,12 +43,12 @@ class AniList(IMetadataSource):
         self.settings = [
             SettingSection(self.name, self.name, [
                 SettingControl(AniListPerson.OriginalStory, "Original Story", SettingControlType.Text, "Writer",
-                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag),
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
                 SettingControl(AniListPerson.CharacterDesign, "Character Design", SettingControlType.Text, "Penciller",
-                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag),
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
                 SettingControl(AniListPerson.StoryAndArt, "Story & Art", SettingControlType.Text,
                                "Writer, Penciller, Inker, CoverArtist",
-                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag),
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
             ])
         ]
 
@@ -68,6 +68,13 @@ class AniList(IMetadataSource):
         if len(invalid_people) == 0:
             return ""
         return ", ".join(invalid_people) + " are not a valid tags"
+
+    @staticmethod
+    def trim(value):
+        ret = value.strip()
+        if ret.endswith(','):
+            return ret[0:-1]
+        return ret
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:

@@ -71,3 +71,8 @@ class FormBundleWidget(Frame):
             self.validation_label.pack_forget()
 
         return not has_error
+
+    def format_output(self):
+        if self.control.format_value is None:
+            return str(self.input_var.get())
+        return self.control.format_value(self.input_var.get())

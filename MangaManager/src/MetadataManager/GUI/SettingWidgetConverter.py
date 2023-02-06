@@ -5,7 +5,7 @@ from src.Settings import SettingControl, SettingControlType, SettingSection
 
 
 def setting_control_to_widget(parent_frame: tkinter.Frame, control: SettingControl, section: SettingSection):
-    match control.type_:
+    match control.control_type:
         case SettingControlType.Text:
             string_var = tkinter.StringVar(value=control.value, name=f"{section.pretty_name}.{control.key}")
             entry = tkinter.Entry(master=parent_frame, width=80, textvariable=string_var)
