@@ -54,10 +54,26 @@ def populate_default_settings():
 
 class SettingsWidgetManager:
 
+    validation_messages = ''
+
     def save_settings(self):
         """
         Saves the settings from the GUI to Setting provider and extensions that dynamically loaded their settings
         """
+        is_errors = False
+        for setting_value in self.strings_vars:
+            if setting_value.linked_setting:
+                # Validate the setting is correct before allowing any persistence
+                if setting_value.linked_setting.validate is None:
+                    continue
+                validation_msg = setting_value.linked_setting.validate(setting_value.linked_setting.key, str(setting_value.get()))
+                if validation_msg is not None or validation_msg != "":
+                    is_errors = True
+                    self.validation_messages.set(self.validation_messages.get() + '\n' + validation_msg)
+                    print(validation_msg)
+        if is_errors:
+            return
+
         for setting_value in self.strings_vars:
             if setting_value.linked_setting:
                 Settings().set(setting_value.linked_section.key, setting_value.linked_setting.key, str(setting_value.get()))
@@ -113,6 +129,10 @@ class SettingsWidgetManager:
 
         center(settings_window)
         frame = Label(master=control_frame, text="\nNote: Fields marked with * need a restart to take effect")
+        frame.pack(expand=True, fill="both")
+        self.validation_messages = tkinter.StringVar()
+        self.validation_messages.set("")
+        frame = Label(master=control_frame, textvariable=self.validation_messages)
         frame.pack(expand=True, fill="both")
 
     def build_setting_entry(self, parent_frame, control, section):

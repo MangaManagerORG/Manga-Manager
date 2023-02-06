@@ -38,24 +38,30 @@ class AniList(IMetadataSource):
         ]
     }
 
-    settings = [
-        SettingSection(name, name, [
-            SettingControl(AniListPerson.OriginalStory, "Original Story", SettingControlType.Text, "Writer",
-                           "How metadata field will map to ComicInfo fields"),
-            SettingControl(AniListPerson.CharacterDesign, "Character Design", SettingControlType.Text, "Penciller",
-                           "How metadata field will map to ComicInfo fields"),
-            SettingControl(AniListPerson.StoryAndArt, "Story & Art", SettingControlType.Text, "Writer, Penciller, Inker, CoverArtist",
-                           "How metadata field will map to ComicInfo fields"),
-        ])
-    ]
-
     def __init__(self):
+        self.settings = [
+            SettingSection(self.name, self.name, [
+                SettingControl(AniListPerson.OriginalStory, "Original Story", SettingControlType.Text, "Writer",
+                               "How metadata field will map to ComicInfo fields", self.validate),
+                SettingControl(AniListPerson.CharacterDesign, "Character Design", SettingControlType.Text, "Penciller",
+                               "How metadata field will map to ComicInfo fields", self.validate),
+                SettingControl(AniListPerson.StoryAndArt, "Story & Art", SettingControlType.Text,
+                               "Writer, Penciller, Inker, CoverArtist",
+                               "How metadata field will map to ComicInfo fields", self.validate),
+            ])
+        ]
+
         super(AniList, self).__init__()
+
 
     def save_settings(self):
         self.person_mapper[AniListPerson.OriginalStory] = Settings().get(self.name, AniListPerson.OriginalStory).split(',')
         self.person_mapper[AniListPerson.CharacterDesign] = Settings().get(self.name, AniListPerson.CharacterDesign).split(',')
         self.person_mapper[AniListPerson.StoryAndArt] = Settings().get(self.name, AniListPerson.StoryAndArt).split(',')
+
+    def validate(self, key, value):
+        return key + ' is invalid'
+        pass
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:

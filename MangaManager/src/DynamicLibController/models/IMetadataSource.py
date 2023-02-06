@@ -49,3 +49,6 @@ class IMetadataSource(abc.ABC):
             for control in section.values:
                 Settings().set_default(section.key, control.key, control.value)
         Settings().save()
+
+    def validate(self, key: str, value: str) -> str:
+        pass
