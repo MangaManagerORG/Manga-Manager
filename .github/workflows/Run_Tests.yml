@@ -1,5 +1,5 @@
 # This workflow file will install Python dependencies,
-# create a desktop, joystick, and test the application's GUI on multiple versions of Python
+# create a desktop, and test the application's GUI on multiple versions of Python
 name: Python tests & Build
 
 on:
@@ -67,7 +67,7 @@ jobs:
     name: Stable Build
     needs: [ build, sonarcloud ]
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
