@@ -7,7 +7,7 @@ from ExternalSources.MetadataSources.metadata import ScraperFactory
 from src import MM_PATH
 from src.Common.utils import open_folder
 from src.MetadataManager.GUI.utils import center
-from src.MetadataManager.GUI.widgets import ButtonWidget
+from src.MetadataManager.GUI.widgets import ButtonWidget, FileMultiSelectWidget
 from src.MetadataManager.GUI.widgets.FormBundleWidget import FormBundleWidget
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.SettingControl import SettingControl
@@ -19,7 +19,7 @@ setting_control_map = {
     SettingHeading.Main: {
         "library_path": SettingControl("library_path", "Library Path", SettingControlType.Text, "", "The path to your library. This location will be opened by default when choosing files"),
         "covers_folder_path": SettingControl("covers_folder_path", "Covers folder path", SettingControlType.Text, "", "The path to your covers. This location will be opened by default when choosing covers"),
-        "cache_cover_images": SettingControl("cache_cover_images", "Cache cover images", SettingControlType.Bool, False, "If enabled, the covers of the file will be cached and shown in the ui"),
+        "cache_cover_images": SettingControl("cache_cover_images", "Cache cover images", SettingControlType.Bool, True, "If enabled, the covers of the file will be cached and shown in the ui"),
         "selected_layout": SettingControl("selected_layout", "* Active layout", SettingControlType.Options, "", "Selects the layout to be displayed"),
     },
     SettingHeading.WebpConverter: {
@@ -53,7 +53,6 @@ def populate_default_settings():
 
 
 class SettingsWidgetManager:
-    validation_messages = ''
 
     def save_settings(self):
         """
@@ -81,6 +80,7 @@ class SettingsWidgetManager:
     def __init__(self, parent):
         self.strings_vars: list[tkinter.Variable] = []
         self.bundles: list[FormBundleWidget] = []
+        self.default_settings = populate_default_settings()
 
         settings_window = self.settings_window = tkinter.Toplevel(parent, pady=30, padx=30)
         settings_window.geometry("900x420")
@@ -90,6 +90,7 @@ class SettingsWidgetManager:
         main_frame.pack(fill="both")
         self.widgets_frame = tkinter.Frame(main_frame, pady=30, padx=30)
         self.widgets_frame.pack(fill="y", expand=True)
+
         control_frame = tkinter.Frame(settings_window)
         control_frame.pack()
         ButtonWidget(master=control_frame, text="Save", tooltip="Saves the settings to the config file",
@@ -98,12 +99,12 @@ class SettingsWidgetManager:
                      tooltip="Opens the folder where Manga Manager stores it's files",
                      command=lambda x=None: open_folder(folder_path=MM_PATH)).pack()
 
-        default_settings = populate_default_settings()
+
 
         self.settings_widget = {}
         print('Setting up settings for Manga Manager')
-        for setting_section in default_settings:
-            section = default_settings[setting_section]
+        for setting_section in self.default_settings:
+            section = self.default_settings[setting_section]
 
             print('Setting up settings for ' + section.pretty_name)
             frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name)
@@ -120,17 +121,16 @@ class SettingsWidgetManager:
                 frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name)
                 frame.pack(expand=True, fill="both")
 
-                self.settings_widget[default_settings[SettingHeading.ExternalSources].pretty_name][section.pretty_name] = {}
+                self.settings_widget[self.default_settings[SettingHeading.ExternalSources].pretty_name][section.pretty_name] = {}
                 self.build_setting_entries(frame, section.values, section)
 
         center(settings_window)
         frame = Label(master=control_frame, text="\nNote: Fields marked with * need a restart to take effect")
         frame.pack(expand=True, fill="both")
-        # TODO: Refactor this so each validation_message is packed under the setting control and is mapped via key
-        self.validation_messages = tkinter.StringVar()
-        self.validation_messages.set("")
-        frame = Label(master=control_frame, textvariable=self.validation_messages)
-        frame.pack(expand=True, fill="both")
+
+    def build_setting_frame_selector(self, frame):
+        selection_widget = FileMultiSelectWidget
+        pass
 
     def build_setting_entry(self, parent_frame, control: SettingControl, section):
         # Update the control's value from Settings
