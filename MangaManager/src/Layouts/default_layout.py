@@ -6,8 +6,8 @@ from tkinter.ttk import Notebook
 
 from pkg_resources import resource_filename
 
+from common.models import AgeRating, Formats
 from src.Common.utils import open_folder
-from src.MetadataManager import comicinfo
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, ProgressBarWidget
@@ -199,7 +199,7 @@ class Layout(GUIApp):
         com_age_rat_frame = Frame(parent_frame)
         com_age_rat_frame.pack(side="top", expand=False, fill="x")
         self.widget_mngr.AgeRating = OptionMenuWidget(com_age_rat_frame, "AgeRating", "Age Rating", width=18,
-                                                      default="Unknown", values=comicinfo.AgeRating.list()).pack(expand=True,
+                                                      default="Unknown", values=AgeRating.list()).pack(expand=True,
                                                                                                    fill="both",
                                                                                                    side="left")
 
@@ -271,7 +271,7 @@ class Layout(GUIApp):
                                                       ).grid(5, 0)
 
         self.widget_mngr.Format = OptionMenuWidget(parent_frame, "Format", "Format", width=18, default="",
-                                                   values=comicinfo.format_list).grid(5, 1)
+                                                   values=Formats).grid(5, 1)
 
         self.widget_mngr.BlackAndWhite = OptionMenuWidget(parent_frame, cinfo_name="BlackAndWhite", label_text="Black And White", width=18,
                                                           default="Unknown", values=("Unknown", "Yes", "No")).grid(6, 0)

@@ -6,7 +6,8 @@ from tkinter.ttk import Notebook
 
 from pkg_resources import resource_filename
 
-from src.MetadataManager import comicinfo
+#from src.MetadataManager import comicinfo
+from common.models import ComicInfo, Formats, AgeRating
 from src.MetadataManager.CoverManager.CoverManager import CoverManager
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.GUI.ExceptionWindow import ExceptionFrame
@@ -14,9 +15,11 @@ from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, T
     ComboBoxWidget, LongTextWidget, OptionMenuWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
+languages = list(locale.locale_alias.keys())
 
-class Layout(GUIApp):
-    name = "Joe Layout"
+
+class JoeLayout(GUIApp):
+    name = "joe"
 
     def __init__(self):
         super().__init__()
@@ -233,7 +236,7 @@ class Layout(GUIApp):
         self.widget_mngr.Count = ComboBoxWidget(numbering, "Count", width=COMBO_WIDTH,
                                                 validation="int", default="-1").grid(0, 2)
         self.widget_mngr.Format = OptionMenuWidget(numbering, "Format", "Format", COMBO_WIDTH, 18, "",
-                                                   comicinfo.format_list).grid(0, 3)
+                                                   Formats).grid(0, 3)
         self.widget_mngr.Manga = OptionMenuWidget(numbering, "Manga", "Manga", COMBO_WIDTH, 18,
                                                   "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(0,4)
 
@@ -244,10 +247,10 @@ class Layout(GUIApp):
         self.widget_mngr.Day = ComboBoxWidget(numbering, "Day", width=COMBO_WIDTH,
                                               validation="int", default="-1").grid(1, 2)
         self.widget_mngr.AgeRating = OptionMenuWidget(numbering, "AgeRating", "Age Rating", COMBO_WIDTH, 18,
-                                                      "Unknown", comicinfo.AgeRating.list()).grid(1, 3)
+                                                      "Unknown", AgeRating.list()).grid(1, 3)
 
         self.widget_mngr.LanguageISO = ComboBoxWidget(numbering, "LanguageISO", label_text="Language ISO",
-                                                      width=8, default="", default_values=list(locale.locale_alias.keys())).grid(1, 4)
+                                                      width=8, default="", default_values=languages).grid(1, 4)
 
         self.widget_mngr.Notes = ComboBoxWidget(parent_frame, cinfo_name="Notes").pack()
 

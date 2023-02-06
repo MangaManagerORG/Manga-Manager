@@ -17,6 +17,8 @@ from src.Common.errors import CorruptedComicInfo, BadZipFile
 from src.Common.utils import IS_IMAGE_PATTERN, convert_to_webp
 from src.Common.utils import obtain_cover_filename, get_new_webp_name
 
+from common.models import ComicInfo
+
 logger = logging.getLogger("LoadedCInfo")
 
 COMICINFO_FILE = 'ComicInfo.xml'
@@ -155,20 +157,20 @@ class LoadedComicInfo:
     @property
     def volume(self):
         if self.cinfo_object:
-            return self.cinfo_object.get_Volume()
+            return self.cinfo_object.volume
 
     @property
     def chapter(self):
         if self.cinfo_object:
-            return self.cinfo_object.get_Number()
+            return self.cinfo_object.number
 
     @volume.setter
     def volume(self, value):
-        self.cinfo_object.set_Volume(value)
+        self.cinfo_object.volume = value
 
     @chapter.setter
     def chapter(self, value):
-        self.cinfo_object.set_Number(value)
+        self.cinfo_object.number = value
 
     def __init__(self, path, comicinfo: ComicInfo = None, load_default_metadata=True):
         """
@@ -207,9 +209,7 @@ class LoadedComicInfo:
         self._process(convert_to_webp=True)
 
     def _export_metadata(self) -> str:
-        exported_metadata = StringIO()
-        self.cinfo_object.export(exported_metadata, 0)
-        return exported_metadata.getvalue()
+        return StringIO(self.cinfo_object.to_xml())
 
     def load_all(self):
         try:
@@ -313,11 +313,11 @@ class LoadedComicInfo:
 
         if xml_string:
             try:
-                self.cinfo_object = parseString(xml_string, silence=True)
+                self.cinfo_object = ComicInfo.from_xml(xml_string)
             except XMLSyntaxError as e:
                 logger.warning(LOG_TAG + f"Failed to parse XML:\n{e}\nAttempting recovery...")
                 try:
-                    self.cinfo_object = parseString(xml_string, doRecover=True, silence=True)
+                    self.cinfo_object = ComicInfo.from_xml(xml_string) # TODO: Figure out how to doRecover on ET
                 except XMLSyntaxError:
                     logger.error(f"[{'Reading Meta':13s}] Failed to parse XML: {e} - Recovery attempt failed")
                     raise CorruptedComicInfo(self.file_path)
@@ -361,8 +361,7 @@ class LoadedComicInfo:
             with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
                 # Write the new metadata once
                 if write_metadata:
-                    self.cinfo_object.set_PageCount(
-                        len([file_ for file_ in zin.namelist() if IS_IMAGE_PATTERN.match(file_)]))
+                    self.cinfo_object.page_count = len([file_ for file_ in zin.namelist() if IS_IMAGE_PATTERN.match(file_)])
                     zout.writestr(COMICINFO_FILE, self._export_metadata())
                     logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
                     # Directly backup the metadata if it's at root.
@@ -502,4 +501,4 @@ class LoadedComicInfo:
                 f"[{_LOG_TAG_RECOMPRESSING:13s}] Adding file '{new_filename}' to new tempfile")
 
 
-from src.MetadataManager.comicinfo import ComicInfo, parseString
+

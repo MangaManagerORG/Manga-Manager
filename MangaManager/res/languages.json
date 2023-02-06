@@ -1,0 +1,2437 @@
+[{
+    "isoCode": "aa",
+    "title": "Afar"
+}, {
+    "isoCode": "aa-DJ",
+    "title": "Afar (Djibouti)"
+}, {
+    "isoCode": "aa-ER",
+    "title": "Afar (Eritrea)"
+}, {
+    "isoCode": "aa-ET",
+    "title": "Afar (Ethiopia)"
+}, {
+    "isoCode": "af",
+    "title": "Afrikaans"
+}, {
+    "isoCode": "af-NA",
+    "title": "Afrikaans (Namibia)"
+}, {
+    "isoCode": "af-ZA",
+    "title": "Afrikaans (South Africa)"
+}, {
+    "isoCode": "agq",
+    "title": "Aghem"
+}, {
+    "isoCode": "agq-CM",
+    "title": "Aghem (Cameroon)"
+}, {
+    "isoCode": "ak",
+    "title": "Akan"
+}, {
+    "isoCode": "ak-GH",
+    "title": "Akan (Ghana)"
+}, {
+    "isoCode": "am",
+    "title": "Amharic"
+}, {
+    "isoCode": "am-ET",
+    "title": "Amharic (Ethiopia)"
+}, {
+    "isoCode": "ar",
+    "title": "Arabic"
+}, {
+    "isoCode": "ar-001",
+    "title": "Arabic (World)"
+}, {
+    "isoCode": "ar-AE",
+    "title": "Arabic (United Arab Emirates)"
+}, {
+    "isoCode": "ar-BH",
+    "title": "Arabic (Bahrain)"
+}, {
+    "isoCode": "ar-DJ",
+    "title": "Arabic (Djibouti)"
+}, {
+    "isoCode": "ar-DZ",
+    "title": "Arabic (Algeria)"
+}, {
+    "isoCode": "ar-EG",
+    "title": "Arabic (Egypt)"
+}, {
+    "isoCode": "ar-ER",
+    "title": "Arabic (Eritrea)"
+}, {
+    "isoCode": "ar-IL",
+    "title": "Arabic (Israel)"
+}, {
+    "isoCode": "ar-IQ",
+    "title": "Arabic (Iraq)"
+}, {
+    "isoCode": "ar-JO",
+    "title": "Arabic (Jordan)"
+}, {
+    "isoCode": "ar-KM",
+    "title": "Arabic (Comoros)"
+}, {
+    "isoCode": "ar-KW",
+    "title": "Arabic (Kuwait)"
+}, {
+    "isoCode": "ar-LB",
+    "title": "Arabic (Lebanon)"
+}, {
+    "isoCode": "ar-LY",
+    "title": "Arabic (Libya)"
+}, {
+    "isoCode": "ar-MA",
+    "title": "Arabic (Morocco)"
+}, {
+    "isoCode": "ar-MR",
+    "title": "Arabic (Mauritania)"
+}, {
+    "isoCode": "ar-OM",
+    "title": "Arabic (Oman)"
+}, {
+    "isoCode": "ar-PS",
+    "title": "Arabic (Palestinian Authority)"
+}, {
+    "isoCode": "ar-QA",
+    "title": "Arabic (Qatar)"
+}, {
+    "isoCode": "ar-SA",
+    "title": "Arabic (Saudi Arabia)"
+}, {
+    "isoCode": "ar-SD",
+    "title": "Arabic (Sudan)"
+}, {
+    "isoCode": "ar-SO",
+    "title": "Arabic (Somalia)"
+}, {
+    "isoCode": "ar-SS",
+    "title": "Arabic (South Sudan)"
+}, {
+    "isoCode": "ar-SY",
+    "title": "Arabic (Syria)"
+}, {
+    "isoCode": "ar-TD",
+    "title": "Arabic (Chad)"
+}, {
+    "isoCode": "ar-TN",
+    "title": "Arabic (Tunisia)"
+}, {
+    "isoCode": "ar-YE",
+    "title": "Arabic (Yemen)"
+}, {
+    "isoCode": "arn",
+    "title": "Mapuche"
+}, {
+    "isoCode": "arn-CL",
+    "title": "Mapuche (Chile)"
+}, {
+    "isoCode": "as",
+    "title": "Assamese"
+}, {
+    "isoCode": "as-IN",
+    "title": "Assamese (India)"
+}, {
+    "isoCode": "asa",
+    "title": "Asu"
+}, {
+    "isoCode": "asa-TZ",
+    "title": "Asu (Tanzania)"
+}, {
+    "isoCode": "ast",
+    "title": "Asturian"
+}, {
+    "isoCode": "ast-ES",
+    "title": "Asturian (Spain)"
+}, {
+    "isoCode": "az",
+    "title": "Azerbaijani"
+}, {
+    "isoCode": "az-Cyrl",
+    "title": "Azerbaijani (Cyrillic)"
+}, {
+    "isoCode": "az-Cyrl-AZ",
+    "title": "Azerbaijani (Cyrillic, Azerbaijan)"
+}, {
+    "isoCode": "az-Latn",
+    "title": "Azerbaijani (Latin)"
+}, {
+    "isoCode": "az-Latn-AZ",
+    "title": "Azerbaijani (Latin, Azerbaijan)"
+}, {
+    "isoCode": "ba",
+    "title": "Bashkir"
+}, {
+    "isoCode": "ba-RU",
+    "title": "Bashkir (Russia)"
+}, {
+    "isoCode": "bas",
+    "title": "Basaa"
+}, {
+    "isoCode": "bas-CM",
+    "title": "Basaa (Cameroon)"
+}, {
+    "isoCode": "be",
+    "title": "Belarusian"
+}, {
+    "isoCode": "be-BY",
+    "title": "Belarusian (Belarus)"
+}, {
+    "isoCode": "bem",
+    "title": "Bemba"
+}, {
+    "isoCode": "bem-ZM",
+    "title": "Bemba (Zambia)"
+}, {
+    "isoCode": "bez",
+    "title": "Bena"
+}, {
+    "isoCode": "bez-TZ",
+    "title": "Bena (Tanzania)"
+}, {
+    "isoCode": "bg",
+    "title": "Bulgarian"
+}, {
+    "isoCode": "bg-BG",
+    "title": "Bulgarian (Bulgaria)"
+}, {
+    "isoCode": "bm",
+    "title": "Bamanankan"
+}, {
+    "isoCode": "bm-ML",
+    "title": "Bamanankan (Mali)"
+}, {
+    "isoCode": "bn",
+    "title": "Bangla"
+}, {
+    "isoCode": "bn-BD",
+    "title": "Bangla (Bangladesh)"
+}, {
+    "isoCode": "bn-IN",
+    "title": "Bangla (India)"
+}, {
+    "isoCode": "bo",
+    "title": "Tibetan"
+}, {
+    "isoCode": "bo-CN",
+    "title": "Tibetan (China)"
+}, {
+    "isoCode": "bo-IN",
+    "title": "Tibetan (India)"
+}, {
+    "isoCode": "br",
+    "title": "Breton"
+}, {
+    "isoCode": "br-FR",
+    "title": "Breton (France)"
+}, {
+    "isoCode": "brx",
+    "title": "Bodo"
+}, {
+    "isoCode": "brx-IN",
+    "title": "Bodo (India)"
+}, {
+    "isoCode": "bs",
+    "title": "Bosnian"
+}, {
+    "isoCode": "bs-Cyrl",
+    "title": "Bosnian (Cyrillic)"
+}, {
+    "isoCode": "bs-Cyrl-BA",
+    "title": "Bosnian (Cyrillic, Bosnia & Herzegovina)"
+}, {
+    "isoCode": "bs-Latn",
+    "title": "Bosnian (Latin)"
+}, {
+    "isoCode": "bs-Latn-BA",
+    "title": "Bosnian (Latin, Bosnia & Herzegovina)"
+}, {
+    "isoCode": "byn",
+    "title": "Blin"
+}, {
+    "isoCode": "byn-ER",
+    "title": "Blin (Eritrea)"
+}, {
+    "isoCode": "ca",
+    "title": "Catalan"
+}, {
+    "isoCode": "ca-AD",
+    "title": "Catalan (Andorra)"
+}, {
+    "isoCode": "ca-ES",
+    "title": "Catalan (Spain)"
+}, {
+    "isoCode": "ca-ES-VALENCIA",
+    "title": "Catalan (Spain, Valencian)"
+}, {
+    "isoCode": "ca-FR",
+    "title": "Catalan (France)"
+}, {
+    "isoCode": "ca-IT",
+    "title": "Catalan (Italy)"
+}, {
+    "isoCode": "ccp",
+    "title": "Chakma"
+}, {
+    "isoCode": "ccp-BD",
+    "title": "Chakma (Bangladesh)"
+}, {
+    "isoCode": "ccp-IN",
+    "title": "Chakma (India)"
+}, {
+    "isoCode": "ce",
+    "title": "Chechen"
+}, {
+    "isoCode": "ce-RU",
+    "title": "Chechen (Russia)"
+}, {
+    "isoCode": "ceb",
+    "title": "Cebuano"
+}, {
+    "isoCode": "ceb-PH",
+    "title": "Cebuano (Philippines)"
+}, {
+    "isoCode": "cgg",
+    "title": "Chiga"
+}, {
+    "isoCode": "cgg-UG",
+    "title": "Chiga (Uganda)"
+}, {
+    "isoCode": "chr",
+    "title": "Cherokee"
+}, {
+    "isoCode": "chr-US",
+    "title": "Cherokee (United States)"
+}, {
+    "isoCode": "ckb",
+    "title": "Central Kurdish"
+}, {
+    "isoCode": "ckb-IQ",
+    "title": "Central Kurdish (Iraq)"
+}, {
+    "isoCode": "ckb-IR",
+    "title": "Central Kurdish (Iran)"
+}, {
+    "isoCode": "co",
+    "title": "Corsican"
+}, {
+    "isoCode": "co-FR",
+    "title": "Corsican (France)"
+}, {
+    "isoCode": "cs",
+    "title": "Czech"
+}, {
+    "isoCode": "cs-CZ",
+    "title": "Czech (Czechia)"
+}, {
+    "isoCode": "cu",
+    "title": "Church Slavic"
+}, {
+    "isoCode": "cu-RU",
+    "title": "Church Slavic (Russia)"
+}, {
+    "isoCode": "cy",
+    "title": "Welsh"
+}, {
+    "isoCode": "cy-GB",
+    "title": "Welsh (United Kingdom)"
+}, {
+    "isoCode": "da",
+    "title": "Danish"
+}, {
+    "isoCode": "da-DK",
+    "title": "Danish (Denmark)"
+}, {
+    "isoCode": "da-GL",
+    "title": "Danish (Greenland)"
+}, {
+    "isoCode": "dav",
+    "title": "Taita"
+}, {
+    "isoCode": "dav-KE",
+    "title": "Taita (Kenya)"
+}, {
+    "isoCode": "de",
+    "title": "German"
+}, {
+    "isoCode": "de-AT",
+    "title": "German (Austria)"
+}, {
+    "isoCode": "de-BE",
+    "title": "German (Belgium)"
+}, {
+    "isoCode": "de-CH",
+    "title": "German (Switzerland)"
+}, {
+    "isoCode": "de-DE",
+    "title": "German (Germany)"
+}, {
+    "isoCode": "de-IT",
+    "title": "German (Italy)"
+}, {
+    "isoCode": "de-LI",
+    "title": "German (Liechtenstein)"
+}, {
+    "isoCode": "de-LU",
+    "title": "German (Luxembourg)"
+}, {
+    "isoCode": "dje",
+    "title": "Zarma"
+}, {
+    "isoCode": "dje-NE",
+    "title": "Zarma (Niger)"
+}, {
+    "isoCode": "dsb",
+    "title": "Lower Sorbian"
+}, {
+    "isoCode": "dsb-DE",
+    "title": "Lower Sorbian (Germany)"
+}, {
+    "isoCode": "dua",
+    "title": "Duala"
+}, {
+    "isoCode": "dua-CM",
+    "title": "Duala (Cameroon)"
+}, {
+    "isoCode": "dv",
+    "title": "Divehi"
+}, {
+    "isoCode": "dv-MV",
+    "title": "Divehi (Maldives)"
+}, {
+    "isoCode": "dyo",
+    "title": "Jola-Fonyi"
+}, {
+    "isoCode": "dyo-SN",
+    "title": "Jola-Fonyi (Senegal)"
+}, {
+    "isoCode": "dz",
+    "title": "Dzongkha"
+}, {
+    "isoCode": "dz-BT",
+    "title": "Dzongkha (Bhutan)"
+}, {
+    "isoCode": "ebu",
+    "title": "Embu"
+}, {
+    "isoCode": "ebu-KE",
+    "title": "Embu (Kenya)"
+}, {
+    "isoCode": "ee",
+    "title": "Ewe"
+}, {
+    "isoCode": "ee-GH",
+    "title": "Ewe (Ghana)"
+}, {
+    "isoCode": "ee-TG",
+    "title": "Ewe (Togo)"
+}, {
+    "isoCode": "el",
+    "title": "Greek"
+}, {
+    "isoCode": "el-CY",
+    "title": "Greek (Cyprus)"
+}, {
+    "isoCode": "el-GR",
+    "title": "Greek (Greece)"
+}, {
+    "isoCode": "en",
+    "title": "English"
+}, {
+    "isoCode": "en-001",
+    "title": "English (World)"
+}, {
+    "isoCode": "en-150",
+    "title": "English (Europe)"
+}, {
+    "isoCode": "en-AE",
+    "title": "English (United Arab Emirates)"
+}, {
+    "isoCode": "en-AG",
+    "title": "English (Antigua & Barbuda)"
+}, {
+    "isoCode": "en-AI",
+    "title": "English (Anguilla)"
+}, {
+    "isoCode": "en-AS",
+    "title": "English (American Samoa)"
+}, {
+    "isoCode": "en-AT",
+    "title": "English (Austria)"
+}, {
+    "isoCode": "en-AU",
+    "title": "English (Australia)"
+}, {
+    "isoCode": "en-BB",
+    "title": "English (Barbados)"
+}, {
+    "isoCode": "en-BE",
+    "title": "English (Belgium)"
+}, {
+    "isoCode": "en-BI",
+    "title": "English (Burundi)"
+}, {
+    "isoCode": "en-BM",
+    "title": "English (Bermuda)"
+}, {
+    "isoCode": "en-BS",
+    "title": "English (Bahamas)"
+}, {
+    "isoCode": "en-BW",
+    "title": "English (Botswana)"
+}, {
+    "isoCode": "en-BZ",
+    "title": "English (Belize)"
+}, {
+    "isoCode": "en-CA",
+    "title": "English (Canada)"
+}, {
+    "isoCode": "en-CC",
+    "title": "English (Cocos [Keeling] Islands)"
+}, {
+    "isoCode": "en-CH",
+    "title": "English (Switzerland)"
+}, {
+    "isoCode": "en-CK",
+    "title": "English (Cook Islands)"
+}, {
+    "isoCode": "en-CM",
+    "title": "English (Cameroon)"
+}, {
+    "isoCode": "en-CX",
+    "title": "English (Christmas Island)"
+}, {
+    "isoCode": "en-CY",
+    "title": "English (Cyprus)"
+}, {
+    "isoCode": "en-DE",
+    "title": "English (Germany)"
+}, {
+    "isoCode": "en-DK",
+    "title": "English (Denmark)"
+}, {
+    "isoCode": "en-DM",
+    "title": "English (Dominica)"
+}, {
+    "isoCode": "en-ER",
+    "title": "English (Eritrea)"
+}, {
+    "isoCode": "en-FI",
+    "title": "English (Finland)"
+}, {
+    "isoCode": "en-FJ",
+    "title": "English (Fiji)"
+}, {
+    "isoCode": "en-FK",
+    "title": "English (Falkland Islands)"
+}, {
+    "isoCode": "en-FM",
+    "title": "English (Micronesia)"
+}, {
+    "isoCode": "en-GB",
+    "title": "English (United Kingdom)"
+}, {
+    "isoCode": "en-GD",
+    "title": "English (Grenada)"
+}, {
+    "isoCode": "en-GG",
+    "title": "English (Guernsey)"
+}, {
+    "isoCode": "en-GH",
+    "title": "English (Ghana)"
+}, {
+    "isoCode": "en-GI",
+    "title": "English (Gibraltar)"
+}, {
+    "isoCode": "en-GM",
+    "title": "English (Gambia)"
+}, {
+    "isoCode": "en-GU",
+    "title": "English (Guam)"
+}, {
+    "isoCode": "en-GY",
+    "title": "English (Guyana)"
+}, {
+    "isoCode": "en-HK",
+    "title": "English (Hong Kong SAR)"
+}, {
+    "isoCode": "en-IE",
+    "title": "English (Ireland)"
+}, {
+    "isoCode": "en-IL",
+    "title": "English (Israel)"
+}, {
+    "isoCode": "en-IM",
+    "title": "English (Isle of Man)"
+}, {
+    "isoCode": "en-IN",
+    "title": "English (India)"
+}, {
+    "isoCode": "en-IO",
+    "title": "English (British Indian Ocean Territory)"
+}, {
+    "isoCode": "en-JE",
+    "title": "English (Jersey)"
+}, {
+    "isoCode": "en-JM",
+    "title": "English (Jamaica)"
+}, {
+    "isoCode": "en-KE",
+    "title": "English (Kenya)"
+}, {
+    "isoCode": "en-KI",
+    "title": "English (Kiribati)"
+}, {
+    "isoCode": "en-KN",
+    "title": "English (St. Kitts & Nevis)"
+}, {
+    "isoCode": "en-KY",
+    "title": "English (Cayman Islands)"
+}, {
+    "isoCode": "en-LC",
+    "title": "English (St. Lucia)"
+}, {
+    "isoCode": "en-LR",
+    "title": "English (Liberia)"
+}, {
+    "isoCode": "en-LS",
+    "title": "English (Lesotho)"
+}, {
+    "isoCode": "en-MG",
+    "title": "English (Madagascar)"
+}, {
+    "isoCode": "en-MH",
+    "title": "English (Marshall Islands)"
+}, {
+    "isoCode": "en-MO",
+    "title": "English (Macao SAR)"
+}, {
+    "isoCode": "en-MP",
+    "title": "English (Northern Mariana Islands)"
+}, {
+    "isoCode": "en-MS",
+    "title": "English (Montserrat)"
+}, {
+    "isoCode": "en-MT",
+    "title": "English (Malta)"
+}, {
+    "isoCode": "en-MU",
+    "title": "English (Mauritius)"
+}, {
+    "isoCode": "en-MW",
+    "title": "English (Malawi)"
+}, {
+    "isoCode": "en-MY",
+    "title": "English (Malaysia)"
+}, {
+    "isoCode": "en-NA",
+    "title": "English (Namibia)"
+}, {
+    "isoCode": "en-NF",
+    "title": "English (Norfolk Island)"
+}, {
+    "isoCode": "en-NG",
+    "title": "English (Nigeria)"
+}, {
+    "isoCode": "en-NL",
+    "title": "English (Netherlands)"
+}, {
+    "isoCode": "en-NR",
+    "title": "English (Nauru)"
+}, {
+    "isoCode": "en-NU",
+    "title": "English (Niue)"
+}, {
+    "isoCode": "en-NZ",
+    "title": "English (New Zealand)"
+}, {
+    "isoCode": "en-PG",
+    "title": "English (Papua New Guinea)"
+}, {
+    "isoCode": "en-PH",
+    "title": "English (Philippines)"
+}, {
+    "isoCode": "en-PK",
+    "title": "English (Pakistan)"
+}, {
+    "isoCode": "en-PN",
+    "title": "English (Pitcairn Islands)"
+}, {
+    "isoCode": "en-PR",
+    "title": "English (Puerto Rico)"
+}, {
+    "isoCode": "en-PW",
+    "title": "English (Palau)"
+}, {
+    "isoCode": "en-RW",
+    "title": "English (Rwanda)"
+}, {
+    "isoCode": "en-SB",
+    "title": "English (Solomon Islands)"
+}, {
+    "isoCode": "en-SC",
+    "title": "English (Seychelles)"
+}, {
+    "isoCode": "en-SD",
+    "title": "English (Sudan)"
+}, {
+    "isoCode": "en-SE",
+    "title": "English (Sweden)"
+}, {
+    "isoCode": "en-SG",
+    "title": "English (Singapore)"
+}, {
+    "isoCode": "en-SH",
+    "title": "English (St Helena, Ascension, Tristan da Cunha)"
+}, {
+    "isoCode": "en-SI",
+    "title": "English (Slovenia)"
+}, {
+    "isoCode": "en-SL",
+    "title": "English (Sierra Leone)"
+}, {
+    "isoCode": "en-SS",
+    "title": "English (South Sudan)"
+}, {
+    "isoCode": "en-SX",
+    "title": "English (Sint Maarten)"
+}, {
+    "isoCode": "en-SZ",
+    "title": "English (Eswatini)"
+}, {
+    "isoCode": "en-TC",
+    "title": "English (Turks & Caicos Islands)"
+}, {
+    "isoCode": "en-TK",
+    "title": "English (Tokelau)"
+}, {
+    "isoCode": "en-TO",
+    "title": "English (Tonga)"
+}, {
+    "isoCode": "en-TT",
+    "title": "English (Trinidad & Tobago)"
+}, {
+    "isoCode": "en-TV",
+    "title": "English (Tuvalu)"
+}, {
+    "isoCode": "en-TZ",
+    "title": "English (Tanzania)"
+}, {
+    "isoCode": "en-UG",
+    "title": "English (Uganda)"
+}, {
+    "isoCode": "en-UM",
+    "title": "English (U.S. Outlying Islands)"
+}, {
+    "isoCode": "en-US",
+    "title": "English (United States)"
+}, {
+    "isoCode": "en-US-POSIX",
+    "title": "English (United States, Computer)"
+}, {
+    "isoCode": "en-VC",
+    "title": "English (St. Vincent & Grenadines)"
+}, {
+    "isoCode": "en-VG",
+    "title": "English (British Virgin Islands)"
+}, {
+    "isoCode": "en-VI",
+    "title": "English (U.S. Virgin Islands)"
+}, {
+    "isoCode": "en-VU",
+    "title": "English (Vanuatu)"
+}, {
+    "isoCode": "en-WS",
+    "title": "English (Samoa)"
+}, {
+    "isoCode": "en-ZA",
+    "title": "English (South Africa)"
+}, {
+    "isoCode": "en-ZM",
+    "title": "English (Zambia)"
+}, {
+    "isoCode": "en-ZW",
+    "title": "English (Zimbabwe)"
+}, {
+    "isoCode": "eo",
+    "title": "Esperanto"
+}, {
+    "isoCode": "eo-001",
+    "title": "Esperanto (World)"
+}, {
+    "isoCode": "es",
+    "title": "Spanish"
+}, {
+    "isoCode": "es-419",
+    "title": "Spanish (Latin America)"
+}, {
+    "isoCode": "es-AR",
+    "title": "Spanish (Argentina)"
+}, {
+    "isoCode": "es-BO",
+    "title": "Spanish (Bolivia)"
+}, {
+    "isoCode": "es-BR",
+    "title": "Spanish (Brazil)"
+}, {
+    "isoCode": "es-BZ",
+    "title": "Spanish (Belize)"
+}, {
+    "isoCode": "es-CL",
+    "title": "Spanish (Chile)"
+}, {
+    "isoCode": "es-CO",
+    "title": "Spanish (Colombia)"
+}, {
+    "isoCode": "es-CR",
+    "title": "Spanish (Costa Rica)"
+}, {
+    "isoCode": "es-CU",
+    "title": "Spanish (Cuba)"
+}, {
+    "isoCode": "es-DO",
+    "title": "Spanish (Dominican Republic)"
+}, {
+    "isoCode": "es-EC",
+    "title": "Spanish (Ecuador)"
+}, {
+    "isoCode": "es-ES",
+    "title": "Spanish (Spain)"
+}, {
+    "isoCode": "es-GQ",
+    "title": "Spanish (Equatorial Guinea)"
+}, {
+    "isoCode": "es-GT",
+    "title": "Spanish (Guatemala)"
+}, {
+    "isoCode": "es-HN",
+    "title": "Spanish (Honduras)"
+}, {
+    "isoCode": "es-MX",
+    "title": "Spanish (Mexico)"
+}, {
+    "isoCode": "es-NI",
+    "title": "Spanish (Nicaragua)"
+}, {
+    "isoCode": "es-PA",
+    "title": "Spanish (Panama)"
+}, {
+    "isoCode": "es-PE",
+    "title": "Spanish (Peru)"
+}, {
+    "isoCode": "es-PH",
+    "title": "Spanish (Philippines)"
+}, {
+    "isoCode": "es-PR",
+    "title": "Spanish (Puerto Rico)"
+}, {
+    "isoCode": "es-PY",
+    "title": "Spanish (Paraguay)"
+}, {
+    "isoCode": "es-SV",
+    "title": "Spanish (El Salvador)"
+}, {
+    "isoCode": "es-US",
+    "title": "Spanish (United States)"
+}, {
+    "isoCode": "es-UY",
+    "title": "Spanish (Uruguay)"
+}, {
+    "isoCode": "es-VE",
+    "title": "Spanish (Venezuela)"
+}, {
+    "isoCode": "et",
+    "title": "Estonian"
+}, {
+    "isoCode": "et-EE",
+    "title": "Estonian (Estonia)"
+}, {
+    "isoCode": "eu",
+    "title": "Basque"
+}, {
+    "isoCode": "eu-ES",
+    "title": "Basque (Spain)"
+}, {
+    "isoCode": "ewo",
+    "title": "Ewondo"
+}, {
+    "isoCode": "ewo-CM",
+    "title": "Ewondo (Cameroon)"
+}, {
+    "isoCode": "fa",
+    "title": "Persian"
+}, {
+    "isoCode": "fa-AF",
+    "title": "Persian (Afghanistan)"
+}, {
+    "isoCode": "fa-IR",
+    "title": "Persian (Iran)"
+}, {
+    "isoCode": "ff",
+    "title": "Fulah"
+}, {
+    "isoCode": "ff-Latn",
+    "title": "Fulah (Latin)"
+}, {
+    "isoCode": "ff-Latn-BF",
+    "title": "Fulah (Latin, Burkina Faso)"
+}, {
+    "isoCode": "ff-Latn-CM",
+    "title": "Fulah (Latin, Cameroon)"
+}, {
+    "isoCode": "ff-Latn-GH",
+    "title": "Fulah (Latin, Ghana)"
+}, {
+    "isoCode": "ff-Latn-GM",
+    "title": "Fulah (Latin, Gambia)"
+}, {
+    "isoCode": "ff-Latn-GN",
+    "title": "Fulah (Latin, Guinea)"
+}, {
+    "isoCode": "ff-Latn-GW",
+    "title": "Fulah (Latin, Guinea-Bissau)"
+}, {
+    "isoCode": "ff-Latn-LR",
+    "title": "Fulah (Latin, Liberia)"
+}, {
+    "isoCode": "ff-Latn-MR",
+    "title": "Fulah (Latin, Mauritania)"
+}, {
+    "isoCode": "ff-Latn-NE",
+    "title": "Fulah (Latin, Niger)"
+}, {
+    "isoCode": "ff-Latn-NG",
+    "title": "Fulah (Latin, Nigeria)"
+}, {
+    "isoCode": "ff-Latn-SL",
+    "title": "Fulah (Latin, Sierra Leone)"
+}, {
+    "isoCode": "ff-Latn-SN",
+    "title": "Fulah (Latin, Senegal)"
+}, {
+    "isoCode": "fi",
+    "title": "Finnish"
+}, {
+    "isoCode": "fi-FI",
+    "title": "Finnish (Finland)"
+}, {
+    "isoCode": "fil",
+    "title": "Filipino"
+}, {
+    "isoCode": "fil-PH",
+    "title": "Filipino (Philippines)"
+}, {
+    "isoCode": "fo",
+    "title": "Faroese"
+}, {
+    "isoCode": "fo-DK",
+    "title": "Faroese (Denmark)"
+}, {
+    "isoCode": "fo-FO",
+    "title": "Faroese (Faroe Islands)"
+}, {
+    "isoCode": "fr",
+    "title": "French"
+}, {
+    "isoCode": "fr-BE",
+    "title": "French (Belgium)"
+}, {
+    "isoCode": "fr-BF",
+    "title": "French (Burkina Faso)"
+}, {
+    "isoCode": "fr-BI",
+    "title": "French (Burundi)"
+}, {
+    "isoCode": "fr-BJ",
+    "title": "French (Benin)"
+}, {
+    "isoCode": "fr-BL",
+    "title": "French (St. Barthélemy)"
+}, {
+    "isoCode": "fr-CA",
+    "title": "French (Canada)"
+}, {
+    "isoCode": "fr-CD",
+    "title": "French (Congo [DRC])"
+}, {
+    "isoCode": "fr-CF",
+    "title": "French (Central African Republic)"
+}, {
+    "isoCode": "fr-CG",
+    "title": "French (Congo)"
+}, {
+    "isoCode": "fr-CH",
+    "title": "French (Switzerland)"
+}, {
+    "isoCode": "fr-CI",
+    "title": "French (Côte d’Ivoire)"
+}, {
+    "isoCode": "fr-CM",
+    "title": "French (Cameroon)"
+}, {
+    "isoCode": "fr-DJ",
+    "title": "French (Djibouti)"
+}, {
+    "isoCode": "fr-DZ",
+    "title": "French (Algeria)"
+}, {
+    "isoCode": "fr-FR",
+    "title": "French (France)"
+}, {
+    "isoCode": "fr-GA",
+    "title": "French (Gabon)"
+}, {
+    "isoCode": "fr-GF",
+    "title": "French (French Guiana)"
+}, {
+    "isoCode": "fr-GN",
+    "title": "French (Guinea)"
+}, {
+    "isoCode": "fr-GP",
+    "title": "French (Guadeloupe)"
+}, {
+    "isoCode": "fr-GQ",
+    "title": "French (Equatorial Guinea)"
+}, {
+    "isoCode": "fr-HT",
+    "title": "French (Haiti)"
+}, {
+    "isoCode": "fr-KM",
+    "title": "French (Comoros)"
+}, {
+    "isoCode": "fr-LU",
+    "title": "French (Luxembourg)"
+}, {
+    "isoCode": "fr-MA",
+    "title": "French (Morocco)"
+}, {
+    "isoCode": "fr-MC",
+    "title": "French (Monaco)"
+}, {
+    "isoCode": "fr-MF",
+    "title": "French (St. Martin)"
+}, {
+    "isoCode": "fr-MG",
+    "title": "French (Madagascar)"
+}, {
+    "isoCode": "fr-ML",
+    "title": "French (Mali)"
+}, {
+    "isoCode": "fr-MQ",
+    "title": "French (Martinique)"
+}, {
+    "isoCode": "fr-MR",
+    "title": "French (Mauritania)"
+}, {
+    "isoCode": "fr-MU",
+    "title": "French (Mauritius)"
+}, {
+    "isoCode": "fr-NC",
+    "title": "French (New Caledonia)"
+}, {
+    "isoCode": "fr-NE",
+    "title": "French (Niger)"
+}, {
+    "isoCode": "fr-PF",
+    "title": "French (French Polynesia)"
+}, {
+    "isoCode": "fr-PM",
+    "title": "French (St. Pierre & Miquelon)"
+}, {
+    "isoCode": "fr-RE",
+    "title": "French (Réunion)"
+}, {
+    "isoCode": "fr-RW",
+    "title": "French (Rwanda)"
+}, {
+    "isoCode": "fr-SC",
+    "title": "French (Seychelles)"
+}, {
+    "isoCode": "fr-SN",
+    "title": "French (Senegal)"
+}, {
+    "isoCode": "fr-SY",
+    "title": "French (Syria)"
+}, {
+    "isoCode": "fr-TD",
+    "title": "French (Chad)"
+}, {
+    "isoCode": "fr-TG",
+    "title": "French (Togo)"
+}, {
+    "isoCode": "fr-TN",
+    "title": "French (Tunisia)"
+}, {
+    "isoCode": "fr-VU",
+    "title": "French (Vanuatu)"
+}, {
+    "isoCode": "fr-WF",
+    "title": "French (Wallis & Futuna)"
+}, {
+    "isoCode": "fr-YT",
+    "title": "French (Mayotte)"
+}, {
+    "isoCode": "fur",
+    "title": "Friulian"
+}, {
+    "isoCode": "fur-IT",
+    "title": "Friulian (Italy)"
+}, {
+    "isoCode": "fy",
+    "title": "Western Frisian"
+}, {
+    "isoCode": "fy-NL",
+    "title": "Western Frisian (Netherlands)"
+}, {
+    "isoCode": "ga",
+    "title": "Irish"
+}, {
+    "isoCode": "ga-IE",
+    "title": "Irish (Ireland)"
+}, {
+    "isoCode": "gd",
+    "title": "Scottish Gaelic"
+}, {
+    "isoCode": "gd-GB",
+    "title": "Scottish Gaelic (United Kingdom)"
+}, {
+    "isoCode": "gl",
+    "title": "Galician"
+}, {
+    "isoCode": "gl-ES",
+    "title": "Galician (Spain)"
+}, {
+    "isoCode": "gn",
+    "title": "Guarani"
+}, {
+    "isoCode": "gn-PY",
+    "title": "Guarani (Paraguay)"
+}, {
+    "isoCode": "gsw",
+    "title": "Swiss German"
+}, {
+    "isoCode": "gsw-CH",
+    "title": "Swiss German (Switzerland)"
+}, {
+    "isoCode": "gsw-FR",
+    "title": "Swiss German (France)"
+}, {
+    "isoCode": "gsw-LI",
+    "title": "Swiss German (Liechtenstein)"
+}, {
+    "isoCode": "gu",
+    "title": "Gujarati"
+}, {
+    "isoCode": "gu-IN",
+    "title": "Gujarati (India)"
+}, {
+    "isoCode": "guz",
+    "title": "Gusii"
+}, {
+    "isoCode": "guz-KE",
+    "title": "Gusii (Kenya)"
+}, {
+    "isoCode": "gv",
+    "title": "Manx"
+}, {
+    "isoCode": "gv-IM",
+    "title": "Manx (Isle of Man)"
+}, {
+    "isoCode": "ha",
+    "title": "Hausa"
+}, {
+    "isoCode": "ha-GH",
+    "title": "Hausa (Ghana)"
+}, {
+    "isoCode": "ha-NE",
+    "title": "Hausa (Niger)"
+}, {
+    "isoCode": "ha-NG",
+    "title": "Hausa (Nigeria)"
+}, {
+    "isoCode": "haw",
+    "title": "Hawaiian"
+}, {
+    "isoCode": "haw-US",
+    "title": "Hawaiian (United States)"
+}, {
+    "isoCode": "he",
+    "title": "Hebrew"
+}, {
+    "isoCode": "he-IL",
+    "title": "Hebrew (Israel)"
+}, {
+    "isoCode": "hi",
+    "title": "Hindi"
+}, {
+    "isoCode": "hi-IN",
+    "title": "Hindi (India)"
+}, {
+    "isoCode": "hr",
+    "title": "Croatian"
+}, {
+    "isoCode": "hr-BA",
+    "title": "Croatian (Bosnia & Herzegovina)"
+}, {
+    "isoCode": "hr-HR",
+    "title": "Croatian (Croatia)"
+}, {
+    "isoCode": "hsb",
+    "title": "Upper Sorbian"
+}, {
+    "isoCode": "hsb-DE",
+    "title": "Upper Sorbian (Germany)"
+}, {
+    "isoCode": "hu",
+    "title": "Hungarian"
+}, {
+    "isoCode": "hu-HU",
+    "title": "Hungarian (Hungary)"
+}, {
+    "isoCode": "hy",
+    "title": "Armenian"
+}, {
+    "isoCode": "hy-AM",
+    "title": "Armenian (Armenia)"
+}, {
+    "isoCode": "ia",
+    "title": "Interlingua"
+}, {
+    "isoCode": "ia-001",
+    "title": "Interlingua (World)"
+}, {
+    "isoCode": "id",
+    "title": "Indonesian"
+}, {
+    "isoCode": "id-ID",
+    "title": "Indonesian (Indonesia)"
+}, {
+    "isoCode": "ig",
+    "title": "Igbo"
+}, {
+    "isoCode": "ig-NG",
+    "title": "Igbo (Nigeria)"
+}, {
+    "isoCode": "ii",
+    "title": "Yi"
+}, {
+    "isoCode": "ii-CN",
+    "title": "Yi (China)"
+}, {
+    "isoCode": "is",
+    "title": "Icelandic"
+}, {
+    "isoCode": "is-IS",
+    "title": "Icelandic (Iceland)"
+}, {
+    "isoCode": "it",
+    "title": "Italian"
+}, {
+    "isoCode": "it-CH",
+    "title": "Italian (Switzerland)"
+}, {
+    "isoCode": "it-IT",
+    "title": "Italian (Italy)"
+}, {
+    "isoCode": "it-SM",
+    "title": "Italian (San Marino)"
+}, {
+    "isoCode": "it-VA",
+    "title": "Italian (Vatican City)"
+}, {
+    "isoCode": "iu",
+    "title": "Inuktitut"
+}, {
+    "isoCode": "iu-CA",
+    "title": "Inuktitut (Canada)"
+}, {
+    "isoCode": "iu-Latn",
+    "title": "Inuktitut (Latin)"
+}, {
+    "isoCode": "iu-Latn-CA",
+    "title": "Inuktitut (Latin, Canada)"
+}, {
+    "isoCode": "ja",
+    "title": "Japanese"
+}, {
+    "isoCode": "ja-JP",
+    "title": "Japanese (Japan)"
+}, {
+    "isoCode": "jgo",
+    "title": "Ngomba"
+}, {
+    "isoCode": "jgo-CM",
+    "title": "Ngomba (Cameroon)"
+}, {
+    "isoCode": "jmc",
+    "title": "Machame"
+}, {
+    "isoCode": "jmc-TZ",
+    "title": "Machame (Tanzania)"
+}, {
+    "isoCode": "jv",
+    "title": "Javanese"
+}, {
+    "isoCode": "jv-ID",
+    "title": "Javanese (Indonesia)"
+}, {
+    "isoCode": "ka",
+    "title": "Georgian"
+}, {
+    "isoCode": "ka-GE",
+    "title": "Georgian (Georgia)"
+}, {
+    "isoCode": "kab",
+    "title": "Kabyle"
+}, {
+    "isoCode": "kab-DZ",
+    "title": "Kabyle (Algeria)"
+}, {
+    "isoCode": "kam",
+    "title": "Kamba"
+}, {
+    "isoCode": "kam-KE",
+    "title": "Kamba (Kenya)"
+}, {
+    "isoCode": "kde",
+    "title": "Makonde"
+}, {
+    "isoCode": "kde-TZ",
+    "title": "Makonde (Tanzania)"
+}, {
+    "isoCode": "kea",
+    "title": "Kabuverdianu"
+}, {
+    "isoCode": "kea-CV",
+    "title": "Kabuverdianu (Cabo Verde)"
+}, {
+    "isoCode": "khq",
+    "title": "Koyra Chiini"
+}, {
+    "isoCode": "khq-ML",
+    "title": "Koyra Chiini (Mali)"
+}, {
+    "isoCode": "ki",
+    "title": "Kikuyu"
+}, {
+    "isoCode": "ki-KE",
+    "title": "Kikuyu (Kenya)"
+}, {
+    "isoCode": "kk",
+    "title": "Kazakh"
+}, {
+    "isoCode": "kk-KZ",
+    "title": "Kazakh (Kazakhstan)"
+}, {
+    "isoCode": "kkj",
+    "title": "Kako"
+}, {
+    "isoCode": "kkj-CM",
+    "title": "Kako (Cameroon)"
+}, {
+    "isoCode": "kl",
+    "title": "Kalaallisut"
+}, {
+    "isoCode": "kl-GL",
+    "title": "Kalaallisut (Greenland)"
+}, {
+    "isoCode": "kln",
+    "title": "Kalenjin"
+}, {
+    "isoCode": "kln-KE",
+    "title": "Kalenjin (Kenya)"
+}, {
+    "isoCode": "km",
+    "title": "Khmer"
+}, {
+    "isoCode": "km-KH",
+    "title": "Khmer (Cambodia)"
+}, {
+    "isoCode": "kn",
+    "title": "Kannada"
+}, {
+    "isoCode": "kn-IN",
+    "title": "Kannada (India)"
+}, {
+    "isoCode": "ko",
+    "title": "Korean"
+}, {
+    "isoCode": "ko-KP",
+    "title": "Korean (North Korea)"
+}, {
+    "isoCode": "ko-KR",
+    "title": "Korean (Korea)"
+}, {
+    "isoCode": "kok",
+    "title": "Konkani"
+}, {
+    "isoCode": "kok-IN",
+    "title": "Konkani (India)"
+}, {
+    "isoCode": "ks",
+    "title": "Kashmiri"
+}, {
+    "isoCode": "ks-IN",
+    "title": "Kashmiri (India)"
+}, {
+    "isoCode": "ksb",
+    "title": "Shambala"
+}, {
+    "isoCode": "ksb-TZ",
+    "title": "Shambala (Tanzania)"
+}, {
+    "isoCode": "ksf",
+    "title": "Bafia"
+}, {
+    "isoCode": "ksf-CM",
+    "title": "Bafia (Cameroon)"
+}, {
+    "isoCode": "ksh",
+    "title": "Colognian"
+}, {
+    "isoCode": "ksh-DE",
+    "title": "Colognian (Germany)"
+}, {
+    "isoCode": "kw",
+    "title": "Cornish"
+}, {
+    "isoCode": "kw-GB",
+    "title": "Cornish (United Kingdom)"
+}, {
+    "isoCode": "ky",
+    "title": "Kyrgyz"
+}, {
+    "isoCode": "ky-KG",
+    "title": "Kyrgyz (Kyrgyzstan)"
+}, {
+    "isoCode": "lag",
+    "title": "Langi"
+}, {
+    "isoCode": "lag-TZ",
+    "title": "Langi (Tanzania)"
+}, {
+    "isoCode": "lb",
+    "title": "Luxembourgish"
+}, {
+    "isoCode": "lb-LU",
+    "title": "Luxembourgish (Luxembourg)"
+}, {
+    "isoCode": "lg",
+    "title": "Ganda"
+}, {
+    "isoCode": "lg-UG",
+    "title": "Ganda (Uganda)"
+}, {
+    "isoCode": "lkt",
+    "title": "Lakota"
+}, {
+    "isoCode": "lkt-US",
+    "title": "Lakota (United States)"
+}, {
+    "isoCode": "ln",
+    "title": "Lingala"
+}, {
+    "isoCode": "ln-AO",
+    "title": "Lingala (Angola)"
+}, {
+    "isoCode": "ln-CD",
+    "title": "Lingala (Congo [DRC])"
+}, {
+    "isoCode": "ln-CF",
+    "title": "Lingala (Central African Republic)"
+}, {
+    "isoCode": "ln-CG",
+    "title": "Lingala (Congo)"
+}, {
+    "isoCode": "lo",
+    "title": "Lao"
+}, {
+    "isoCode": "lo-LA",
+    "title": "Lao (Laos)"
+}, {
+    "isoCode": "lrc",
+    "title": "Northern Luri"
+}, {
+    "isoCode": "lrc-IQ",
+    "title": "Northern Luri (Iraq)"
+}, {
+    "isoCode": "lrc-IR",
+    "title": "Northern Luri (Iran)"
+}, {
+    "isoCode": "lt",
+    "title": "Lithuanian"
+}, {
+    "isoCode": "lt-LT",
+    "title": "Lithuanian (Lithuania)"
+}, {
+    "isoCode": "lu",
+    "title": "Luba-Katanga"
+}, {
+    "isoCode": "lu-CD",
+    "title": "Luba-Katanga (Congo [DRC])"
+}, {
+    "isoCode": "luo",
+    "title": "Luo"
+}, {
+    "isoCode": "luo-KE",
+    "title": "Luo (Kenya)"
+}, {
+    "isoCode": "luy",
+    "title": "Luyia"
+}, {
+    "isoCode": "luy-KE",
+    "title": "Luyia (Kenya)"
+}, {
+    "isoCode": "lv",
+    "title": "Latvian"
+}, {
+    "isoCode": "lv-LV",
+    "title": "Latvian (Latvia)"
+}, {
+    "isoCode": "mas",
+    "title": "Masai"
+}, {
+    "isoCode": "mas-KE",
+    "title": "Masai (Kenya)"
+}, {
+    "isoCode": "mas-TZ",
+    "title": "Masai (Tanzania)"
+}, {
+    "isoCode": "mer",
+    "title": "Meru"
+}, {
+    "isoCode": "mer-KE",
+    "title": "Meru (Kenya)"
+}, {
+    "isoCode": "mfe",
+    "title": "Morisyen"
+}, {
+    "isoCode": "mfe-MU",
+    "title": "Morisyen (Mauritius)"
+}, {
+    "isoCode": "mg",
+    "title": "Malagasy"
+}, {
+    "isoCode": "mg-MG",
+    "title": "Malagasy (Madagascar)"
+}, {
+    "isoCode": "mgh",
+    "title": "Makhuwa-Meetto"
+}, {
+    "isoCode": "mgh-MZ",
+    "title": "Makhuwa-Meetto (Mozambique)"
+}, {
+    "isoCode": "mgo",
+    "title": "Metaʼ"
+}, {
+    "isoCode": "mgo-CM",
+    "title": "Metaʼ (Cameroon)"
+}, {
+    "isoCode": "mi",
+    "title": "Maori"
+}, {
+    "isoCode": "mi-NZ",
+    "title": "Maori (New Zealand)"
+}, {
+    "isoCode": "mk",
+    "title": "Macedonian"
+}, {
+    "isoCode": "mk-MK",
+    "title": "Macedonian (North Macedonia)"
+}, {
+    "isoCode": "ml",
+    "title": "Malayalam"
+}, {
+    "isoCode": "ml-IN",
+    "title": "Malayalam (India)"
+}, {
+    "isoCode": "mn",
+    "title": "Mongolian"
+}, {
+    "isoCode": "mn-MN",
+    "title": "Mongolian (Mongolia)"
+}, {
+    "isoCode": "mn-Mong",
+    "title": "Mongolian (Mongolian)"
+}, {
+    "isoCode": "mn-Mong-CN",
+    "title": "Mongolian (Mongolian, China)"
+}, {
+    "isoCode": "mn-Mong-MN",
+    "title": "Mongolian (Mongolian, Mongolia)"
+}, {
+    "isoCode": "moh",
+    "title": "Mohawk"
+}, {
+    "isoCode": "moh-CA",
+    "title": "Mohawk (Canada)"
+}, {
+    "isoCode": "mr",
+    "title": "Marathi"
+}, {
+    "isoCode": "mr-IN",
+    "title": "Marathi (India)"
+}, {
+    "isoCode": "ms",
+    "title": "Malay"
+}, {
+    "isoCode": "ms-BN",
+    "title": "Malay (Brunei)"
+}, {
+    "isoCode": "ms-MY",
+    "title": "Malay (Malaysia)"
+}, {
+    "isoCode": "ms-SG",
+    "title": "Malay (Singapore)"
+}, {
+    "isoCode": "mt",
+    "title": "Maltese"
+}, {
+    "isoCode": "mt-MT",
+    "title": "Maltese (Malta)"
+}, {
+    "isoCode": "mua",
+    "title": "Mundang"
+}, {
+    "isoCode": "mua-CM",
+    "title": "Mundang (Cameroon)"
+}, {
+    "isoCode": "my",
+    "title": "Burmese"
+}, {
+    "isoCode": "my-MM",
+    "title": "Burmese (Myanmar)"
+}, {
+    "isoCode": "mzn",
+    "title": "Mazanderani"
+}, {
+    "isoCode": "mzn-IR",
+    "title": "Mazanderani (Iran)"
+}, {
+    "isoCode": "naq",
+    "title": "Nama"
+}, {
+    "isoCode": "naq-NA",
+    "title": "Nama (Namibia)"
+}, {
+    "isoCode": "nb",
+    "title": "Norwegian Bokmål"
+}, {
+    "isoCode": "nb-NO",
+    "title": "Norwegian Bokmål (Norway)"
+}, {
+    "isoCode": "nb-SJ",
+    "title": "Norwegian Bokmål (Svalbard & Jan Mayen)"
+}, {
+    "isoCode": "nd",
+    "title": "North Ndebele"
+}, {
+    "isoCode": "nd-ZW",
+    "title": "North Ndebele (Zimbabwe)"
+}, {
+    "isoCode": "nds",
+    "title": "Low German"
+}, {
+    "isoCode": "nds-DE",
+    "title": "Low German (Germany)"
+}, {
+    "isoCode": "nds-NL",
+    "title": "Low German (Netherlands)"
+}, {
+    "isoCode": "ne",
+    "title": "Nepali"
+}, {
+    "isoCode": "ne-IN",
+    "title": "Nepali (India)"
+}, {
+    "isoCode": "ne-NP",
+    "title": "Nepali (Nepal)"
+}, {
+    "isoCode": "nl",
+    "title": "Dutch"
+}, {
+    "isoCode": "nl-AW",
+    "title": "Dutch (Aruba)"
+}, {
+    "isoCode": "nl-BE",
+    "title": "Dutch (Belgium)"
+}, {
+    "isoCode": "nl-BQ",
+    "title": "Dutch (Bonaire, Sint Eustatius and Saba)"
+}, {
+    "isoCode": "nl-CW",
+    "title": "Dutch (Curaçao)"
+}, {
+    "isoCode": "nl-NL",
+    "title": "Dutch (Netherlands)"
+}, {
+    "isoCode": "nl-SR",
+    "title": "Dutch (Suriname)"
+}, {
+    "isoCode": "nl-SX",
+    "title": "Dutch (Sint Maarten)"
+}, {
+    "isoCode": "nmg",
+    "title": "Kwasio"
+}, {
+    "isoCode": "nmg-CM",
+    "title": "Kwasio (Cameroon)"
+}, {
+    "isoCode": "nn",
+    "title": "Norwegian Nynorsk"
+}, {
+    "isoCode": "nn-NO",
+    "title": "Norwegian Nynorsk (Norway)"
+}, {
+    "isoCode": "nnh",
+    "title": "Ngiemboon"
+}, {
+    "isoCode": "nnh-CM",
+    "title": "Ngiemboon (Cameroon)"
+}, {
+    "isoCode": "nqo",
+    "title": "N’Ko"
+}, {
+    "isoCode": "nqo-GN",
+    "title": "N’Ko (Guinea)"
+}, {
+    "isoCode": "nr",
+    "title": "South Ndebele"
+}, {
+    "isoCode": "nr-ZA",
+    "title": "South Ndebele (South Africa)"
+}, {
+    "isoCode": "nso",
+    "title": "Sesotho sa Leboa"
+}, {
+    "isoCode": "nso-ZA",
+    "title": "Sesotho sa Leboa (South Africa)"
+}, {
+    "isoCode": "nus",
+    "title": "Nuer"
+}, {
+    "isoCode": "nus-SS",
+    "title": "Nuer (South Sudan)"
+}, {
+    "isoCode": "nyn",
+    "title": "Nyankole"
+}, {
+    "isoCode": "nyn-UG",
+    "title": "Nyankole (Uganda)"
+}, {
+    "isoCode": "oc",
+    "title": "Occitan"
+}, {
+    "isoCode": "oc-FR",
+    "title": "Occitan (France)"
+}, {
+    "isoCode": "om",
+    "title": "Oromo"
+}, {
+    "isoCode": "om-ET",
+    "title": "Oromo (Ethiopia)"
+}, {
+    "isoCode": "om-KE",
+    "title": "Oromo (Kenya)"
+}, {
+    "isoCode": "or",
+    "title": "Odia"
+}, {
+    "isoCode": "or-IN",
+    "title": "Odia (India)"
+}, {
+    "isoCode": "os",
+    "title": "Ossetic"
+}, {
+    "isoCode": "os-GE",
+    "title": "Ossetic (Georgia)"
+}, {
+    "isoCode": "os-RU",
+    "title": "Ossetic (Russia)"
+}, {
+    "isoCode": "pa",
+    "title": "Punjabi"
+}, {
+    "isoCode": "pa-Arab",
+    "title": "Punjabi (Arabic)"
+}, {
+    "isoCode": "pa-Arab-PK",
+    "title": "Punjabi (Arabic, Pakistan)"
+}, {
+    "isoCode": "pa-Guru",
+    "title": "Punjabi (Gurmukhi)"
+}, {
+    "isoCode": "pa-Guru-IN",
+    "title": "Punjabi (Gurmukhi, India)"
+}, {
+    "isoCode": "pl",
+    "title": "Polish"
+}, {
+    "isoCode": "pl-PL",
+    "title": "Polish (Poland)"
+}, {
+    "isoCode": "prg",
+    "title": "Prussian"
+}, {
+    "isoCode": "prg-001",
+    "title": "Prussian (World)"
+}, {
+    "isoCode": "ps",
+    "title": "Pashto"
+}, {
+    "isoCode": "ps-AF",
+    "title": "Pashto (Afghanistan)"
+}, {
+    "isoCode": "ps-PK",
+    "title": "Pashto (Pakistan)"
+}, {
+    "isoCode": "pt",
+    "title": "Portuguese"
+}, {
+    "isoCode": "pt-AO",
+    "title": "Portuguese (Angola)"
+}, {
+    "isoCode": "pt-BR",
+    "title": "Portuguese (Brazil)"
+}, {
+    "isoCode": "pt-CH",
+    "title": "Portuguese (Switzerland)"
+}, {
+    "isoCode": "pt-CV",
+    "title": "Portuguese (Cabo Verde)"
+}, {
+    "isoCode": "pt-GQ",
+    "title": "Portuguese (Equatorial Guinea)"
+}, {
+    "isoCode": "pt-GW",
+    "title": "Portuguese (Guinea-Bissau)"
+}, {
+    "isoCode": "pt-LU",
+    "title": "Portuguese (Luxembourg)"
+}, {
+    "isoCode": "pt-MO",
+    "title": "Portuguese (Macao SAR)"
+}, {
+    "isoCode": "pt-MZ",
+    "title": "Portuguese (Mozambique)"
+}, {
+    "isoCode": "pt-PT",
+    "title": "Portuguese (Portugal)"
+}, {
+    "isoCode": "pt-ST",
+    "title": "Portuguese (São Tomé & Príncipe)"
+}, {
+    "isoCode": "pt-TL",
+    "title": "Portuguese (Timor-Leste)"
+}, {
+    "isoCode": "qu",
+    "title": "Quechua"
+}, {
+    "isoCode": "qu-BO",
+    "title": "Quechua (Bolivia)"
+}, {
+    "isoCode": "qu-EC",
+    "title": "Quechua (Ecuador)"
+}, {
+    "isoCode": "qu-PE",
+    "title": "Quechua (Peru)"
+}, {
+    "isoCode": "quc",
+    "title": "Kʼicheʼ"
+}, {
+    "isoCode": "quc-GT",
+    "title": "Kʼicheʼ (Guatemala)"
+}, {
+    "isoCode": "rm",
+    "title": "Romansh"
+}, {
+    "isoCode": "rm-CH",
+    "title": "Romansh (Switzerland)"
+}, {
+    "isoCode": "rn",
+    "title": "Rundi"
+}, {
+    "isoCode": "rn-BI",
+    "title": "Rundi (Burundi)"
+}, {
+    "isoCode": "ro",
+    "title": "Romanian"
+}, {
+    "isoCode": "ro-MD",
+    "title": "Romanian (Moldova)"
+}, {
+    "isoCode": "ro-RO",
+    "title": "Romanian (Romania)"
+}, {
+    "isoCode": "rof",
+    "title": "Rombo"
+}, {
+    "isoCode": "rof-TZ",
+    "title": "Rombo (Tanzania)"
+}, {
+    "isoCode": "ru",
+    "title": "Russian"
+}, {
+    "isoCode": "ru-BY",
+    "title": "Russian (Belarus)"
+}, {
+    "isoCode": "ru-KG",
+    "title": "Russian (Kyrgyzstan)"
+}, {
+    "isoCode": "ru-KZ",
+    "title": "Russian (Kazakhstan)"
+}, {
+    "isoCode": "ru-MD",
+    "title": "Russian (Moldova)"
+}, {
+    "isoCode": "ru-RU",
+    "title": "Russian (Russia)"
+}, {
+    "isoCode": "ru-UA",
+    "title": "Russian (Ukraine)"
+}, {
+    "isoCode": "rw",
+    "title": "Kinyarwanda"
+}, {
+    "isoCode": "rw-RW",
+    "title": "Kinyarwanda (Rwanda)"
+}, {
+    "isoCode": "rwk",
+    "title": "Rwa"
+}, {
+    "isoCode": "rwk-TZ",
+    "title": "Rwa (Tanzania)"
+}, {
+    "isoCode": "sa",
+    "title": "Sanskrit"
+}, {
+    "isoCode": "sa-IN",
+    "title": "Sanskrit (India)"
+}, {
+    "isoCode": "sah",
+    "title": "Sakha"
+}, {
+    "isoCode": "sah-RU",
+    "title": "Sakha (Russia)"
+}, {
+    "isoCode": "saq",
+    "title": "Samburu"
+}, {
+    "isoCode": "saq-KE",
+    "title": "Samburu (Kenya)"
+}, {
+    "isoCode": "sbp",
+    "title": "Sangu"
+}, {
+    "isoCode": "sbp-TZ",
+    "title": "Sangu (Tanzania)"
+}, {
+    "isoCode": "sd",
+    "title": "Sindhi"
+}, {
+    "isoCode": "sd-PK",
+    "title": "Sindhi (Pakistan)"
+}, {
+    "isoCode": "se",
+    "title": "Northern Sami"
+}, {
+    "isoCode": "se-FI",
+    "title": "Northern Sami (Finland)"
+}, {
+    "isoCode": "se-NO",
+    "title": "Northern Sami (Norway)"
+}, {
+    "isoCode": "se-SE",
+    "title": "Northern Sami (Sweden)"
+}, {
+    "isoCode": "seh",
+    "title": "Sena"
+}, {
+    "isoCode": "seh-MZ",
+    "title": "Sena (Mozambique)"
+}, {
+    "isoCode": "ses",
+    "title": "Koyraboro Senni"
+}, {
+    "isoCode": "ses-ML",
+    "title": "Koyraboro Senni (Mali)"
+}, {
+    "isoCode": "sg",
+    "title": "Sango"
+}, {
+    "isoCode": "sg-CF",
+    "title": "Sango (Central African Republic)"
+}, {
+    "isoCode": "shi",
+    "title": "Tachelhit"
+}, {
+    "isoCode": "shi-Latn",
+    "title": "Tachelhit (Latin)"
+}, {
+    "isoCode": "shi-Latn-MA",
+    "title": "Tachelhit (Latin, Morocco)"
+}, {
+    "isoCode": "shi-Tfng",
+    "title": "Tachelhit (Tifinagh)"
+}, {
+    "isoCode": "shi-Tfng-MA",
+    "title": "Tachelhit (Tifinagh, Morocco)"
+}, {
+    "isoCode": "si",
+    "title": "Sinhala"
+}, {
+    "isoCode": "si-LK",
+    "title": "Sinhala (Sri Lanka)"
+}, {
+    "isoCode": "sk",
+    "title": "Slovak"
+}, {
+    "isoCode": "sk-SK",
+    "title": "Slovak (Slovakia)"
+}, {
+    "isoCode": "sl",
+    "title": "Slovenian"
+}, {
+    "isoCode": "sl-SI",
+    "title": "Slovenian (Slovenia)"
+}, {
+    "isoCode": "sma",
+    "title": "Southern Sami"
+}, {
+    "isoCode": "sma-NO",
+    "title": "Southern Sami (Norway)"
+}, {
+    "isoCode": "sma-SE",
+    "title": "Southern Sami (Sweden)"
+}, {
+    "isoCode": "smj",
+    "title": "Lule Sami"
+}, {
+    "isoCode": "smj-NO",
+    "title": "Lule Sami (Norway)"
+}, {
+    "isoCode": "smj-SE",
+    "title": "Lule Sami (Sweden)"
+}, {
+    "isoCode": "smn",
+    "title": "Inari Sami"
+}, {
+    "isoCode": "smn-FI",
+    "title": "Inari Sami (Finland)"
+}, {
+    "isoCode": "sms",
+    "title": "Skolt Sami"
+}, {
+    "isoCode": "sms-FI",
+    "title": "Skolt Sami (Finland)"
+}, {
+    "isoCode": "sn",
+    "title": "Shona"
+}, {
+    "isoCode": "sn-ZW",
+    "title": "Shona (Zimbabwe)"
+}, {
+    "isoCode": "so",
+    "title": "Somali"
+}, {
+    "isoCode": "so-DJ",
+    "title": "Somali (Djibouti)"
+}, {
+    "isoCode": "so-ET",
+    "title": "Somali (Ethiopia)"
+}, {
+    "isoCode": "so-KE",
+    "title": "Somali (Kenya)"
+}, {
+    "isoCode": "so-SO",
+    "title": "Somali (Somalia)"
+}, {
+    "isoCode": "sq",
+    "title": "Albanian"
+}, {
+    "isoCode": "sq-AL",
+    "title": "Albanian (Albania)"
+}, {
+    "isoCode": "sq-MK",
+    "title": "Albanian (North Macedonia)"
+}, {
+    "isoCode": "sq-XK",
+    "title": "Albanian (Kosovo)"
+}, {
+    "isoCode": "sr",
+    "title": "Serbian"
+}, {
+    "isoCode": "sr-Cyrl",
+    "title": "Serbian (Cyrillic)"
+}, {
+    "isoCode": "sr-Cyrl-BA",
+    "title": "Serbian (Cyrillic, Bosnia & Herzegovina)"
+}, {
+    "isoCode": "sr-Cyrl-ME",
+    "title": "Serbian (Cyrillic, Montenegro)"
+}, {
+    "isoCode": "sr-Cyrl-RS",
+    "title": "Serbian (Cyrillic, Serbia)"
+}, {
+    "isoCode": "sr-Cyrl-XK",
+    "title": "Serbian (Cyrillic, Kosovo)"
+}, {
+    "isoCode": "sr-Latn",
+    "title": "Serbian (Latin)"
+}, {
+    "isoCode": "sr-Latn-BA",
+    "title": "Serbian (Latin, Bosnia & Herzegovina)"
+}, {
+    "isoCode": "sr-Latn-ME",
+    "title": "Serbian (Latin, Montenegro)"
+}, {
+    "isoCode": "sr-Latn-RS",
+    "title": "Serbian (Latin, Serbia)"
+}, {
+    "isoCode": "sr-Latn-XK",
+    "title": "Serbian (Latin, Kosovo)"
+}, {
+    "isoCode": "ss",
+    "title": "siSwati"
+}, {
+    "isoCode": "ss-SZ",
+    "title": "siSwati (Eswatini)"
+}, {
+    "isoCode": "ss-ZA",
+    "title": "siSwati (South Africa)"
+}, {
+    "isoCode": "ssy",
+    "title": "Saho"
+}, {
+    "isoCode": "ssy-ER",
+    "title": "Saho (Eritrea)"
+}, {
+    "isoCode": "st",
+    "title": "Sesotho"
+}, {
+    "isoCode": "st-LS",
+    "title": "Sesotho (Lesotho)"
+}, {
+    "isoCode": "st-ZA",
+    "title": "Sesotho (South Africa)"
+}, {
+    "isoCode": "sv",
+    "title": "Swedish"
+}, {
+    "isoCode": "sv-AX",
+    "title": "Swedish (Åland Islands)"
+}, {
+    "isoCode": "sv-FI",
+    "title": "Swedish (Finland)"
+}, {
+    "isoCode": "sv-SE",
+    "title": "Swedish (Sweden)"
+}, {
+    "isoCode": "sw",
+    "title": "Kiswahili"
+}, {
+    "isoCode": "sw-CD",
+    "title": "Kiswahili (Congo [DRC])"
+}, {
+    "isoCode": "sw-KE",
+    "title": "Kiswahili (Kenya)"
+}, {
+    "isoCode": "sw-TZ",
+    "title": "Kiswahili (Tanzania)"
+}, {
+    "isoCode": "sw-UG",
+    "title": "Kiswahili (Uganda)"
+}, {
+    "isoCode": "syr",
+    "title": "Syriac"
+}, {
+    "isoCode": "syr-SY",
+    "title": "Syriac (Syria)"
+}, {
+    "isoCode": "ta",
+    "title": "Tamil"
+}, {
+    "isoCode": "ta-IN",
+    "title": "Tamil (India)"
+}, {
+    "isoCode": "ta-LK",
+    "title": "Tamil (Sri Lanka)"
+}, {
+    "isoCode": "ta-MY",
+    "title": "Tamil (Malaysia)"
+}, {
+    "isoCode": "ta-SG",
+    "title": "Tamil (Singapore)"
+}, {
+    "isoCode": "te",
+    "title": "Telugu"
+}, {
+    "isoCode": "te-IN",
+    "title": "Telugu (India)"
+}, {
+    "isoCode": "teo",
+    "title": "Teso"
+}, {
+    "isoCode": "teo-KE",
+    "title": "Teso (Kenya)"
+}, {
+    "isoCode": "teo-UG",
+    "title": "Teso (Uganda)"
+}, {
+    "isoCode": "tg",
+    "title": "Tajik"
+}, {
+    "isoCode": "tg-TJ",
+    "title": "Tajik (Tajikistan)"
+}, {
+    "isoCode": "th",
+    "title": "Thai"
+}, {
+    "isoCode": "th-TH",
+    "title": "Thai (Thailand)"
+}, {
+    "isoCode": "ti",
+    "title": "Tigrinya"
+}, {
+    "isoCode": "ti-ER",
+    "title": "Tigrinya (Eritrea)"
+}, {
+    "isoCode": "ti-ET",
+    "title": "Tigrinya (Ethiopia)"
+}, {
+    "isoCode": "tig",
+    "title": "Tigre"
+}, {
+    "isoCode": "tig-ER",
+    "title": "Tigre (Eritrea)"
+}, {
+    "isoCode": "tk",
+    "title": "Turkmen"
+}, {
+    "isoCode": "tk-TM",
+    "title": "Turkmen (Turkmenistan)"
+}, {
+    "isoCode": "tn",
+    "title": "Setswana"
+}, {
+    "isoCode": "tn-BW",
+    "title": "Setswana (Botswana)"
+}, {
+    "isoCode": "tn-ZA",
+    "title": "Setswana (South Africa)"
+}, {
+    "isoCode": "to",
+    "title": "Tongan"
+}, {
+    "isoCode": "to-TO",
+    "title": "Tongan (Tonga)"
+}, {
+    "isoCode": "tr",
+    "title": "Turkish"
+}, {
+    "isoCode": "tr-CY",
+    "title": "Turkish (Cyprus)"
+}, {
+    "isoCode": "tr-TR",
+    "title": "Turkish (Turkey)"
+}, {
+    "isoCode": "ts",
+    "title": "Xitsonga"
+}, {
+    "isoCode": "ts-ZA",
+    "title": "Xitsonga (South Africa)"
+}, {
+    "isoCode": "tt",
+    "title": "Tatar"
+}, {
+    "isoCode": "tt-RU",
+    "title": "Tatar (Russia)"
+}, {
+    "isoCode": "twq",
+    "title": "Tasawaq"
+}, {
+    "isoCode": "twq-NE",
+    "title": "Tasawaq (Niger)"
+}, {
+    "isoCode": "tzm",
+    "title": "Central Atlas Tamazight"
+}, {
+    "isoCode": "tzm-MA",
+    "title": "Central Atlas Tamazight (Morocco)"
+}, {
+    "isoCode": "ug",
+    "title": "Uyghur"
+}, {
+    "isoCode": "ug-CN",
+    "title": "Uyghur (China)"
+}, {
+    "isoCode": "uk",
+    "title": "Ukrainian"
+}, {
+    "isoCode": "uk-UA",
+    "title": "Ukrainian (Ukraine)"
+}, {
+    "isoCode": "ur",
+    "title": "Urdu"
+}, {
+    "isoCode": "ur-IN",
+    "title": "Urdu (India)"
+}, {
+    "isoCode": "ur-PK",
+    "title": "Urdu (Pakistan)"
+}, {
+    "isoCode": "uz",
+    "title": "Uzbek"
+}, {
+    "isoCode": "uz-Arab",
+    "title": "Uzbek (Arabic)"
+}, {
+    "isoCode": "uz-Arab-AF",
+    "title": "Uzbek (Arabic, Afghanistan)"
+}, {
+    "isoCode": "uz-Cyrl",
+    "title": "Uzbek (Cyrillic)"
+}, {
+    "isoCode": "uz-Cyrl-UZ",
+    "title": "Uzbek (Cyrillic, Uzbekistan)"
+}, {
+    "isoCode": "uz-Latn",
+    "title": "Uzbek (Latin)"
+}, {
+    "isoCode": "uz-Latn-UZ",
+    "title": "Uzbek (Latin, Uzbekistan)"
+}, {
+    "isoCode": "vai",
+    "title": "Vai"
+}, {
+    "isoCode": "vai-Latn",
+    "title": "Vai (Latin)"
+}, {
+    "isoCode": "vai-Latn-LR",
+    "title": "Vai (Latin, Liberia)"
+}, {
+    "isoCode": "vai-Vaii",
+    "title": "Vai (Vai)"
+}, {
+    "isoCode": "vai-Vaii-LR",
+    "title": "Vai (Vai, Liberia)"
+}, {
+    "isoCode": "ve",
+    "title": "Venda"
+}, {
+    "isoCode": "ve-ZA",
+    "title": "Venda (South Africa)"
+}, {
+    "isoCode": "vi",
+    "title": "Vietnamese"
+}, {
+    "isoCode": "vi-VN",
+    "title": "Vietnamese (Vietnam)"
+}, {
+    "isoCode": "vo",
+    "title": "Volapük"
+}, {
+    "isoCode": "vo-001",
+    "title": "Volapük (World)"
+}, {
+    "isoCode": "vun",
+    "title": "Vunjo"
+}, {
+    "isoCode": "vun-TZ",
+    "title": "Vunjo (Tanzania)"
+}, {
+    "isoCode": "wae",
+    "title": "Walser"
+}, {
+    "isoCode": "wae-CH",
+    "title": "Walser (Switzerland)"
+}, {
+    "isoCode": "wal",
+    "title": "Wolaytta"
+}, {
+    "isoCode": "wal-ET",
+    "title": "Wolaytta (Ethiopia)"
+}, {
+    "isoCode": "wo",
+    "title": "Wolof"
+}, {
+    "isoCode": "wo-SN",
+    "title": "Wolof (Senegal)"
+}, {
+    "isoCode": "xh",
+    "title": "isiXhosa"
+}, {
+    "isoCode": "xh-ZA",
+    "title": "isiXhosa (South Africa)"
+}, {
+    "isoCode": "xog",
+    "title": "Soga"
+}, {
+    "isoCode": "xog-UG",
+    "title": "Soga (Uganda)"
+}, {
+    "isoCode": "yav",
+    "title": "Yangben"
+}, {
+    "isoCode": "yav-CM",
+    "title": "Yangben (Cameroon)"
+}, {
+    "isoCode": "yi",
+    "title": "Yiddish"
+}, {
+    "isoCode": "yi-001",
+    "title": "Yiddish (World)"
+}, {
+    "isoCode": "yo",
+    "title": "Yoruba"
+}, {
+    "isoCode": "yo-BJ",
+    "title": "Yoruba (Benin)"
+}, {
+    "isoCode": "yo-NG",
+    "title": "Yoruba (Nigeria)"
+}, {
+    "isoCode": "zgh",
+    "title": "Standard Moroccan Tamazight"
+}, {
+    "isoCode": "zgh-MA",
+    "title": "Standard Moroccan Tamazight (Morocco)"
+}, {
+    "isoCode": "zh",
+    "title": "Chinese"
+}, {
+    "isoCode": "zh-Hans",
+    "title": "Chinese (Simplified)"
+}, {
+    "isoCode": "zh-Hans-CN",
+    "title": "Chinese (Simplified, China)"
+}, {
+    "isoCode": "zh-Hans-HK",
+    "title": "Chinese (Simplified, Hong Kong SAR)"
+}, {
+    "isoCode": "zh-Hans-MO",
+    "title": "Chinese (Simplified, Macao SAR)"
+}, {
+    "isoCode": "zh-Hans-SG",
+    "title": "Chinese (Simplified, Singapore)"
+}, {
+    "isoCode": "zh-Hant",
+    "title": "Chinese (Traditional)"
+}, {
+    "isoCode": "zh-Hant-HK",
+    "title": "Chinese (Traditional, Hong Kong SAR)"
+}, {
+    "isoCode": "zh-Hant-MO",
+    "title": "Chinese (Traditional, Macao SAR)"
+}, {
+    "isoCode": "zh-Hant-TW",
+    "title": "Chinese (Traditional, Taiwan)"
+}, {
+    "isoCode": "zu",
+    "title": "isiZulu"
+}, {
+    "isoCode": "zu-ZA",
+    "title": "isiZulu (South Africa)"
+}]

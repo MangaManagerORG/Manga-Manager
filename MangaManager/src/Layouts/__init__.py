@@ -1,7 +1,7 @@
 import abc
 
 from src.Layouts.default_layout import Layout as DefLayout
-from src.Layouts.joe_layout import Layout as JoeLayout
+from src.Layouts.joe_layout import JoeLayout
 
 layout_factory = {
     "default": JoeLayout,

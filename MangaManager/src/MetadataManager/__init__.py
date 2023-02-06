@@ -26,6 +26,7 @@ def execute_gui():
 
     logger.info(f"Initializing '{layout_name}' layout")
     app = layout_factory.get(layout_name)()
+
     try:
         app.iconbitmap(icon_path)
     except:

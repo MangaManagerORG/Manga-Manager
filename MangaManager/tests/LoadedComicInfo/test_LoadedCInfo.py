@@ -5,8 +5,8 @@ import tempfile
 import unittest
 import zipfile
 
+from common.models import ComicInfo
 from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.MetadataManager import comicinfo
 
 TEST_COMIC_INFO_STRING = """
 <ComicInfo>
@@ -67,11 +67,10 @@ class LoadedComicInfo_MetadataTests(unittest.TestCase):
                 zf.writestr("Dummyfile2.ext", "Dummy")
                 zf.writestr("Dummyfile3.ext", "Dummy")
                 zf.writestr("Dummyfile4.ext", "Dummy")
-                cinfo = comicinfo.ComicInfo()
-                cinfo.set_Series(f"Series-{ai}-{self.random_int}")
-                cinfo.set_Writer(f"Writer-{ai}-{self.random_int}")
-                data = io.StringIO()
-                cinfo.export(data, 0)
+                cinfo = ComicInfo()
+                cinfo.series = f"Series-{ai}-{self.random_int}"
+                cinfo.writer = f"Writer-{ai}-{self.random_int}"
+                data = io.StringIO(str(cinfo.to_xml()))
                 zf.writestr("ComicInfo.xml", data.getvalue())
             self.initial_dir_count = len(os.listdir(os.getcwd()))
 
@@ -88,15 +87,15 @@ class LoadedComicInfo_MetadataTests(unittest.TestCase):
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Testing individual file read metadata - {i + 1}/{len(self.test_files_names)}"):
                 cinfo = LoadedComicInfo(file_names).load_metadata()
-                self.assertEqual(f"Series-{i}-{self.random_int}", cinfo.cinfo_object.get_Series())
-                self.assertEqual(f"Writer-{i}-{self.random_int}", cinfo.cinfo_object.get_Writer())
+                self.assertEqual(f"Series-{i}-{self.random_int}", cinfo.cinfo_object.series)
+                self.assertEqual(f"Writer-{i}-{self.random_int}", cinfo.cinfo_object.writer)
 
     def test_simple_write(self):
         print("Writing new values")
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Testing individual file read metadata - {i + 1}/{len(self.test_files_names)}"):
                 cinfo = LoadedComicInfo(file_names).load_metadata()
-                cinfo.cinfo_object.set_Notes(f"This text was modified - {self.random_int}")
+                cinfo.cinfo_object.notes = f"This text was modified - {self.random_int}"
                 cinfo.write_metadata()
 
 
@@ -109,9 +108,7 @@ class LoadedComicInfo_MetadataTests(unittest.TestCase):
         for i, file_names in enumerate(self.test_files_names):
             with self.subTest(f"Testing individual write metadata - {i + 1}/{len(self.test_files_names)}"):
                 cinfo = LoadedComicInfo(file_names).load_metadata()
-                self.assertEqual(f"This text was modified - {self.random_int}", cinfo.cinfo_object.get_Notes())
-                # self.assertEqual(f"Series-{i}-{self.random_int}", cinfo.cinfo_object.get_Series())
-                # self.assertEqual(f"Writer-{i}-{self.random_int}", cinfo.cinfo_object.get_Writer())
+                self.assertEqual(f"This text was modified - {self.random_int}", cinfo.cinfo_object.notes)
 
     def test_simple_backup(self):
         for i, file_names in enumerate(self.test_files_names):
@@ -125,9 +122,9 @@ class LoadedComicInfo_MetadataTests(unittest.TestCase):
                     self.assertTrue("Old_ComicInfo.xml.bak" in zf.namelist())
 
                     print("Making sure the backed up file has content and matches original values:")
-                    cinfo = comicinfo.parseString(zf.open("Old_ComicInfo.xml.bak").read())
-                    self.assertEqual(f"Series-{i}-{self.random_int}", cinfo.get_Series())
-                # self.assertEqual(f"This text was modified - {self.random_int}", cinfo.cinfo_object.get_Notes())
+                    cinfo = ComicInfo.from_xml(zf.open("Old_ComicInfo.xml.bak").read())
+                    self.assertEqual(f"Series-{i}-{self.random_int}", cinfo.series)
+
 
 
 if __name__ == '__main__':

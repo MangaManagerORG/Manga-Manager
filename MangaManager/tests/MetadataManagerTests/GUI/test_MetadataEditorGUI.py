@@ -4,9 +4,9 @@ import importlib
 import os
 from tkinter.filedialog import askopenfiles
 
+from common.models import ComicInfo
 from logging_setup import add_trace_level
 from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.MetadataManager import comicinfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from tests.common import create_dummy_files, TKinterTestCase, parameterized_class
 from src.MetadataManager import MetadataManagerGUI
@@ -21,9 +21,7 @@ extensions = [os.path.basename(f)[:-3] for f in modules if os.path.isfile(f) and
 print(f"Found extensions: [{', '.join(extensions)}]")
 loaded_layouts = []
 for ext in extensions:
-    loaded_layouts.append([importlib.import_module(f'.{ext}',
-                                                                  package="src"
-                                                                          ".Layouts").Layout])
+    loaded_layouts.append([importlib.import_module(f'.{ext}', package="src.Layouts").Layout])
 
 
 @parameterized_class(('GUI',), loaded_layouts)
@@ -162,10 +160,10 @@ class CinfoToUiTest(TKinterTestCase):
 
 
         # Create metadata objects
-        cinfo_1 = comicinfo.ComicInfo()
-        cinfo_1.set_Series(cinfo1_series)
-        cinfo_2 = comicinfo.ComicInfo()
-        cinfo_2.set_Series(cinfo2_series)
+        cinfo_1 = ComicInfo()
+        cinfo_1.series = cinfo1_series
+        cinfo_2 = ComicInfo()
+        cinfo_2.series = cinfo2_series
 
         # Created loaded metadata objects
         metadata_1 = LoadedComicInfo(self.test_files_names[0], comicinfo=cinfo_1)
@@ -173,7 +171,7 @@ class CinfoToUiTest(TKinterTestCase):
         app.loaded_cinfo_list = [metadata_1, metadata_2]
         # app.loaded_cinfo_list_to_process = app.loaded_cinfo_list
         # There is no edited comicinfo, it should fail
-        new_cinfo = comicinfo.ComicInfo()
+        new_cinfo = ComicInfo()
         app.new_edited_cinfo = new_cinfo
         app._serialize_cinfolist_to_gui()
         app._serialize_gui_to_cinfo()

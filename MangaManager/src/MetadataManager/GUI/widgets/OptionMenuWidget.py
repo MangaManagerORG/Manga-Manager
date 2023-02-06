@@ -2,7 +2,7 @@ import logging
 import tkinter
 from tkinter.ttk import Combobox
 
-from src.MetadataManager import comicinfo
+from common.models import AgeRating, Formats, YesNo, Manga
 from .MMWidget import MMWidget
 
 logger = logging.getLogger()
@@ -37,13 +37,13 @@ class OptionMenuWidget(MMWidget):
         values_list = []
         match self.name:
             case "AgeRating":
-                values_list = comicinfo.AgeRating.list()
+                values_list = AgeRating.list()
             case "Format":
-                values_list = list(comicinfo.format_list)
+                values_list = list(Formats)
             case "BlackAndWhite":
-                values_list = comicinfo.YesNo.list()
+                values_list = YesNo.list()
             case "Manga":
-                values_list = comicinfo.Manga.list()
+                values_list = Manga.list()
             case _:
                 logger.error(f"Unhandled error. '{self.name}' is not a registered widget which can extract options from")
         return values_list

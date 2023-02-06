@@ -4,7 +4,7 @@ import tkinter
 from idlelib.tooltip import Hovertip
 from tkinter.ttk import LabelFrame, Label, Combobox
 
-from ExternalSources import ScraperFactory
+from ExternalSources.MetadataSources.metadata import ScraperFactory
 from src import MM_PATH
 from src.Common.utils import open_folder
 from src.MetadataManager.GUI.utils import center
