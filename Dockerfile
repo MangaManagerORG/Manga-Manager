@@ -22,11 +22,11 @@ RUN apt-get update && \
     xubuntu-default-settings \
     xubuntu-icon-theme \
     # Python \
-    idle3 \
+    idle-python3.11 \
     python3-tk \
     python3-pip && \
     # Manga Manager Dependencies
-    pip install -r requirements.txt && \
+    python3.11 -m pip install -r requirements.txt && \
     # Cleanup
     apt-get autoclean && \
     rm -rf \
@@ -34,7 +34,7 @@ RUN apt-get update && \
     /var/tmp/* \
     /tmp/* && \
     # Try making python3 callable by just running "python" on Ubuntu :) (optional)
-    ln -s /usr/bin/python3 /usr/bin/python || true && \
+    ln -s /usr/bin/python3.11 /usr/bin/python || true && \
     chmod -R +x /app
 
 # Setup environment & branding/customization
