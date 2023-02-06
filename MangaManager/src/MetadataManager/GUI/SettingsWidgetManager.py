@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import tkinter
-from idlelib.tooltip import Hovertip
-from tkinter.ttk import LabelFrame, Label, Combobox
+from tkinter.ttk import LabelFrame, Label
 
 from ExternalSources.MetadataSources.metadata import ScraperFactory
 from src import MM_PATH
 from src.Common.utils import open_folder
-from src.MetadataManager.GUI.SettingWidgetConverter import setting_control_to_widget
 from src.MetadataManager.GUI.utils import center
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.GUI.widgets.FormBundleWidget import FormBundleWidget
@@ -63,7 +61,8 @@ class SettingsWidgetManager:
         Saves the settings from the GUI to Setting provider and extensions that dynamically loaded their settings
         """
         is_errors = False
-        for setting_value in self.strings_vars:
+        for bundle in self.bundles:
+            setting_value = bundle.input_var
             if setting_value.linked_setting:
                 # Validate the setting is correct before allowing any persistence
                 if setting_value.linked_setting.validate is None:
@@ -88,6 +87,8 @@ class SettingsWidgetManager:
 
     def __init__(self, parent):
         self.strings_vars: list[tkinter.Variable] = []
+        self.bundles: list[FormBundleWidget] = []
+
         settings_window = self.settings_window = tkinter.Toplevel(parent, pady=30, padx=30)
         settings_window.geometry("900x420")
         settings_window.title("Settings")
@@ -139,26 +140,15 @@ class SettingsWidgetManager:
         frame.pack(expand=True, fill="both")
 
     def build_setting_entry(self, parent_frame, control: SettingControl, section):
-
-        # row = FormBundleWidget(parent_frame)\
-        #     .with_label(control.name, control.tooltip)
-        #     .with_input()
-
-
-        row = tkinter.Frame(parent_frame)
-        row.pack(expand=True, fill="x")
-        label = Label(master=row, text=control.name, width=30, justify="right", anchor="e")
-        label.pack(side="left")
-
-        if control.tooltip:
-            label.configure(text=label.cget('text') + '  ⁱ')
-            label.tooltip = Hovertip(label, control.tooltip, 20)
-
         # Update the control's value from Settings
         control.value = Settings().get(section.key, control.key)
 
-        entry, string_var = setting_control_to_widget(row, control, section)
-        self.strings_vars.append(string_var)
+        row = FormBundleWidget(parent_frame)\
+            .with_label(control.name, control.tooltip)\
+            .with_input(control, section)\
+            .build()
+
+        self.bundles.append(row)
 
     def build_setting_entries(self, parent_frame, settings, section):
         for i, setting in enumerate(settings):
