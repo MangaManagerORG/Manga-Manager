@@ -14,7 +14,7 @@ from prompt_toolkit.validation import Validator
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.utils import ShowPathTreeAsDict
-from src.MetadataManager import comicinfo
+from common.models import ComicInfo
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
 
@@ -99,14 +99,14 @@ class App(MetadataManagerLib):
         self.selected_files_path = file_paths
         self.serve_ui()
 
-    def _parse_lcinfo_list_to_gui(self, loaded_cinfo_list) -> comicinfo.ComicInfo:
+    def _parse_lcinfo_list_to_gui(self, loaded_cinfo_list) -> ComicInfo:
 
-        displayed_gui = self.new_edited_cinfo = comicinfo.ComicInfo()
+        displayed_gui = self.new_edited_cinfo = ComicInfo()
 
         for cinfo_tag in self.cinfo_tags:
             tag_values = set()
             for loaded_cinfo in loaded_cinfo_list:
-                tag_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
+                tag_value = str(loaded_cinfo.cinfo_object.get_by_tag_name(cinfo_tag))
                 tag_values.add(tag_value if tag_value not in ("",-1,0,"-1","0") else None)
             tag_values = tuple(tag_values)
             tag_values_len = len(tag_values)
@@ -114,12 +114,12 @@ class App(MetadataManagerLib):
             # All files have the same content for this field
 
             if tag_values_len == 1 and tag_values[0] not in ("", -1, 0, "-1", "0", None):
-                displayed_gui.set_attr_by_name(cinfo_tag, tag_values[0])
+                displayed_gui.get_by_tag_name(cinfo_tag, tag_values[0])
             # Multiple values across different files for this field
             elif tag_values_len > 1:
                 # Append "multiple_values" string to the suggestion listbox
                 tag_values = (self.MULTIPLE_VALUES_CONFLICT,) + tag_values
-                displayed_gui.set_attr_by_name(cinfo_tag, self.MULTIPLE_VALUES_CONFLICT)
+                displayed_gui.get_by_tag_name(cinfo_tag, self.MULTIPLE_VALUES_CONFLICT)
 
     def serve_ui(self):
         self.open_cinfo_list()
@@ -145,9 +145,9 @@ class App(MetadataManagerLib):
             for tag_1, tag_2 in grouper(2, self.cinfo_tags, fillvalue=None):
 
                 # We get 2 different values to support the 2 column layout and also support wrapping the text if multiline
-                value_1 = textwrap.wrap(str(self.new_edited_cinfo.get_attr_by_name(tag_1)), width=self.terminal_width_half) or [""]
+                value_1 = textwrap.wrap(str(self.new_edited_cinfo.get_by_tag_name(tag_1)), width=self.terminal_width_half) or [""]
                 if tag_2:
-                    value_2 = textwrap.wrap(str(self.new_edited_cinfo.get_attr_by_name(tag_2)), width=self.terminal_width_half) or [""]
+                    value_2 = textwrap.wrap(str(self.new_edited_cinfo.get_by_tag_name(tag_2)), width=self.terminal_width_half) or [""]
                 else:
                     value_2 = [""]
                 print_once = False
@@ -192,24 +192,24 @@ class App(MetadataManagerLib):
             # Adds an option "Custom" to custom enter the value
             print(f"You selected {bcolors.HEADER}{choosed_tag}{bcolors.ENDC}")
             choosed_value = ""
-            if self.new_edited_cinfo.get_attr_by_name(choosed_tag) == self.MULTIPLE_VALUES_CONFLICT:
+            if self.new_edited_cinfo.get_by_tag_name(choosed_tag) == self.MULTIPLE_VALUES_CONFLICT:
                 print("Multiple values conflict. Select one value to keep."
                       f" '{bcolors.HEADER}Cancel{bcolors.ENDC}' to cancel editing."
                       f" '{bcolors.HEADER}Custom{bcolors.ENDC}' to manually enter a new value."
                       f" '{bcolors.HEADER}None{bcolors.ENDC}' to clear the content")
                 if choosed_tag == "AgeRating":
-                    validation_vals = comicinfo.AgeRating.list()
+                    validation_vals = ComicInfo.AgeRating.list()
                 elif choosed_tag == "Manga":
-                    validation_vals = comicinfo.Manga.list()
+                    validation_vals = ComicInfo.Manga.list()
                 elif choosed_tag == "BlackAndWhite":
-                    validation_vals = comicinfo.YesNo.list()
+                    validation_vals = ComicInfo.YesNo.list()
                 elif choosed_tag == "CommunityRating":
                     validation_vals = range(1,5)
                 else:
                     validation_vals = ["Cancel", "None", "Custom",
-                     *[lcinfo.cinfo_object.get_attr_by_name(choosed_tag)
+                     *[lcinfo.cinfo_object.get_by_tag_name(choosed_tag)
                        for lcinfo in self.loaded_cinfo_list
-                       if lcinfo.cinfo_object.get_attr_by_name(choosed_tag)]]
+                       if lcinfo.cinfo_object.get_by_tag_name(choosed_tag)]]
 
                 choosed_value = prompt(f"Value to keep as '{choosed_tag}': ",
                                        completer=WordCompleter(validation_vals),
@@ -221,14 +221,14 @@ class App(MetadataManagerLib):
                 continue
             elif choosed_value == "None":
                 choosed_value = None
-            elif choosed_value == "Custom" or self.new_edited_cinfo.get_attr_by_name(choosed_tag) != self.MULTIPLE_VALUES_CONFLICT:
+            elif choosed_value == "Custom" or self.new_edited_cinfo.get_by_tag_name(choosed_tag) != self.MULTIPLE_VALUES_CONFLICT:
                 alt_enter = " (Alt+Enter to save)" if choosed_tag == "Summary" else ""
                 # Make the prompt to edit the value. Make it multiline if the tag is "Summary"
                 choosed_value = prompt(f"Write new value for {choosed_tag}{alt_enter}: ", multiline=choosed_tag == "Summary")
             # Mark the field as modified.
             custom_entered_values.append(choosed_tag)
             # Edit the field in the ""Gui""
-            self.new_edited_cinfo.set_attr_by_name(choosed_tag, choosed_value)
+            self.new_edited_cinfo.get_by_tag_name(choosed_tag, choosed_value)
     def restart(self):
         self._restart = True
 
@@ -244,12 +244,11 @@ class App(MetadataManagerLib):
     def process(self):
         self.clear()
         self.running = False
-        # export = StringIO()
-        # self.new_edited_cinfo.export(export, 0)
+        # export = StringIO(self.new_edited_cinfo.to_xml())
         # print(export.getvalue())
         self.merge_changed_metadata(self.loaded_cinfo_list)
         super(App, self).process()
-        self.new_edited_cinfo = comicinfo.ComicInfo()
+        self.new_edited_cinfo = ComicInfo()
         self._parse_lcinfo_list_to_gui(self.loaded_cinfo_list)
 
     def tree_selected(self) -> int:

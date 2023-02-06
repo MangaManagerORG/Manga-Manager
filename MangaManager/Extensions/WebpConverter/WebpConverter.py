@@ -9,7 +9,7 @@ import tkinter
 import tkinter.ttk as ttk
 from tkinter import filedialog
 
-from Extensions.Interface import IExtensionApp
+from Extensions.IExtensionApp import IExtensionApp
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.utils import ShowPathTreeAsDict
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ProgressBarWidget

@@ -6,7 +6,6 @@ from src.Layouts.joe_layout import Layout as JoeLayout
 layout_factory = {
     "default": JoeLayout,
     "joe": JoeLayout
-
 }
 
 
