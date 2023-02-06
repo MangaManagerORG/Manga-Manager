@@ -2,10 +2,11 @@ import abc
 from typing import final
 
 from common.models import ComicInfo
+from .ExtensionsInterface import IMMExtension
 from src.Settings import Settings
 
 
-class IMetadataSource(abc.ABC):
+class IMetadataSource(IMMExtension):
     name = ''
     """
         A set of settings which will be found in the main settings dialog of Manga Manager and used for the source
@@ -49,6 +50,3 @@ class IMetadataSource(abc.ABC):
             for control in section.values:
                 Settings().set_default(section.key, control.key, control.value)
         Settings().save()
-
-    def validate(self, key: str, value: str) -> str:
-        pass

@@ -6,7 +6,7 @@ import requests
 from common import get_invalid_person_tag
 from src.Common.errors import MangaNotFoundError
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
-from common.models import ComicInfo, PeopleTags
+from common.models import ComicInfo
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection

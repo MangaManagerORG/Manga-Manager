@@ -70,4 +70,4 @@ class FormBundleWidget(Frame):
         else:
             self.validation_label.pack_forget()
 
-        return has_error
+        return not has_error
