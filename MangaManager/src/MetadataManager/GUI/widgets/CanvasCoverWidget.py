@@ -1,18 +1,18 @@
 import pathlib
 from idlelib.tooltip import Hovertip
-from os.path import basename, abspath
+from os.path import basename
 from tkinter import Frame, Label, StringVar, Event, Canvas, NW, CENTER, Button
 from tkinter.filedialog import askopenfile
 
 from PIL import Image, ImageTk
-from pkg_resources import resource_filename
 
+from src.Common import ResourceLoader
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
 window_width, window_height = 0, 0
-action_template = abspath(resource_filename(__name__, '../../../../res/cover_action_template.png'))
+action_template = ResourceLoader.get('cover_action_template.png')
 MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
 
 

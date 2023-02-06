@@ -7,6 +7,7 @@ from tkinter.ttk import Notebook
 from pkg_resources import resource_filename
 
 from common.models import AgeRating, Formats
+from src.Common import ResourceLoader
 from src.Common.utils import open_folder
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget
@@ -69,7 +70,7 @@ class Layout(GUIApp):
         btn = ButtonWidget(master=control_frame, text="Open Files",
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
         try:
-            icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
+            icon_path = ResourceLoader.get()
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except:
@@ -81,7 +82,7 @@ class Layout(GUIApp):
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         try:
-            icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+            icon_path = ResourceLoader.get()
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except:

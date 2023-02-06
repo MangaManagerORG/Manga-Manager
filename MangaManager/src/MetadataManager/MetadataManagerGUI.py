@@ -4,12 +4,10 @@ import glob
 import logging
 import os
 import tkinter
-from os.path import abspath
 from tkinter import Tk, Frame, messagebox as mb
 
-from pkg_resources import resource_filename
-
 from common.models import ComicInfo
+from src.Common import ResourceLoader
 from src.Common.utils import get_platform, open_folder
 from src.MetadataManager.GUI.ControlManager import ControlManager
 from src.Settings.SettingHeading import SettingHeading
@@ -71,13 +69,13 @@ class GUIApp(Tk, MetadataManagerLib):
         self.bind('<Control-f>', lambda x: self.fetch_online(self.widget_mngr.get_widget("Series")))
 
         # Icons
-        icon_path = abspath(resource_filename(__name__, '../../res/clear_icon.png'))
+        icon_path = ResourceLoader.get('clear_icon.png')
         self.clear_icon = tkinter.PhotoImage(name="clear_icon", master=self, file=icon_path)
 
-        icon_path = abspath(resource_filename(__name__, '../../res/fetch_online_ico.png'))
+        icon_path = ResourceLoader.get('fetch_online_ico.png')
         self.fetch_online_icon = tkinter.PhotoImage(name="fetch_online_icon", master=self, file=icon_path)
 
-        icon_path = abspath(resource_filename(__name__, '../../res/save_icon.png'))
+        icon_path = ResourceLoader.get('save_icon.png')
         self.save_icon = tkinter.PhotoImage(name="save_icon", master=self, file=icon_path)
 
     @property

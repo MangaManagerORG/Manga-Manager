@@ -1,16 +1,13 @@
 import logging
-from os.path import abspath
-
-from pkg_resources import resource_filename
 
 from src import sources_factory
+from src.Common import ResourceLoader
 from src.Layouts import layout_factory
 from src.Settings import Settings, SettingHeading
 
 logger = logging.getLogger()
 
-icon_path = abspath(resource_filename(__name__, '../../res/icon.ico'))
-
+icon_path = ResourceLoader.get('icon.ico')
 
 def execute_gui():
     # Populate settings with dynamically loaded classes

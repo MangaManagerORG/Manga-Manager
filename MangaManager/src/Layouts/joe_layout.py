@@ -8,6 +8,7 @@ from pkg_resources import resource_filename
 
 #from src.MetadataManager import comicinfo
 from common.models import ComicInfo, Formats, AgeRating
+from src.Common import ResourceLoader
 from src.MetadataManager.CoverManager.CoverManager import CoverManager
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.GUI.ExceptionWindow import ExceptionFrame
@@ -83,7 +84,7 @@ class JoeLayout(GUIApp):
         btn = ButtonWidget(master=control_frame, text="Open Files",
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
         try:
-            icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
+            icon_path = ResourceLoader.get('open_file.png')
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except: # Fixme linux throws resource not found
@@ -95,7 +96,7 @@ class JoeLayout(GUIApp):
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         try:
-            icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+            icon_path = ResourceLoader.get('open_folder.png')
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except:
