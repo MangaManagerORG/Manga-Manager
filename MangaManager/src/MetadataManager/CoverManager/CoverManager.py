@@ -8,19 +8,19 @@ from tkinter import messagebox as mb
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Treeview
 
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageChops
 from pkg_resources import resource_filename
 
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
-from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, CanvasCoverWidget
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
+from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, CanvasCoverWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
 action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
-
+import numpy as np
 
 def on_button_click(_, loaded_cinfo: LoadedComicInfo, front_or_back):
     print("Clicked button.")
@@ -29,6 +29,23 @@ def on_button_click(_, loaded_cinfo: LoadedComicInfo, front_or_back):
 
 
 logger = logging.getLogger()
+
+def compare_image(img1, imge2, x, y):
+    actual_error = 0
+    if len(x) == len(y):
+        error = np.sqrt(((x - y) ** 2).mean())
+        error = str(error)[:2]
+        actual_error = float(100) - float(error)
+    diff = ImageChops.difference(img1, imge2).getbbox()
+    if diff:
+        print("Not Duplicate Image")
+    else:
+        if actual_error > 80:
+            print(f"Percentage: {actual_error}")
+            print("Same image")
+            return True
+
+    # print('Matching Images In percentage: ', actual_error, '\t%')
 
 class ComicFrame(CoverFrame):
     def __init__(self, master, loaded_cinfo: LoadedComicInfo):
@@ -232,14 +249,15 @@ class CoverManager(tkinter.Toplevel):
                      command=self.clear_selection).pack(fill="x")
         ButtonWidget(master=action_buttons, text="Close window",
                      command=self.exit_btn).pack(fill="x",ipady=10)
-
+        self.select_similar = ButtonWidget(master=action_buttons, text="Select similar",state="disabled",
+                     command=self.select_similar)
+        self.select_similar.pack(fill="x", ipady=10)
         content_frame = Frame(self)
         content_frame.pack(fill="both", side="left", expand=True)
 
         frame = ScrolledFrame(master=content_frame, scrolltype="vertical", usemousewheel=True)
         frame.pack(fill="both", expand=True)
         self.scrolled_widget = frame.innerframe
-
 
         self.tree_dict = {}
         self.prev_width = 0
@@ -267,15 +285,50 @@ class CoverManager(tkinter.Toplevel):
             comic_frame.grid()
         self.redraw(None)
 
-    def select_frame(self, _, frame: ComicFrame, pos):
+    def select_similar(self):
+        assert len(self.selected_frames) == 1
+        delta = 0.90
+        frame, pos = self.selected_frames[0]
+        if pos == "front":
+            selected_PI: ImageTk.PhotoImage = frame.loaded_cinfo.get_cover_cache()
+        else:
+            selected_PI: ImageTk.PhotoImage = frame.loaded_cinfo.get_backcover_cache()
+
+        selected_image = ImageTk.getimage(selected_PI)
+        x = np.array(selected_image.histogram())
+
+        # Process all covers:
+        for comicframe in self.scrolled_widget.winfo_children():
+            try:
+                comicframe:ComicFrame
+                lcinfo: LoadedComicInfo = comicframe.loaded_cinfo
+                compared_image = ImageTk.getimage(lcinfo.get_cover_cache())
+                y = np.array(compared_image.histogram())
+
+                if compare_image(selected_image,compared_image,x,y):
+                    self.select_frame(None, frame=comicframe, pos="front", selecting_similar=True)
+            except Exception:
+                logger.exception(f"Failed to compare images for file {comicframe.loaded_cinfo.file_name}")
+
+            # diff = ImageChops.difference(selected_image, compare_image)
+            # histogram = diff.histogram()
+            # sq = (value * (idx ** 2) for idx, value in enumerate(histogram))
+            # sum_of_squared_differences = sum(sq)
+            # rms = sum_of_squared_differences ** 0.5
+            # print(rms <= delta)
+
+        # difference = math.sqrt(
+        #     sum((a - b) ** 2 for a, b in zip(pil_image.histogram(), image2.histogram())) / len(pil_image.histogram()))
+
+
+    def select_frame(self, _, frame: ComicFrame, pos, selecting_similar=False):
         print(pos)
-        if (frame, pos) in self.selected_frames:
+        if (frame, pos) in self.selected_frames and not selecting_similar:
             for children in self.tree.get_children():
                 if self.tree_dict[children]["cinfo"] == frame.loaded_cinfo and self.tree_dict[children]["type"] == pos:
                     self.selected_frames.remove((frame, pos))
                     self.tree.delete(children)
                     del self.tree_dict[children]
-            print("green" if frame in self.selected_frames else "gray")
             if pos == "front":
 
                 frame.cover_canvas.configure(highlightbackground="#f0f0f0", highlightcolor="white")
@@ -290,6 +343,7 @@ class CoverManager(tkinter.Toplevel):
                 frame.cover_canvas.configure(highlightbackground="green", highlightcolor="green")
             else:
                 frame.backcover_canvas.configure(highlightbackground="green", highlightcolor="green")
+        self.select_similar.configure(state="normal" if len(self.selected_frames)==1 else "disabled")
 
     def run_bulk_action(self, action: CoverActions):
         new_cover_file = None
