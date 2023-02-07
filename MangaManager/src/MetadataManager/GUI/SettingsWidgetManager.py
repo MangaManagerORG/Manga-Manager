@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import tkinter
-from tkinter.ttk import LabelFrame, Label
+from tkinter import ttk, Frame
+from tkinter.ttk import LabelFrame, Label, Notebook
 
 from ExternalSources.MetadataSources.metadata import ScraperFactory
 from src import MM_PATH
@@ -88,8 +89,12 @@ class SettingsWidgetManager:
 
         main_frame = tkinter.Frame(settings_window)
         main_frame.pack(fill="both")
-        self.widgets_frame = tkinter.Frame(main_frame, pady=30, padx=30)
-        self.widgets_frame.pack(fill="y", expand=True)
+        # self.widgets_frame = tkinter.Frame(main_frame, pady=30, padx=30)
+        # self.widgets_frame.pack(fill="y", expand=True)
+        style = ttk.Style(main_frame)
+        style.configure('lefttab.TNotebook', tabposition='ws')
+        self.widgets_frame = Notebook(main_frame, style='lefttab.TNotebook')
+        self.widgets_frame.pack(expand=True, fill="both")
 
         control_frame = tkinter.Frame(settings_window)
         control_frame.pack()
@@ -99,31 +104,31 @@ class SettingsWidgetManager:
                      tooltip="Opens the folder where Manga Manager stores it's files",
                      command=lambda x=None: open_folder(folder_path=MM_PATH)).pack()
 
-
-
         self.settings_widget = {}
         print('Setting up settings for Manga Manager')
+
         for setting_section in self.default_settings:
             section = self.default_settings[setting_section]
 
             print('Setting up settings for ' + section.pretty_name)
-            frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name)
-            frame.pack(expand=True, fill="both")
+            section_frame = Frame(master=self.widgets_frame)
+            section_frame.pack(expand=True, fill="both")
 
             self.settings_widget[section.pretty_name] = {}
-            self.build_setting_entries(frame, section.values, section)
+            self.build_setting_entries(section_frame, section.values, section)
 
+            self.widgets_frame.add(section_frame, text=section.pretty_name)
         print('Setting up settings for Extensions')
         for provider in providers:
             settings = provider.settings
             for section in settings:
                 print('Setting up settings for ' + provider.name)
-                frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name)
-                frame.pack(expand=True, fill="both")
+                section_frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name)
+                section_frame.pack(expand=True, fill="both")
 
                 self.settings_widget[self.default_settings[SettingHeading.ExternalSources].pretty_name][section.pretty_name] = {}
-                self.build_setting_entries(frame, section.values, section)
-
+                self.build_setting_entries(section_frame, section.values, section)
+                self.widgets_frame.add(section_frame, text=section.pretty_name)
         center(settings_window)
         frame = Label(master=control_frame, text="\nNote: Fields marked with * need a restart to take effect")
         frame.pack(expand=True, fill="both")
