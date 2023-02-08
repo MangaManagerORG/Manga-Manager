@@ -89,8 +89,7 @@ class SettingsWidgetManager:
 
         main_frame = tkinter.Frame(settings_window)
         main_frame.pack(fill="both")
-        # self.widgets_frame = tkinter.Frame(main_frame, pady=30, padx=30)
-        # self.widgets_frame.pack(fill="y", expand=True)
+
         style = ttk.Style(main_frame)
         style.configure('lefttab.TNotebook', tabposition='ws')
         self.widgets_frame = Notebook(main_frame, style='lefttab.TNotebook')

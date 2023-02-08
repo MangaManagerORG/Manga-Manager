@@ -9,7 +9,7 @@ default_settings = {
     SettingHeading.Main: [
         {"library_path": ""},
         {"covers_folder_path": ""},
-        {"cache_cover_images": ""},
+        {"cache_cover_images": True},
         {"selected_layout": "default"},
     ],
     SettingHeading.WebpConverter: [
@@ -51,6 +51,8 @@ class Settings:
     def load(self):
         """Load the data from file and populate DefaultSettings"""
         self.config_parser.read(self.config_file)
+
+        # BUG: We need to actually run through all settings to validate that new settings are there
 
         if len(self.config_parser.sections()) == 0:
             # Init default settings and refresh
