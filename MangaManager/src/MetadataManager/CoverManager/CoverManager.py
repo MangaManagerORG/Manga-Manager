@@ -9,6 +9,7 @@ from tkinter import messagebox as mb
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Treeview
 
+import numpy as np
 from PIL import Image, ImageTk, ImageChops
 from pkg_resources import resource_filename
 
@@ -20,21 +21,23 @@ from src.MetadataManager.MetadataManagerGUI import GUIApp
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
-action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
-import numpy as np
-
-
-def on_button_click(_, loaded_cinfo: LoadedComicInfo, front_or_back):
-    print("Clicked button.")
-    print(f"Is: {front_or_back}")
-    print(f"Path: {loaded_cinfo.file_path}")
-
+action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))  # TODO: Use resource factory
 
 logger = logging.getLogger()
 overlay_image: Image = None
 
 
-def compare_image(img1, imge2, x, y, delta):
+def compare_image(img1: Image, imge2: Image, x, y, delta):
+    """
+    Compares the image histograms
+    :param img1: Image Object
+    :param imge2: Image Object
+    :param x: image histogram
+    :param y: image histogram
+    :param delta: 1-100 match value
+    :return:
+    """
+    # Todo: remove img1 and img2. Not doing much apparently
     actual_error = 0
     if len(x) == len(y):
         error = np.sqrt(((x - y) ** 2).mean())
@@ -236,11 +239,8 @@ class CoverManager(tkinter.Toplevel):
             self.state('zoomed')
         side_panel_control = Frame(self)
         side_panel_control.pack(side="right", expand=False, fill="y")
-        #
         ctr_btn = Frame(self)
         ctr_btn.pack()
-        #
-        #
         tree = self.tree = Treeview(side_panel_control, columns=("Filename", "type"), show="headings", height=8)
         tree.column("#1")
         tree.heading("#1", text="Filename")
@@ -269,11 +269,19 @@ class CoverManager(tkinter.Toplevel):
         self.select_similar_btn.pack(fill="x", ipady=10)
 
         frame = Frame(action_buttons)
-        frame.pack(fill="x", ipady=10)
+        frame.pack(fill="x",pady=(10,0))
         tkinter.Label(frame,text="Delta %").pack(side="left")
         self.delta_entry = tkinter.Entry(frame, width="10")
         self.delta_entry.insert(0,"90")
         self.delta_entry.pack(side="left")
+
+        frame = tkinter.LabelFrame(action_buttons, text="Scan:")
+        frame.pack(fill="x",expand=True,pady=(0,5))
+        self.scan_covers = tkinter.BooleanVar(value=True)
+        self.scan_backcovers = tkinter.BooleanVar(value=False)
+
+        tkinter.Checkbutton(frame, text="Covers", variable=self.scan_covers).pack()
+        tkinter.Checkbutton(frame, text="Back Covers", variable=self.scan_backcovers).pack()
 
         content_frame = Frame(self)
         content_frame.pack(fill="both", side="left", expand=True)
@@ -295,7 +303,6 @@ class CoverManager(tkinter.Toplevel):
             self.destroy()
             return
 
-        # self.redraw(None)
         for i, cinfo in enumerate(self._super.loaded_cinfo_list):
             # create a ComicFrame for each LoadedComicInfo object
             comic_frame = ComicFrame(self.scrolled_widget, cinfo)
@@ -311,29 +318,31 @@ class CoverManager(tkinter.Toplevel):
     def _compare_images(self, selected_image, x, compared_image, comicframe, pos):
         delta = float(self.delta_entry.get())
         y = np.array(compared_image.histogram())
-        if compare_image(selected_image, compared_image, x, y,delta=delta):
-            print(f"Similar - {pos}")
+        if compare_image(selected_image, compared_image, x, y, delta=delta):
             self.select_frame(None, frame=comicframe, pos=pos)
 
     def select_similar(self):
+        """
+        Compares the selected file with all the loaded covers and backcovers
+        Selects files that match.
+        :return:
+        """
         assert len(self.selected_frames) == 1
         frame, pos = self.selected_frames[0]
         if pos == "front":
-            selected_PI: ImageTk.PhotoImage = frame.loaded_cinfo.get_cover_cache()
+            selected_photoimage: ImageTk.PhotoImage = frame.loaded_cinfo.get_cover_cache()
         else:
-            selected_PI: ImageTk.PhotoImage = frame.loaded_cinfo.get_backcover_cache()
+            selected_photoimage: ImageTk.PhotoImage = frame.loaded_cinfo.get_backcover_cache()
 
-        selected_image = ImageTk.getimage(selected_PI)
+        selected_image = ImageTk.getimage(selected_photoimage)
         x = np.array(selected_image.histogram())
-        compare_cover = True
-        compare_backcover = True
         self.clear_selection()
         # Compare all covers:
         for comicframe in self.scrolled_widget.winfo_children():
             try:
                 comicframe: ComicFrame
                 lcinfo: LoadedComicInfo = comicframe.loaded_cinfo
-                if compare_cover:
+                if self.scan_covers.get():
                     image = lcinfo.get_cover_cache()
                     if image is None:
                         logger.error(f"Failed to compare cover image. File is not loaded. File '{lcinfo.file_name}'")
@@ -341,7 +350,7 @@ class CoverManager(tkinter.Toplevel):
                         compared_image = ImageTk.getimage(image)
                         print("Comparing front")
                         self._compare_images(selected_image, x, compared_image, comicframe, "front")
-                if compare_backcover:
+                if self.scan_backcovers.get():
                     image = lcinfo.get_backcover_cache()
                     if image is None:
                         logger.error(f"Failed to compare backcover image. File is not loaded. File '{lcinfo.file_name}'")
@@ -353,8 +362,10 @@ class CoverManager(tkinter.Toplevel):
             except Exception:
                 logger.exception(f"Failed to compare images for file {comicframe.loaded_cinfo.file_name}")
 
-    def select_frame(self, _, frame: ComicFrame, pos):
-        print(pos)
+    def select_frame(self, _, frame: ComicFrame, pos:str):
+        """
+        Selects the frame. Adds to selected frames and modifies its border to show green as "selected"
+        """
         if (frame, pos) in self.selected_frames:
             for children in self.tree.get_children():
                 if self.tree_dict[children]["cinfo"] == frame.loaded_cinfo and self.tree_dict[children]["type"] == pos:
@@ -375,9 +386,15 @@ class CoverManager(tkinter.Toplevel):
                 frame.cover_canvas.configure(highlightbackground="green", highlightcolor="green")
             else:
                 frame.backcover_canvas.configure(highlightbackground="green", highlightcolor="green")
+        # noinspection PyTypeChecker
         self.select_similar_btn.configure(state="normal" if len(self.selected_frames)==1 else "disabled")
 
     def run_bulk_action(self, action: CoverActions):
+        """
+        Applies the action to currently selected files
+        :param action:
+        :return:
+        """
         new_cover_file = None
         cover = None
         if action == CoverActions.APPEND or action == CoverActions.REPLACE:
@@ -427,6 +444,10 @@ class CoverManager(tkinter.Toplevel):
             canva.itemconfig(canva.image_id, image=cover, state="normal")
 
     def clear_selection(self):
+        """
+        Clears the selected files
+        :return:
+        """
         while self.selected_frames:
             frame, pos = self.selected_frames.pop()
             frame.cover_canvas.configure(highlightbackground="#f0f0f0", highlightcolor="white")
