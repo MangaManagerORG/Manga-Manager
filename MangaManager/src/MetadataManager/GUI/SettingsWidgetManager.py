@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import tkinter
 from tkinter import ttk, Frame
 from tkinter.ttk import LabelFrame, Label, Notebook
@@ -15,6 +16,8 @@ from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
+
+logger = logging.getLogger("SettingsWidgetManager")
 
 setting_control_map = {
     SettingHeading.Main: {
@@ -104,12 +107,12 @@ class SettingsWidgetManager:
                      command=lambda x=None: open_folder(folder_path=MM_PATH)).pack()
 
         self.settings_widget = {}
-        print('Setting up settings for Manga Manager')
+        logger.info('Setting up settings for Manga Manager')
 
         for setting_section in self.default_settings:
             section = self.default_settings[setting_section]
 
-            print('Setting up settings for ' + section.pretty_name)
+            logger.info('Setting up settings for ' + section.pretty_name)
             section_frame = Frame(master=self.widgets_frame)
             section_frame.pack(expand=True, fill="both")
 
@@ -117,11 +120,11 @@ class SettingsWidgetManager:
             self.build_setting_entries(section_frame, section.values, section)
 
             self.widgets_frame.add(section_frame, text=section.pretty_name)
-        print('Setting up settings for Extensions')
+        logger.info('Setting up settings for Extensions')
         for provider in providers:
             settings = provider.settings
             for section in settings:
-                print('Setting up settings for ' + provider.name)
+                logger.info('Setting up settings for ' + provider.name)
                 section_frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name)
                 section_frame.pack(expand=True, fill="both")
 

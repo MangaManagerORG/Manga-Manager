@@ -314,12 +314,7 @@ class LoadedComicInfo:
             try:
                 self.cinfo_object = ComicInfo.from_xml(xml_string)
             except XMLSyntaxError as e:
-                logger.warning(LOG_TAG + f"Failed to parse XML:\n{e}\nAttempting recovery...")
-                # try:
-                #     self.cinfo_object = ComicInfo.from_xml(xml_string)
-                # except XMLSyntaxError:
-                #     logger.error(f"[{'Reading Meta':13s}] Failed to parse XML: {e} - Recovery attempt failed")
-                #     raise CorruptedComicInfo(self.file_path)
+                logger.warning(LOG_TAG + f"Failed to parse XML due to a syntax error:\n{e}")
             except Exception:
                 logger.exception(f"[{'Reading Meta':13s}] Unhandled error reading metadata."
                                  f" Please create an issue for further investigation")

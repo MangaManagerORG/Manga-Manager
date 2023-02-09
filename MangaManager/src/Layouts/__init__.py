@@ -1,12 +1,11 @@
 import abc
 
 from src.Layouts.default_layout import Layout as DefLayout
-from src.Layouts.joe_layout import JoeLayout
+from src.Layouts.joe_layout import Layout as JoeLayout
 
 layout_factory = {
     "default": JoeLayout,
     "joe": JoeLayout
-
 }
 
 

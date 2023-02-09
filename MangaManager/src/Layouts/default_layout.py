@@ -70,8 +70,8 @@ class Layout(GUIApp):
         btn = ButtonWidget(master=control_frame, text="Open Files",
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
         try:
-            icon_path = ResourceLoader.get()
-            btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+            icon_path = ResourceLoader.get("open_file.png")
+            btn.img_ref = tkinter.PhotoImage(name="open_file_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except:
             self.log.exception("Exception loading the open_file icon")
@@ -82,7 +82,7 @@ class Layout(GUIApp):
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         try:
-            icon_path = ResourceLoader.get()
+            icon_path = ResourceLoader.get("open_folder_icon.png")
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except:

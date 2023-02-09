@@ -18,7 +18,7 @@ languages = [l["isoCode"] for l in data]
 f.close()
 
 
-class JoeLayout(GUIApp):
+class Layout(GUIApp):
     name = "joe"
 
     def __init__(self):

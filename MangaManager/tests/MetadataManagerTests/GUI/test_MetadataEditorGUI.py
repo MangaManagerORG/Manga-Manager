@@ -20,6 +20,7 @@ print(f"Found modules: [{', '.join(modules)}]")
 extensions = [os.path.basename(f)[:-3] for f in modules if os.path.isfile(f) and not f.endswith('__init__.py')]
 print(f"Found extensions: [{', '.join(extensions)}]")
 loaded_layouts = []
+# Note: Layout is the class
 for ext in extensions:
     loaded_layouts.append([importlib.import_module(f'.{ext}', package="src.Layouts").Layout])
 
@@ -176,12 +177,12 @@ class CinfoToUiTest(TKinterTestCase):
         app._serialize_cinfolist_to_gui()
         app._serialize_gui_to_cinfo()
         print("Assert original values will be kept")
-        self.assertEqual(app.MULTIPLE_VALUES_CONFLICT, app.new_edited_cinfo.get_Series())
-        # self.assertEqual(cinfo1_series, metadata_2.cinfo_object.get_Series())
+        self.assertEqual(app.MULTIPLE_VALUES_CONFLICT, app.new_edited_cinfo.series)
+        # self.assertEqual(cinfo1_series, metadata_2.cinfo_object.series)
         app.selected_files_path = self.test_files_names
         app.pre_process()
         # print("Assert final values match original")
-        # self.assertEqual(app.MULTIPLE_VALUES_CONFLICT, app.new_edited_cinfo.get_Series())
+        # self.assertEqual(app.MULTIPLE_VALUES_CONFLICT, app.new_edited_cinfo.series)
         app.destroy()
 
 
