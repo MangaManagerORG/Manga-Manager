@@ -2,6 +2,7 @@ import copy
 import logging
 import platform
 import tkinter
+from idlelib.tooltip import Hovertip
 from os.path import abspath
 from tkinter import Frame, CENTER, Button, NW
 from tkinter import messagebox as mb
@@ -22,6 +23,7 @@ from src.Settings.Settings import Settings
 action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
 import numpy as np
 
+
 def on_button_click(_, loaded_cinfo: LoadedComicInfo, front_or_back):
     print("Clicked button.")
     print(f"Is: {front_or_back}")
@@ -29,8 +31,10 @@ def on_button_click(_, loaded_cinfo: LoadedComicInfo, front_or_back):
 
 
 logger = logging.getLogger()
+overlay_image: Image = None
 
-def compare_image(img1, imge2, x, y):
+
+def compare_image(img1, imge2, x, y, delta):
     actual_error = 0
     if len(x) == len(y):
         error = np.sqrt(((x - y) ** 2).mean())
@@ -40,22 +44,29 @@ def compare_image(img1, imge2, x, y):
     if diff:
         print("Not Duplicate Image")
     else:
-        if actual_error > 80:
-            print(f"Percentage: {actual_error}")
+        print(f"Percentage: {actual_error}")
+        if actual_error >= delta:
             print("Same image")
             return True
+        else:
+            print("images not similar:")
 
-    # print('Matching Images In percentage: ', actual_error, '\t%')
 
 class ComicFrame(CoverFrame):
     def __init__(self, master, loaded_cinfo: LoadedComicInfo):
+        """
+        Custom Implementation of the CoverFrame for cover Manager
+
+        :param master: Parent window
+        :param loaded_cinfo: The lcinfo to display covers from
+        """
         super(CoverFrame, self).__init__(master, highlightbackground="black")
+
         self.loaded_cinfo: LoadedComicInfo = loaded_cinfo
-        self.configure(highlightthickness=2, highlightcolor="grey", highlightbackground="grey", padx=20, pady=20)
-
-        overlay_image = Image.open(action_template)
-        overlay_image = overlay_image.resize((190, 260), Image.ANTIALIAS)
-
+        self.configure(highlightthickness=2, highlightcolor="grey", highlightbackground="grey", padx=20, pady=10)
+        title = tkinter.Label(self, text=f"{loaded_cinfo.file_name[:70]}{'...' if len(loaded_cinfo.file_name) > 70 else ''}")
+        Hovertip(title, loaded_cinfo.file_name, 20)
+        title.pack(expand=True)
         # COVER
         self.cover_frame = Frame(self)
         self.cover_frame.pack(side="left")
@@ -158,6 +169,9 @@ class CoverManager(tkinter.Toplevel):
         self.title(self.__class__.name)
         if super_ is not None:
             self._super = super_
+        global overlay_image
+        overlay_image = Image.open(action_template)
+        overlay_image = overlay_image.resize((190, 260), Image.ANTIALIAS)
 
         self.serve_gui()
         self.bind("<Configure>", self.redraw)
@@ -238,20 +252,29 @@ class CoverManager(tkinter.Toplevel):
 
         ButtonWidget(master=action_buttons, text="Delete Selected",
                      tooltip="Deletes the image for the selected cover/backcovers",
-                     command=lambda: self.run_bulk_action(CoverActions.DELETE)).pack(side="top", fill="x")
+                     command=lambda: self.run_bulk_action(CoverActions.DELETE)).pack(side="top", fill="x",ipady=10)
         ButtonWidget(master=action_buttons, text="Append to Selected",
                      tooltip="Appends the image for the selected cover/backcovers",
-                     command=lambda: self.run_bulk_action(CoverActions.APPEND)).pack( side="top", fill="x")
+                     command=lambda: self.run_bulk_action(CoverActions.APPEND)).pack( side="top", fill="x",ipady=10)
         ButtonWidget(master=action_buttons, text="Replace Selected",
                      tooltip="Replaces the image for the selected cover/backcovers",
-                     command=lambda: self.run_bulk_action(CoverActions.REPLACE)).pack(side="top", fill="x")
+                     command=lambda: self.run_bulk_action(CoverActions.REPLACE)).pack(side="top", fill="x",ipady=10)
         ButtonWidget(master=action_buttons, text="Clear Selection",
-                     command=self.clear_selection).pack(fill="x")
+                     command=self.clear_selection).pack(fill="x",ipady=10)
         ButtonWidget(master=action_buttons, text="Close window",
                      command=self.exit_btn).pack(fill="x",ipady=10)
-        self.select_similar = ButtonWidget(master=action_buttons, text="Select similar",state="disabled",
+
+        self.select_similar_btn = ButtonWidget(master=action_buttons, text="Select similar",state="disabled",
                      command=self.select_similar)
-        self.select_similar.pack(fill="x", ipady=10)
+        self.select_similar_btn.pack(fill="x", ipady=10)
+
+        frame = Frame(action_buttons)
+        frame.pack(fill="x", ipady=10)
+        tkinter.Label(frame,text="Delta %").pack(side="left")
+        self.delta_entry = tkinter.Entry(frame, width="10")
+        self.delta_entry.insert(0,"90")
+        self.delta_entry.pack(side="left")
+
         content_frame = Frame(self)
         content_frame.pack(fill="both", side="left", expand=True)
 
@@ -285,9 +308,15 @@ class CoverManager(tkinter.Toplevel):
             comic_frame.grid()
         self.redraw(None)
 
+    def _compare_images(self, selected_image, x, compared_image, comicframe, pos):
+        delta = float(self.delta_entry.get())
+        y = np.array(compared_image.histogram())
+        if compare_image(selected_image, compared_image, x, y,delta=delta):
+            print(f"Similar - {pos}")
+            self.select_frame(None, frame=comicframe, pos=pos)
+
     def select_similar(self):
         assert len(self.selected_frames) == 1
-        delta = 0.90
         frame, pos = self.selected_frames[0]
         if pos == "front":
             selected_PI: ImageTk.PhotoImage = frame.loaded_cinfo.get_cover_cache()
@@ -296,34 +325,37 @@ class CoverManager(tkinter.Toplevel):
 
         selected_image = ImageTk.getimage(selected_PI)
         x = np.array(selected_image.histogram())
-
-        # Process all covers:
+        compare_cover = True
+        compare_backcover = True
+        self.clear_selection()
+        # Compare all covers:
         for comicframe in self.scrolled_widget.winfo_children():
             try:
-                comicframe:ComicFrame
+                comicframe: ComicFrame
                 lcinfo: LoadedComicInfo = comicframe.loaded_cinfo
-                compared_image = ImageTk.getimage(lcinfo.get_cover_cache())
-                y = np.array(compared_image.histogram())
+                if compare_cover:
+                    image = lcinfo.get_cover_cache()
+                    if image is None:
+                        logger.error(f"Failed to compare cover image. File is not loaded. File '{lcinfo.file_name}'")
+                    else:
+                        compared_image = ImageTk.getimage(image)
+                        print("Comparing front")
+                        self._compare_images(selected_image, x, compared_image, comicframe, "front")
+                if compare_backcover:
+                    image = lcinfo.get_backcover_cache()
+                    if image is None:
+                        logger.error(f"Failed to compare backcover image. File is not loaded. File '{lcinfo.file_name}'")
+                    else:
+                        compared_image = ImageTk.getimage(image)
+                        print("Comparing back")
+                        self._compare_images(selected_image, x, compared_image, comicframe, "back")
 
-                if compare_image(selected_image,compared_image,x,y):
-                    self.select_frame(None, frame=comicframe, pos="front", selecting_similar=True)
             except Exception:
                 logger.exception(f"Failed to compare images for file {comicframe.loaded_cinfo.file_name}")
 
-            # diff = ImageChops.difference(selected_image, compare_image)
-            # histogram = diff.histogram()
-            # sq = (value * (idx ** 2) for idx, value in enumerate(histogram))
-            # sum_of_squared_differences = sum(sq)
-            # rms = sum_of_squared_differences ** 0.5
-            # print(rms <= delta)
-
-        # difference = math.sqrt(
-        #     sum((a - b) ** 2 for a, b in zip(pil_image.histogram(), image2.histogram())) / len(pil_image.histogram()))
-
-
-    def select_frame(self, _, frame: ComicFrame, pos, selecting_similar=False):
+    def select_frame(self, _, frame: ComicFrame, pos):
         print(pos)
-        if (frame, pos) in self.selected_frames and not selecting_similar:
+        if (frame, pos) in self.selected_frames:
             for children in self.tree.get_children():
                 if self.tree_dict[children]["cinfo"] == frame.loaded_cinfo and self.tree_dict[children]["type"] == pos:
                     self.selected_frames.remove((frame, pos))
@@ -343,7 +375,7 @@ class CoverManager(tkinter.Toplevel):
                 frame.cover_canvas.configure(highlightbackground="green", highlightcolor="green")
             else:
                 frame.backcover_canvas.configure(highlightbackground="green", highlightcolor="green")
-        self.select_similar.configure(state="normal" if len(self.selected_frames)==1 else "disabled")
+        self.select_similar_btn.configure(state="normal" if len(self.selected_frames)==1 else "disabled")
 
     def run_bulk_action(self, action: CoverActions):
         new_cover_file = None
