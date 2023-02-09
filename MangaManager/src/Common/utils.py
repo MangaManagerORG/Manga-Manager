@@ -9,6 +9,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import IO
 
+from common.models import ComicInfo
 from src.Common.naturalsorter import natsort_key_with_path_support
 
 # Patterns for picking cover
@@ -321,17 +322,4 @@ def match_pyfiles_with_foldername(file_path):
     folder, file_ = extract_folder_and_module(file_path)
     return folder == file_
 
-def update_people_from_mapping(people: list[object], mapping, comicinfo, name_selector, role_selector):
-    if comicinfo is None:
-        return
 
-    for person in people:
-        name = name_selector(person)
-        role = role_selector(person)
-
-        for map_role in mapping:
-            if map_role == role:
-                for fields in mapping[map_role]:
-                    comicinfo.set_attr_by_name(fields, name.strip())
-
-        print(f"No mapping found for: {name} as {role}")

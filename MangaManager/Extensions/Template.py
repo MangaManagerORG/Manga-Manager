@@ -1,9 +1,7 @@
 import logging
 
-from Extensions.Interface import IExtensionApp
-from src import settings_class
+from Extensions.IExtensionApp import IExtensionApp
 
-settings = settings_class.get_setting("main")
 logger = logging.getLogger()
 
 

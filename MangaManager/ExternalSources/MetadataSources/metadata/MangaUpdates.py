@@ -3,10 +3,10 @@ from enum import StrEnum
 
 import requests
 
+from common import get_invalid_person_tag
 from src.Common.errors import MangaNotFoundError
-from src.Common.utils import update_people_from_mapping
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
-from src.MetadataManager.comicinfo import ComicInfo
+from common.models import ComicInfo
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
@@ -22,31 +22,47 @@ class MangaUpdates(IMetadataSource):
     name = "MangaUpdates"
     _log = logging.getLogger()
     person_mapper = {
-        MangaUpdatesPerson.Author: [
+        "Author": [
             "Writer"
         ],
-        MangaUpdatesPerson.Artist: [
+        "Artist": [
             "Penciller",
             "Inker",
             "CoverArtist"
         ]
     }
 
-    settings = [
-        SettingSection(name, name, [
-            SettingControl(MangaUpdatesPerson.Author, "Author", SettingControlType.Text, "Writer", "How metadata field will map to ComicInfo fields"),
-            SettingControl(MangaUpdatesPerson.Artist, "Artist", SettingControlType.Text, "Penciller, Inker, CoverArtist", "How metadata field will map to ComicInfo fields"),
-        ])
-    ]
-
     def __init__(self):
+        self.settings = [
+            SettingSection(self.name, self.name, [
+                SettingControl(MangaUpdatesPerson.Author, "Author", SettingControlType.Text, "Writer",
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
+                SettingControl(MangaUpdatesPerson.Artist, "Artist", SettingControlType.Text,
+                               "Penciller, Inker, CoverArtist", "How metadata field will map to ComicInfo fields",
+                               self.is_valid_person_tag, self.trim),
+            ])
+        ]
         super(MangaUpdates, self).__init__()
-
 
     def save_settings(self):
         # Update person_mapper when this is called as it indicates the settings for the provider might have changed
         self.person_mapper[MangaUpdatesPerson.Author] = Settings().get(self.name, MangaUpdatesPerson.Author).split(',')
         self.person_mapper[MangaUpdatesPerson.Artist] = Settings().get(self.name, MangaUpdatesPerson.Artist).split(',')
+
+    @staticmethod
+    def is_valid_person_tag(key, value):
+        invalid_people = get_invalid_person_tag(value)
+
+        if len(invalid_people) == 0:
+            return ""
+        return ", ".join(invalid_people) + " are not a valid tags"
+
+    @staticmethod
+    def trim(value):
+        ret = value.strip()
+        if ret.endswith(','):
+            return ret[0:-1]
+        return ret
 
     @classmethod
     def get_cinfo(cls, series_name) -> ComicInfo | None:
@@ -55,23 +71,23 @@ class MangaUpdates(IMetadataSource):
         data = cls._get_series_details(series_name, {})
 
         # Basic Info
-        comicinfo.set_Series(data["title"].strip())
-        comicinfo.set_Summary(data["description"].strip())
-        comicinfo.set_Genre(", ".join([ i["genre"] for i in data["genres"] ]))
-        comicinfo.set_Tags(", ".join([ i["category"] for i in data["categories"] ]))
-        comicinfo.set_Web(data["url"].strip())
-        comicinfo.set_Manga("Yes" if data["type"] == "Manga" else "No")
-        comicinfo.set_Year(data["year"])
+        comicinfo.series = data["title"].strip()
+        comicinfo.summary = data["description"].strip()
+        comicinfo.genre = ", ".join([ i["genre"] for i in data["genres"] ]).strip()
+        comicinfo.tags = ", ".join([ i["category"] for i in data["categories"] ])
+        comicinfo.web = data["url"].strip()
+        comicinfo.manga = "Yes" if data["type"] == "Manga" else "No"
+        comicinfo.year = data["year"]
 
         # People Info
-        update_people_from_mapping(data["authors"], cls.person_mapper, comicinfo,
+        cls.update_people_from_mapping(data["authors"], cls.person_mapper, comicinfo,
                                    lambda item: item["name"],
                                    lambda item: item["type"])
 
-        comicinfo.set_Publisher(", ".join([ i["publisher_name"] for i in data["publishers"] ]))
+        #comicinfo.set_Publisher(", ".join([ i["publisher_name"] for i in data["publishers"] ]))
 
         # Extended
-        comicinfo.set_CommunityRating(round(data["bayesian_rating"]/2, 1))
+        comicinfo.community_rating = round(data["bayesian_rating"]/2, 1)
 
         return comicinfo
 

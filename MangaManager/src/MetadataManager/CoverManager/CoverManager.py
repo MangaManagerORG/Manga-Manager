@@ -2,15 +2,14 @@ import copy
 import logging
 import platform
 import tkinter
-from os.path import abspath
 from tkinter import Frame, CENTER, Button, NW
 from tkinter import messagebox as mb
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Treeview
 
 from PIL import Image, ImageTk
-from pkg_resources import resource_filename
 
+from src.Common import ResourceLoader
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, CanvasCoverWidget
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
@@ -19,7 +18,7 @@ from src.MetadataManager.MetadataManagerGUI import GUIApp
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
-action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
+action_template = ResourceLoader.get('cover_action_template.png')
 
 
 def on_button_click(_, loaded_cinfo: LoadedComicInfo, front_or_back):

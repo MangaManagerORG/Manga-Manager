@@ -1,22 +1,25 @@
-import locale
+import json
 import tkinter
-from os.path import abspath
 from tkinter import Frame, ttk
 from tkinter.ttk import Notebook
 
-from pkg_resources import resource_filename
-
-from src.MetadataManager import comicinfo
+from common.models import Formats, AgeRating
+from src.Common import ResourceLoader
 from src.MetadataManager.CoverManager.CoverManager import CoverManager
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.GUI.ExceptionWindow import ExceptionFrame
-from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, ProgressBarWidget, \
+from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, FileMultiSelectWidget, ProgressBarWidget, \
     ComboBoxWidget, LongTextWidget, OptionMenuWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
+f = open(ResourceLoader.get('languages.json'), 'r')
+data = json.loads(f.read())
+languages = [l["isoCode"] for l in data]
+f.close()
+
 
 class Layout(GUIApp):
-    name = "Joe Layout"
+    name = "joe"
 
     def __init__(self):
         super().__init__()
@@ -59,7 +62,7 @@ class Layout(GUIApp):
 
         self.files_selected_frame.selected_files_label = tkinter.Label(self.files_selected_frame, text="Opened Files:")
         self.files_selected_frame.selected_files_label.pack(expand=False, fill="x")
-        self.selected_files_treeview = TreeviewWidget
+        self.selected_files_treeview = FileMultiSelectWidget
         self.selected_files_treeview.open_in_explorer = self._treeview_open_explorer
         self.selected_files_treeview.reset_loadedcinfo_changes = self._treview_reset
         self.selected_files_treeview = self.selected_files_treeview(self.files_selected_frame)#, padding=[-15, 0, 0, 0])  # padding -15 to remove the left indent
@@ -80,7 +83,7 @@ class Layout(GUIApp):
         btn = ButtonWidget(master=control_frame, text="Open Files",
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
         try:
-            icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
+            icon_path = ResourceLoader.get('open_file.png')
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except: # Fixme linux throws resource not found
@@ -92,7 +95,7 @@ class Layout(GUIApp):
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         try:
-            icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+            icon_path = ResourceLoader.get('open_folder.png')
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except:
@@ -233,7 +236,7 @@ class Layout(GUIApp):
         self.widget_mngr.Count = ComboBoxWidget(numbering, "Count", width=COMBO_WIDTH,
                                                 validation="int", default="-1").grid(0, 2)
         self.widget_mngr.Format = OptionMenuWidget(numbering, "Format", "Format", COMBO_WIDTH, 18, "",
-                                                   comicinfo.format_list).grid(0, 3)
+                                                   Formats).grid(0, 3)
         self.widget_mngr.Manga = OptionMenuWidget(numbering, "Manga", "Manga", COMBO_WIDTH, 18,
                                                   "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(0,4)
 
@@ -244,10 +247,10 @@ class Layout(GUIApp):
         self.widget_mngr.Day = ComboBoxWidget(numbering, "Day", width=COMBO_WIDTH,
                                               validation="int", default="-1").grid(1, 2)
         self.widget_mngr.AgeRating = OptionMenuWidget(numbering, "AgeRating", "Age Rating", COMBO_WIDTH, 18,
-                                                      "Unknown", comicinfo.AgeRating.list()).grid(1, 3)
+                                                      "Unknown", AgeRating.list()).grid(1, 3)
 
         self.widget_mngr.LanguageISO = ComboBoxWidget(numbering, "LanguageISO", label_text="Language ISO",
-                                                      width=8, default="", default_values=list(locale.locale_alias.keys())).grid(1, 4)
+                                                      width=8, default="", default_values=languages).grid(1, 4)
 
         self.widget_mngr.Notes = ComboBoxWidget(parent_frame, cinfo_name="Notes").pack()
 

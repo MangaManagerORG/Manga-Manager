@@ -9,15 +9,15 @@ default_settings = {
     SettingHeading.Main: [
         {"library_path": ""},
         {"covers_folder_path": ""},
-        {"cache_cover_images": ""},
+        {"cache_cover_images": True},
         {"selected_layout": "default"},
     ],
     SettingHeading.WebpConverter: [
         {"default_base_path": ""},
     ],
     SettingHeading.ExternalSources: [
-        {"default_metadata_source": ""},
-        {"default_cover_source": ""},
+        {"default_metadata_source": "AniList"},
+        {"default_cover_source": "MangaDex"},
     ],
 }
 
@@ -52,14 +52,15 @@ class Settings:
         """Load the data from file and populate DefaultSettings"""
         self.config_parser.read(self.config_file)
 
-        if len(self.config_parser.sections()) == 0:
-            # Init default settings and refresh
-            for section in default_settings:
+        # Ensure all default settings exists, else add them
+        for section in default_settings:
+            if section not in self.config_parser.sections():
                 self.config_parser.add_section(section)
-                for item in default_settings[section]:
-                    for (key, value) in item.items():
-                        self.config_parser[section][key] = value
-            self.save()
+            for item in default_settings[section]:
+                for (key, value) in item.items():
+                    self.config_parser[section][key] = str(value)
+
+        self.save()
 
     def get(self, section, key):
         """Get a key's value, None if not present"""

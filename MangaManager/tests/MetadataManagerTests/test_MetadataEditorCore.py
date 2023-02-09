@@ -3,11 +3,12 @@ import unittest
 import zipfile
 from unittest.mock import patch, MagicMock
 
+from common.models import ComicInfo
 from logging_setup import add_trace_level
 from src.Common.errors import CorruptedComicInfo, NoComicInfoLoaded
 from src.Common.errors import EditedCinfoNotSet, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.MetadataManager import MetadataManagerLib, comicinfo
+from src.MetadataManager import MetadataManagerLib
 from tests.common import create_dummy_files
 
 add_trace_level()
@@ -58,13 +59,13 @@ class CoreTesting(unittest.TestCase):
         # Create a random int so the values in the cinfo are unique each test
 
         # Create metadata objects
-        cinfo_1 = comicinfo.ComicInfo()
-        cinfo_1.set_Series("This series from file 1 should be kept")
-        cinfo_1.set_Writer("This writer from file 1 should NOT be kept")
+        cinfo_1 = ComicInfo()
+        cinfo_1.series = "This series from file 1 should be kept"
+        cinfo_1.writer = "This writer from file 1 should NOT be kept"
 
-        cinfo_2 = comicinfo.ComicInfo()
-        cinfo_2.set_Series("This series from file 2 should be kept")
-        cinfo_2.set_Writer("This writer from file 2 should NOT be kept")
+        cinfo_2 = ComicInfo()
+        cinfo_2.series = "This series from file 2 should be kept"
+        cinfo_2.writer = "This writer from file 2 should NOT be kept"
 
         # Created loaded metadata objects
         metadata_1 = LoadedComicInfo(out_tmp_zipname, comicinfo=cinfo_1)
@@ -74,17 +75,17 @@ class CoreTesting(unittest.TestCase):
         # There is no edited comicinfo, it should fail
         with self.assertRaises(EditedCinfoNotSet):
             self.instance.merge_changed_metadata(self.instance.loaded_cinfo_list)
-        new_cinfo = comicinfo.ComicInfo()
-        new_cinfo.set_Series(self.instance.MULTIPLE_VALUES_CONFLICT)
-        new_cinfo.set_Writer("This is the new writer for both cinfo")
+        new_cinfo = ComicInfo()
+        new_cinfo.series = self.instance.MULTIPLE_VALUES_CONFLICT
+        new_cinfo.writer = "This is the new writer for both cinfo"
         self.instance.new_edited_cinfo = new_cinfo
         self.instance.merge_changed_metadata(self.instance.loaded_cinfo_list)
         print("Assert values are kept")
-        self.assertEqual("This series from file 1 should be kept", metadata_1.cinfo_object.get_Series())
-        self.assertEqual("This series from file 2 should be kept", metadata_2.cinfo_object.get_Series())
+        self.assertEqual("This series from file 1 should be kept", metadata_1.cinfo_object.series)
+        self.assertEqual("This series from file 2 should be kept", metadata_2.cinfo_object.series)
         print("Assert values are overwritten")
-        self.assertEqual("This is the new writer for both cinfo", metadata_1.cinfo_object.get_Writer())
-        self.assertEqual("This is the new writer for both cinfo", metadata_2.cinfo_object.get_Writer())
+        self.assertEqual("This is the new writer for both cinfo", metadata_1.cinfo_object.writer)
+        self.assertEqual("This is the new writer for both cinfo", metadata_2.cinfo_object.writer)
 
     def test_selected_files_loaded(self):
 
@@ -185,7 +186,7 @@ class ErrorHandlingTests(unittest.TestCase):
 
         self.instance.selected_files_path = self.test_files_names = create_dummy_files(2)
         self.instance.loaded_cinfo_list = [RaisePermissionError(path) for path in self.test_files_names]
-        self.instance.new_edited_cinfo = comicinfo.ComicInfo()
+        self.instance.new_edited_cinfo = ComicInfo()
         self.instance.on_writing_error = MagicMock()
         self.instance.process()
         self.instance.on_writing_error.assert_called()
@@ -205,7 +206,7 @@ class ErrorHandlingTests(unittest.TestCase):
 
         self.instance.selected_files_path = self.test_files_names = create_dummy_files(2)
         self.instance.loaded_cinfo_list = [RaisePermissionError(path) for path in self.test_files_names]
-        self.instance.new_edited_cinfo = comicinfo.ComicInfo()
+        self.instance.new_edited_cinfo = ComicInfo()
         self.instance.on_writing_exception = MagicMock()
         self.instance.process()
         self.instance.on_writing_exception.assert_called()

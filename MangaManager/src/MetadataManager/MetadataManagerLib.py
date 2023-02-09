@@ -4,15 +4,14 @@ import abc
 import logging
 from abc import ABC
 
-from ExternalSources import ScraperFactory
+from ExternalSources.MetadataSources.metadata import ScraperFactory
 
 from src import sources_factory
 from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.terminalcolors import TerminalColors as TerCol
-from src.MetadataManager import comicinfo
-from src.MetadataManager.comicinfo import ComicInfo
+from common.models import ComicInfo
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
@@ -141,11 +140,11 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         for loaded_cinfo in loaded_cinfo_list:
             logger.debug(LOG_TAG + f"Merging changes to {loaded_cinfo.file_path}")
             for cinfo_tag in self.cinfo_tags:
-                new_value = str(self.new_edited_cinfo.get_attr_by_name(cinfo_tag))
+                new_value = str(self.new_edited_cinfo.get_by_tag_name(cinfo_tag))
                 if new_value == self.MULTIPLE_VALUES_CONFLICT:
                     logger.trace(LOG_TAG + f"Ignoring {cinfo_tag}. Keeping old values")
                     continue
-                old_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
+                old_value = str(loaded_cinfo.cinfo_object.get_by_tag_name(cinfo_tag))
                 if old_value == new_value:
                     logger.trace(LOG_TAG + f"Ignoring {cinfo_tag}. Field has not changed")
                     continue
@@ -153,7 +152,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                     loaded_cinfo.changed_tags.append((cinfo_tag, old_value, new_value))
                 logger.debug(LOG_TAG + f"[{cinfo_tag:15s}] {TerCol.GREEN}Updating{TerCol.RESET} - Old '{TerCol.RED}{old_value}{TerCol.RESET}' vs "
                              f"New: '{TerCol.YELLOW}{new_value}{TerCol.RESET}' - Keeping {TerCol.YELLOW}new{TerCol.RESET} value")
-                loaded_cinfo.cinfo_object.set_attr_by_name(cinfo_tag, new_value)
+                loaded_cinfo.cinfo_object.set_by_tag_name(cinfo_tag, new_value)
                 loaded_cinfo.has_changes = True
                 any_has_changes = True
             if any((loaded_cinfo.cover_action is not None,loaded_cinfo.backcover_action is not None)):
@@ -183,7 +182,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                     loaded_cinfo.load_metadata()
             except CorruptedComicInfo as e:
                 # Logging is handled already in LoadedComicInfo load_metadata method
-                loaded_cinfo = LoadedComicInfo(path=file_path, comicinfo=comicinfo.ComicInfo()).load_metadata()
+                loaded_cinfo = LoadedComicInfo(path=file_path, comicinfo=ComicInfo()).load_metadata()
                 self.on_corruped_metadata_error(e, loaded_info=loaded_cinfo or file_path)
                 continue
             except BadZipFile as e:
@@ -206,9 +205,8 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         """
         ...
         # print(loaded_cinfo.__dict__)
-        # export = StringIO()
         # print(loaded_cinfo.cinfo_object is None)
-        # loaded_cinfo.cinfo_object.export(export, 0)
+        # export = StringIO(loaded_cinfo.cinfo_object.to_xml())
         # print(export.getvalue())
 
     def fetch_online(self, series_name):
