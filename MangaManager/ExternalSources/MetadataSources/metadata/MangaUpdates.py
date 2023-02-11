@@ -65,10 +65,10 @@ class MangaUpdates(IMetadataSource):
         return ret
 
     @classmethod
-    def get_cinfo(cls, series_name) -> ComicInfo | None:
+    def get_cinfo(cls, partial_comic_info) -> ComicInfo | None:
         comicinfo = ComicInfo()
         
-        data = cls._get_series_details(series_name, {})
+        data = cls._get_series_details(partial_comic_info.series, {})
 
         # Basic Info
         comicinfo.series = data["title"].strip()

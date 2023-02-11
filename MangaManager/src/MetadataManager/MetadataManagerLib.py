@@ -209,16 +209,16 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         # export = StringIO(loaded_cinfo.cinfo_object.to_xml())
         # print(export.getvalue())
 
-    def fetch_online(self, series_name):
+    def fetch_online(self, partial_comic_info):
         selected_source = ScraperFactory().get_scraper(Settings().get(SettingHeading.ExternalSources, 'default_metadata_source'))
         if not selected_source:
             raise Exception("Unhandled exception. Metadata sources are not loaded or there's a bug in it."
                             "Raise an issue if this happens.")
         try:
-            return selected_source.get_cinfo(series_name)
+            return selected_source.get_cinfo(partial_comic_info)
         except MangaNotFoundError as e:
             logger.exception(str(e))
-            self.on_manga_not_found(e, series_name)
+            self.on_manga_not_found(e, partial_comic_info)
             return None
 
 

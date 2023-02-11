@@ -77,12 +77,12 @@ class AniList(IMetadataSource):
         return ret
 
     @classmethod
-    def get_cinfo(cls, series_name) -> ComicInfo | None:
+    def get_cinfo(cls, partial_comic_info) -> ComicInfo | None:
         comicinfo = ComicInfo()
         try:
-            content = cls._search_for_manga_title_by_manga_title(series_name, "MANGA", {})
+            content = cls._search_for_manga_title_by_manga_title(partial_comic_info.series, "MANGA", {})
         except MangaNotFoundError:
-            content = cls.search_for_manga_title_by_manga_title_with_adult(series_name, "MANGA", {})
+            content = cls.search_for_manga_title_by_manga_title_with_adult(partial_comic_info.series, "MANGA", {})
 
         if content is None:
             return None
@@ -105,6 +105,7 @@ class AniList(IMetadataSource):
 
         return comicinfo
 
+    # TODO: Remove this method and make logger creation in __init__
     @classmethod
     def initialize(cls):
         cls._log = logging.getLogger(f'{cls.__module__}.{cls.__name__}')
