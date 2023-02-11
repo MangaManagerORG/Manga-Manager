@@ -18,7 +18,7 @@ def setting_control_to_widget(parent_frame: tkinter.Frame, control: SettingContr
         case SettingControlType.Options:
             string_var = tkinter.StringVar(value="default", name=f"{section.pretty_name}.{control.key}")
             entry = Combobox(master=parent_frame, textvariable=string_var, width=30, state="readonly")
-            entry["values"] = control.value
+            entry["values"] = control.values
             entry.set(str(control.value))
             entry.pack(side="left", expand=False, fill="x", padx=(5, 30))
             entry.set(control.value)
