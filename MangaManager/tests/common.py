@@ -23,7 +23,7 @@ def create_dummy_files(nfiles):
     return test_files_names
 
 
-def create_test_cbz(nfiles, nimages=4, metadata: LoadedComicInfo = None) -> list[str]:
+def create_test_cbz(nfiles, nimages=4, loaded_cinfo: LoadedComicInfo = None) -> list[str]:
     image = Image.new('RGB', (100, 100), 'white')
     buffer = io.BytesIO()
     image.save(buffer, 'JPEG')
@@ -33,9 +33,9 @@ def create_test_cbz(nfiles, nimages=4, metadata: LoadedComicInfo = None) -> list
         out_tmp_zipname = f"Test__{i}_Generated{random.randint(1, 6000)}.cbz"
         test_files_names.append(out_tmp_zipname)
         with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
-            if metadata is not None:
+            if loaded_cinfo is not None:
                 # noinspection PyProtectedMember
-                zf.writestr(COMICINFO_FILE, metadata._export_metadata())
+                zf.writestr(COMICINFO_FILE, loaded_cinfo._export_metadata())
             for j in range(nimages):
                 zf.writestr(f"{str(j).zfill(3)}.png", buffer.getvalue())
 

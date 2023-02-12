@@ -88,6 +88,7 @@ class FileMultiSelectWidget(Treeview):
     def reset_loadedcinfo_changes(self, event=None):
         raise NotImplementedError()
 
+    @staticmethod
     def _run_hook(source: list[callable], *args):
         for hook_function in source:
             try:
