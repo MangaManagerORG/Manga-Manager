@@ -75,24 +75,16 @@ class LoadedComicInfo:
     changed_tags = []
 
     _cover_action: CoverActions | None = None
-    # Path to the new cover selected by the user
     _new_cover_path: str | None = None
     new_cover_cache: ImageTk.PhotoImage | None = None
-    # Path to the new backcover selected by the user
+
     _backcover_action: CoverActions | None = None
     _new_backcover_path: str | None = None
     new_backcover_cache: ImageTk.PhotoImage | None = None
 
-    def get_cover_cache(self, is_backcover=False) -> ImageTk.PhotoImage | None:
-        if self._cover_action is None:
-            return self.backcover_cache if is_backcover else self.cover_cache
-        else:
-            return self.new_backcover_cache if is_backcover else self.new_cover_cache
-
     @property
     def cover_action(self):
         return self._cover_action
-
     @cover_action.setter
     def cover_action(self, value: CoverActions):
         if value == CoverActions.RESET:
@@ -102,11 +94,9 @@ class LoadedComicInfo:
         else:
             self._cover_action = value
             self.has_changes = True
-
     @property
     def backcover_action(self):
         return self._backcover_action
-
     @backcover_action.setter
     def backcover_action(self, value: CoverActions):
         if value == CoverActions.RESET:
@@ -116,6 +106,7 @@ class LoadedComicInfo:
         else:
             self._backcover_action = value
             self.has_changes = True
+
 
     @property
     def new_cover_path(self):

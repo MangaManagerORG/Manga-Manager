@@ -88,7 +88,7 @@ class TreeviewWidget(Treeview):
     def reset_loadedcinfo_changes(self, event=None):
         raise NotImplementedError()
 
-    def _run_hook(self, source: list[callable], *args):
+    def _run_hook(source: list[callable], *args):
         for hook_function in source:
             try:
                 hook_function(*args)
