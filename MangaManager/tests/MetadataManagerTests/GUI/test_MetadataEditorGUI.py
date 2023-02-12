@@ -237,14 +237,12 @@ class BulkLoadingTest(TKinterTestCase):
             app.loaded_cinfo_list.append(loaded_cinfo)
             app.on_item_loaded(loaded_cinfo)
 
-
-        # app.loaded_cinfo_list[0].original_cinfo_object = copy.copy(cinfo)
-        # app.loaded_cinfo_list[0].cinfo_object = cinfo
+        self.pump_events()
+        app.focus_set()
         app.selected_files_treeview.selection_set(app.selected_files_treeview.get_children()[1])
         self.pump_events()
         app.focus_set()
         self.assertFalse(any([True for lcinfo in app.loaded_cinfo_list if lcinfo.has_changes]))
-        print("dasdas")
 
 
 @parameterized_class(('GUI',), loaded_layouts)

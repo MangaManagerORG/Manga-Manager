@@ -12,11 +12,10 @@ from typing import IO
 from PIL import Image, ImageTk
 from lxml.etree import XMLSyntaxError
 
-from src.Common.errors import CorruptedComicInfo, BadZipFile
+from common.models import ComicInfo
+from src.Common.errors import BadZipFile
 from src.Common.utils import IS_IMAGE_PATTERN, convert_to_webp
 from src.Common.utils import obtain_cover_filename, get_new_webp_name
-
-from common.models import ComicInfo
 
 logger = logging.getLogger("LoadedCInfo")
 
@@ -355,7 +354,7 @@ class LoadedComicInfo:
             with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
                 # Write the new metadata once
                 if write_metadata:
-                    self.cinfo_object.page_count = len([file_ for file_ in zin.namelist() if IS_IMAGE_PATTERN.match(file_)])
+                    # self.cinfo_object.page_count = len([file_ for file_ in zin.namelist() if IS_IMAGE_PATTERN.match(file_)])
                     zout.writestr(COMICINFO_FILE, self._export_metadata())
                     logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
                     # Directly backup the metadata if it's at root.

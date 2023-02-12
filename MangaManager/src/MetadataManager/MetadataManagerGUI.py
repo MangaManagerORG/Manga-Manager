@@ -358,8 +358,8 @@ class GUIApp(Tk, MetadataManagerLib):
                 case widget.default:  # If it matches the default then do nothing
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Has default value")
                 case "":
-                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, widget.default)
-                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted")
+                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, "")
+                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted or was empty")
                 case _:
                     self.new_edited_cinfo.set_by_tag_name(cinfo_tag, widget_value)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")

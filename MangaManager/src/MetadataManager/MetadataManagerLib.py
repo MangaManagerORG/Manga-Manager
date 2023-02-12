@@ -136,9 +136,13 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
 
         if not self.new_edited_cinfo:
             raise EditedCinfoNotSet()
+        if loaded_cinfo_list is None:
+            return False
         for loaded_cinfo in loaded_cinfo_list:
             logger.debug(LOG_TAG + f"Merging changes to {loaded_cinfo.file_path}")
             for cinfo_tag in self.cinfo_tags:
+                if cinfo_tag == "PageCount":
+                    continue
                 # Check if the ui has $Multiple_files_selected$
                 new_value = str(self.new_edited_cinfo.get_by_tag_name(cinfo_tag))
                 if new_value == self.MULTIPLE_VALUES_CONFLICT:
