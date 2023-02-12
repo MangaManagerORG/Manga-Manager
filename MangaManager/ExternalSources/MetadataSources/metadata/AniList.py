@@ -15,39 +15,56 @@ from src.Settings.Settings import Settings
 
 
 class AniListPerson(StrEnum):
-    OriginalStory = "original_story",
-    CharacterDesign = "character_design",
-    StoryAndArt = "story_and_art",
+    OriginalStory = "Original Story",
+    CharacterDesign = "Character Design",
+    StoryAndArt = "Story & Art",
+    Story = "Story",
+    Art = "Art",
+    Assistant = "Assistant",
+    Assistant_former = "Assistant (former)",
+    Assistant_mob = "Assistant (mob)",
+    Assistant_beta = "Assistant (beta)",
+
+
+class AniListSetting(StrEnum):
+    SeriesTitleLanguage = "series_title_language",
 
 
 class AniList(IMetadataSource):
     name = "AniList"
     _log = logging.getLogger()
     # Map the Role from API to the ComicInfo tags to write
-    person_mapper = {
-        "Writer": [
-            "Writer"
-        ],
-        "Character Design": [
-            "Penciller"
-        ],
-        "Story & Art": [
-            "Writer",
-            "Penciller",
-            "Inker",
-            "CoverArtist"
-        ]
-    }
+    person_mapper = {}
+    aniList_setting = {}
 
     def __init__(self):
         self.settings = [
             SettingSection(self.name, self.name, [
-                SettingControl(AniListPerson.OriginalStory, "Original Story", SettingControlType.Text, "Writer",
+                SettingControl(AniListSetting.SeriesTitleLanguage, "Prefer Romaji Series Title Language",
+                               SettingControlType.Bool, True,
+                               "How metadata field will map to Series and LocalizedSeries fields"),
+                SettingControl(AniListPerson.OriginalStory, AniListPerson.OriginalStory, SettingControlType.Text,
+                               "Writer",
                                "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
-                SettingControl(AniListPerson.CharacterDesign, "Character Design", SettingControlType.Text, "Penciller",
+                SettingControl(AniListPerson.CharacterDesign, AniListPerson.CharacterDesign, SettingControlType.Text,
+                               "Penciller",
                                "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
-                SettingControl(AniListPerson.StoryAndArt, "Story & Art", SettingControlType.Text,
+                SettingControl(AniListPerson.StoryAndArt, AniListPerson.StoryAndArt, SettingControlType.Text,
                                "Writer, Penciller, Inker, CoverArtist",
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
+                SettingControl(AniListPerson.Story, AniListPerson.Story, SettingControlType.Text, "Writer",
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
+                SettingControl(AniListPerson.Art, AniListPerson.Art, SettingControlType.Text,
+                               "Penciller, Inker, CoverArtist",
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
+                SettingControl(AniListPerson.Assistant, AniListPerson.Assistant, SettingControlType.Text, "",
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
+                SettingControl(AniListPerson.Assistant_former, AniListPerson.Assistant_former, SettingControlType.Text,
+                               "",
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
+                SettingControl(AniListPerson.Assistant_mob, AniListPerson.Assistant_mob, SettingControlType.Text, "",
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
+                SettingControl(AniListPerson.Assistant_beta, AniListPerson.Assistant_beta, SettingControlType.Text, "",
                                "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
             ])
         ]
@@ -55,11 +72,22 @@ class AniList(IMetadataSource):
         super(AniList, self).__init__()
 
     def save_settings(self):
+        self.aniList_setting[AniListSetting.SeriesTitleLanguage] = [Settings().get(self.name,
+                                                                                   AniListSetting.SeriesTitleLanguage)]
         self.person_mapper[AniListPerson.OriginalStory] = Settings().get(self.name, AniListPerson.OriginalStory).split(
             ',')
         self.person_mapper[AniListPerson.CharacterDesign] = Settings().get(self.name,
                                                                            AniListPerson.CharacterDesign).split(',')
         self.person_mapper[AniListPerson.StoryAndArt] = Settings().get(self.name, AniListPerson.StoryAndArt).split(',')
+        self.person_mapper[AniListPerson.Story] = Settings().get(self.name, AniListPerson.Story).split(',')
+        self.person_mapper[AniListPerson.Art] = Settings().get(self.name, AniListPerson.Art).split(',')
+        self.person_mapper[AniListPerson.Assistant] = Settings().get(self.name, AniListPerson.Assistant).split(',')
+        self.person_mapper[AniListPerson.Assistant_former] = Settings().get(self.name,
+                                                                            AniListPerson.Assistant_former).split(',')
+        self.person_mapper[AniListPerson.Assistant_mob] = Settings().get(self.name, AniListPerson.Assistant_mob).split(
+            ',')
+        self.person_mapper[AniListPerson.Assistant_beta] = Settings().get(self.name,
+                                                                          AniListPerson.Assistant_beta).split(',')
 
     @staticmethod
     def is_valid_person_tag(key, value):
@@ -80,9 +108,9 @@ class AniList(IMetadataSource):
     def get_cinfo(cls, series_name) -> ComicInfo | None:
         comicinfo = ComicInfo()
         try:
-            content = cls._search_for_manga_title_by_manga_title(series_name, "MANGA", {})
+            content = cls._search_for_manga_title_by_manga_title(series_name.strip(), "MANGA", {})
         except MangaNotFoundError:
-            content = cls.search_for_manga_title_by_manga_title_with_adult(series_name, "MANGA", {})
+            content = cls.search_for_manga_title_by_manga_title_with_adult(series_name.strip(), "MANGA", {})
 
         if content is None:
             return None
@@ -90,13 +118,29 @@ class AniList(IMetadataSource):
         data = cls._search_details_by_series_id(content, "MANGA", {})
 
         startdate = data.get("startDate")
-        comicinfo.summary = data.get("description").strip()
         comicinfo.day = startdate.get("day")
         comicinfo.month = startdate.get("month")
         comicinfo.year = startdate.get("year")
-        comicinfo.series = data.get("title").get("romaji").strip()
         comicinfo.genre = ", ".join(data.get("genres")).strip()
         comicinfo.web = data.get("siteUrl").strip()
+        if data.get("volumes"):
+            comicinfo.count = data.get("volumes")
+
+        # Title (Series & LocalizedSeries)
+        title_english = data.get("title").get("english")
+        if cls.aniList_setting.get(AniListSetting.SeriesTitleLanguage) == 'True':
+            comicinfo.series = data.get("title").get("romaji").strip()
+            if title_english:
+                comicinfo.localized_series = title_english.strip()
+        else:
+            if title_english:
+                comicinfo.series = title_english.strip()
+                comicinfo.localized_series = data.get("title").get("romaji").strip()
+            else:
+                comicinfo.series = data.get("title").get("romaji").strip()
+
+        # Summary
+        comicinfo.summary = cls.strip_description_html_tags(data.get("description"))
 
         # People
         cls.update_people_from_mapping(data["staff"]["edges"], cls.person_mapper, comicinfo,

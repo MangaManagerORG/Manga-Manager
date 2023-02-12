@@ -1,5 +1,7 @@
 import abc
 from typing import final
+from io import StringIO
+from html.parser import HTMLParser
 
 from common.models import ComicInfo
 from .ExtensionsInterface import IMMExtension
@@ -35,9 +37,41 @@ class IMetadataSource(IMMExtension):
             for map_role in mapping:
                 if map_role == role:
                     for fields in mapping[map_role]:
-                        comicinfo.set_by_tag_name(fields, name.strip())
+                        old_name = comicinfo.get_by_tag_name(fields.strip())
+                        if old_name and old_name.strip() != "":
+                            name = old_name.strip() + ", " + name.strip()
+                        comicinfo.set_by_tag_name(fields.strip(), name.strip())
 
             print(f"No mapping found for: {name} as {role}")
+
+    def strip_description_html_tags(summary):
+        class MLStripper(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.reset()
+                self.strict = False
+                self.convert_charrefs = True
+                self.text = StringIO()
+
+            def handle_data(self, d):
+                self.text.write(d)
+
+            def get_data(self):
+                return self.text.getvalue()
+
+        s = MLStripper()
+        s.feed(summary.strip())
+        summary = s.get_data()
+        source_index = summary.find("Source")
+        if source_index != -1:
+            start_index = summary.find("(", 0, source_index)
+            end_index = summary.find(")", source_index)
+            if start_index != -1 and end_index != -1:
+                if summary[start_index - 1] == '\n':
+                    start_index -= 1
+                summary = summary[:start_index] + summary[end_index + 1:]
+
+        return summary.strip()
 
     @final
     def __init__(self):
@@ -50,3 +84,6 @@ class IMetadataSource(IMMExtension):
             for control in section.values:
                 Settings().set_default(section.key, control.key, control.value)
         Settings().save()
+
+        # Load any saved settings into memory to overwrite defaults
+        self.save_settings()
