@@ -11,7 +11,7 @@ icon_path = ResourceLoader.get('icon.ico')
 
 def execute_gui():
     # Populate settings with dynamically loaded classes
-    if not Settings().get(SettingHeading.ExternalSources, 'default_metadata_source') in list([source.name for source in sources_factory.get("MetadataSources")]):
+    if Settings().get(SettingHeading.ExternalSources, 'default_metadata_source') is "":
         Settings().set(SettingHeading.ExternalSources, 'default_metadata_source', 'AniList')
 
     if not Settings().get(SettingHeading.ExternalSources, 'default_cover_source') in list([source.name for source in sources_factory.get("CoverSources")]):
