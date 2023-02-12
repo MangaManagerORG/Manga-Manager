@@ -1,6 +1,5 @@
 import logging
 
-from src import sources_factory
 from src.Common import ResourceLoader
 from src.Layouts import layout_factory
 from src.Settings import Settings, SettingHeading
@@ -10,17 +9,12 @@ logger = logging.getLogger()
 icon_path = ResourceLoader.get('icon.ico')
 
 def execute_gui():
-    # Populate settings with dynamically loaded classes
-    if Settings().get(SettingHeading.ExternalSources, 'default_metadata_source') is "":
-        Settings().set(SettingHeading.ExternalSources, 'default_metadata_source', 'AniList')
+    # Ensure there are some settings, if not, set them as the default
+    Settings().set_default(SettingHeading.ExternalSources, 'default_metadata_source', "AniList")
+    Settings().set_default(SettingHeading.ExternalSources, 'default_cover_source', "MangaDex")
+    Settings().set_default(SettingHeading.Main, 'selected_layout', "default")
 
-    if not Settings().get(SettingHeading.ExternalSources, 'default_cover_source') in list([source.name for source in sources_factory.get("CoverSources")]):
-        Settings().set(SettingHeading.ExternalSources, 'default_cover_source', 'MangaDex')
-
-    if not Settings().get(SettingHeading.Main, 'selected_layout') in list(layout_factory):
-        Settings().set(SettingHeading.Main, 'selected_layout', 'default')
     layout_name = Settings().get(SettingHeading.Main, 'selected_layout')
-
     logger.info(f"Initializing '{layout_name}' layout")
     app = layout_factory.get(layout_name)()
 

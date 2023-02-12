@@ -24,16 +24,8 @@ SOURCES_DIR = Path(sub_mm_path, "ExternalSources")
 SOURCES_DIR.mkdir(exist_ok=True)
 
 
-sources_factory = {
-    "MetadataSources": [],
-    "CoverSources": []
-}
-
 from src.DynamicLibController.extension_manager import load_extensions
 try:
     loaded_extensions = load_extensions(EXTENSIONS_DIR)
 except Exception:
     logger.exception("Exception loading the extensions")
-
-# Load sources
-from src.DynamicLibController import sources_manager
