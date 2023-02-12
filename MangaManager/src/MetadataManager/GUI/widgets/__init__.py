@@ -2,7 +2,7 @@ from .MMWidget import MMWidget
 from .OptionMenuWidget import OptionMenuWidget
 from .LongTextWidget import LongTextWidget
 from .ScrolledFrameWidget import ScrolledFrameWidget
-from .TreeviewWidget import TreeviewWidget
+from .FileMultiSelectWidget import FileMultiSelectWidget
 from .ProgressBarWidget import ProgressBarWidget
 from .ButtonWidget import ButtonWidget
 from .WidgetManager import WidgetManager

@@ -11,6 +11,7 @@ class SettingsTest(unittest.TestCase):
     def setUp(self):
         print('Copying default file from ', os.getcwd().replace('tests', 'settings.ini'))
         shutil.copyfile(os.getcwd().replace('tests', 'settings.ini'), 'settings.ini')
+
     def tearDown(self):
         if os.path.exists('settings.ini'):
             print('Cleaning up created settings.ini')
@@ -28,6 +29,9 @@ class SettingsTest(unittest.TestCase):
 
         s.load()
         self.assertEqual(s.get(SettingHeading.Main, 'library_path'), 'test_dir')
+
+    def test_Settings_will_write_default_tag_if_not_exists(self):
+        pass
 
 
 

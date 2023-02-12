@@ -1,11 +1,12 @@
 import abc
 from typing import final
 
-from src.MetadataManager.comicinfo import ComicInfo
+from common.models import ComicInfo
+from .ExtensionsInterface import IMMExtension
 from src.Settings import Settings
 
 
-class IMetadataSource(abc.ABC):
+class IMetadataSource(IMMExtension):
     name = ''
     """
         A set of settings which will be found in the main settings dialog of Manga Manager and used for the source
@@ -22,6 +23,21 @@ class IMetadataSource(abc.ABC):
         When a setting update occurs, this is invoked and internal state should be updated from Settings()
         """
         pass
+
+    def update_people_from_mapping(people: list[object], mapping, comicinfo: ComicInfo, name_selector, role_selector):
+        if comicinfo is None:
+            return
+
+        for person in people:
+            name = name_selector(person)
+            role = role_selector(person)
+
+            for map_role in mapping:
+                if map_role == role:
+                    for fields in mapping[map_role]:
+                        comicinfo.set_by_tag_name(fields, name.strip())
+
+            print(f"No mapping found for: {name} as {role}")
 
     @final
     def __init__(self):

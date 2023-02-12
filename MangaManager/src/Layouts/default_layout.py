@@ -6,11 +6,12 @@ from tkinter.ttk import Notebook
 
 from pkg_resources import resource_filename
 
+from common.models import AgeRating, Formats
+from src.Common import ResourceLoader
 from src.Common.utils import open_folder
-from src.MetadataManager import comicinfo
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget
-from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, ProgressBarWidget
+from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, FileMultiSelectWidget, ProgressBarWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
 
@@ -69,8 +70,8 @@ class Layout(GUIApp):
         btn = ButtonWidget(master=control_frame, text="Open Files",
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
         try:
-            icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
-            btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+            icon_path = ResourceLoader.get("open_file.png")
+            btn.img_ref = tkinter.PhotoImage(name="open_file_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except:
             self.log.exception("Exception loading the open_file icon")
@@ -81,7 +82,7 @@ class Layout(GUIApp):
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         try:
-            icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+            icon_path = ResourceLoader.get("open_folder_icon.png")
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except:
@@ -114,7 +115,7 @@ class Layout(GUIApp):
 
         self.files_selected_frame.selected_files_label = tkinter.Label(self.files_selected_frame, text="Opened Files:")
         self.files_selected_frame.selected_files_label.pack(expand=False, fill="x")
-        self.selected_files_treeview = TreeviewWidget
+        self.selected_files_treeview = FileMultiSelectWidget
         self.selected_files_treeview.open_in_explorer = self._treeview_open_explorer
         self.selected_files_treeview.reset_loadedcinfo_changes = self._treview_reset
         self.selected_files_treeview = self.selected_files_treeview(self.files_selected_frame)#, padding=[-15, 0, 0, 0])  # padding -15 to remove the left indent
@@ -199,7 +200,7 @@ class Layout(GUIApp):
         com_age_rat_frame = Frame(parent_frame)
         com_age_rat_frame.pack(side="top", expand=False, fill="x")
         self.widget_mngr.AgeRating = OptionMenuWidget(com_age_rat_frame, "AgeRating", "Age Rating", width=18,
-                                                      default="Unknown", values=comicinfo.AgeRating.list()).pack(expand=True,
+                                                      default="Unknown", values=AgeRating.list()).pack(expand=True,
                                                                                                    fill="both",
                                                                                                    side="left")
 
@@ -271,7 +272,7 @@ class Layout(GUIApp):
                                                       ).grid(5, 0)
 
         self.widget_mngr.Format = OptionMenuWidget(parent_frame, "Format", "Format", width=18, default="",
-                                                   values=comicinfo.format_list).grid(5, 1)
+                                                   values=Formats).grid(5, 1)
 
         self.widget_mngr.BlackAndWhite = OptionMenuWidget(parent_frame, cinfo_name="BlackAndWhite", label_text="Black And White", width=18,
                                                           default="Unknown", values=("Unknown", "Yes", "No")).grid(6, 0)

@@ -3,7 +3,6 @@ import logging
 import platform
 import tkinter
 from idlelib.tooltip import Hovertip
-from os.path import abspath
 from tkinter import Frame, CENTER, Button, NW
 from tkinter import messagebox as mb
 from tkinter.filedialog import askopenfile
@@ -11,8 +10,8 @@ from tkinter.ttk import Treeview
 
 import numpy as np
 from PIL import Image, ImageTk
-from pkg_resources import resource_filename
 
+from src.Common import ResourceLoader
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
@@ -21,8 +20,7 @@ from src.MetadataManager.MetadataManagerGUI import GUIApp
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
-action_template = abspath(
-    resource_filename(__name__, '../../../res/cover_action_template.png'))  # TODO: Use resource factory
+action_template = ResourceLoader.get('cover_action_template.png')
 
 logger = logging.getLogger()
 overlay_image: Image = None
@@ -217,6 +215,8 @@ class CoverManager(tkinter.Toplevel):
         side_panel_control.pack(side="right", expand=False, fill="y")
         ctr_btn = Frame(self)
         ctr_btn.pack()
+        #
+        #
         tree = self.tree = Treeview(side_panel_control, columns=("Filename", "type"), show="headings", height=8)
         tree.column("#1")
         tree.heading("#1", text="Filename")
@@ -265,6 +265,7 @@ class CoverManager(tkinter.Toplevel):
         frame = ScrolledFrame(master=content_frame, scrolltype="vertical", usemousewheel=True)
         frame.pack(fill="both", expand=True)
         self.scrolled_widget = frame.innerframe
+
 
         self.tree_dict = {}
         self.prev_width = 0

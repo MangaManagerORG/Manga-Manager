@@ -4,13 +4,11 @@ import glob
 import logging
 import os
 import tkinter
-from os.path import abspath
 from tkinter import Tk, Frame, messagebox as mb
 
-from pkg_resources import resource_filename
-
+from common.models import ComicInfo
+from src.Common import ResourceLoader
 from src.Common.utils import get_platform, open_folder
-from src.MetadataManager import comicinfo
 from src.MetadataManager.GUI.ControlManager import ControlManager
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
@@ -28,6 +26,10 @@ from src.MetadataManager.GUI.SettingsWidgetManager import SettingsWidgetManager
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
 from src.__version__ import __version__
+
+
+# A mapping of UI Label -> field in ComicInfo
+
 
 
 class GUIApp(Tk, MetadataManagerLib):
@@ -67,13 +69,13 @@ class GUIApp(Tk, MetadataManagerLib):
         self.bind('<Control-f>', lambda x: self.fetch_online(self.widget_mngr.get_widget("Series")))
 
         # Icons
-        icon_path = abspath(resource_filename(__name__, '../../res/clear_icon.png'))
+        icon_path = ResourceLoader.get('clear_icon.png')
         self.clear_icon = tkinter.PhotoImage(name="clear_icon", master=self, file=icon_path)
 
-        icon_path = abspath(resource_filename(__name__, '../../res/fetch_online_ico.png'))
+        icon_path = ResourceLoader.get('fetch_online_ico.png')
         self.fetch_online_icon = tkinter.PhotoImage(name="fetch_online_icon", master=self, file=icon_path)
 
-        icon_path = abspath(resource_filename(__name__, '../../res/save_icon.png'))
+        icon_path = ResourceLoader.get('save_icon.png')
         self.save_icon = tkinter.PhotoImage(name="save_icon", master=self, file=icon_path)
 
     @property
@@ -309,7 +311,7 @@ class GUIApp(Tk, MetadataManagerLib):
             widget = self.widget_mngr.get_widget(cinfo_tag)
             tag_values = set()
             for loaded_cinfo in loaded_cinfo_list:
-                tag_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
+                tag_value = str(loaded_cinfo.cinfo_object.get_by_tag_name(cinfo_tag))
                 tag_values.add(tag_value if tag_value != widget.default else "")
             tag_values = tuple(tag_values)
             tag_values_len = len(tag_values)
@@ -341,7 +343,7 @@ class GUIApp(Tk, MetadataManagerLib):
         """
         # is_metadata_modified
         LOG_TAG = "[UI->CINFO] "
-        self.new_edited_cinfo = comicinfo.ComicInfo()
+        self.new_edited_cinfo = ComicInfo()
         for cinfo_tag in self.widget_mngr.get_tags():
             widget = self.widget_mngr.get_widget(cinfo_tag)
             widget_value = widget.widget.get()
@@ -349,17 +351,17 @@ class GUIApp(Tk, MetadataManagerLib):
             match widget_value:
                 case self.MULTIPLE_VALUES_CONFLICT:
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Keeping original")
-                    self.new_edited_cinfo.set_attr_by_name(cinfo_tag, self.MULTIPLE_VALUES_CONFLICT)
+                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, self.MULTIPLE_VALUES_CONFLICT)
                 case "None":
                     if widget.name == "Format":
-                        self.new_edited_cinfo.set_attr_by_name(cinfo_tag, "")
+                        self.new_edited_cinfo.set_by_tag_name(cinfo_tag, "")
                 case widget.default:  # If it matches the default then do nothing
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Has default value")
                 case "":
-                    self.new_edited_cinfo.set_attr_by_name(cinfo_tag, widget.default)
-                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted")
+                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, "")
+                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted or was empty")
                 case _:
-                    self.new_edited_cinfo.set_attr_by_name(cinfo_tag, widget_value)
+                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, widget_value)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")
                     # self.log.warning(f"Unhandled case: {widget_value}")
 
@@ -411,7 +413,7 @@ class GUIApp(Tk, MetadataManagerLib):
         else:
             for loaded_cinfo in self.selected_items:
                 _ = loaded_cinfo.cinfo_object
-                loaded_cinfo.cinfo_object.set_Series(os.path.basename(os.path.dirname(loaded_cinfo.file_path)))
+                loaded_cinfo.cinfo_object.series = os.path.basename(os.path.dirname(loaded_cinfo.file_path))
                 loaded_cinfo.has_changes = True
             self.show_not_saved_indicator(self.selected_items)
             self.widget_mngr.clean_widgets()

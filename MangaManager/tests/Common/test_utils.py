@@ -1,7 +1,7 @@
 import unittest
 
 from src.Common.utils import update_people_from_mapping
-from src.MetadataManager.comicinfo import ComicInfo
+from common.models import ComicInfo
 
 
 class MyTestCase(unittest.TestCase):
