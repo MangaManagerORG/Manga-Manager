@@ -50,3 +50,6 @@ class IMetadataSource(IMMExtension):
             for control in section.values:
                 Settings().set_default(section.key, control.key, control.value)
         Settings().save()
+
+        # Load any saved settings into memory to overwrite defaults
+        self.save_settings()
