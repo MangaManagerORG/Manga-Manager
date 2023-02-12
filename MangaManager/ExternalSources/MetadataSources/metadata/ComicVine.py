@@ -16,7 +16,7 @@ class ComicVine(IMetadataSource, ABC):
     def __init__(self):
         self.settings = [
             SettingSection(self.name, self.name, [
-                SettingControl('API Key', "API Key", SettingControlType.Text, "",
+                SettingControl('api_key', "API Key", SettingControlType.Text, "",
                                "API Key to communicate with ComicVine. This is required for the source"),
 
             ])
