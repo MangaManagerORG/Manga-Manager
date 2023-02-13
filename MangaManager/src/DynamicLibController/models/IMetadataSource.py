@@ -49,7 +49,16 @@ class IMetadataSource(IMMExtension):
 
             print(f"No mapping found for: {name} as {role}")
 
-    def strip_description_html_tags(summary):
+    def strip_description_html_tags(summary, removeSource):
+        """
+        summary: String
+        removeSource: Boolean
+
+        Removes HTML text like <br> from String
+        Removes "(Source ...)" from String when flag is set to True
+        """
+
+        # MLStripper: https://stackoverflow.com/a/925630
         class MLStripper(HTMLParser):
             def __init__(self):
                 super().__init__()
@@ -64,11 +73,14 @@ class IMetadataSource(IMMExtension):
             def get_data(self):
                 return self.text.getvalue()
 
+        # Remove HTML
         s = MLStripper()
         s.feed(summary.strip())
         summary = s.get_data()
+
+        # Remove "(Source ...)"
         source_index = summary.find("Source")
-        if source_index != -1:
+        if removeSource and source_index != -1:
             start_index = summary.find("(", 0, source_index)
             end_index = summary.find(")", source_index)
             if start_index != -1 and end_index != -1:

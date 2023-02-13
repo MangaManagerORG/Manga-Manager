@@ -120,7 +120,7 @@ class AniList(IMetadataSource):
                 comicinfo.series = data.get("title").get("romaji").strip()
 
         # Summary
-        comicinfo.summary = cls.strip_description_html_tags(data.get("description"))
+        comicinfo.summary = cls.strip_description_html_tags(data.get("description"), removeSource=True)
 
         # People
         cls.update_people_from_mapping(data["staff"]["edges"], cls.person_mapper, comicinfo,
