@@ -15,7 +15,7 @@ class IMetadataSource(IMMExtension):
 
     @classmethod
     @abc.abstractmethod
-    def get_cinfo(cls, partial_comic_info) -> ComicInfo:
+    def get_cinfo(cls, comic_info_from_ui: ComicInfo) -> ComicInfo:
         ...
 
     def save_settings(self):

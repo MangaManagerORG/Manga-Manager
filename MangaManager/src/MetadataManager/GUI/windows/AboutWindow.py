@@ -51,5 +51,4 @@ class AboutWindow:
         ButtonWidget(master=self.frame, text="Close", command=self.close).pack()
 
     def close(self):
-        self.frame.destroy()
         self.top_level.destroy()

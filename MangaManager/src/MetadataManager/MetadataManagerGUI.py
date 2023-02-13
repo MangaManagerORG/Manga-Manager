@@ -414,12 +414,13 @@ class GUIApp(Tk, MetadataManagerLib):
                            load_ext(parent_frame, super_=self)).pack(side="top")
 
     def process_fetch_online(self):
-        series_name = self.widget_mngr.get_widget("Series").get()
+        series_name = self.widget_mngr.get_widget("Series").get().strip()
         if series_name in (None, "", self.MULTIPLE_VALUES_CONFLICT):
             mb.showwarning("Not a valid series name", "The current series name is empty or not valid.")
             self.log.info("Not a valid series name - The current series name is empty or not valid.")
             return
 
+        # TODO: Populate temp with all fields from the UI
         temp = ComicInfo()
         temp.year = self.widget_mngr.get_widget("Year").get()
         temp.number = self.widget_mngr.get_widget("Number").get()

@@ -28,12 +28,12 @@ class ComicVine(IMetadataSource, ABC):
     def save_settings(self):
         pass
 
-    def get_cinfo(self, partial_comic_info: ComicInfo) -> ComicInfo | None:
+    def get_cinfo(self, comic_info_from_ui: ComicInfo) -> ComicInfo | None:
         comicinfo = ComicInfo()
         try:
-            content = self._search_by_title(partial_comic_info.series)
+            content = self._search_by_title(comic_info_from_ui.series)
         except MangaNotFoundError:
-            content = self._search_by_issue(partial_comic_info.series)
+            content = self._search_by_issue(comic_info_from_ui.series)
 
         if content is None:
             return None

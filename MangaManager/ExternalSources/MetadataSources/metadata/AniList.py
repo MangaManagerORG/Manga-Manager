@@ -77,12 +77,12 @@ class AniList(IMetadataSource):
         return ret
 
     @classmethod
-    def get_cinfo(cls, partial_comic_info) -> ComicInfo | None:
+    def get_cinfo(cls, comic_info_from_ui) -> ComicInfo | None:
         comicinfo = ComicInfo()
         try:
-            content = cls._search_for_manga_title_by_manga_title(partial_comic_info.series, "MANGA", {})
+            content = cls._search_for_manga_title_by_manga_title(comic_info_from_ui.series, "MANGA", {})
         except MangaNotFoundError:
-            content = cls.search_for_manga_title_by_manga_title_with_adult(partial_comic_info.series, "MANGA", {})
+            content = cls.search_for_manga_title_by_manga_title_with_adult(comic_info_from_ui.series, "MANGA", {})
 
         if content is None:
             return None
