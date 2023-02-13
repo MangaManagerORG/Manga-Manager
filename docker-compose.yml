@@ -11,7 +11,7 @@ version: "3.4"
 
 services:
   manga-manager:
-    image: thepromidius/manga-manager:rework
+    image: thepromidius/manga-manager:latest
     ports:
       # Web UI
       - "3000:3000"
