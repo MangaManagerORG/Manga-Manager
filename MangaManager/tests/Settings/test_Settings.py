@@ -1,15 +1,14 @@
 import os.path
 import unittest
-import shutil
 
 from src.Settings import SettingHeading, Settings
 
 
 class SettingsTest(unittest.TestCase):
 
-    def setUp(self):
-        print('Copying default file from ', os.getcwd().replace('tests', 'settings.ini'))
-        shutil.copyfile(os.getcwd().replace('tests', 'settings.ini'), 'settings.ini')
+    # def setUp(self):
+    #     print('Copying default file from ', os.getcwd().replace('tests', 'settings.ini'))
+    #     shutil.copyfile(os.getcwd().replace('tests', 'settings.ini'), 'settings.ini')
 
     def tearDown(self):
         if os.path.exists('settings.ini'):
