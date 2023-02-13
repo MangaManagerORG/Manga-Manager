@@ -1,6 +1,6 @@
 import configparser
-import os
 import logging
+import os
 
 from src.Settings import SettingHeading
 
@@ -42,6 +42,7 @@ class Settings:
         self.config_file = config_file
         if not os.path.exists(self.config_file):
             self.save()
+        self.load()
 
     def save(self):
         """Save the current settings from memory to disk"""
@@ -58,17 +59,17 @@ class Settings:
                 self.config_parser.add_section(section)
             for item in default_settings[section]:
                 for (key, value) in item.items():
-                    if self.config_parser.get(section, key) == "":
+                    if key not in self.config_parser[section] or self.config_parser.get(section, key) == "":
                         self.config_parser.set(section, key, str(value))
 
         self.save()
 
     def get(self, section, key):
         """Get a key's value, None if not present"""
-        if section not in self.config_parser or key not in self.config_parser[section]:
+        if not self.config_parser.has_section(section) or not self.config_parser.has_option(section, key):
             logger.error('Section or Key did not exist in settings: {}.{}'.format(section, key))
             return None
-        return self.config_parser[section][key].strip()
+        return self.config_parser.get(section, key).strip()
 
     def set_default(self, section, key, value):
         """Sets a key's value only if it doesn't exist"""
