@@ -193,9 +193,26 @@ class GUIApp(Tk, MetadataManagerLib):
 
         tkinter.Label(frame, text="Software licensed under the GNU General Public License v3.0",
                       font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
-        tkinter.Label(frame, text=f"Version number: {__version__}", font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
+
+        version_url = "https://github.com/MangaManagerORG/Manga-Manager/releases/latest"
+        parsed_version_tag = __version__.split(":")
+        version = __version__
+        try:
+            if len(parsed_version_tag) > 1:
+                if parsed_version_tag[1].startswith("nightly"):
+
+                    parsed_version_tag = parsed_version_tag[1].replace("nightly--","")
+                    shortened_shas = parsed_version_tag.split("->-")
+                    version = __version__.split("nightly")[0] + f"nightly:{shortened_shas[1]}"
+
+                    version_url = f"https://github.com/MangaManagerOrg/Manga-Manager/compare/{shortened_shas[0]}...{shortened_shas[1]}"
+        except Exception:
+            self.log.warning("Failed to parse version url. Defaulting to latest release")
+        HyperlinkLabelWidget(frame, "Version number", url_text=version,
+                             url=version_url).pack(fill="x", expand=True, side="top", anchor="center")
+        # tkinter.Label(frame, text=f"Version number: {__version__}", font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
         # create close button
-        ButtonWidget(master=frame, text="Close", command=frame.destroy).pack()
+        ButtonWidget(master=frame, text="Close", command=top_level.destroy).pack()
 
     def are_unsaved_changes(self, exist_unsaved_changes=False):
         """
