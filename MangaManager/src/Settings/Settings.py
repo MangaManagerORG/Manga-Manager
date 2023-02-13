@@ -1,6 +1,6 @@
 import configparser
-import os
 import logging
+import os
 
 from src.Settings import SettingHeading
 
@@ -58,8 +58,12 @@ class Settings:
                 self.config_parser.add_section(section)
             for item in default_settings[section]:
                 for (key, value) in item.items():
-                    if self.config_parser.get(section, key) == "":
-                        self.config_parser.set(section, key, str(value))
+                    try:
+                        if self.config_parser.get(section, key) == "":
+                            # self.config_parser[section].setdefault(key, "")
+                            self.config_parser.set(section, key, str(value))
+                    except configparser.NoOptionError:
+                        self.config_parser[section].setdefault(key, "")
 
         self.save()
 
