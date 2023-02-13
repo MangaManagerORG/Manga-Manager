@@ -123,7 +123,7 @@ class AniList(IMetadataSource):
         comicinfo.summary = cls.strip_description_html_tags(data.get("description"), removeSource=True)
 
         # People
-        cls.update_people_from_mapping(data["staff"]["edges"], cls.person_mapper, comicinfo,
+        cls.update_people_from_mapping(cls, data["staff"]["edges"], cls.person_mapper, comicinfo,
                                        lambda item: item["node"]["name"]["full"],
                                        lambda item: item["role"])
 

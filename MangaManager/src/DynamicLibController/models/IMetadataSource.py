@@ -43,9 +43,9 @@ class IMetadataSource(IMMExtension):
                     for fields in mapping[map_role]:
                         old_name = comicinfo.get_by_tag_name(fields.strip())
                         if old_name and old_name.strip() != "":
-                            comicinfo.append_by_tag_name(fields.strip(), self.merge(old_name, name))
+                            comicinfo.set_by_tag_name(fields.strip(), self.merge(self, old_name, name))
                         else:
-                            comicinfo.append_by_tag_name(fields.strip(), name.strip())
+                            comicinfo.set_by_tag_name(fields.strip(), name.strip())
 
             print(f"No mapping found for: {name} as {role}")
 
