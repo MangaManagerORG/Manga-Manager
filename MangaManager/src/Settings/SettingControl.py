@@ -30,3 +30,8 @@ class SettingControl(abc.ABC):
 
         if value == '' and type is SettingControlType.Bool:
             self.value = False
+
+    def set_values(self, values):
+        if self.control_type is not SettingControlType.Options:
+            return
+        self.values = values

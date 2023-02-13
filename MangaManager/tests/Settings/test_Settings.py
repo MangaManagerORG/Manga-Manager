@@ -2,8 +2,7 @@ import os.path
 import unittest
 import shutil
 
-from src.Settings import SettingHeading
-from src.Settings.Settings import Settings
+from src.Settings import SettingHeading, Settings
 
 
 class SettingsTest(unittest.TestCase):

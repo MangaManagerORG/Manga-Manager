@@ -10,11 +10,12 @@ from common.models import ComicInfo
 from src.Common import ResourceLoader
 from src.Common.utils import get_platform, open_folder
 from src.MetadataManager.GUI.ControlManager import ControlManager
+from src.MetadataManager.GUI.windows.AboutWindow import AboutWindow
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
 if get_platform() == "linux":
-    from src.MetadataManager.GUI.FileChooserWindow import askopenfiles,askdirectory
+    from src.MetadataManager.GUI.FileChooserWindow import askopenfiles, askdirectory
 else:
     from tkinter.filedialog import askopenfiles, askdirectory
 from _tkinter import TclError
@@ -26,10 +27,6 @@ from src.MetadataManager.GUI.SettingsWidgetManager import SettingsWidgetManager
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
 from src.__version__ import __version__
-
-
-# A mapping of UI Label -> field in ComicInfo
-
 
 
 class GUIApp(Tk, MetadataManagerLib):
@@ -162,7 +159,7 @@ class GUIApp(Tk, MetadataManagerLib):
         # Open select files dialog
 
         folder_path = askdirectory(initialdir=initial_dir)
-        self.selected_files_path = glob.glob(root_dir=folder_path,pathname=os.path.join(folder_path, "**/*.cbz"),recursive=True)
+        self.selected_files_path = glob.glob(root_dir=folder_path,pathname=os.path.join(folder_path, "**/*.cbz"), recursive=True)
         # TODO: Auto select recursive or not
         # self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
 
@@ -175,27 +172,10 @@ class GUIApp(Tk, MetadataManagerLib):
         self.widget_mngr.toggle_widgets(enabled=True)
 
     def show_settings(self):
-        print("Show_settings")
         SettingsWidgetManager(self)
 
     def show_about(self):
-
-        top_level = tkinter.Toplevel(self)
-        frame = Frame(top_level)
-        frame.pack(pady=30, padx=30,fill="both")
-        HyperlinkLabelWidget(frame, "Github repo:", url_text="Go to Github rework main page", url="https://github.com/MangaManagerORG/Manga-Manager/tree/rework/master").pack(fill="x", expand=True, side="top", anchor="center")
-        HyperlinkLabelWidget(frame, "Get support:", url_text="Join MangaManager channel in Kavita discord", url="https://discord.gg/kavita-821879810934439936").pack(fill="x", expand=True, side="top", anchor="center")
-        HyperlinkLabelWidget(frame, "Report issue in GitHub",url_text="Create GitHub Issue", url="https://github.com/MangaManagerORG/Manga-Manager/issues/new?assignees=ThePromidius&labels=Rework+Issue&template=rework_issue.md&title=%5BRework+Issue%5D").pack(
-            fill="x", expand=True, side="top", anchor="center")
-        HyperlinkLabelWidget(frame, "Donate in Ko-fi",
-                       "https://ko-fi.com/thepromidius").pack(fill="x", expand=True, side="top", anchor="center")
-        tkinter.Label(frame, text="", font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
-
-        tkinter.Label(frame, text="Software licensed under the GNU General Public License v3.0",
-                      font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
-        tkinter.Label(frame, text=f"Version number: {__version__}", font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
-        # create close button
-        ButtonWidget(master=frame, text="Close", command=frame.destroy).pack()
+        AboutWindow(self)
 
     def are_unsaved_changes(self, exist_unsaved_changes=False):
         """
@@ -434,12 +414,20 @@ class GUIApp(Tk, MetadataManagerLib):
                            load_ext(parent_frame, super_=self)).pack(side="top")
 
     def process_fetch_online(self):
-        series_name = self.widget_mngr.get_widget("Series").get()
+        series_name = self.widget_mngr.get_widget("Series").get().strip()
         if series_name in (None, "", self.MULTIPLE_VALUES_CONFLICT):
             mb.showwarning("Not a valid series name", "The current series name is empty or not valid.")
             self.log.info("Not a valid series name - The current series name is empty or not valid.")
             return
-        cinfo = self.fetch_online(series_name)
+
+        # TODO: Populate temp with all fields from the UI
+        temp = ComicInfo()
+        temp.year = self.widget_mngr.get_widget("Year").get()
+        temp.number = self.widget_mngr.get_widget("Number").get()
+        temp.volume = self.widget_mngr.get_widget("Volume").get()
+        temp.series = series_name
+
+        cinfo = self.fetch_online(temp)
         if cinfo is None:
             return
 

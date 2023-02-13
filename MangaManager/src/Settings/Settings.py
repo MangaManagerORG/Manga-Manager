@@ -58,7 +58,8 @@ class Settings:
                 self.config_parser.add_section(section)
             for item in default_settings[section]:
                 for (key, value) in item.items():
-                    self.config_parser[section][key] = str(value)
+                    if self.config_parser.get(section, key) == "":
+                        self.config_parser.set(section, key, str(value))
 
         self.save()
 
@@ -78,7 +79,7 @@ class Settings:
     def set(self, section, key, value):
         """Sets a key's value. Will Save to disk and reload Settings"""
         self._create_section(section)
-        self.config_parser[section][key] = value
+        self.config_parser.set(section, key, value)
         self.save()
         self.load()
 
