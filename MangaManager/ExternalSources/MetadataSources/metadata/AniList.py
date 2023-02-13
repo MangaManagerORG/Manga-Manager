@@ -58,8 +58,8 @@ class AniList(IMetadataSource):
         super(AniList, self).__init__()
 
     def save_settings(self):
-        self.aniList_setting[AniListSetting.SeriesTitleLanguage] = [
-            Settings().get(self.name, AniListSetting.SeriesTitleLanguage)]
+        self.aniList_setting[AniListSetting.SeriesTitleLanguage] = Settings().get(self.name,
+                                                                                  AniListSetting.SeriesTitleLanguage)
         self.person_mapper["Original Story"] = Settings().get(self.name, AniListPerson.OriginalStory).split(',')
         self.person_mapper["Character Design"] = Settings().get(self.name, AniListPerson.CharacterDesign).split(',')
         self.person_mapper["Story"] = Settings().get(self.name, AniListPerson.Story).split(',')
@@ -107,17 +107,17 @@ class AniList(IMetadataSource):
 
         # Title (Series & LocalizedSeries)
         title_english = data.get("title").get("english").strip()
-        # title_english = data.get("title").get("romaji").strip()
+        title_romaji = data.get("title").get("romaji").strip()
         if cls.aniList_setting.get(AniListSetting.SeriesTitleLanguage) == 'True':
-            comicinfo.series = data.get("title").get("romaji").strip()
+            comicinfo.series = title_romaji
             if title_english:
                 comicinfo.localized_series = title_english
         else:
             if title_english:
-                comicinfo.series = title_english.strip()
-                comicinfo.localized_series = data.get("title").get("romaji").strip()
+                comicinfo.series = title_english
+                comicinfo.localized_series = title_romaji
             else:
-                comicinfo.series = data.get("title").get("romaji").strip()
+                comicinfo.series = title_romaji
 
         # Summary
         comicinfo.summary = cls.strip_description_html_tags(data.get("description"), removeSource=True)
