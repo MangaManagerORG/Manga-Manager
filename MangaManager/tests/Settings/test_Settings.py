@@ -1,6 +1,5 @@
 import os.path
 import unittest
-import shutil
 
 from src.Settings import SettingHeading, Settings
 

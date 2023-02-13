@@ -9,14 +9,15 @@ env:
   $$_ENV_DEVELOPMENT_MM_$$: true
   IMAGE_NAME: "thepromidius/manga-manager"
 jobs:
-  build:
+  test_linux:
     env:
       DISPLAY: ":99.0"
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/test' }}
     strategy:
       matrix:
         python-version: [ '3.11' ]
-    name: Python ${{ matrix.python-version }} sample
+    name: Python ${{ matrix.python-version }} - Linux
     steps:
       -
         uses: actions/checkout@v3
@@ -36,7 +37,35 @@ jobs:
       -
         name: Run the tests
         run: |
-          python3 -m unittest discover -s MangaManager/tests -t MangaManager/
+          cd MangaManager
+          python -m unittest discover -s tests -t .
+  
+  
+
+#  test_windows:
+#    env:
+#      DISPLAY: ":99.0"
+#    runs-on: windows-latest
+#    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/test' }}
+#    strategy:
+#      matrix:
+#        python-version: [ '3.11' ]
+#    name: Python ${{ matrix.python-version }} - Windows
+#    steps:
+#      -
+#        uses: actions/checkout@v3
+#      -
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: ${{ matrix.python-version }}
+#          cache: 'pip'
+#      -
+#        run: pip install -r requirements.txt
+#      -
+#        name: Run the tests
+#        run: |
+#          cd MangaManager
+#          python -m unittest discover -s tests -t .
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
@@ -100,7 +129,7 @@ jobs:
 #          push: true
   docker_test:
     name: Test and Build - Test Version
-    needs: [ parse_versions]
+    needs: [test_linux, sonarcloud, parse_versions]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/test' }}
     steps:
@@ -169,7 +198,7 @@ jobs:
 #          push: true
   docker_nightly:
     name: Test and Build - Nightly Version
-    needs: [ parse_versions]
+    needs: [test_linux, sonarcloud, parse_versions ]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
     steps:
@@ -217,7 +246,7 @@ jobs:
 
   docker_stable:
     name: Stable Build
-    needs: [ build, sonarcloud ]
+    needs: [test_linux, sonarcloud ]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
