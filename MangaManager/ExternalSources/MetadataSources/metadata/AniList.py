@@ -31,7 +31,7 @@ class AniList(IMetadataSource):
     _log = logging.getLogger()
     # Map the Role from API to the ComicInfo tags to write
     person_mapper = {}
-    aniList_setting = {}
+    romaji_as_series = True
 
     def __init__(self):
         self.settings = [
@@ -58,8 +58,7 @@ class AniList(IMetadataSource):
         super(AniList, self).__init__()
 
     def save_settings(self):
-        self.aniList_setting[AniListSetting.SeriesTitleLanguage] = Settings().get(self.name,
-                                                                                  AniListSetting.SeriesTitleLanguage)
+        self.romaji_as_series = Settings().get(self.name, AniListSetting.SeriesTitleLanguage)
         self.person_mapper["Original Story"] = Settings().get(self.name, AniListPerson.OriginalStory).split(',')
         self.person_mapper["Character Design"] = Settings().get(self.name, AniListPerson.CharacterDesign).split(',')
         self.person_mapper["Story"] = Settings().get(self.name, AniListPerson.Story).split(',')
@@ -108,7 +107,7 @@ class AniList(IMetadataSource):
         # Title (Series & LocalizedSeries)
         title_english = data.get("title").get("english").strip()
         title_romaji = data.get("title").get("romaji").strip()
-        if cls.aniList_setting.get(AniListSetting.SeriesTitleLanguage) == 'True':
+        if cls.romaji_as_series:
             comicinfo.series = title_romaji
             if title_english:
                 comicinfo.localized_series = title_english
@@ -120,7 +119,7 @@ class AniList(IMetadataSource):
                 comicinfo.series = title_romaji
 
         # Summary
-        comicinfo.summary = cls.strip_description_html_tags(data.get("description"), removeSource=True)
+        comicinfo.summary = cls.strip_html_tags(data.get("description"), removeSource=True)
 
         # People
         cls.update_people_from_mapping(cls, data["staff"]["edges"], cls.person_mapper, comicinfo,

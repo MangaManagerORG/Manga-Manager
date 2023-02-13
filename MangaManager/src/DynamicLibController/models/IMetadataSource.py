@@ -49,7 +49,7 @@ class IMetadataSource(IMMExtension):
 
             print(f"No mapping found for: {name} as {role}")
 
-    def strip_description_html_tags(summary, removeSource):
+    def strip_html_tags(self, summary, removeSource):
         """
         summary: String
         removeSource: Boolean
