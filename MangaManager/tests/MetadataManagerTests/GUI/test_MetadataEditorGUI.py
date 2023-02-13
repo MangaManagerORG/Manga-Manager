@@ -1,15 +1,15 @@
-import random
 import glob
 import importlib
 import os
+import random
 from tkinter.filedialog import askopenfiles
 
 from common.models import ComicInfo
 from logging_setup import add_trace_level
 from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
-from tests.common import create_dummy_files, TKinterTestCase, parameterized_class
 from src.MetadataManager import MetadataManagerGUI
+from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
+from tests.common import create_dummy_files, TKinterTestCase, parameterized_class, create_test_cbz
 
 add_trace_level()
 layouts_path = os.path.abspath("src/Layouts")
@@ -134,7 +134,10 @@ class CinfoToUiTest(TKinterTestCase):
         self.GUI.is_test = True
         leftover_files = [listed for listed in os.listdir() if listed.startswith("Test__") and listed.endswith(".cbz")]
         for file in leftover_files:
-            os.remove(file)
+            try:
+                os.remove(file)
+            except PermissionError:
+                ...
         self.test_files_names = create_dummy_files(2)
 
     def tearDown(self) -> None:
@@ -184,6 +187,62 @@ class CinfoToUiTest(TKinterTestCase):
         # print("Assert final values match original")
         # self.assertEqual(app.MULTIPLE_VALUES_CONFLICT, app.new_edited_cinfo.series)
         app.destroy()
+
+
+@parameterized_class(('GUI',), loaded_layouts)
+class BulkLoadingTest(TKinterTestCase):
+
+    def setUp(self) -> None:
+        self.GUI.is_test = True
+        leftover_files = [listed for listed in os.listdir() if listed.startswith("Test__") and listed.endswith(".cbz")]
+        for file in leftover_files:
+            os.remove(file)
+
+        self.test_files_names = create_test_cbz(4, 3)
+
+    def tearDown(self) -> None:
+        MetadataManagerGUI.askopenfiles = askopenfiles
+        print("Teardown:")
+        try:
+            self.root.destroy()
+        except:
+            ...
+        for filename in self.test_files_names:
+            print(f"     Deleting: {filename}")  # , self._testMethodName)
+            try:
+                os.remove(filename)
+            except Exception as e:
+                print(e)
+
+    def test_bulk_selection(self):
+        """
+        This tests the flow of loading multiple file and selecting a single file.
+        It's expected that the merged comicinfo has the right data
+        :return:
+        """
+        def custom_askopenfiles(*_, **__):
+            return [open(filename, "r") for filename in self.test_files_names]
+
+        # MetadataManagerGUI.askopenfiles = custom_askopenfiles
+        self.root = app = self.GUI()
+        app.is_test = True
+        app.title("test_bulk_selection")
+        self.pump_events()
+
+
+        for i, filepath in enumerate(self.test_files_names):
+            cinfo = ComicInfo()
+            cinfo.set_by_tag_name("Series", f"Series_sample - {i}")
+            loaded_cinfo = LoadedComicInfo(filepath, comicinfo=cinfo).load_metadata()
+            app.loaded_cinfo_list.append(loaded_cinfo)
+            app.on_item_loaded(loaded_cinfo)
+
+        self.pump_events()
+        app.focus_set()
+        app.selected_files_treeview.selection_set(app.selected_files_treeview.get_children()[1])
+        self.pump_events()
+        app.focus_set()
+        self.assertFalse(any([True for lcinfo in app.loaded_cinfo_list if lcinfo.has_changes]))
 
 
 @parameterized_class(('GUI',), loaded_layouts)

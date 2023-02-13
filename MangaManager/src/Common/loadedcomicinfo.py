@@ -12,11 +12,10 @@ from typing import IO
 from PIL import Image, ImageTk
 from lxml.etree import XMLSyntaxError
 
-from src.Common.errors import CorruptedComicInfo, BadZipFile
+from common.models import ComicInfo
+from src.Common.errors import BadZipFile
 from src.Common.utils import IS_IMAGE_PATTERN, convert_to_webp
 from src.Common.utils import obtain_cover_filename, get_new_webp_name
-
-from common.models import ComicInfo
 
 logger = logging.getLogger("LoadedCInfo")
 
@@ -76,16 +75,24 @@ class LoadedComicInfo:
     changed_tags = []
 
     _cover_action: CoverActions | None = None
+    # Path to the new cover selected by the user
     _new_cover_path: str | None = None
     new_cover_cache: ImageTk.PhotoImage | None = None
-
+    # Path to the new backcover selected by the user
     _backcover_action: CoverActions | None = None
     _new_backcover_path: str | None = None
     new_backcover_cache: ImageTk.PhotoImage | None = None
 
+    def get_cover_cache(self, is_backcover=False) -> ImageTk.PhotoImage | None:
+        if self._cover_action is None:
+            return self.backcover_cache if is_backcover else self.cover_cache
+        else:
+            return self.new_backcover_cache if is_backcover else self.new_cover_cache
+
     @property
     def cover_action(self):
         return self._cover_action
+
     @cover_action.setter
     def cover_action(self, value: CoverActions):
         if value == CoverActions.RESET:
@@ -95,9 +102,11 @@ class LoadedComicInfo:
         else:
             self._cover_action = value
             self.has_changes = True
+
     @property
     def backcover_action(self):
         return self._backcover_action
+
     @backcover_action.setter
     def backcover_action(self, value: CoverActions):
         if value == CoverActions.RESET:
@@ -107,7 +116,6 @@ class LoadedComicInfo:
         else:
             self._backcover_action = value
             self.has_changes = True
-
 
     @property
     def new_cover_path(self):
@@ -355,7 +363,7 @@ class LoadedComicInfo:
             with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
                 # Write the new metadata once
                 if write_metadata:
-                    self.cinfo_object.page_count = len([file_ for file_ in zin.namelist() if IS_IMAGE_PATTERN.match(file_)])
+                    # self.cinfo_object.page_count = len([file_ for file_ in zin.namelist() if IS_IMAGE_PATTERN.match(file_)])
                     zout.writestr(COMICINFO_FILE, self._export_metadata())
                     logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
                     # Directly backup the metadata if it's at root.

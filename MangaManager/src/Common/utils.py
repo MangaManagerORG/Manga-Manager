@@ -9,7 +9,6 @@ from io import BytesIO
 from pathlib import Path
 from typing import IO
 
-from common.models import ComicInfo
 from src.Common.naturalsorter import natsort_key_with_path_support
 
 # Patterns for picking cover
