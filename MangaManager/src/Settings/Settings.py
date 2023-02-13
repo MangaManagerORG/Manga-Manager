@@ -1,6 +1,6 @@
 import configparser
-import os
 import logging
+import os
 
 from src.Settings import SettingHeading
 
