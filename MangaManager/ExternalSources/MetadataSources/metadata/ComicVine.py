@@ -70,7 +70,7 @@ class ComicVine(IMetadataSource, ABC):
         self._log.debug(f'Query: {url}')
         #self._log.debug(f'Response JSON: {response.json()}')
         try:
-            return response.json()['data']['Media']
+            return response.json()['results']
         except TypeError:
             return None
         pass

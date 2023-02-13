@@ -40,8 +40,7 @@ setting_control_map = {
 
 # TODO: Load dynamically loaded extensions (this will be moved in another PR)
 providers = [ScraperFactory().get_scraper("MangaUpdates"),
-             ScraperFactory().get_scraper("AniList"),
-             ScraperFactory().get_scraper("ComicVine")]
+             ScraperFactory().get_scraper("AniList")]
 
 
 def populate_default_settings():
