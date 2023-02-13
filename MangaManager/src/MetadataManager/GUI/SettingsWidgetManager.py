@@ -31,13 +31,16 @@ setting_control_map = {
 
     },
     SettingHeading.ExternalSources: {
-        "default_metadata_source": SettingControl("default_metadata_source", "Default metadata source", SettingControlType.Options, "The source that will be hit when looking for metadata"),
+        "default_metadata_source": SettingControl("default_metadata_source", "Default metadata source",
+                                                  SettingControlType.Options,
+                                                  "The source that will be hit when looking for metadata"),
         "default_cover_source": SettingControl("default_cover_source", "Default cover source", SettingControlType.Options, "The source that will be hit when looking for cover images"),
     },
 }
 
 # TODO: Load dynamically loaded extensions (this will be moved in another PR)
-providers = [ScraperFactory().get_scraper("MangaUpdates"), ScraperFactory().get_scraper("AniList")]
+providers = [ScraperFactory().get_scraper("MangaUpdates"),
+             ScraperFactory().get_scraper("AniList")]
 
 
 def populate_default_settings():
@@ -53,6 +56,12 @@ def populate_default_settings():
 
                 controls.append(value)
         default_settings[section] = SettingSection(section, section, controls)
+
+    # Setup extension based settings
+    for metadata_source in default_settings[SettingHeading.ExternalSources].values:
+        if metadata_source.key == 'default_metadata_source':
+            metadata_source.set_values([p.name for p in providers])
+
     return default_settings
 
 

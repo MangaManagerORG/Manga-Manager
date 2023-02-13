@@ -15,7 +15,7 @@ class IMetadataSource(IMMExtension):
 
     @classmethod
     @abc.abstractmethod
-    def get_cinfo(cls, series_name) -> ComicInfo:
+    def get_cinfo(cls, comic_info_from_ui: ComicInfo) -> ComicInfo:
         ...
 
     def save_settings(self):
@@ -50,3 +50,6 @@ class IMetadataSource(IMMExtension):
             for control in section.values:
                 Settings().set_default(section.key, control.key, control.value)
         Settings().save()
+
+        # Load any saved settings into memory to overwrite defaults
+        self.save_settings()

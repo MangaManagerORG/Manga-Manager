@@ -5,16 +5,15 @@ import logging
 from abc import ABC
 
 from ExternalSources.MetadataSources.metadata import ScraperFactory
-from common.models import ComicInfo
-from src import sources_factory
+
 from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.terminalcolors import TerminalColors as TerCol
+from common.models import ComicInfo
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 
-AniList = [source for source in sources_factory.get("MetadataSources") if source.name == "AniList"]
 
 logger = logging.getLogger("MetaManager.Core")
 
@@ -80,7 +79,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                              "Imprint", "Genre", "Tags", "Web", "PageCount", "LanguageISO", "Format", "BlackAndWhite",
                              "Manga", "Characters", "Teams", "Locations", "ScanInformation", "StoryArc",
                              "StoryArcNumber", "SeriesGroup", "AgeRating", "CommunityRating",
-                             "MainCharacterOrTeam","Other", "Review",
+                             "MainCharacterOrTeam", "Other", "Review",
     ]
     MULTIPLE_VALUES_CONFLICT = "~~## Keep Original Value ##~~"
     tags_with_multiple_values = []
@@ -214,16 +213,16 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         """
         ...
 
-    def fetch_online(self, series_name):
+    def fetch_online(self, partial_comic_info):
         selected_source = ScraperFactory().get_scraper(Settings().get(SettingHeading.ExternalSources, 'default_metadata_source'))
         if not selected_source:
             raise Exception("Unhandled exception. Metadata sources are not loaded or there's a bug in it."
                             "Raise an issue if this happens.")
         try:
-            return selected_source.get_cinfo(series_name)
+            return selected_source.get_cinfo(partial_comic_info)
         except MangaNotFoundError as e:
             logger.exception(str(e))
-            self.on_manga_not_found(e, series_name)
+            self.on_manga_not_found(e, partial_comic_info)
             return None
 
 
