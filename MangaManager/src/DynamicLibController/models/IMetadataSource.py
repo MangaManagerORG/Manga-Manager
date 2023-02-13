@@ -26,7 +26,11 @@ class IMetadataSource(IMMExtension):
         """
         pass
 
-    def update_people_from_mapping(people: list[object], mapping, comicinfo: ComicInfo, name_selector, role_selector):
+    def merge(self, value1, value2):
+        return self.trim(value1 + "," + value2)
+
+    def update_people_from_mapping(self, people: list[object], mapping, comicinfo: ComicInfo, name_selector,
+                                   role_selector):
         if comicinfo is None:
             return
 
@@ -39,8 +43,9 @@ class IMetadataSource(IMMExtension):
                     for fields in mapping[map_role]:
                         old_name = comicinfo.get_by_tag_name(fields.strip())
                         if old_name and old_name.strip() != "":
-                            name = old_name.strip() + ", " + name.strip()
-                        comicinfo.set_by_tag_name(fields.strip(), name.strip())
+                            comicinfo.append_by_tag_name(fields.strip(), self.merge(old_name, name))
+                        else:
+                            comicinfo.append_by_tag_name(fields.strip(), name.strip())
 
             print(f"No mapping found for: {name} as {role}")
 
