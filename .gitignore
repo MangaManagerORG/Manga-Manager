@@ -254,3 +254,4 @@ settings.ini
 
 # From Tests
 /MangaManager/*.cbz
+/.idea
