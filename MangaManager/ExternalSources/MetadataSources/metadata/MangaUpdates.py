@@ -81,7 +81,7 @@ class MangaUpdates(IMetadataSource):
         comicinfo.year = data["year"]
 
         # People Info
-        cls.update_people_from_mapping(data["authors"], cls.person_mapper, comicinfo,
+        cls.update_people_from_mapping(cls, data["authors"], cls.person_mapper, comicinfo,
                                    lambda item: item["name"],
                                    lambda item: item["type"])
 
