@@ -1,4 +1,5 @@
 import abc
+import logging
 from typing import final
 from io import StringIO
 from html.parser import HTMLParser
@@ -14,6 +15,7 @@ class IMetadataSource(IMMExtension):
         A set of settings which will be found in the main settings dialog of Manga Manager and used for the source
     """
     settings = []
+    logger = None
 
     @classmethod
     @abc.abstractmethod
@@ -49,7 +51,8 @@ class IMetadataSource(IMMExtension):
 
             print(f"No mapping found for: {name} as {role}")
 
-    def strip_html_tags(self, summary, removeSource):
+    @staticmethod
+    def clean_description(summary, removeSource):
         """
         summary: String
         removeSource: Boolean
@@ -96,6 +99,7 @@ class IMetadataSource(IMMExtension):
             raise ValueError(
                 f"Error initializing the {self.__class__.__name__} Extension. The 'name' attribute must be set in the CoverSource class.")
 
+        self.logger = logging.getLogger(f'{self.__module__}.{self.__name__}')
         # Save any default settings to ini
         for section in self.settings:
             for control in section.values:

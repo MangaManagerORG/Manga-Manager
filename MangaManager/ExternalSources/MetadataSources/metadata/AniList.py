@@ -83,7 +83,7 @@ class AniList(IMetadataSource):
         return ret
 
     @classmethod
-    def get_cinfo(cls, comic_info_from_ui) -> ComicInfo | None:
+    def get_cinfo(cls, comic_info_from_ui: ComicInfo) -> ComicInfo | None:
         comicinfo = ComicInfo()
         try:
             content = cls._search_for_manga_title_by_manga_title(comic_info_from_ui.series, "MANGA", {})
@@ -105,21 +105,17 @@ class AniList(IMetadataSource):
             comicinfo.count = data.get("volumes")
 
         # Title (Series & LocalizedSeries)
-        title_english = data.get("title").get("english").strip()
-        title_romaji = data.get("title").get("romaji").strip()
+        title_english = data.get("title").get("english").strip() or ""
+        title_romaji = data.get("title").get("romaji").strip() or ""
         if cls.romaji_as_series:
             comicinfo.series = title_romaji
-            if title_english:
-                comicinfo.localized_series = title_english
+            comicinfo.localized_series = title_english
         else:
-            if title_english:
-                comicinfo.series = title_english
-                comicinfo.localized_series = title_romaji
-            else:
-                comicinfo.series = title_romaji
+            comicinfo.series = title_english
+            comicinfo.localized_series = title_romaji
 
         # Summary
-        comicinfo.summary = cls.strip_html_tags(data.get("description"), removeSource=True)
+        comicinfo.summary = IMetadataSource.clean_description(data.get("description"), removeSource=True)
 
         # People
         cls.update_people_from_mapping(cls, data["staff"]["edges"], cls.person_mapper, comicinfo,
@@ -128,11 +124,6 @@ class AniList(IMetadataSource):
 
         return comicinfo
 
-    # TODO: Remove this method and make logger creation in __init__
-    @classmethod
-    def initialize(cls):
-        cls._log = logging.getLogger(f'{cls.__module__}.{cls.__name__}')
-
     @classmethod
     def _post(cls, query, variables, logging_info):
         try:
@@ -140,14 +131,14 @@ class AniList(IMetadataSource):
             if response.status_code == 429:  # Anilist rate-limit code
                 raise AniListRateLimit()
         except Exception as e:
-            cls._log.exception(e, extra=logging_info)
-            cls._log.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
+            cls.logger.exception(e, extra=logging_info)
+            cls.logger.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
                              extra=logging_info)
             return None
 
-        cls._log.debug(f'Query: {query}')
-        cls._log.debug(f'Variables: {variables}')
-        # cls._log.debug(f'Response JSON: {response.json()}')
+        cls.logger.debug(f'Query: {query}')
+        cls.logger.debug(f'Variables: {variables}')
+        # self.logger.debug(f'Response JSON: {response.json()}')
         try:
             return response.json()['data']['Media']
         except TypeError:

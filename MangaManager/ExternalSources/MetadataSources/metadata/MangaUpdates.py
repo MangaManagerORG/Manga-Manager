@@ -66,15 +66,16 @@ class MangaUpdates(IMetadataSource):
 
     @classmethod
     def get_cinfo(cls, comic_info_from_ui) -> ComicInfo | None:
+        # We need to take what's already in the UI and allow fetching to merge the data in
         comicinfo = ComicInfo()
         
         data = cls._get_series_details(comic_info_from_ui.series, {})
 
         # Basic Info
         comicinfo.series = data["title"].strip()
-        comicinfo.summary = data["description"].strip()
-        comicinfo.genre = ", ".join([ i["genre"] for i in data["genres"] ]).strip()
-        comicinfo.tags = ", ".join([ i["category"] for i in data["categories"] ])
+        comicinfo.summary = IMetadataSource.clean_description(data.get("description"), removeSource=True)
+        comicinfo.genre = ", ".join([i["genre"] for i in data["genres"]]).strip()
+        comicinfo.tags = ", ".join([i["category"] for i in data["categories"]])
         comicinfo.web = data["url"].strip()
         comicinfo.manga = "Yes" if data["type"] == "Manga" else "No"
         comicinfo.year = data["year"]
@@ -84,7 +85,7 @@ class MangaUpdates(IMetadataSource):
                                    lambda item: item["name"],
                                    lambda item: item["type"])
 
-        #comicinfo.set_Publisher(", ".join([ i["publisher_name"] for i in data["publishers"] ]))
+        comicinfo.publisher = (", ".join([ i["publisher_name"] for i in data["publishers"] ]))
 
         # Extended
         comicinfo.community_rating = round(data["bayesian_rating"]/2, 1)
@@ -92,21 +93,17 @@ class MangaUpdates(IMetadataSource):
         return comicinfo
 
     @classmethod
-    def initialize(cls):
-        cls._log = logging.getLogger(f'{cls.__module__}.{cls.__name__}')
-
-    @classmethod
     def _get_series_id(cls, search_params, logging_info):
         try:
             response = requests.post('https://api.mangaupdates.com/v1/series/search', json=search_params)
         except Exception as e:
-            cls._log.exception(e, extra=logging_info)
-            cls._log.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
+            cls.logger.exception(e, extra=logging_info)
+            cls.logger.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
                              extra=logging_info)
             return None
 
-        cls._log.debug(f'Search Params: {search_params}')
-        # cls._log.debug(f'Response JSON: {response.json()}')
+        cls.logger.debug(f'Search Params: {search_params}')
+        # cls.logger.debug(f'Response JSON: {response.json()}')
 
         if len(response.json()['results']) == 0:
             raise MangaNotFoundError("MangaUpdates",search_params['search'])
@@ -126,8 +123,8 @@ class MangaUpdates(IMetadataSource):
         try:
             series_details = requests.get('https://api.mangaupdates.com/v1/series/' + str(cls._get_series_id(search_params, {})))
         except Exception as e:
-            cls._log.exception(e, extra=logging_info)
-            cls._log.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
+            cls.logger.exception(e, extra=logging_info)
+            cls.logger.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
                              extra=logging_info)
             return None
             
