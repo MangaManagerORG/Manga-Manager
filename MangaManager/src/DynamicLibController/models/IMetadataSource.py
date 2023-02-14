@@ -99,7 +99,7 @@ class IMetadataSource(IMMExtension):
             raise ValueError(
                 f"Error initializing the {self.__class__.__name__} Extension. The 'name' attribute must be set in the CoverSource class.")
 
-        self.logger = logging.getLogger(f'{self.__module__}.{self.__name__}')
+        self.logger = logging.getLogger(f'{self.__module__}.{self.__class__.__name__}')
         # Save any default settings to ini
         for section in self.settings:
             for control in section.values:
