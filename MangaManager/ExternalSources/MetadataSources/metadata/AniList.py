@@ -15,39 +15,42 @@ from src.Settings.Settings import Settings
 
 
 class AniListPerson(StrEnum):
-    OriginalStory = "original_story",
-    CharacterDesign = "character_design",
-    StoryAndArt = "story_and_art",
+    OriginalStory = "original_story",  # Original Story
+    CharacterDesign = "character_design",  # Character Design
+    Story = "story",  # Story
+    Art = "art",  # Art
+    Assistant = "assistant",  # Assistant
+
+
+class AniListSetting(StrEnum):
+    SeriesTitleLanguage = "series_title_language",
 
 
 class AniList(IMetadataSource):
     name = "AniList"
     _log = logging.getLogger()
     # Map the Role from API to the ComicInfo tags to write
-    person_mapper = {
-        "Writer": [
-            "Writer"
-        ],
-        "Character Design": [
-            "Penciller"
-        ],
-        "Story & Art": [
-            "Writer",
-            "Penciller",
-            "Inker",
-            "CoverArtist"
-        ]
-    }
+    person_mapper = {}
+    romaji_as_series = True
 
     def __init__(self):
         self.settings = [
             SettingSection(self.name, self.name, [
+                SettingControl(AniListSetting.SeriesTitleLanguage, "Prefer Romaji Series Title Language",
+                               SettingControlType.Bool, True,
+                               ("How metadata field will map to Series and LocalizedSeries fields\n"
+                                "true: Romaji->Series, English->LocalizedSeries\n"
+                                "false: English->Series, Romaji->LocalizedSeries\n"
+                                "Always Romaji->Series when no English")),
                 SettingControl(AniListPerson.OriginalStory, "Original Story", SettingControlType.Text, "Writer",
                                "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
                 SettingControl(AniListPerson.CharacterDesign, "Character Design", SettingControlType.Text, "Penciller",
                                "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
-                SettingControl(AniListPerson.StoryAndArt, "Story & Art", SettingControlType.Text,
-                               "Writer, Penciller, Inker, CoverArtist",
+                SettingControl(AniListPerson.Story, "Story", SettingControlType.Text, "Writer",
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
+                SettingControl(AniListPerson.Art, "Art", SettingControlType.Text, "Penciller, Inker, CoverArtist",
+                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
+                SettingControl(AniListPerson.Assistant, "Assistant", SettingControlType.Text, "",
                                "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
             ])
         ]
@@ -55,11 +58,14 @@ class AniList(IMetadataSource):
         super(AniList, self).__init__()
 
     def save_settings(self):
-        self.person_mapper[AniListPerson.OriginalStory] = Settings().get(self.name, AniListPerson.OriginalStory).split(
-            ',')
-        self.person_mapper[AniListPerson.CharacterDesign] = Settings().get(self.name,
-                                                                           AniListPerson.CharacterDesign).split(',')
-        self.person_mapper[AniListPerson.StoryAndArt] = Settings().get(self.name, AniListPerson.StoryAndArt).split(',')
+        self.romaji_as_series = Settings().get(self.name, AniListSetting.SeriesTitleLanguage)
+        self.person_mapper["Original Story"] = Settings().get(self.name, AniListPerson.OriginalStory).split(',')
+        self.person_mapper["Character Design"] = Settings().get(self.name, AniListPerson.CharacterDesign).split(',')
+        self.person_mapper["Story"] = Settings().get(self.name, AniListPerson.Story).split(',')
+        self.person_mapper["Art"] = Settings().get(self.name, AniListPerson.Art).split(',')
+        self.person_mapper["Story & Art"] = Settings().get(self.name, AniListPerson.Story).split(',') + Settings().get(
+            self.name, AniListPerson.Art).split(',')
+        self.person_mapper["Assistant"] = Settings().get(self.name, AniListPerson.Assistant).split(',')
 
     @staticmethod
     def is_valid_person_tag(key, value):
@@ -77,7 +83,7 @@ class AniList(IMetadataSource):
         return ret
 
     @classmethod
-    def get_cinfo(cls, comic_info_from_ui) -> ComicInfo | None:
+    def get_cinfo(cls, comic_info_from_ui: ComicInfo) -> ComicInfo | None:
         comicinfo = ComicInfo()
         try:
             content = cls._search_for_manga_title_by_manga_title(comic_info_from_ui.series, "MANGA", {})
@@ -90,25 +96,33 @@ class AniList(IMetadataSource):
         data = cls._search_details_by_series_id(content, "MANGA", {})
 
         startdate = data.get("startDate")
-        comicinfo.summary = data.get("description").strip()
         comicinfo.day = startdate.get("day")
         comicinfo.month = startdate.get("month")
         comicinfo.year = startdate.get("year")
-        comicinfo.series = data.get("title").get("romaji").strip()
         comicinfo.genre = ", ".join(data.get("genres")).strip()
         comicinfo.web = data.get("siteUrl").strip()
+        if data.get("volumes"):
+            comicinfo.count = data.get("volumes")
+
+        # Title (Series & LocalizedSeries)
+        title_english = data.get("title").get("english").strip() or ""
+        title_romaji = data.get("title").get("romaji").strip() or ""
+        if cls.romaji_as_series:
+            comicinfo.series = title_romaji
+            comicinfo.localized_series = title_english
+        else:
+            comicinfo.series = title_english
+            comicinfo.localized_series = title_romaji
+
+        # Summary
+        comicinfo.summary = IMetadataSource.clean_description(data.get("description"), removeSource=True)
 
         # People
-        cls.update_people_from_mapping(data["staff"]["edges"], cls.person_mapper, comicinfo,
+        cls.update_people_from_mapping(cls, data["staff"]["edges"], cls.person_mapper, comicinfo,
                                        lambda item: item["node"]["name"]["full"],
                                        lambda item: item["role"])
 
         return comicinfo
-
-    # TODO: Remove this method and make logger creation in __init__
-    @classmethod
-    def initialize(cls):
-        cls._log = logging.getLogger(f'{cls.__module__}.{cls.__name__}')
 
     @classmethod
     def _post(cls, query, variables, logging_info):
@@ -117,14 +131,14 @@ class AniList(IMetadataSource):
             if response.status_code == 429:  # Anilist rate-limit code
                 raise AniListRateLimit()
         except Exception as e:
-            cls._log.exception(e, extra=logging_info)
-            cls._log.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
+            cls.logger.exception(e, extra=logging_info)
+            cls.logger.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
                              extra=logging_info)
             return None
 
-        cls._log.debug(f'Query: {query}')
-        cls._log.debug(f'Variables: {variables}')
-        # cls._log.debug(f'Response JSON: {response.json()}')
+        cls.logger.debug(f'Query: {query}')
+        cls.logger.debug(f'Variables: {variables}')
+        # self.logger.debug(f'Response JSON: {response.json()}')
         try:
             return response.json()['data']['Media']
         except TypeError:
