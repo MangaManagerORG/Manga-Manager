@@ -8,6 +8,21 @@ from common.models import ComicInfo
 from .ExtensionsInterface import IMMExtension
 from src.Settings import Settings
 
+# MLStripper: https://stackoverflow.com/a/925630
+class MLStripper(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.reset()
+        self.strict = False
+        self.convert_charrefs = True
+        self.text = StringIO()
+
+    def handle_data(self, d):
+        self.text.write(d)
+
+    def get_data(self):
+        return self.text.getvalue()
+
 
 class IMetadataSource(IMMExtension):
     name = ''
@@ -60,22 +75,6 @@ class IMetadataSource(IMMExtension):
         Removes HTML text like <br> from String
         Removes "(Source ...)" from String when flag is set to True
         """
-
-        # MLStripper: https://stackoverflow.com/a/925630
-        class MLStripper(HTMLParser):
-            def __init__(self):
-                super().__init__()
-                self.reset()
-                self.strict = False
-                self.convert_charrefs = True
-                self.text = StringIO()
-
-            def handle_data(self, d):
-                self.text.write(d)
-
-            def get_data(self):
-                return self.text.getvalue()
-
         # Remove HTML
         s = MLStripper()
         s.feed(summary.strip())
