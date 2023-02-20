@@ -1,15 +1,14 @@
 import copy
 import logging
+import numpy as np
 import platform
 import tkinter
+from PIL import Image, ImageTk
 from idlelib.tooltip import Hovertip
 from tkinter import Frame, CENTER, Button, NW
 from tkinter import messagebox as mb
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Treeview
-
-import numpy as np
-from PIL import Image, ImageTk
 
 from src.Common import ResourceLoader
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
@@ -428,7 +427,7 @@ class CoverManager(tkinter.Toplevel):
         :param comicframe: The comicframe the lcinfo is linked to
         :return:
         """
-        image = lcinfo.cover_cache(is_backcover)
+        image = lcinfo.get_cover_cache(is_backcover)
         if image is None:
             logger.error(f"Failed to compare cover image. File is not loaded. File '{lcinfo.file_name}'")
         else:
