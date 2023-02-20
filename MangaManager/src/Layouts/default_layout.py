@@ -1,17 +1,14 @@
 import os
 import tkinter
-from os.path import abspath
 from tkinter import Frame
 from tkinter.ttk import Notebook
-
-from pkg_resources import resource_filename
 
 from common.models import AgeRating, Formats
 from src.Common import ResourceLoader
 from src.Common.utils import open_folder
-from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.GUI.widgets import ComboBoxWidget, LongTextWidget, OptionMenuWidget
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, FileMultiSelectWidget, ProgressBarWidget
+from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
 
@@ -82,10 +79,10 @@ class Layout(GUIApp):
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         try:
-            icon_path = ResourceLoader.get("open_folder_icon.png")
+            icon_path = ResourceLoader.get("open_folder.png")
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
-        except:
+        except Exception:
             self.log.exception("Exception loading the open_file icon")
         btn.configure(compound="left")
         btn.configure(command=self.select_folder)
@@ -106,6 +103,7 @@ class Layout(GUIApp):
         btn.configure(command=self.pre_process)
         btn.pack(side="left", fill="y")
         self.control_mngr.append(btn)
+
     def display_side_bar(self) -> None:
 
         self.side_info_frame = Frame(self.main_frame)
