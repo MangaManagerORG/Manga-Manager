@@ -1,14 +1,15 @@
 import copy
 import logging
-import numpy as np
 import platform
 import tkinter
-from PIL import Image, ImageTk
 from idlelib.tooltip import Hovertip
 from tkinter import Frame, CENTER, Button, NW
 from tkinter import messagebox as mb
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Treeview
+
+import numpy as np
+from PIL import Image, ImageTk
 
 from src.Common import ResourceLoader
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
@@ -146,7 +147,7 @@ class CoverManager(tkinter.Toplevel):
             self._super = super_
         global overlay_image
         overlay_image = Image.open(action_template)
-        overlay_image = overlay_image.resize((190, 260), Image.ANTIALIAS)
+        overlay_image = overlay_image.resize((190, 260), Image.LANCZOS)
 
         self.serve_gui()
         self.bind("<Configure>", self.redraw)

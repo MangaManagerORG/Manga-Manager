@@ -176,7 +176,7 @@ class LoadedFileCoverData:
             self.new_cover_cache = None
             return
         image = Image.open(path)
-        image = image.resize((190, 260), Image.ANTIALIAS)
+        image = image.resize((190, 260), Image.LANCZOS)
         try:
             self.new_cover_cache = ImageTk.PhotoImage(image)
         except RuntimeError:
@@ -194,7 +194,7 @@ class LoadedFileCoverData:
             self.new_backcover_cache = None
             return
         image = Image.open(path)
-        image = image.resize((190, 260), Image.ANTIALIAS)
+        image = image.resize((190, 260), Image.LANCZOS)
         try:
             self.new_backcover_cache = ImageTk.PhotoImage(image)
         except RuntimeError:
@@ -241,7 +241,7 @@ class LoadedFileCoverData:
         with zipfile.ZipFile(self.file_path, 'r') as zin:
             img_bytes = zin.open(self.cover_filename if not back_cover else self.backcover_filename)
             image = Image.open(img_bytes)
-            image = image.resize((190, 260), Image.ANTIALIAS)
+            image = image.resize((190, 260), Image.LANCZOS)
             try:
                 if not back_cover:
                     self.cover_cache = ImageTk.PhotoImage(image)
