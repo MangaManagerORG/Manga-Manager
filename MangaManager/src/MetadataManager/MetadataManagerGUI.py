@@ -4,7 +4,7 @@ import glob
 import logging
 import os
 import tkinter
-from tkinter import Tk, Frame, messagebox as mb
+from tkinter import Tk, Frame
 
 from common.models import ComicInfo
 from src.Common import ResourceLoader
@@ -13,6 +13,7 @@ from src.MetadataManager.GUI.ControlManager import ControlManager
 from src.MetadataManager.GUI.windows.AboutWindow import AboutWindow
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
+from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 
 if get_platform() == "linux":
     from src.MetadataManager.GUI.FileChooserWindow import askopenfiles, askdirectory
@@ -74,6 +75,14 @@ class GUIApp(Tk, MetadataManagerLib):
 
         icon_path = ResourceLoader.get('save_icon.png')
         self.save_icon = tkinter.PhotoImage(name="save_icon", master=self, file=icon_path)
+
+    def report_callback_exception(self, *_):
+        """
+        Overrides builtin method so exceptions get loged and are not silent
+        :param _:
+        :return:
+        """
+        self.log.exception("Unhandled exception")
 
     @property
     def cinfo_tags(self):
