@@ -4,7 +4,6 @@ import platform
 import tkinter
 from idlelib.tooltip import Hovertip
 from tkinter import Frame, CENTER, Button, NW
-from tkinter import messagebox as mb
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Treeview
 
@@ -13,6 +12,7 @@ from PIL import Image, ImageTk
 
 from src.Common import ResourceLoader
 from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
+from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, CanvasCoverWidget
@@ -150,6 +150,14 @@ class CoverManager(tkinter.Toplevel):
         overlay_image = overlay_image.resize((190, 260), Image.ANTIALIAS)
 
         self.serve_gui()
+        if not self._super.loaded_cinfo_list:
+            mb.showwarning(self, "No files selected", "No files were selected so none will be displayed in cover manager")
+            # self.deiconify()
+            self.destroy()
+            return
+
+        # bind the redraw function to the <Configure> event
+        # so that it will be called whenever the window is resized
         self.bind("<Configure>", self.redraw)
 
     def redraw(self, event):
@@ -271,15 +279,6 @@ class CoverManager(tkinter.Toplevel):
         self.prev_width = 0
         self.last_folder = ""
         self.selected_frames: list[tuple[ComicFrame, str]] = []
-        # bind the redraw function to the <Configure> event
-        # so that it will be called whenever the window is resized
-
-        if not self._super.loaded_cinfo_list:
-            mb.showwarning("No files selected", "No files were selected so none will be displayed in cover manager",
-                           parent=self)
-            # self.deiconify()
-            self.destroy()
-            return
 
         for i, cinfo in enumerate(self._super.loaded_cinfo_list):
             # create a ComicFrame for each LoadedComicInfo object

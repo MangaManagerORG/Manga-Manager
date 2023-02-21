@@ -4,12 +4,13 @@ import glob
 import logging
 import os
 import tkinter
-from tkinter import Tk, Frame, messagebox as mb
+from tkinter import Tk, Frame
 
 from common.models import ComicInfo
 from src.Common import ResourceLoader
 from src.Common.utils import get_platform, open_folder
 from src.MetadataManager.GUI.ControlManager import ControlManager
+from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.windows.AboutWindow import AboutWindow
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
@@ -21,12 +22,9 @@ else:
 from _tkinter import TclError
 
 from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget, \
-    HyperlinkLabelWidget
+from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget
 from src.MetadataManager.GUI.SettingsWidgetManager import SettingsWidgetManager
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
-
-from src.__version__ import __version__
 
 
 class GUIApp(Tk, MetadataManagerLib):
@@ -74,6 +72,14 @@ class GUIApp(Tk, MetadataManagerLib):
 
         icon_path = ResourceLoader.get('save_icon.png')
         self.save_icon = tkinter.PhotoImage(name="save_icon", master=self, file=icon_path)
+
+    def report_callback_exception(self, *_):
+        """
+        Overrides builtin method so exceptions get loged and are not silent
+        :param _:
+        :return:
+        """
+        self.log.exception("Unhandled exception")
 
     @property
     def cinfo_tags(self):
@@ -248,23 +254,23 @@ class GUIApp(Tk, MetadataManagerLib):
 
     def on_writing_exception(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
         self.pb.increase_failed()
-        mb.showerror("Unhandled exception",
+        mb.showerror(self.main_frame, "Unhandled exception",
                      "There was an exception that was not handled while writing the changes to the file."
                      "Please check the logs and raise an issue so this can be investigated")
 
     def on_writing_error(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
         self.pb.increase_failed()
-        mb.showerror("Error writing to file",
+        mb.showerror(self.main_frame,"Error writing to file",
                      "There was an error writing to the file. Please check the logs.")
 
     def on_corruped_metadata_error(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
-        mb.showwarning(f"Error reading the metadata from file",
+        mb.showwarning(self.main_frame, f"Error reading the metadata from file",
                        f"Failed to read metadata from '{loaded_info.file_path}'\n"
                        "The file data couldn't be parsed probably because of corrupted data or bad format.\n"
                        f"Recovery was attempted and failed.\nCreating new metadata object...")
 
     def on_manga_not_found(self, exception, series_name):   # pragma: no cover
-        mb.showerror("Couldn't find matching series",
+        mb.showerror(self.main_frame, "Couldn't find matching series",
                      f"The metadata source couldn't find the series '{series_name}'")
 
     #########################################################
@@ -366,7 +372,7 @@ class GUIApp(Tk, MetadataManagerLib):
         Handles UI stuff to be started prior to processing such as converting ui data to comicinfo and starting the timer
         """
         if not self.selected_files_path:
-            mb.showwarning("No files selected", "No files were selected.")
+            mb.showwarning(self.main_frame,"No files selected", "No files were selected.")
             self.log.warning("No files selected")
             return
         self.control_mngr.toggle(enabled=False)
@@ -416,7 +422,7 @@ class GUIApp(Tk, MetadataManagerLib):
     def process_fetch_online(self):
         series_name = self.widget_mngr.get_widget("Series").get().strip()
         if series_name in (None, "", self.MULTIPLE_VALUES_CONFLICT):
-            mb.showwarning("Not a valid series name", "The current series name is empty or not valid.")
+            mb.showwarning(self.main_frame,"Not a valid series name", "The current series name is empty or not valid.")
             self.log.info("Not a valid series name - The current series name is empty or not valid.")
             return
 
