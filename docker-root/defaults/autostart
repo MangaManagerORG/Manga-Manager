@@ -1,2 +1,2 @@
 startxfce4
-MangaManager_23_02_02_Beta_linux_01
+python /app/main.py
