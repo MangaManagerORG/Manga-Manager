@@ -46,6 +46,14 @@ class MessageBoxWidget(Toplevel):
         # Making MessageBox Visible
         center(self)
 
+        # Make the windows always on top
+        self.attributes("-topmost", True)
+        self.lift()
+
+        # Force focus on this window
+        self.grab_set()
+
+
     def with_icon(self, icon_path):
         """Adds an icon to the MessageBoxWidget.
 
