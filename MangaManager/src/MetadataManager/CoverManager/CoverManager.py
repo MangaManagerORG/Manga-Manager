@@ -155,6 +155,9 @@ class CoverManager(tkinter.Toplevel):
             # self.deiconify()
             self.destroy()
             return
+
+        # bind the redraw function to the <Configure> event
+        # so that it will be called whenever the window is resized
         self.bind("<Configure>", self.redraw)
 
     def redraw(self, event):
@@ -276,10 +279,6 @@ class CoverManager(tkinter.Toplevel):
         self.prev_width = 0
         self.last_folder = ""
         self.selected_frames: list[tuple[ComicFrame, str]] = []
-        # bind the redraw function to the <Configure> event
-        # so that it will be called whenever the window is resized
-
-
 
         for i, cinfo in enumerate(self._super.loaded_cinfo_list):
             # create a ComicFrame for each LoadedComicInfo object

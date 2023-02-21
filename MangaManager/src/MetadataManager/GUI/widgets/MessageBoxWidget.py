@@ -1,4 +1,4 @@
-from tkinter import Button, Label, Frame, Tk, Toplevel
+from tkinter import Button, Label, Frame, Toplevel
 
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.utils import center
@@ -18,8 +18,6 @@ class MessageBoxWidget(Toplevel):
     icon_information = "::tk::icons::information"
     icon_question = "::tk::icons::question"
 
-
-
     selected_value = None
 
     def __init__(self, *args, **kwargs):
@@ -37,9 +35,7 @@ class MessageBoxWidget(Toplevel):
         self.description.configure(wraplength=500)
 
         self._scrolled_frame = ScrolledFrame(master=self, scrolltype="vertical", usemousewheel=True)
-
         self.content_frame = self._scrolled_frame.innerframe
-
 
         self.control_frame = Frame(self)
         self.control_frame.pack(pady=10, side="bottom",anchor="center")
@@ -49,7 +45,6 @@ class MessageBoxWidget(Toplevel):
 
         # Making MessageBox Visible
         center(self)
-
 
     def with_icon(self, icon_path):
         """Adds an icon to the MessageBoxWidget.
@@ -85,7 +80,6 @@ class MessageBoxWidget(Toplevel):
         self.content_frame.pack()
 
         content_frame.master = self.content_frame
-        # I didn't see how you did this, but we can have with_content_frame or with_content
         return self
 
     def with_actions(self, action_buttons):
@@ -127,12 +121,3 @@ class MessageBoxWidget(Toplevel):
         """
         self.selected_value = value
         self.destroy()
-
-
-if __name__ == '__main__':
-    root = Tk()
-    a = MessageBoxWidget(root).with_title("Test Message").with_actions(
-        [MessageBoxButton(0, "No"), MessageBoxButton(1, "Yes")]).with_icon(MessageBoxWidget.icon_question)
-    print(a.prompt())
-
-    root.mainloop()
