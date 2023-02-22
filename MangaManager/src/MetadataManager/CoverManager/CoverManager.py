@@ -147,7 +147,7 @@ class CoverManager(tkinter.Toplevel):
             self._super = super_
         global overlay_image
         overlay_image = Image.open(action_template)
-        overlay_image = overlay_image.resize((190, 260), Image.LANCZOS)
+        overlay_image = overlay_image.resize((190, 260), Image.NEAREST)
 
         self.serve_gui()
         if not self._super.loaded_cinfo_list:
