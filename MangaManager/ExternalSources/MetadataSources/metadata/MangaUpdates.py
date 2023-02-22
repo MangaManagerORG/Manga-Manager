@@ -32,7 +32,7 @@ class MangaUpdates(IMetadataSource):
         ]
     }
 
-    def __init__(self):
+    def init_settings(self):
         self.settings = [
             SettingSection(self.name, self.name, [
                 SettingControl(MangaUpdatesPerson.Author, "Author", SettingControlType.Text, "Writer",
@@ -42,7 +42,6 @@ class MangaUpdates(IMetadataSource):
                                self.is_valid_person_tag, self.trim),
             ])
         ]
-        super(MangaUpdates, self).__init__()
 
     def save_settings(self):
         # Update person_mapper when this is called as it indicates the settings for the provider might have changed

@@ -21,5 +21,3 @@ class IMMExtension(abc.ABC):
         When a setting update occurs, this is invoked and internal state should be updated from Settings()
         """
         pass
-
-    pass

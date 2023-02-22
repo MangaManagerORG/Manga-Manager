@@ -9,11 +9,11 @@ from ExternalSources.MetadataSources.metadata import ScraperFactory
 from src import MM_PATH
 from src.Common.utils import open_folder
 from src.MetadataManager.GUI.utils import center
-from src.MetadataManager.GUI.widgets import ButtonWidget, FileMultiSelectWidget
+from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.GUI.widgets.FormBundleWidget import FormBundleWidget
-from src.Settings.SettingHeading import SettingHeading
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
+from src.Settings.SettingHeading import SettingHeading
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 
@@ -143,10 +143,6 @@ class SettingsWidgetManager:
         center(settings_window)
         frame = Label(master=control_frame, text="\nNote: Fields marked with * need a restart to take effect")
         frame.pack(expand=True, fill="both")
-
-    def build_setting_frame_selector(self, frame):
-        selection_widget = FileMultiSelectWidget
-        pass
 
     def build_setting_entry(self, parent_frame, control: SettingControl, section):
         # Update the control's value from Settings
