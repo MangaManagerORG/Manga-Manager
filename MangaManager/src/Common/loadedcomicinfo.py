@@ -5,6 +5,7 @@ import enum
 import io
 import logging
 import os
+import string
 import tempfile
 import zipfile
 from typing import IO
@@ -29,6 +30,8 @@ _LOG_TAG_WEBP = "Convert Webp"
 _LOG_TAG_WRITE_META = 'Write Meta'
 _LOG_TAG_RECOMPRESSING = "Recompressing"
 
+#move-to (from settings)
+move_to_value = ""
 
 class CoverActions(enum.Enum):
     RESET = 0  # Cancel current selected action
@@ -301,6 +304,33 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData):
         if load_default_metadata:
             self.load_metadata()
 
+    @property
+    def template_values(self) -> dict:
+        """
+        Returns a dict with predefined values to fill in string templates
+        :return:
+        """
+        return {
+            "filename": self.file_name,
+            "series": self.cinfo_object.series or "",
+            "series_sort": self.cinfo_object.series_sort or "",
+            "title": self.cinfo_object.title or "",
+            "chapter": self.cinfo_object.number or "",
+            "volume": self.cinfo_object.volume or "",
+            "publisher": self.cinfo_object.publisher or ""
+        }
+
+    def get_template_filename(self, input_template: str) -> str|None:
+        """
+        Fills the provided template with the available values in the comicinfo
+        :param input_template: A string representing the input template ("{series} - {chapter}")
+        :return: None if there's a missing key in the template
+        """
+        try:
+            return input_template.format_map(self.template_values).replace("  ", " ")
+        except KeyError as e:
+            logger.error(f"Could not get {list(e.args)} keys when filling template values")
+            return None
     ###############################
     # LOADING METHODS
     ###############################
