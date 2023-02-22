@@ -282,6 +282,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData):
         """
 
     file_path: str
+    file_name: str
 
     has_metadata: bool = False
     is_cinfo_at_root: bool = False
@@ -304,8 +305,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData):
         if load_default_metadata:
             self.load_metadata()
 
-    @property
-    def template_values(self) -> dict:
+    def get_template_values(self) -> dict:
         """
         Returns a dict with predefined values to fill in string templates
         :return:
@@ -327,7 +327,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData):
         :return: None if there's a missing key in the template
         """
         try:
-            return input_template.format_map(self.template_values).replace("  ", " ")
+            return input_template.format_map(self.get_template_values()).replace("  ", " ")
         except KeyError as e:
             logger.error(f"Could not get {list(e.args)} keys when filling template values")
             return None

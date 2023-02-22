@@ -10,7 +10,9 @@ default_settings = {
         {"library_path": ""},
         {"covers_folder_path": ""},
         {"cache_cover_images": True},
-        {"selected_layout": "default"},
+        # {"selected_layout": "default"},
+        {"move_to_template": ""}
+
     ],
     SettingHeading.WebpConverter: [
         {"default_base_path": ""},

@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import logging
+import re
 import tkinter
 from tkinter import ttk, Frame
 from tkinter.ttk import LabelFrame, Label, Notebook
 
 from ExternalSources.MetadataSources.metadata import ScraperFactory
+from common.models import ComicInfo
 from src import MM_PATH
+from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.utils import open_folder
 from src.MetadataManager.GUI.utils import center
 from src.MetadataManager.GUI.widgets import ButtonWidget
@@ -18,13 +21,17 @@ from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 
 logger = logging.getLogger("SettingsWidgetManager")
-
+def template_validation(key_list):
+ return [keyword for keyword in key_list if keyword not in LoadedComicInfo(None,ComicInfo,False).get_template_values().keys()]
 setting_control_map = {
     SettingHeading.Main: {
         "library_path": SettingControl("library_path", "Library Path", SettingControlType.Text, "", "The path to your library. This location will be opened by default when choosing files"),
         "covers_folder_path": SettingControl("covers_folder_path", "Covers folder path", SettingControlType.Text, "", "The path to your covers. This location will be opened by default when choosing covers"),
         "cache_cover_images": SettingControl("cache_cover_images", "Cache cover images", SettingControlType.Bool, True, "If enabled, the covers of the file will be cached and shown in the ui"),
-        "selected_layout": SettingControl("selected_layout", "* Active layout", SettingControlType.Options, "", "Selects the layout to be displayed"),
+        # "selected_layout": SettingControl("selected_layout", "* Active layout", SettingControlType.Options, "", "Selects the layout to be displayed"),
+        "move_to_template": SettingControl("move_to_template", "Rename filename", SettingControlType.Text, "",
+                                           tooltip=f"Leave empty to not set.\nAvailable tags: {', '.join(['{'+key+'}' for key in LoadedComicInfo(None,ComicInfo,False).get_template_values().keys()])}",
+                                           validate=lambda key,value: '['+", ".join(template_validation(re.findall(r'\{(\w+)\}', value))) + "] are not valid tags" if len(template_validation(re.findall(r'\{(\w+)\}', value)))!=0 else "")
     },
     SettingHeading.WebpConverter: {
         "default_base_path": SettingControl("default_base_path", "Default base path", SettingControlType.Text, "", "The starting point where the glob will begin looking for files that match the pattern"),
