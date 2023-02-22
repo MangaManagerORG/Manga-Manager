@@ -103,6 +103,15 @@ class IMetadataSource(IMMExtension):
 
         return summary.strip()
 
+    def init_settings(self):
+        for section in self.settings:
+            for control in section.values:
+                Settings().set_default(section.key, control.key, control.value)
+        Settings().save()
+
+        # Load any saved settings into memory to overwrite defaults
+        self.save_settings()
+
     @final
     def __init__(self):
         if self.name is None:  # Check if the "name" attribute has been set
@@ -111,10 +120,4 @@ class IMetadataSource(IMMExtension):
 
         self.logger = logging.getLogger(f'{self.__module__}.{self.__class__.__name__}')
         # Save any default settings to ini
-        for section in self.settings:
-            for control in section.values:
-                Settings().set_default(section.key, control.key, control.value)
-        Settings().save()
-
-        # Load any saved settings into memory to overwrite defaults
-        self.save_settings()
+        self.init_settings()

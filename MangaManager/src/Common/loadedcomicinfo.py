@@ -37,42 +37,90 @@ class CoverActions(enum.Enum):
     APPEND = 3
 
 
-class LoadedComicInfo:
-    """
-        Helper class that loads the info that is required by the tools
+class LoadedFileMetadata:
 
-        file_path : str
-            Path of the file
-        cinfo_object : ComicInfo
-            The class where the metadata is stored
-        cover_filename : str
-            The filename of the image that gets parsed as series cover
-        has_metadata : bool
-            If false, we only need to append metadata.
-            No need to back up ComicInfo.xml because it doesn't exist
-        volume : int
-            The volume from the metadata. If not set then it tries to parse from filename
-        chapter : str
-            The volume from the metadata. If not set then it tries to parse from filename
-        """
-
-    file_path: str
     _cinfo_object: ComicInfo
     original_cinfo_object: ComicInfo
     # Used to keep original state after being loaded for the first time. Useful to undo sesion changes
     original_cinfo_object_before_session: ComicInfo | None = None
 
-    has_metadata: bool = False
-    is_cinfo_at_root: bool = False
+    @property
+    def cinfo_object(self):
+        return self._cinfo_object
 
+    @cinfo_object.setter
+    def cinfo_object(self, value: ComicInfo):
+        self._cinfo_object = value
+
+    @property
+    def volume(self):
+        if self.cinfo_object:
+            return self.cinfo_object.volume
+
+    @property
+    def chapter(self):
+        if self.cinfo_object:
+            return self.cinfo_object.number
+
+    @volume.setter
+    def volume(self, value):
+        self.cinfo_object.volume = value
+
+    @chapter.setter
+    def chapter(self, value):
+        self.cinfo_object.number = value
+
+    def _load_metadata(self):
+
+        """
+        Reads the metadata from the ComicInfo.xml at root level
+        :raises CorruptedComicInfo If the metadata file exists but can't be parsed
+        :return:
+        """
+        LOG_TAG = f"[{'Reading Meta':13s}] "
+        try:
+            # If Comicinfo is not at root try to grab any ComicInfo.xml in the file
+            if "ComicInfo.xml" not in self.archive.namelist():
+                cinfo_file = [filename.endswith(COMICINFO_FILE) for filename in self.archive.namelist()][
+                                 0] or COMICINFO_FILE
+            else:
+                cinfo_file = COMICINFO_FILE
+                self.is_cinfo_at_root = True
+            xml_string = self.archive.read(cinfo_file).decode('utf-8')
+            self.has_metadata = True
+        except KeyError:
+            xml_string = ""
+
+        if xml_string:
+            try:
+                self.cinfo_object = ComicInfo.from_xml(xml_string)
+            except XMLSyntaxError as e:
+                logger.warning(LOG_TAG + f"Failed to parse XML due to a syntax error:\n{e}")
+            except Exception:
+                logger.exception(f"[{'Reading Meta':13s}] Unhandled error reading metadata."
+                                 f" Please create an issue for further investigation")
+                raise
+            logger.debug(LOG_TAG + "Successful")
+            self.original_cinfo_object_before_session = copy.copy(self.cinfo_object)
+        else:
+            self.cinfo_object = ComicInfo()
+            logger.info(LOG_TAG + "No metadata file was found.A new file will be created")
+        self.original_cinfo_object = copy.copy(self.cinfo_object)
+        self.original_cinfo_object_before_session = copy.copy(self.cinfo_object)
+
+    def reset_metadata(self):
+        """
+        Returns the metadata to the first state of loaded cinfo
+        """
+        self.cinfo_object = self.original_cinfo_object
+
+
+class LoadedFileCoverData:
     cover_filename: str | None = None
     cover_cache: ImageTk.PhotoImage = None
 
     backcover_filename: str | None = None
     backcover_cache: ImageTk.PhotoImage = None
-
-    has_changes = False
-    changed_tags = []
 
     _cover_action: CoverActions | None = None
     # Path to the new cover selected by the user
@@ -128,7 +176,7 @@ class LoadedComicInfo:
             self.new_cover_cache = None
             return
         image = Image.open(path)
-        image = image.resize((190, 260), Image.ANTIALIAS)
+        image = image.resize((190, 260), Image.NEAREST)
         try:
             self.new_cover_cache = ImageTk.PhotoImage(image)
         except RuntimeError:
@@ -146,92 +194,12 @@ class LoadedComicInfo:
             self.new_backcover_cache = None
             return
         image = Image.open(path)
-        image = image.resize((190, 260), Image.ANTIALIAS)
+        image = image.resize((190, 260), Image.NEAREST)
         try:
             self.new_backcover_cache = ImageTk.PhotoImage(image)
         except RuntimeError:
             self.new_cover_cache = None
         self._new_backcover_path = path
-
-    @property
-    def cinfo_object(self):
-        return self._cinfo_object
-
-    @cinfo_object.setter
-    def cinfo_object(self, value: ComicInfo):
-        self._cinfo_object = value
-
-    @property
-    def volume(self):
-        if self.cinfo_object:
-            return self.cinfo_object.volume
-
-    @property
-    def chapter(self):
-        if self.cinfo_object:
-            return self.cinfo_object.number
-
-    @volume.setter
-    def volume(self, value):
-        self.cinfo_object.volume = value
-
-    @chapter.setter
-    def chapter(self, value):
-        self.cinfo_object.number = value
-
-    def __init__(self, path, comicinfo: ComicInfo = None, load_default_metadata=True):
-        """
-
-        :param path:
-        :param comicinfo: The data class to be applied
-        :raises BadZipFile: The file can't be read or is not a valid zip file
-        """
-
-        self.file_path = path or None
-        self.file_name = None if path is None else os.path.basename(path)
-        logger.info(f"[{'Opening File':13s}] '{self.file_name}'")
-        self.cinfo_object = comicinfo
-        if load_default_metadata:
-            self.load_metadata()
-
-    def process(self, write_metadata, convert_to_webp):
-        logger.debug(f"[{'BEGIN PROCESSING':13s}] Writing metadata to file '{self.file_path}'")
-        try:
-            self._process(write_metadata=write_metadata, convert_to_webp=convert_to_webp)
-        finally:
-            self.has_changes = False
-
-    def write_metadata(self, auto_unmark_changes=False):
-        # print(self.cinfo_object.__dict__)
-        logger.debug(f"[{'BEGIN WRITE':13s}] Writing metadata to file '{self.file_path}'")
-        # logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] ComicInfo file found in old file")
-        try:
-            self._process(write_metadata=True)
-        finally:
-            if auto_unmark_changes:
-                self.has_changes = False
-
-    def convert_to_webp(self):
-        logger.debug(f"[{'BEGIN CONVERT':13s}] Converting to webp: '{self.file_path}'")
-        self._process(convert_to_webp=True)
-
-    def _export_metadata(self) -> str:
-        return str(self.cinfo_object.to_xml())
-
-    def load_all(self):
-        try:
-            # Fixme: skip folders
-            # Update: 05-01-23 At this point i don't remember why the fix me. I'm leaving it there.
-            with zipfile.ZipFile(self.file_path, 'r') as self.archive:
-                self.load_cover_info()
-                if not self.cinfo_object:
-                    self._load_metadata()
-
-        except zipfile.BadZipFile:
-            logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",
-                         exc_info=False)
-            raise BadZipFile()
-        return self
 
     def load_cover_info(self, load_images=True):
         try:
@@ -275,7 +243,7 @@ class LoadedComicInfo:
             with zipfile.ZipFile(self.file_path, 'r') as zin:
                 img_bytes = zin.open(self.cover_filename if not back_cover else self.backcover_filename)
                 image = Image.open(img_bytes)
-                image = image.resize((190, 260), Image.ANTIALIAS)
+                image = image.resize((190, 260), Image.NEAREST)
                 try:
                     if not back_cover:
                         self.cover_cache = ImageTk.PhotoImage(image)
@@ -290,6 +258,68 @@ class LoadedComicInfo:
         except Exception:
             logger.exception(f"Error getting cover bytes. BackCover = {'True' if back_cover else 'False'} File: {self.file_name}")
 
+
+class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData):
+    """
+        Helper class that loads the info that is required by the tools
+
+        file_path : str
+            Path of the file
+        cinfo_object : ComicInfo
+            The class where the metadata is stored
+        cover_filename : str
+            The filename of the image that gets parsed as series cover
+        has_metadata : bool
+            If false, we only need to append metadata.
+            No need to back up ComicInfo.xml because it doesn't exist
+        volume : int
+            The volume from the metadata. If not set then it tries to parse from filename
+        chapter : str
+            The volume from the metadata. If not set then it tries to parse from filename
+        """
+
+    file_path: str
+
+    has_metadata: bool = False
+    is_cinfo_at_root: bool = False
+
+    has_changes = False
+    changed_tags = []
+
+    def __init__(self, path, comicinfo: ComicInfo = None, load_default_metadata=True):
+        """
+
+        :param path:
+        :param comicinfo: The data class to be applied
+        :raises BadZipFile: The file can't be read or is not a valid zip file
+        """
+
+        self.file_path = path or None
+        self.file_name = None if path is None else os.path.basename(path)
+        logger.info(f"[{'Opening File':13s}] '{self.file_name}'")
+        self.cinfo_object = comicinfo
+        if load_default_metadata:
+            self.load_metadata()
+
+    ###############################
+    # LOADING METHODS
+    ###############################
+
+    def load_all(self):
+        try:
+            # Fixme: skip folders
+            # Update: 05-01-23 At this point i don't remember why the fix me. I'm leaving it there.
+            with zipfile.ZipFile(self.file_path, 'r') as self.archive:
+                self.load_cover_info()
+                if not self.cinfo_object:
+                    self._load_metadata()
+
+        except zipfile.BadZipFile:
+            logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",
+                         exc_info=False)
+            raise BadZipFile()
+        return self
+
     def load_metadata(self):
         try:
             with zipfile.ZipFile(self.file_path, 'r') as self.archive:
@@ -301,144 +331,50 @@ class LoadedComicInfo:
             raise BadZipFile()
         return self
 
-    def _load_metadata(self):
+    ###############################
+    # PROCESSING METHODS
+    ###############################
 
-        """
-        Reads the metadata from the ComicInfo.xml at root level
-        :raises CorruptedComicInfo If the metadata file exists but can't be parsed
-        :return:
-        """
-        LOG_TAG = f"[{'Reading Meta':13s}] "
+    # INTERFACE METHODS
+    def write_metadata(self, auto_unmark_changes=False):
+        # print(self.cinfo_object.__dict__)
+        logger.debug(f"[{'BEGIN WRITE':13s}] Writing metadata to file '{self.file_path}'")
+        # logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] ComicInfo file found in old file")
         try:
-            # If Comicinfo is not at root try to grab any ComicInfo.xml in the file
-            if "ComicInfo.xml" not in self.archive.namelist():
-                cinfo_file = [filename.endswith(COMICINFO_FILE) for filename in self.archive.namelist()][
-                                 0] or COMICINFO_FILE
-            else:
-                cinfo_file = COMICINFO_FILE
-                self.is_cinfo_at_root = True
-            xml_string = self.archive.read(cinfo_file).decode('utf-8')
-            self.has_metadata = True
-        except KeyError:
-            xml_string = ""
+            self._process(write_metadata=True)
+        finally:
+            if auto_unmark_changes:
+                self.has_changes = False
 
-        if xml_string:
-            try:
-                self.cinfo_object = ComicInfo.from_xml(xml_string)
-            except XMLSyntaxError as e:
-                logger.warning(LOG_TAG + f"Failed to parse XML due to a syntax error:\n{e}")
-            except Exception:
-                logger.exception(f"[{'Reading Meta':13s}] Unhandled error reading metadata."
-                                 f" Please create an issue for further investigation")
-                raise
-            logger.debug(LOG_TAG + "Successful")
-            self.original_cinfo_object_before_session = copy.copy(self.cinfo_object)
-        else:
-            self.cinfo_object = ComicInfo()
-            logger.info(LOG_TAG + "No metadata file was found.A new file will be created")
-        self.original_cinfo_object = copy.copy(self.cinfo_object)
-        self.original_cinfo_object_before_session = copy.copy(self.cinfo_object)
+    def convert_to_webp(self):
+        logger.debug(f"[{'BEGIN CONVERT':13s}] Converting to webp: '{self.file_path}'")
+        self._process(do_convert_to_webp=True)
 
-    def reset_metadata(self):
-        """
-        Returns the metadata to the first state of loaded cinfo
-        """
-        self.cinfo_object = self.original_cinfo_object
+    def _export_metadata(self) -> str:
+        return str(self.cinfo_object.to_xml())
 
-    def _process(self, write_metadata=False, convert_to_webp=False, **_):
+    # ACTUAL LOGIC
+    def _process(self, write_metadata=False, do_convert_to_webp=False, **_):
 
-        if write_metadata and not convert_to_webp and not self.has_metadata:
+        if write_metadata and not do_convert_to_webp and not self.has_metadata:
             with zipfile.ZipFile(self.file_path, mode='a', compression=zipfile.ZIP_STORED) as zf:
                 # We finally append our new ComicInfo file
                 zf.writestr(COMICINFO_FILE, self._export_metadata())
                 logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
             self.has_metadata = True
-        else:
-            self._recompress(write_metadata, convert_to_webp)
 
-    def _recompress(self, write_metadata, convert_to_webp):
         # Creates a tempfile in the directory the original file is at
         tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_path))
         os.close(tmpfd)
-        is_metadata_backed = False
+
         with zipfile.ZipFile(self.file_path, "r") as zin:
             initial_file_count = len(zin.namelist())
 
             with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
-                # Write the new metadata once
-                if write_metadata:
-                    # self.cinfo_object.page_count = len([file_ for file_ in zin.namelist() if IS_IMAGE_PATTERN.match(file_)])
-                    zout.writestr(COMICINFO_FILE, self._export_metadata())
-                    logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
-                    # Directly backup the metadata if it's at root.
-                    if self.is_cinfo_at_root:
-                        zout.writestr(f"Old_{COMICINFO_FILE}.bak", zin.read(COMICINFO_FILE))
-                        logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
-                        is_metadata_backed = True
-                    self.has_metadata = True
+                self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=do_convert_to_webp)
 
-                # Append the cover if the action is append
-                if self.cover_action == CoverActions.APPEND:
-                    self.append_image(zout, self.new_cover_path, False, convert_to_webp)
-
-                if self.backcover_action == CoverActions.APPEND:
-                    self.append_image(zout, self.new_backcover_path, True, convert_to_webp)
-
-                # Start iterating files.
-                for item in zin.infolist():
-                    if write_metadata:
-                        # Discard old backup
-                        if item.filename.endswith(COMICINFO_FILE_BACKUP):  # Skip file, efectively deleting old backup
-                            logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Skipped old backup file")
-                            continue
-
-                        if item.filename.endswith(COMICINFO_FILE):
-                            # A root-level comicinfo was backed up already. This one is likely not where it should
-                            if is_metadata_backed:
-                                logger.info(f"[{_LOG_TAG_WRITE_META:13s}] Skiping non compliant ComicInfo.xml")
-                                continue
-
-                            # If filename is comicinfo save as old_comicinfo.xml
-                            zout.writestr(f"Old_{item.filename}.bak", zin.read(item.filename))
-                            logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
-                            # Stop accepting more comicinfo files.
-                            is_metadata_backed = True
-                            continue
-
-                    # Handle Cover Changes:
-                    if item.filename == self.cover_filename:
-                        match self.cover_action:
-                            case None:
-                                self._save_converted_image(zin, item, zout, convert_to_webp)
-                            case CoverActions.DELETE:
-                                logger.trace(
-                                    f"[{_LOG_TAG_RECOMPRESSING:13}] Skipping cover to efectively delete it. File: '{item.filename}'")
-                            case CoverActions.REPLACE:
-                                with open(self.new_cover_path,"rb") as opened_image:
-                                    opened_image_io = io.BytesIO(opened_image.read())
-                                    self._save_converted_image(zin, item, zout, convert_to_webp, image=opened_image_io)
-                            case _:
-                                self._save_converted_image(zin, item, zout, convert_to_webp)
-                        continue
-                    # Handle BackCover Change
-                    elif item.filename == self.backcover_filename:
-                        match self.backcover_action:
-                            case None:
-                                self._save_converted_image(zin, item, zout, convert_to_webp)
-                            case CoverActions.DELETE:
-                                logger.trace(
-                                    f"[{_LOG_TAG_RECOMPRESSING:13}] Skipping back cover to efectively delete it. File: '{item.filename}'")
-                            case CoverActions.REPLACE:
-                                with open(self.new_backcover_path, "rb") as opened_image:
-                                    opened_image_io = io.BytesIO(opened_image.read())
-                                    self._save_converted_image(zin, item, zout, convert_to_webp, image=opened_image_io)
-                            case _:
-                                self._save_converted_image(zin, item, zout, convert_to_webp)
-                        continue
-                    # Copy the rest of the images as they are
-                    self._save_converted_image(zin, item, zout, convert_to_webp)
-
-        has_cover_action = self.cover_action not in (CoverActions.RESET, None) or self.backcover_action not in (CoverActions.RESET, None)
+        has_cover_action = self.cover_action not in (CoverActions.RESET, None) or self.backcover_action not in (
+            CoverActions.RESET, None)
         # Reset cover flags
         self.cover_action = CoverActions.RESET
         self.backcover_action = CoverActions.RESET
@@ -454,7 +390,8 @@ class LoadedComicInfo:
         # If we fail to delete original file we delete temp file effecively aborting the metadata update
         except PermissionError:
             logger.exception(f"[{'Processing':13s}] Permission error. Aborting and clearing temp files")
-            os.remove(tmpname)  # Could be moved to a 'finally'? Don't want to risk it not clearing temp files properly
+            os.remove(
+                tmpname)  # Could be moved to a 'finally'? Don't want to risk it not clearing temp files properly
             raise
         except Exception:
             logger.exception(f"[{'Processing':13s}] Unhandled exception. Create an issue so this gets investigated."
@@ -469,12 +406,110 @@ class LoadedComicInfo:
             logger.info(f"Updating covers")
             self.load_cover_info()
 
-    # def replace_cover(self,filename,zout,new_filepath):
+    def _recompress(self, zin, zout, write_metadata, do_convert_webp):
+        """
+        Given 2 input and output zipfiles copy content of one zipfile to the new one.
+        Files that matches certain criteria gets skipped and not copied over, hence deleted.
 
+        :param zin: The zipfile object of the zip that's going to be read
+        :param zout: The ZipFile object of the new zip to copy stuff to
+        :param write_metadata: Should update metadata
+        :param do_convert_webp: Should convert images before adding to new zipfile
+        :return:
+        """
+        is_metadata_backed = False
+        # Write the new metadata once
+        if write_metadata:
+            zout.writestr(COMICINFO_FILE, self._export_metadata())
+            logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
+            # Directly backup the metadata if it's at root.
+            if self.is_cinfo_at_root:
+                zout.writestr(f"Old_{COMICINFO_FILE}.bak", zin.read(COMICINFO_FILE))
+                logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
+                is_metadata_backed = True
+            self.has_metadata = True
+
+        # Append the cover if the action is append
+        if self.cover_action == CoverActions.APPEND:
+            self._append_image(zout, self.new_cover_path, False, do_convert_webp,
+                               current_backcover_filename=self.backcover_filename)
+
+        if self.backcover_action == CoverActions.APPEND:
+            self._append_image(zout, self.new_backcover_path, True, do_convert_webp,
+                               current_backcover_filename=self.backcover_filename)
+
+        # Start iterating files.
+        for item in zin.infolist():
+            if write_metadata:
+                # Discard old backup
+                if item.filename.endswith(
+                        COMICINFO_FILE_BACKUP):  # Skip file, efectively deleting old backup
+                    logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Skipped old backup file")
+                    continue
+
+                if item.filename.endswith(COMICINFO_FILE):
+                    # A root-level comicinfo was backed up already. This one is likely not where it should
+                    if is_metadata_backed:
+                        logger.info(f"[{_LOG_TAG_WRITE_META:13s}] Skiping non compliant ComicInfo.xml")
+                        continue
+
+                    # If filename is comicinfo save as old_comicinfo.xml
+                    zout.writestr(f"Old_{item.filename}.bak", zin.read(item.filename))
+                    logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
+                    # Stop accepting more comicinfo files.
+                    is_metadata_backed = True
+                    continue
+
+            # Handle Cover Changes:
+            if item.filename == self.cover_filename:
+                match self.cover_action:
+                    case None:
+                        self._move_image(zin, zout=zout, item_=item, do_convert_to_webp=do_convert_webp)
+                    case CoverActions.DELETE:
+                        logger.trace(
+                            f"[{_LOG_TAG_RECOMPRESSING:13}] Skipping cover to efectively delete it. File: '{item.filename}'")
+                    case CoverActions.REPLACE:
+                        with open(self.new_cover_path, "rb") as opened_image:
+                            opened_image_io = io.BytesIO(opened_image.read())
+                            self._move_image(zin, zout=zout, item_=item, do_convert_to_webp=do_convert_webp,
+                                             image=opened_image_io)
+                    case _:
+                        self._move_image(zin, zout=zout, item_=item, do_convert_to_webp=do_convert_webp)
+                continue
+            # Handle BackCover Change
+            elif item.filename == self.backcover_filename:
+                match self.backcover_action:
+                    case None:
+                        self._move_image(zin, zout=zout, item_=item, do_convert_to_webp=do_convert_webp)
+                    case CoverActions.DELETE:
+                        logger.trace(
+                            f"[{_LOG_TAG_RECOMPRESSING:13}] Skipping back cover to efectively delete it. File: '{item.filename}'")
+                    case CoverActions.REPLACE:
+                        with open(self.new_backcover_path, "rb") as opened_image:
+                            opened_image_io = io.BytesIO(opened_image.read())
+                            self._move_image(zin, zout=zout, item_=item, do_convert_to_webp=do_convert_webp,
+                                             image=opened_image_io)
+                    case _:
+                        self._move_image(zin, zout=zout, item_=item, do_convert_to_webp=do_convert_webp)
+                continue
+            # Copy the rest of the images as they are
+            self._move_image(zin, zout=zout, item_=item, do_convert_to_webp=do_convert_webp)
+
+    # Recompressing methods
     @staticmethod
-    def _save_converted_image(zin: zipfile.ZipFile, item_: zipfile.ZipInfo, zout: zipfile.ZipFile,
-                              do_convert_to_webp: bool,
-                              new_filename=None, image: IO[bytes] = None):
+    def _move_image(zin: zipfile.ZipFile, zout: zipfile.ZipFile, item_: zipfile.ZipInfo,
+                    do_convert_to_webp: bool,
+                    new_filename=None, image: IO[bytes] = None):
+        """
+        Given an input and output ZipFile copy the passed item to the new zipfile. Also converts image to webp if set to true
+        :param zin: The input zipfile object
+        :param zout: The output zipfile where the bytes will be copied over
+        :param item_: The zipfile 'item' object
+        :param do_convert_to_webp: Should the bytes be converted to webp formate
+        :param new_filename: If a new filename is desired this should be set. Else it will use original filename
+        :param image: Bytes of the image if the data wants to be overwritten
+        :return:
+        """
         # Convert to webp if option enabled and file is image
         if do_convert_to_webp and IS_IMAGE_PATTERN.match(item_.filename):
             with zin.open(item_) as opened_image:
@@ -488,13 +523,23 @@ class LoadedComicInfo:
                           zin.read(item_.filename) if image is None else image.read())
             logger.trace(f"[{_LOG_TAG_RECOMPRESSING:13s}] Adding '{item_.filename}' back to the new tempfile")
 
-    def append_image(self,zout, cover_path, is_backcover=False, convert_to_webp=False):
+    @staticmethod
+    def _append_image(zout, cover_path, is_backcover=False, do_convert_to_webp=False, current_backcover_filename=''):
+        """
+            Given a zipfile object, append (Add image and make it be the first one when natural sorting. Make it last if is_backcover is true) the image in the provided path
+
+            :param zout: The zipfile object where the image is going to be added to
+            :param cover_path: The path to the image file
+            :param is_backcover: Whether we are "appending" a cover or backcover
+            :param do_convert_to_webp: Whether the provided image should be converted to webp
+            :return:
+            """
         file_name, ext = os.path.splitext(os.path.basename(cover_path))
-        new_filename = f"{os.path.join(os.path.dirname(self.backcover_filename),'~') if is_backcover else ''}{BACKCOVER_NAME if is_backcover else COVER_NAME}{ext}"
+        new_filename = f"{os.path.join(os.path.dirname(current_backcover_filename), '~') if is_backcover else ''}{BACKCOVER_NAME if is_backcover else COVER_NAME}{ext}"
         logger.trace(
             f"[{_LOG_TAG_RECOMPRESSING:13}] Apending cover to efectively delete it. Loading '{cover_path}'")
 
-        if convert_to_webp:
+        if do_convert_to_webp:
             with open(cover_path, "rb") as opened_image:
                 opened_image_io = io.BytesIO(opened_image.read())
                 new_filename = get_new_webp_name(new_filename)
@@ -505,6 +550,3 @@ class LoadedComicInfo:
             zout.write(cover_path, new_filename)
             logger.trace(
                 f"[{_LOG_TAG_RECOMPRESSING:13s}] Adding file '{new_filename}' to new tempfile")
-
-
-

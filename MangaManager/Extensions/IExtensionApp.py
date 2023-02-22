@@ -3,7 +3,6 @@ import tkinter
 from typing import final
 
 
-
 class IExtensionApp(tkinter.Toplevel, metaclass=abc.ABCMeta):
     """
         

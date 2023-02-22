@@ -23,7 +23,7 @@ class ControlManager:
             try:
                 widget.configure(state="normal" if enabled else "disabled")
             except _tkinter.TclError:
-                logger.exception("Unhandled exception")
+                logger.exception("Unhandled exception updating widget state", exc_info=False)
 
     def lock(self):
         self.toggle(False)

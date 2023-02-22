@@ -34,7 +34,7 @@ class AniList(IMetadataSource):
     person_mapper = {}
     romaji_as_series = True
 
-    def __init__(self):
+    def init_settings(self):
         self.settings = [
             SettingSection(self.name, self.name, [
                 SettingControl(AniListSetting.SeriesTitleLanguage, "Prefer Romaji Series Title Language",
@@ -55,8 +55,7 @@ class AniList(IMetadataSource):
                                "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
             ])
         ]
-
-        super(AniList, self).__init__()
+        super().init_settings()
 
     def save_settings(self):
         self.romaji_as_series = Settings().get(self.name, AniListSetting.SeriesTitleLanguage)
@@ -112,7 +111,7 @@ class AniList(IMetadataSource):
         comicinfo.summary = IMetadataSource.clean_description(data.get("description"), remove_source=True)
 
         # People
-        cls.update_people_from_mapping(cls, data["staff"]["edges"], cls.person_mapper, comicinfo,
+        cls.update_people_from_mapping(data["staff"]["edges"], cls.person_mapper, comicinfo,
                                        lambda item: item["node"]["name"]["full"],
                                        lambda item: item["role"])
 
@@ -124,10 +123,11 @@ class AniList(IMetadataSource):
             response = requests.post('https://graphql.anilist.co', json={'query': query, 'variables': variables})
             if response.status_code == 429:  # Anilist rate-limit code
                 raise AniListRateLimit()
-        except Exception as e:
-            cls.logger.exception(e, extra=logging_info)
-            cls.logger.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
-                             extra=logging_info)
+        except AniListRateLimit:
+            cls.logger.exception("Hitted anilist ratelimit")
+            return None
+        except Exception:
+            cls.logger.exception("Unhandled exception making the request to anilist")
             return None
 
         cls.logger.debug(f'Query: {query}')
@@ -136,6 +136,7 @@ class AniList(IMetadataSource):
         try:
             return response.json()['data']['Media']
         except TypeError:
+            cls.logger.exception("Wrong data format recieved when parsing response json")
             return None
 
     @classmethod

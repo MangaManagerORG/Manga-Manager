@@ -76,7 +76,7 @@ class CoverFrame(Frame):
         images_frame.grid(column=0, row=1, sticky="nsew")
 
         overlay_image = Image.open(action_template)
-        overlay_image = overlay_image.resize((190, 260), Image.ANTIALIAS)
+        overlay_image = overlay_image.resize((190, 260), Image.NEAREST)
 
         # COVER
         self.cover_frame = Frame(images_frame)
@@ -319,7 +319,7 @@ class CoverFrame(Frame):
 
         image = Image.open(
             pathlib.Path(action_template))
-        image = image.resize((190, 260), Image.ANTIALIAS)
+        image = image.resize((190, 260), Image.NEAREST)
         self.watermark = ImageTk.PhotoImage(image, master=self.cover_canvas)
         self._watermark_image_id = self.cover_canvas.create_image(150, 150, image=self.watermark)
         self.cover_canvas.tag_lower(self._image_id)

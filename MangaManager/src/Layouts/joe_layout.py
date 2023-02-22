@@ -6,10 +6,10 @@ from tkinter.ttk import Notebook
 from common.models import Formats, AgeRating
 from src.Common import ResourceLoader
 from src.MetadataManager.CoverManager.CoverManager import CoverManager
-from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.GUI.ExceptionWindow import ExceptionFrame
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, FileMultiSelectWidget, ProgressBarWidget, \
     ComboBoxWidget, LongTextWidget, OptionMenuWidget
+from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
 f = open(ResourceLoader.get('languages.json'), 'r')
@@ -84,7 +84,7 @@ class Layout(GUIApp):
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
         try:
             icon_path = ResourceLoader.get('open_file.png')
-            btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+            btn.img_ref = tkinter.PhotoImage(name="open_file_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except: # Fixme linux throws resource not found
             self.log.exception("Exception loading the open_file icon")
@@ -168,7 +168,7 @@ class Layout(GUIApp):
 
         self.changes_saved = tkinter.Label(master=self, text="Changes are not saved", font=('Arial', 10))
         self.focus()
-        self.log.warn("warn test")
+        self.log.warning("warn test")
         self.log.error("error test")
 
     def display_main_content_widgets(self) -> None:
