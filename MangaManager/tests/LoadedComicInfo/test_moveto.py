@@ -1,9 +1,8 @@
 import unittest
 
 from common.models import ComicInfo
-from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
-from src.Common.utils import obtain_cover_filename
-from tests.common import CBZManipulationTests, create_test_cbz
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+
 
 class MoveToTemplate(unittest.TestCase):
     def test_template(self):

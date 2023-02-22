@@ -4,7 +4,7 @@ import zipfile
 
 from PIL import Image
 
-from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
+from src.Common.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
 from src.Common.utils import obtain_cover_filename
 from tests.common import CBZManipulationTests, create_test_cbz
 

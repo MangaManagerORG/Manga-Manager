@@ -7,7 +7,8 @@ from tkinter.filedialog import askopenfile
 from PIL import Image, ImageTk
 
 from src.Common import ResourceLoader
-from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
+from src.Common.LoadedComicInfo.CoverActions import CoverActions
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.Settings.SettingHeading import SettingHeading
 from src.Settings.Settings import Settings
 

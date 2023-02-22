@@ -11,7 +11,7 @@ import numpy as np
 from PIL import Image, ImageTk
 
 from src.Common import ResourceLoader
-from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
+from src.Common.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
 from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget

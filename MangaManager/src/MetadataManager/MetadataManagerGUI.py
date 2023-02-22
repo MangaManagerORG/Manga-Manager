@@ -21,7 +21,7 @@ else:
     from tkinter.filedialog import askopenfiles, askdirectory
 from _tkinter import TclError
 
-from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget
 from src.MetadataManager.GUI.SettingsWidgetManager import SettingsWidgetManager
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib

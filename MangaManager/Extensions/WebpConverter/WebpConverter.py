@@ -10,11 +10,10 @@ import tkinter.ttk as ttk
 from tkinter import filedialog
 
 from Extensions.IExtensionApp import IExtensionApp
-from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.Common.utils import ShowPathTreeAsDict
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ProgressBarWidget
 from src.Settings.Settings import Settings
-
 
 logger = logging.getLogger()
 

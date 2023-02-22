@@ -12,9 +12,9 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.validation import Validator
 
-from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.Common.utils import ShowPathTreeAsDict
 from common.models import ComicInfo
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from src.Common.utils import ShowPathTreeAsDict
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
 

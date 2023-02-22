@@ -3,7 +3,7 @@ import logging
 import tkinter
 from tkinter.ttk import Treeview
 
-from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 
 logger = logging.getLogger()
 
