@@ -258,6 +258,8 @@ class LoadedComicInfo:
             logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",
                          exc_info=False)
             raise BadZipFile()
+        except Exception:
+            logger.exception(f"Unhandled error loading cover info for file: '{self.file_name}'")
         return self
 
     def get_cover_image_bytes(self, resized=False, back_cover=False) -> IO[bytes] | None:
@@ -269,22 +271,24 @@ class LoadedComicInfo:
             return None
         if back_cover and not self.backcover_filename:
             return None
-
-        with zipfile.ZipFile(self.file_path, 'r') as zin:
-            img_bytes = zin.open(self.cover_filename if not back_cover else self.backcover_filename)
-            image = Image.open(img_bytes)
-            image = image.resize((190, 260), Image.ANTIALIAS)
-            try:
-                if not back_cover:
-                    self.cover_cache = ImageTk.PhotoImage(image)
-                else:
-                    self.backcover_cache = ImageTk.PhotoImage(image)
-            except RuntimeError as e:
-                print(e)  # Random patch for some error when running tests
-                ...
-            if resized:
-                return io.BytesIO(image.tobytes())
-        return img_bytes
+        try:
+            with zipfile.ZipFile(self.file_path, 'r') as zin:
+                img_bytes = zin.open(self.cover_filename if not back_cover else self.backcover_filename)
+                image = Image.open(img_bytes)
+                image = image.resize((190, 260), Image.ANTIALIAS)
+                try:
+                    if not back_cover:
+                        self.cover_cache = ImageTk.PhotoImage(image)
+                    else:
+                        self.backcover_cache = ImageTk.PhotoImage(image)
+                except RuntimeError as e:
+                    print(e)  # Random patch for some error when running tests
+                    ...
+                if resized:
+                    return io.BytesIO(image.tobytes())
+            return img_bytes
+        except Exception:
+            logger.exception(f"Error getting cover bytes. BackCover = {'True' if back_cover else 'False'} File: {self.file_name}")
 
     def load_metadata(self):
         try:

@@ -4,9 +4,9 @@ from enum import StrEnum
 import requests
 
 from common import get_invalid_person_tag
+from common.models import ComicInfo
 from src.Common.errors import MangaNotFoundError
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
-from common.models import ComicInfo
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
@@ -57,13 +57,6 @@ class MangaUpdates(IMetadataSource):
             return ""
         return ", ".join(invalid_people) + " are not a valid tags"
 
-    @staticmethod
-    def trim(value):
-        ret = value.strip()
-        if ret.endswith(','):
-            return ret[0:-1]
-        return ret
-
     @classmethod
     def get_cinfo(cls, comic_info_from_ui) -> ComicInfo | None:
         # We need to take what's already in the UI and allow fetching to merge the data in
@@ -73,7 +66,7 @@ class MangaUpdates(IMetadataSource):
 
         # Basic Info
         comicinfo.series = data["title"].strip()
-        comicinfo.summary = IMetadataSource.clean_description(data.get("description"), removeSource=True)
+        comicinfo.summary = IMetadataSource.clean_description(data.get("description"), remove_source=True)
         comicinfo.genre = ", ".join([i["genre"] for i in data["genres"]]).strip()
         comicinfo.tags = ", ".join([i["category"] for i in data["categories"]])
         comicinfo.web = data["url"].strip()

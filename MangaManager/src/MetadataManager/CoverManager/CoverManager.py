@@ -390,6 +390,7 @@ class CoverManager(tkinter.Toplevel):
     ########################
     # Cover scanner methods
     ########################
+    # TODO: Add tests
     def select_similar(self):
         """
         Compares the selected file with all the loaded covers and backcovers
@@ -412,13 +413,13 @@ class CoverManager(tkinter.Toplevel):
             lcinfo: LoadedComicInfo = comicframe.loaded_cinfo
             try:
                 if self.scan_covers.get():
-                    self._scan_images(x, lcinfo, is_backcover=False, comicframe=comicframe)
+                    self._scan_images(lcinfo=lcinfo, x=x, is_backcover=False, comicframe=comicframe)
                 if self.scan_backcovers.get():
-                    self._scan_images(x, lcinfo, is_backcover=True, comicframe=comicframe)
+                    self._scan_images(lcinfo=lcinfo, x=x, is_backcover=True, comicframe=comicframe)
             except Exception:
                 logger.exception(f"Failed to compare images for file {comicframe.loaded_cinfo.file_name}")
 
-    def _scan_images(self, x, lcinfo, comicframe, is_backcover=False):
+    def _scan_images(self, x, lcinfo:LoadedComicInfo, comicframe, is_backcover=False):
         """
 
         :param x: Numpy array containing the selected image histogram
@@ -427,7 +428,7 @@ class CoverManager(tkinter.Toplevel):
         :param comicframe: The comicframe the lcinfo is linked to
         :return:
         """
-        image = lcinfo.cover_cache(is_backcover)
+        image = lcinfo.get_cover_cache(is_backcover)
         if image is None:
             logger.error(f"Failed to compare cover image. File is not loaded. File '{lcinfo.file_name}'")
         else:

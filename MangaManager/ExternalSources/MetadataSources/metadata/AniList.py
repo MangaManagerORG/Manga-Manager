@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import logging
 from enum import StrEnum
+
 import requests
 
 from common import get_invalid_person_tag
+from common.models import ComicInfo
 from src.Common.errors import MangaNotFoundError
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
-from common.models import ComicInfo
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
@@ -75,13 +76,6 @@ class AniList(IMetadataSource):
             return ""
         return ", ".join(invalid_people) + " are not a valid tags"
 
-    @staticmethod
-    def trim(value):
-        ret = value.strip()
-        if ret.endswith(','):
-            return ret[0:-1]
-        return ret
-
     @classmethod
     def get_cinfo(cls, comic_info_from_ui: ComicInfo) -> ComicInfo | None:
         comicinfo = ComicInfo()
@@ -115,7 +109,7 @@ class AniList(IMetadataSource):
             comicinfo.localized_series = title_romaji
 
         # Summary
-        comicinfo.summary = IMetadataSource.clean_description(data.get("description"), removeSource=True)
+        comicinfo.summary = IMetadataSource.clean_description(data.get("description"), remove_source=True)
 
         # People
         cls.update_people_from_mapping(cls, data["staff"]["edges"], cls.person_mapper, comicinfo,

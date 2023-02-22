@@ -246,7 +246,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self.update()
 
     def on_badzipfile_error(self, exception, file_path: LoadedComicInfo):  # pragma: no cover
-        mb.showerror("Error loading file",
+        mb.showerror(self.main_frame, "Error loading file",
                      f"Failed to read the file '{file_path}'.\nThis can be caused by wrong file format"
                      f" or broken file.\n"
                      f"Read the logs for more information.\n"
