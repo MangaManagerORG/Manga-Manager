@@ -177,7 +177,7 @@ class ErrorHandlingTests(unittest.TestCase):
 
             def write_metadata(self, auto_unmark_changes=False):
                 if not called:
-                    raise PermissionError()
+                    raise PermissionError("This exception is raised as part of one unit test. Safe to ignore")
                 else:
                     super().write_metadata(auto_unmark_changes)
                 
@@ -199,8 +199,9 @@ class ErrorHandlingTests(unittest.TestCase):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
                 self.has_changes = True
+
             def write_metadata(self, auto_unmark_changes=False):
-                raise Exception()
+                raise Exception("Exception. This exception is raised as part of one unit test. Safe to ignore")
 
         MetadataManagerLib.LoadedComicInfo = RaisePermissionError
 
