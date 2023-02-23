@@ -14,6 +14,7 @@ from src.Common.utils import IS_IMAGE_PATTERN, get_new_webp_name, convert_to_web
 from .CoverActions import CoverActions
 from .LoadedFileCoverData import LoadedFileCoverData
 from .LoadedFileMetadata import LoadedFileMetadata
+from .ArchiveFile import ArchiveFile
 
 logger = logging.getLogger("LoadedCInfo")
 COMICINFO_FILE = 'ComicInfo.xml'
@@ -104,7 +105,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData):
             # Fixme: skip folders
             # Update: 05-01-23 At this point i don't remember why the fix me. I'm leaving it there.
             self.load_cover_info()
-            with zipfile.ZipFile(self.file_path, 'r') as self.archive:
+            with ArchiveFile(self.file_path,'r') as self.archive:
                 if not self.cinfo_object:
                     self._load_metadata()
 
@@ -116,7 +117,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData):
 
     def load_metadata(self):
         try:
-            with zipfile.ZipFile(self.file_path, 'r') as self.archive:
+            with ArchiveFile(self.file_path,'r') as self.archive:
                 if not self.cinfo_object:
                     self._load_metadata()
         except zipfile.BadZipFile:
@@ -161,7 +162,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData):
         tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_path))
         os.close(tmpfd)
 
-        with zipfile.ZipFile(self.file_path, "r") as zin:
+        with ArchiveFile(self.file_path,'r') as zin:
             initial_file_count = len(zin.namelist())
 
             with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
@@ -176,7 +177,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData):
         logger.debug(f"[{'Processing':13s}] Data from old file copied to new file")
         # Delete old file and rename new file to old name
         try:
-            with zipfile.ZipFile(self.file_path, "r") as zin:
+            with ArchiveFile(self.file_path,'r') as zin:
                 assert initial_file_count == len(zin.namelist())
             os.remove(self.file_path)
             os.rename(tmpname, self.file_path)

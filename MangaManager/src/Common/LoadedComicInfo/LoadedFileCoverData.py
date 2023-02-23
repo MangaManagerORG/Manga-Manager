@@ -10,7 +10,7 @@ from PIL import ImageTk, Image
 from src.Common.errors import BadZipFile
 from src.Common.utils import obtain_cover_filename
 from .CoverActions import CoverActions
-
+from .ArchiveFile import ArchiveFile
 logger = logging.getLogger("LoadedCInfo")
 COMICINFO_FILE = 'ComicInfo.xml'
 COMICINFO_FILE_BACKUP = 'Old_ComicInfo.xml.bak'
@@ -112,7 +112,7 @@ class LoadedFileCoverData:
 
     def load_cover_info(self, load_images=True):
         try:
-            with zipfile.ZipFile(self.file_path, 'r') as self.archive:
+            with ArchiveFile(self.file_path,'r') as self.archive:
                 cover_info = obtain_cover_filename(self.archive.namelist())
                 if not cover_info:
                     return
@@ -149,7 +149,7 @@ class LoadedFileCoverData:
         if back_cover and not self.backcover_filename:
             return None
         try:
-            with zipfile.ZipFile(self.file_path, 'r') as zin:
+            with ArchiveFile(self.file_path,'r') as zin:
                 img_bytes = zin.open(self.cover_filename if not back_cover else self.backcover_filename)
                 image = Image.open(img_bytes)
                 image = image.resize((190, 260), Image.NEAREST)
