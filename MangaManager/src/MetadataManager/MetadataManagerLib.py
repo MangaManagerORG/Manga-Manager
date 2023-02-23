@@ -10,7 +10,7 @@ from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from src.Common.terminalcolors import TerminalColors as TerCol
-from src.Settings.SettingHeading import SettingHeading
+from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
 
 logger = logging.getLogger("MetaManager.Core")

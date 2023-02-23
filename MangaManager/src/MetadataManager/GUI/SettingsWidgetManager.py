@@ -14,9 +14,9 @@ from src.Common.utils import open_folder
 from src.MetadataManager.GUI.utils import center
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.GUI.widgets.FormBundleWidget import FormBundleWidget
+from src.Settings import SettingHeading
 from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
-from src.Settings.SettingHeading import SettingHeading
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 

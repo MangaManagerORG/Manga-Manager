@@ -17,7 +17,7 @@ from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, CanvasCoverWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
-from src.Settings.SettingHeading import SettingHeading
+from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
 
 action_template = ResourceLoader.get('cover_action_template.png')

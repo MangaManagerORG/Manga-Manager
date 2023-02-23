@@ -5,7 +5,7 @@ from io import StringIO
 from typing import final
 
 from common.models import ComicInfo
-from src.Settings import Settings
+from src.Settings import Settings, SettingSection, SettingControl
 from .ExtensionsInterface import IMMExtension
 
 
@@ -104,8 +104,14 @@ class IMetadataSource(IMMExtension):
         return summary.strip()
 
     def init_settings(self):
+        """
+        Grabs extension settings and loads it to the base setting controller
+        :return:
+        """
         for section in self.settings:
+            section: SettingSection
             for control in section.values:
+                control: SettingControl
                 Settings().set_default(section.key, control.key, control.value)
         Settings().save()
 

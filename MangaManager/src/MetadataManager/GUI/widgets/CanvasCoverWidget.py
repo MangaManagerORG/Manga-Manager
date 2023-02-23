@@ -9,7 +9,7 @@ from PIL import Image, ImageTk
 from src.Common import ResourceLoader
 from src.Common.LoadedComicInfo.CoverActions import CoverActions
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
-from src.Settings.SettingHeading import SettingHeading
+from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
 
 window_width, window_height = 0, 0

@@ -2,26 +2,9 @@ import configparser
 import logging
 import os
 
-from src.Settings import SettingHeading
+from src.Settings.SettingsDefault import default_settings
 
 logger = logging.getLogger()
-default_settings = {
-    SettingHeading.Main: [
-        {"library_path": ""},
-        {"covers_folder_path": ""},
-        {"cache_cover_images": True},
-        # {"selected_layout": "default"},
-        {"move_to_template": ""}
-
-    ],
-    SettingHeading.WebpConverter: [
-        {"default_base_path": ""},
-    ],
-    SettingHeading.ExternalSources: [
-        {"default_metadata_source": "AniList"},
-        {"default_cover_source": "MangaDex"},
-    ],
-}
 
 
 class Settings:

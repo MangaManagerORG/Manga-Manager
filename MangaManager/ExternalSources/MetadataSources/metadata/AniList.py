@@ -32,27 +32,38 @@ class AniList(IMetadataSource):
     _log = logging.getLogger()
     # Map the Role from API to the ComicInfo tags to write
     person_mapper = {}
+    _HOW_METADATA_MAPS_TOOLTIP = "How metadata field will map to ComicInfo fields"
     romaji_as_series = True
 
     def init_settings(self):
         self.settings = [
             SettingSection(self.name, self.name, [
-                SettingControl(AniListSetting.SeriesTitleLanguage, "Prefer Romaji Series Title Language",
-                               SettingControlType.Bool, True,
-                               ("How metadata field will map to Series and LocalizedSeries fields\n"
-                                "true: Romaji->Series, English->LocalizedSeries\n"
-                                "false: English->Series, Romaji->LocalizedSeries\n"
-                                "Always Romaji->Series when no English")),
-                SettingControl(AniListPerson.OriginalStory, "Original Story", SettingControlType.Text, "Writer",
-                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
-                SettingControl(AniListPerson.CharacterDesign, "Character Design", SettingControlType.Text, "Penciller",
-                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
-                SettingControl(AniListPerson.Story, "Story", SettingControlType.Text, "Writer",
-                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
-                SettingControl(AniListPerson.Art, "Art", SettingControlType.Text, "Penciller, Inker, CoverArtist",
-                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
-                SettingControl(AniListPerson.Assistant, "Assistant", SettingControlType.Text, "",
-                               "How metadata field will map to ComicInfo fields", self.is_valid_person_tag, self.trim),
+                SettingControl(key=AniListSetting.SeriesTitleLanguage, name="Prefer Romaji Series Title Language",
+                               control_type=SettingControlType.Bool, value=True,
+                               tooltip="How metadata field will map to Series and LocalizedSeries fields\n"
+                                       "true: Romaji->Series, English->LocalizedSeries\n"
+                                       "false: English->Series, Romaji->LocalizedSeries\n"
+                                       "Always Romaji->Series when no English"),
+                SettingControl(key=AniListPerson.OriginalStory, name="Original Story",
+                               control_type=SettingControlType.Text, value="Writer",
+                               tooltip=self._HOW_METADATA_MAPS_TOOLTIP,
+                               validate=self.is_valid_person_tag, format_value=self.trim),
+                SettingControl(key=AniListPerson.CharacterDesign, name="Character Design",
+                               control_type=SettingControlType.Text, value="Penciller",
+                               tooltip=self._HOW_METADATA_MAPS_TOOLTIP,
+                               validate=self.is_valid_person_tag, format_value=self.trim),
+                SettingControl(key=AniListPerson.Story, name="Story",
+                               control_type=SettingControlType.Text, value="Writer",
+                               tooltip=self._HOW_METADATA_MAPS_TOOLTIP,
+                               validate=self.is_valid_person_tag, format_value=self.trim),
+                SettingControl(key=AniListPerson.Art, name="Art",
+                               control_type=SettingControlType.Text, value="Penciller, Inker, CoverArtist",
+                               tooltip=self._HOW_METADATA_MAPS_TOOLTIP,
+                               validate=self.is_valid_person_tag, format_value=self.trim),
+                SettingControl(key=AniListPerson.Assistant, name="Assistant",
+                               control_type=SettingControlType.Text, value="",
+                               tooltip=self._HOW_METADATA_MAPS_TOOLTIP,
+                               validate=self.is_valid_person_tag, format_value=self.trim),
             ])
         ]
         super().init_settings()
