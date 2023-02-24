@@ -61,7 +61,7 @@ class GUIApp(Tk, MetadataManagerLib):
         # Add binds
         self.bind('<Control-o>', lambda x: self.select_files())
         self.bind('<Control-s>', lambda x: self.pre_process())
-        self.bind('<Control-f>', lambda x: self.fetch_online(self.widget_mngr.get_widget("Series")))
+        self.bind('<Control-f>', self.process_fetch_online)
 
         # Icons
         icon_path = ResourceLoader.get('clear_icon.png')
@@ -419,7 +419,7 @@ class GUIApp(Tk, MetadataManagerLib):
             tkinter.Button(parent_frame, text=loaded_extension.name, command=lambda load_ext=loaded_extension:
                            load_ext(parent_frame, super_=self)).pack(side="top")
 
-    def process_fetch_online(self):
+    def process_fetch_online(self, *_):
         series_name = self.widget_mngr.get_widget("Series").get().strip()
         if series_name in (None, "", self.MULTIPLE_VALUES_CONFLICT):
             mb.showwarning(self.main_frame,"Not a valid series name", "The current series name is empty or not valid.")
