@@ -12,10 +12,9 @@ from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, F
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
-f = open(ResourceLoader.get('languages.json'), 'r')
-data = json.loads(f.read())
-languages = [l["isoCode"] for l in data]
-f.close()
+with open(ResourceLoader.get('languages.json'), 'r', encoding="utf-8") as f:
+    data = json.loads(f.read())
+    languages = [language["isoCode"] for language in data]
 
 
 class Layout(GUIApp):
