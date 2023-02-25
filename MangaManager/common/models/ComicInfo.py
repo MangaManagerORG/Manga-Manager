@@ -1,4 +1,5 @@
-import xml.etree.ElementTree as ET
+from io import BytesIO
+from xml.etree import ElementTree as ET
 
 comic_info_tag_map = {
     "series": "Series",
@@ -67,7 +68,6 @@ class ComicInfo:
     teams = ""
     locations = ""
     main_character_or_team = ""
-    other = ""
     genre = ""
     age_rating = ""
     series_sort = ""
@@ -95,6 +95,7 @@ class ComicInfo:
     black_and_white = ""
     page_count = ""
     scan_information = ""
+    other = ""
 
     def __init__(self):
         pass
@@ -115,7 +116,8 @@ class ComicInfo:
 
     @classmethod
     def from_xml(cls, xml_string):
-        root = ET.ElementTree(ET.fromstring(xml_string, parser=ET.XMLParser(encoding='utf-8')))
+        # encoded_string = xml_string.encode("utf-8")
+        root = ET.ElementTree(ET.fromstring(xml_string.encode("utf-8"), parser=ET.XMLParser(encoding='utf-8')))
         comic_info = cls()
         for prop in [a for a in dir(comic_info) if not a.startswith('__') and not callable(getattr(comic_info, a))]:
             comic_info.__setattr__(prop, root.findtext(comic_info_tag_map[prop]))
@@ -124,12 +126,21 @@ class ComicInfo:
 
     def to_xml(self):
         root = ET.Element("ComicInfo")
-        for key, value in comic_info_tag_map.items():
-            ET.SubElement(root, value).text = str(getattr(self, key))
+        for key, mapped_key in comic_info_tag_map.items():
+            value = str(getattr(self,key))
+            if value:
+                ET.SubElement(root, mapped_key).text = value
 
         # prevent creation of self-closing tags
         for node in root.iter():
             if node.text is None:
                 node.text = ''
-
-        return ET.tostring(root, encoding="UTF-8", xml_declaration=True, method='xml').decode("utf8")
+        f = BytesIO()
+        et = ET.ElementTree(root)
+        ET.indent(et)
+        et.write(f, encoding='utf-8', xml_declaration=True)
+        ret_xml = f.getvalue()
+        return str(ret_xml,encoding="utf-8")
+        # print(f.getvalue())  # your XML file, encoded as UTF-8
+        # output_xml = ET.tostring(root, encoding="UTF-8", xml_declaration=True, method='xml').decode("utf8")
+        # return output_xml

@@ -1,4 +1,3 @@
-import io
 import os
 import random
 import tempfile
@@ -121,7 +120,7 @@ class LoadedComicInfo_MetadataTests(unittest.TestCase):
                     self.assertTrue("Old_ComicInfo.xml.bak" in zf.namelist())
 
                     print("Making sure the backed up file has content and matches original values:")
-                    cinfo = ComicInfo.from_xml(zf.open("Old_ComicInfo.xml.bak").read())
+                    cinfo = ComicInfo.from_xml(zf.open("Old_ComicInfo.xml.bak").read().decode("utf-8"))
                     self.assertEqual(f"Series-{i}-{self.random_int}", cinfo.series)
 
 
