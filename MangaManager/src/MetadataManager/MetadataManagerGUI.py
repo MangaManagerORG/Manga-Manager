@@ -298,6 +298,7 @@ class GUIApp(Tk, MetadataManagerLib):
             tag_values = set()
             for loaded_cinfo in loaded_cinfo_list:
                 tag_value = str(loaded_cinfo.cinfo_object.get_by_tag_name(cinfo_tag))
+                assert tag_value != "None"
                 tag_values.add(tag_value if tag_value != widget.default else "")
             tag_values = tuple(tag_values)
             tag_values_len = len(tag_values)
