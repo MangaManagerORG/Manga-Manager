@@ -1,6 +1,9 @@
 # Import all the scrapers here to ensure globals() has the key in it for dynamic instantiation
+import logging
+
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
 
+logger = logging.getLogger()
 
 # NOTE: This is a stopgap solution until dynamic loader is implemented
 class ScraperFactory:
@@ -18,7 +21,11 @@ class ScraperFactory:
         pass
 
     def get_scraper(self, setting_name) -> IMetadataSource:
-        if not setting_name in self.providers:
-            cls = globals()[setting_name]
+        if setting_name not in self.providers:
+            try:
+                cls = globals()[setting_name]
+            except KeyError:
+                logger.exception(f"Failed to load setting name '{setting_name}'")
+                return
             self.providers[setting_name] = cls()
         return self.providers[setting_name]

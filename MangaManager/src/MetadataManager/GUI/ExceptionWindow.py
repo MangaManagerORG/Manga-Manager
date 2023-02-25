@@ -38,6 +38,14 @@ class ExceptionFrame(Frame):
 
         if not is_test:
             logger.addHandler(handler)
+        # Pump logging events not loaded with the ui
+        logger.debug("Removing unpumped handler")
+        logger.removeHandler(logging.umpumped_handler)
+        while logging.umpumped_events:
+            record = logging.umpumped_events.pop()
+            handler.emit(record)
+
+
 
     def __del__(self):
         logger.removeHandler(self.handler)
