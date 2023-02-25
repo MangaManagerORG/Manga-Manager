@@ -5,7 +5,7 @@ from common.models import ComicInfo
 
 class TestSources(unittest.TestCase):
     def test_AnilistReturnMatches(self):
-        from ExternalSources.MetadataSources.metadata import ScraperFactory
+        from ExternalSources.MetadataSources import ScraperFactory
         scraper = ScraperFactory().get_scraper("AniList")
         cinfo = ComicInfo()
         cinfo.series = "tensei shitara datta ken"

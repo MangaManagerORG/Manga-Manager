@@ -5,7 +5,7 @@ import tkinter
 from tkinter import ttk, Frame
 from tkinter.ttk import LabelFrame, Label, Notebook
 
-from ExternalSources.MetadataSources.metadata import ScraperFactory
+from ExternalSources.MetadataSources import ScraperFactory
 from src import MM_PATH
 from src.Common.utils import open_folder
 from src.MetadataManager.GUI.utils import center
