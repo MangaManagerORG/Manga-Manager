@@ -132,7 +132,7 @@ class SettingsWidgetManager:
             section = self.default_settings[setting_section]
 
             logger.info('Setting up settings for ' + section.pretty_name)
-            section_frame = Frame(master=self.widgets_frame)
+            section_frame = Frame(master=self.widgets_frame, name="default_"+setting_section.name)
             section_frame.pack(expand=True, fill="both")
 
             self.settings_widget[section.pretty_name] = {}
@@ -144,22 +144,18 @@ class SettingsWidgetManager:
             settings = provider.settings
             for section in settings:
                 logger.info('Setting up settings for ' + provider.name)
-                section_frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name)
+                section_frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name, name="provider_"+provider.name)
                 section_frame.pack(expand=True, fill="both")
 
                 self.settings_widget[self.default_settings[SettingHeading.ExternalSources].pretty_name][section.pretty_name] = {}
                 self.build_setting_entries(section_frame, section.values, section)
                 self.widgets_frame.add(section_frame, text=section.pretty_name)
 
-        section = self.default_settings[SettingHeading.MessageBox]
-        logger.info('Setting up settings for ' + section.pretty_name)
-        section_frame = Frame(master=self.widgets_frame)
-        section_frame.pack(expand=True, fill="both")
-        self.settings_widget[section.pretty_name] = {}
-        self.build_setting_entries(section_frame, section.values, section)
-        self.widgets_frame.add(section_frame, text=section.pretty_name)
-
-
+        # Display checkbox toggles
+        frame = self.widgets_frame.children.get("default_MessageBox")
+        for entry in list(Settings.config_parser[SettingHeading.MessageBox]):
+            control = SettingControl(key=entry, name=entry, control_type=SettingControlType.Bool)
+            self.build_setting_entry(frame, control=control, section=self.default_settings[SettingHeading.MessageBox])
 
         center(settings_window)
         frame = Label(master=control_frame, text="\nNote: Fields marked with * need a restart to take effect")
