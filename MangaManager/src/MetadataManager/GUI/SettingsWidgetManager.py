@@ -11,6 +11,7 @@ from common.models import ComicInfo
 from src import MM_PATH
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.Common.utils import open_folder
+from src.DynamicLibController.models import IMetadataSource
 from src.MetadataManager.GUI.utils import center
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.GUI.widgets.FormBundleWidget import FormBundleWidget
@@ -43,10 +44,12 @@ setting_control_map = {
                                                   "The source that will be hit when looking for metadata"),
         "default_cover_source": SettingControl("default_cover_source", "Default cover source", SettingControlType.Options, "The source that will be hit when looking for cover images"),
     },
+    SettingHeading.MessageBox: {
+    }
 }
 
 # TODO: Load dynamically loaded extensions (this will be moved in another PR)
-providers = [ScraperFactory().get_scraper("MangaUpdates"),
+providers: list[IMetadataSource] = [ScraperFactory().get_scraper("MangaUpdates"),
              ScraperFactory().get_scraper("AniList")]
 
 
@@ -134,8 +137,8 @@ class SettingsWidgetManager:
 
             self.settings_widget[section.pretty_name] = {}
             self.build_setting_entries(section_frame, section.values, section)
-
             self.widgets_frame.add(section_frame, text=section.pretty_name)
+
         logger.info('Setting up settings for Extensions')
         for provider in providers:
             settings = provider.settings
@@ -147,6 +150,17 @@ class SettingsWidgetManager:
                 self.settings_widget[self.default_settings[SettingHeading.ExternalSources].pretty_name][section.pretty_name] = {}
                 self.build_setting_entries(section_frame, section.values, section)
                 self.widgets_frame.add(section_frame, text=section.pretty_name)
+
+        section = self.default_settings[SettingHeading.MessageBox]
+        logger.info('Setting up settings for ' + section.pretty_name)
+        section_frame = Frame(master=self.widgets_frame)
+        section_frame.pack(expand=True, fill="both")
+        self.settings_widget[section.pretty_name] = {}
+        self.build_setting_entries(section_frame, section.values, section)
+        self.widgets_frame.add(section_frame, text=section.pretty_name)
+
+
+
         center(settings_window)
         frame = Label(master=control_frame, text="\nNote: Fields marked with * need a restart to take effect")
         frame.pack(expand=True, fill="both")
@@ -156,8 +170,8 @@ class SettingsWidgetManager:
         control.value = Settings().get(section.key, control.key)
 
         row = FormBundleWidget(parent_frame)\
-            .with_label(control.name, control.tooltip)\
-            .with_input(control, section)\
+            .with_label(title=control.name, tooltip=control.tooltip)\
+            .with_input(control=control, section=section)\
             .build()
 
         self.bundles.append(row)

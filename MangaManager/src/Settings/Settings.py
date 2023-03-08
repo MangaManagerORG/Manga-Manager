@@ -62,6 +62,13 @@ class Settings:
         if key not in self.config_parser[section]:
             self.config_parser.set(section, key, str(value))
 
+    def get_default(self, section, key, default_value):
+        """
+        Returns default value and creates the key if it doesn't exist
+        """
+        self.set_default(section, key, default_value)
+        return self.get(section, key)
+
     def set(self, section, key, value):
         """Sets a key's value. Will Save to disk and reload Settings"""
         self._create_section(section)

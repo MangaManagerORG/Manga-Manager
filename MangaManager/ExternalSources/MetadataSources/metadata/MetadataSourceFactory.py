@@ -1,7 +1,4 @@
 # Import all the scrapers here to ensure globals() has the key in it for dynamic instantiation
-from .MangaUpdates import MangaUpdates
-from .AniList import AniList
-from .ComicVine import ComicVine
 
 # NOTE: This is a stopgap solution until dynamic loader is implemented
 class ScraperFactory:
@@ -18,7 +15,7 @@ class ScraperFactory:
     def __init__(self):
         pass
 
-    def get_scraper(self, setting_name):
+    def get_scraper(self, setting_name) -> IMetadataSource:
         if not setting_name in self.providers:
             cls = globals()[setting_name]
             self.providers[setting_name] = cls()

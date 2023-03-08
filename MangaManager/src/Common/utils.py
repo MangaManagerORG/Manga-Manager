@@ -322,3 +322,12 @@ def match_pyfiles_with_foldername(file_path):
     return folder == file_
 
 
+def parse_bool(value: str) -> bool:
+    match value.lower():
+        case "true" | "1" | 1:
+            return True
+        case "false" | "0" | 0:
+            return False
+        case _:
+            raise ValueError(f"Invalid boolean string: {value}")
+

@@ -2,6 +2,8 @@ import logging
 
 from src.Common import ResourceLoader
 from src.Layouts import layout_factory
+from src.MetadataManager.GUI.OneTimeMessageBox import OneTimeMessageBox
+from src.MetadataManager.GUI.widgets.MessageBoxWidget import MessageBoxButton
 from src.Settings import Settings, SettingHeading
 
 logger = logging.getLogger()
@@ -22,6 +24,11 @@ def execute_gui():
         app.iconbitmap(icon_path)
     except:
         logger.exception("Exception loading icon")
+
+    OneTimeMessageBox("test_welcome_to_mm").\
+        with_title("Welcome to MangaManager").\
+        with_actions([MessageBoxButton(0, "Thanks")]).\
+        build().prompt()
 
     app.mainloop()
 

@@ -19,18 +19,23 @@ class MessageBoxWidget(Toplevel):
     icon_question = "::tk::icons::question"
 
     selected_value = None
+    disabled = False
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
+        if self.disabled:
+            self.wm_deiconify()
+            self.destroy()
+            return
 
         # Setting Geometry
         self.geometry("460x180+100+100")
 
-        self.label = Label(self, text="Dummy_Text", font=("Helvetica", 16), justify="center")
+        self.label = Label(self, text="", font=("Helvetica", 16), justify="center")
         self.label.pack(side="top", fill="x", expand=False)
         self.label.configure(wraplength=500)
 
-        self.description = Label(self, text="Dummy_Text", font=("monospace", 12), justify="center")
+        self.description = Label(self, text="", font=("monospace", 12), justify="center")
         self.description.pack(side="top", fill="x", expand=False)
         self.description.configure(wraplength=500)
 
@@ -38,7 +43,7 @@ class MessageBoxWidget(Toplevel):
         self.content_frame = self._scrolled_frame.innerframe
 
         self.control_frame = Frame(self)
-        self.control_frame.pack(pady=10, side="bottom",anchor="center")
+        self.control_frame.pack(pady=10, side="bottom", anchor="center")
 
         # Removing titlebar from the Dialogue
         self.overrideredirect(False)
@@ -53,14 +58,14 @@ class MessageBoxWidget(Toplevel):
         # Force focus on this window
         self.grab_set()
 
-
     def with_icon(self, icon_path):
         """Adds an icon to the MessageBoxWidget.
 
         :param icon_path: The path to the icon image.
         :return: The MessageBoxWidget instance.
         """
-        self.label.configure(image=icon_path, compound="left")
+        if not self.disabled:
+            self.label.configure(image=icon_path, compound="left")
         return self
 
     def with_title(self, title):
@@ -69,13 +74,15 @@ class MessageBoxWidget(Toplevel):
         :param title: The text for the title.
         :return: The MessageBoxWidget instance.
         """
-        self.title = title
-        self.label.configure(text=title)
+        if not self.disabled:
+            self.title = title
+            self.label.configure(text=title)
 
         return self
 
     def with_description(self, description):
-        self.description.configure(text=description)
+        if not self.disabled:
+            self.description.configure(text=description)
         return self
 
     def with_content(self, content_frame: Frame):
@@ -84,23 +91,25 @@ class MessageBoxWidget(Toplevel):
         :param content_frame: The content frame.
         :return: The MessageBoxWidget instance.
         """
-        self._scrolled_frame.pack(fill="both", expand=True)
-        self.content_frame.pack()
+        if not self.disabled:
+            self._scrolled_frame.pack(fill="both", expand=True)
+            self.content_frame.pack()
 
         content_frame.master = self.content_frame
         return self
 
-    def with_actions(self, action_buttons):
+    def with_actions(self, action_buttons: list[MessageBoxButton]):
         """
         Adds buttons to the MessageBoxWidget.
         :param action_buttons: A list of MessageBoxButton instances.
         :return: The MessageBoxWidget instance.
         """
-        # button is a MessageBoxButton class with id, title
-        for button in action_buttons:
-            Button(self.control_frame, text=button.title, padx=10, pady=5, borderwidth=3,
-                   command=lambda btn=button: self._set_selected_value(btn.id)).pack(side="left", ipadx=20)
-            Label(self.control_frame).pack(side="left", padx=5)
+        if not self.disabled:
+            # button is a MessageBoxButton class with id, title
+            for button in action_buttons:
+                Button(self.control_frame, text=button.title, padx=10, pady=5, borderwidth=3,
+                       command=lambda btn=button: self._set_selected_value(btn.id)).pack(side="left", ipadx=20)
+                Label(self.control_frame).pack(side="left", padx=5)
         return self
 
     def build(self):
