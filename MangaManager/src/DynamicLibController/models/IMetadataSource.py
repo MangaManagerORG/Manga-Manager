@@ -74,7 +74,7 @@ class IMetadataSource(IMMExtension):
                         else:
                             comicinfo.set_by_tag_name(fields.strip(), name.strip())
 
-            print(f"No mapping found for: {name} as {role}")
+            logging.info(f"No mapping found for: '{name}' as '{role}'")
 
     @staticmethod
     def clean_description(summary: str, remove_source: bool):

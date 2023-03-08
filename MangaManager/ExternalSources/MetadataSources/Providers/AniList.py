@@ -14,7 +14,7 @@ from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 
-
+logger = logging.getLogger()
 class AniListPerson(StrEnum):
     OriginalStory = "original_story",  # Original Story
     CharacterDesign = "character_design",  # Character Design
@@ -135,19 +135,19 @@ class AniList(IMetadataSource):
             if response.status_code == 429:  # Anilist rate-limit code
                 raise AniListRateLimit()
         except AniListRateLimit:
-            cls.logger.exception("Hitted anilist ratelimit")
+            logger.exception("Hitted anilist ratelimit")
             return None
         except Exception:
-            cls.logger.exception("Unhandled exception making the request to anilist")
+            logger.exception("Unhandled exception making the request to anilist")
             return None
 
-        cls.logger.debug(f'Query: {query}')
-        cls.logger.debug(f'Variables: {variables}')
+        logger.debug(f'Query: {query}')
+        logger.debug(f'Variables: {variables}')
         # self.logger.debug(f'Response JSON: {response.json()}')
         try:
             return response.json()['data']['Media']
         except TypeError:
-            cls.logger.exception("Wrong data format recieved when parsing response json")
+            logger.exception("Wrong data format recieved when parsing response json")
             return None
 
     @classmethod

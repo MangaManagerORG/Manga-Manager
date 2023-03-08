@@ -63,12 +63,10 @@ class ComicVine(IMetadataSource, ABC):
             # if response.status_code == 429:  # Anilist rate-limit code
             #     raise AniListRateLimit()
         except Exception as e:
-            #self._log.exception(e, extra=logging_info)
             self._log.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.', e)
             return None
 
         self._log.debug(f'Query: {url}')
-        #self._log.debug(f'Response JSON: {response.json()}')
         try:
             return response.json()['results']
         except TypeError:

@@ -4,14 +4,15 @@ import abc
 import logging
 from abc import ABC
 
-from ExternalSources.MetadataSources.metadata import ScraperFactory
+from ExternalSources.MetadataSources import ScraperFactory
 from common.models import ComicInfo
-from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.Common.terminalcolors import TerminalColors as TerCol
 from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
+
 
 logger = logging.getLogger("MetaManager.Core")
 

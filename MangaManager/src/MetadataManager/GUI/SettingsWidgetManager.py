@@ -6,7 +6,7 @@ import tkinter
 from tkinter import ttk, Frame
 from tkinter.ttk import LabelFrame, Label, Notebook
 
-from ExternalSources.MetadataSources.metadata import ScraperFactory
+from ExternalSources.MetadataSources import ScraperFactory
 from common.models import ComicInfo
 from src import MM_PATH
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo

@@ -14,12 +14,19 @@ def add_trace_level():
 
     logging.Logger.trace = trace
 
+class UmpumpedLogHandler(logging.Handler):
+    def emit(self, record):
+        logging.umpumped_events.append(record)
+        ei = record.exc_info
 
 def setup_logging(LOGFILE_PATH,level=logging.DEBUG):
 
     # Create our own implementation to have trace logging
 
     # Setup Logger
+    logging.umpumped_events = []
+
+    umpumped_handler = logging.umpumped_handler = UmpumpedLogHandler(logging.INFO)
 
     logging.getLogger('PIL').setLevel(logging.WARNING)
 
@@ -31,7 +38,7 @@ def setup_logging(LOGFILE_PATH,level=logging.DEBUG):
     stream_handler.setLevel(level)
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s - %(name)20s - %(levelname)8s - %(message)s',
-                        handlers=[stream_handler, rotating_file_handler]
+                        handlers=[stream_handler, rotating_file_handler, umpumped_handler]
                         # filename='/tmp/myapp.log'
                         )
 
