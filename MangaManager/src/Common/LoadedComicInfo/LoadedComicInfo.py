@@ -11,10 +11,11 @@ from typing import IO
 from common.models import ComicInfo
 from src.Common.errors import BadZipFile
 from src.Common.utils import IS_IMAGE_PATTERN, get_new_webp_name, convert_to_webp
+from .ArchiveFile import ArchiveFile
 from .CoverActions import CoverActions
+from .ILoadedComicInfo import ILoadedComicInfo
 from .LoadedFileCoverData import LoadedFileCoverData
 from .LoadedFileMetadata import LoadedFileMetadata
-from .ArchiveFile import ArchiveFile
 
 logger = logging.getLogger("LoadedCInfo")
 COMICINFO_FILE = 'ComicInfo.xml'
@@ -27,33 +28,8 @@ _LOG_TAG_RECOMPRESSING = "Recompressing"
 move_to_value = ""
 
 
-class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData):
-    """
-        Helper class that loads the info that is required by the tools
+class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo):
 
-        file_path : str
-            Path of the file
-        cinfo_object : ComicInfo
-            The class where the metadata is stored
-        cover_filename : str
-            The filename of the image that gets parsed as series cover
-        has_metadata : bool
-            If false, we only need to append metadata.
-            No need to back up ComicInfo.xml because it doesn't exist
-        volume : int
-            The volume from the metadata. If not set then it tries to parse from filename
-        chapter : str
-            The volume from the metadata. If not set then it tries to parse from filename
-        """
-
-    file_path: str
-    file_name: str
-
-    has_metadata: bool = False
-    is_cinfo_at_root: bool = False
-
-    has_changes = False
-    changed_tags = []
 
     def __init__(self, path, comicinfo: ComicInfo = None, load_default_metadata=True):
         """

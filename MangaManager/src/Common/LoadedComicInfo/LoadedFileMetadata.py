@@ -1,9 +1,12 @@
 import copy
 import logging
 
+import rarfile
 from lxml.etree import XMLSyntaxError
 
 from common.models import ComicInfo
+from src.Common.LoadedComicInfo.ILoadedComicInfo import ILoadedComicInfo
+from src.Common.errors import MissingRarTool
 
 logger = logging.getLogger("LoadedCInfo")
 COMICINFO_FILE = 'ComicInfo.xml'
@@ -16,7 +19,7 @@ _LOG_TAG_RECOMPRESSING = "Recompressing"
 move_to_value = ""
 
 
-class LoadedFileMetadata:
+class LoadedFileMetadata(ILoadedComicInfo):
 
     _cinfo_object: ComicInfo
     original_cinfo_object: ComicInfo
@@ -69,6 +72,10 @@ class LoadedFileMetadata:
             self.has_metadata = True
         except KeyError:
             xml_string = ""
+        except rarfile.RarCannotExec:
+            xml_string = ""
+            raise MissingRarTool
+
 
         if xml_string:
             try:

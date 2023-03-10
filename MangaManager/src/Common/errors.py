@@ -93,3 +93,9 @@ class FailedBackup(RuntimeError):
 
     def __init__(self):
         super(FailedBackup, self).__init__()
+
+class MissingRarTool(Exception):
+    """Exception raised when there is no installed tool"""
+
+    def __init__(self):
+        super(MissingRarTool, self).__init__()

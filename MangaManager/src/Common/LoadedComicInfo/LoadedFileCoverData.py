@@ -9,8 +9,10 @@ from PIL import ImageTk, Image
 
 from src.Common.errors import BadZipFile
 from src.Common.utils import obtain_cover_filename
-from .CoverActions import CoverActions
 from .ArchiveFile import ArchiveFile
+from .CoverActions import CoverActions
+from .ILoadedComicInfo import ILoadedComicInfo
+
 logger = logging.getLogger("LoadedCInfo")
 COMICINFO_FILE = 'ComicInfo.xml'
 COMICINFO_FILE_BACKUP = 'Old_ComicInfo.xml.bak'
@@ -24,7 +26,7 @@ move_to_value = ""
 
 
 
-class LoadedFileCoverData:
+class LoadedFileCoverData(ILoadedComicInfo):
     cover_filename: str | None = None
     cover_cache: ImageTk.PhotoImage = None
 

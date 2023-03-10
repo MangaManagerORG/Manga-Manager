@@ -17,6 +17,8 @@ class OneTimeMessageBox(MessageBoxWidget):
         mb_setting = Settings().get_default(SettingHeading.MessageBox, mb_id, False)
         if parse_bool(mb_setting):
             cls.disabled = True
+        else:
+            cls.disabled = False
         return super().__new__(cls, *args, **kwargs)
 
     def __init__(self, mb_id=None, *args, **kwargs):

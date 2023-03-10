@@ -29,20 +29,22 @@ class MessageBoxWidget(Toplevel):
             return
 
         # Setting Geometry
-        self.geometry("460x180+100+100")
+        self.geometry("500x260+100+100")
 
-        self.label = Label(self, text="", font=("Helvetica", 16), justify="center")
-        self.label.pack(side="top", fill="x", expand=False)
+        content = Frame(self)
+        self.label = Label(content, text="", font=("Helvetica", 16), justify="center")
         self.label.configure(wraplength=500)
+        self.label.pack(side="top", fill="x", expand=False)
 
-        self.description = Label(self, text="", font=("monospace", 12), justify="center")
-        self.description.pack(side="top", fill="x", expand=False)
+        self.description = Label(content, text="", font=("monospace", 12), justify="center")
         self.description.configure(wraplength=500)
+        self.description.pack(side="top", fill="x", expand=False)
 
-        self._scrolled_frame = ScrolledFrame(master=self, scrolltype="vertical", usemousewheel=True)
+        self._scrolled_frame = ScrolledFrame(master=content, scrolltype="vertical", usemousewheel=True)
         self.content_frame = self._scrolled_frame.innerframe
 
-        self.control_frame = Frame(self)
+        content.pack(side="top", fill="both")
+        self.control_frame = Frame(self,height=50)
         self.control_frame.pack(pady=10, side="bottom", anchor="center")
 
         # Removing titlebar from the Dialogue
