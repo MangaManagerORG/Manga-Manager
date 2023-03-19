@@ -194,10 +194,10 @@ class LoadedComicInfo:
         if load_default_metadata:
             self.load_metadata()
 
-    def process(self, write_metadata, convert_to_webp):
+    def process(self, write_metadata, convert_file_to_webp):
         logger.debug(f"[{'BEGIN PROCESSING':13s}] Writing metadata to file '{self.file_path}'")
         try:
-            self._process(write_metadata=write_metadata, convert_to_webp=convert_to_webp)
+            self._process(write_metadata=write_metadata, convert_to_webp=convert_file_to_webp)
         finally:
             self.has_changes = False
 
@@ -331,7 +331,7 @@ class LoadedComicInfo:
             self.original_cinfo_object_before_session = copy.copy(self.cinfo_object)
         else:
             self.cinfo_object = ComicInfo()
-            logger.info(LOG_TAG + "No metadata file was found.A new file will be created")
+            logger.info(LOG_TAG + "No metadata file was found. A new file will be created")
         self.original_cinfo_object = copy.copy(self.cinfo_object)
         self.original_cinfo_object_before_session = copy.copy(self.cinfo_object)
 

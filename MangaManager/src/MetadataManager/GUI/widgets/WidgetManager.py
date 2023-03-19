@@ -1,3 +1,4 @@
+from common.models import ComicInfo
 from .OptionMenuWidget import OptionMenuWidget
 from .LongTextWidget import LongTextWidget
 from .ComboBoxWidget import ComboBoxWidget
@@ -9,9 +10,9 @@ class WidgetManager:
     def get_widget(self, name) -> ComboBoxWidget | LongTextWidget | OptionMenuWidget:
         return getattr(self, name)
 
-    def add_widget(self, name, widget_frame: ComboBoxWidget | LongTextWidget | OptionMenuWidget):
-        self.cinfo_tags.append(name)
-        setattr(self, name, widget_frame)
+    # def add_widget(self, name, widget_frame: ComboBoxWidget | LongTextWidget | OptionMenuWidget):
+    #     self.cinfo_tags.append(name)
+    #     setattr(self, name, widget_frame)
 
     def __setattr__(self, key, value):
         self.cinfo_tags.append(key)
@@ -36,4 +37,5 @@ class WidgetManager:
                 widget.widget.configure(state="normal" if enabled else "disabled")
 
     def get_tags(self):
-        return [tag for tag in self.cinfo_tags]
+        # TODO: Remove this method
+        return ComicInfo.all_tags()

@@ -1,6 +1,5 @@
 prompt_toolkit>=3.0.31
 pillow>=9.2.0
-Pillow
 natsort>=8.2.0
 lxml >= 4.9.1
 six >= 1.16.0

@@ -133,3 +133,8 @@ class ComicInfo:
                 node.text = ''
 
         return ET.tostring(root, encoding="UTF-8", xml_declaration=True, method='xml').decode("utf8")
+
+    @classmethod
+    def all_tags(cls):
+        return [value for key, value in comic_info_tag_map.items()]
+

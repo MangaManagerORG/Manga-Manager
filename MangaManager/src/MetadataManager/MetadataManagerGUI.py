@@ -287,7 +287,7 @@ class GUIApp(Tk, MetadataManagerLib):
 
         # Iterate all cinfo tags. Should there be any values that are not equal. Show "different values selected"
 
-        for cinfo_tag in self.widget_mngr.get_tags():
+        for cinfo_tag in ComicInfo.all_tags():
             widget = self.widget_mngr.get_widget(cinfo_tag)
             tag_values = set()
             for loaded_cinfo in loaded_cinfo_list:
@@ -324,7 +324,7 @@ class GUIApp(Tk, MetadataManagerLib):
         # is_metadata_modified
         LOG_TAG = "[UI->CINFO] "
         self.new_edited_cinfo = ComicInfo()
-        for cinfo_tag in self.widget_mngr.get_tags():
+        for cinfo_tag in ComicInfo.all_tags():
             widget = self.widget_mngr.get_widget(cinfo_tag)
             widget_value = widget.widget.get()
 
@@ -339,7 +339,7 @@ class GUIApp(Tk, MetadataManagerLib):
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Has default value")
                 case "":
                     self.new_edited_cinfo.set_by_tag_name(cinfo_tag, "")
-                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted or was empty")
+                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was reset or was empty")
                 case _:
                     self.new_edited_cinfo.set_by_tag_name(cinfo_tag, widget_value)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")
