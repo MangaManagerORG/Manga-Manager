@@ -21,6 +21,7 @@ RUN apt-get update && \
     xfce4 \
     xubuntu-default-settings \
     xubuntu-icon-theme \
+    unrar\
     # Python \
     idle-python3.11 \
     python3-tk \

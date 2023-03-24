@@ -12,7 +12,7 @@ from src.Common.utils import get_platform, open_folder
 from src.MetadataManager.GUI.ControlManager import ControlManager
 from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.windows.AboutWindow import AboutWindow
-from src.Settings.SettingHeading import SettingHeading
+from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
 
 if get_platform() == "linux":
@@ -21,7 +21,7 @@ else:
     from tkinter.filedialog import askopenfiles, askdirectory
 from _tkinter import TclError
 
-from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget
 from src.MetadataManager.GUI.SettingsWidgetManager import SettingsWidgetManager
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
@@ -126,7 +126,7 @@ class GUIApp(Tk, MetadataManagerLib):
         # Open select files dialog
         selected_paths_list = askopenfiles(parent=self, initialdir=initial_dir,
                                            title="Select file to apply cover",
-                                           filetypes=(("CBZ Files", ".cbz"), ("All Files", "*"),)
+                                           filetypes=(("CB Files",(".cbz",".cbr")), ("CBZ Files", ".cbz"), ("CBR Files", ".cbr"), ("All Files", "*"),)
                                            # ("Zip files", ".zip"))
                                            ) or []
 
@@ -272,7 +272,15 @@ class GUIApp(Tk, MetadataManagerLib):
     def on_manga_not_found(self, exception, series_name):   # pragma: no cover
         mb.showerror(self.main_frame, "Couldn't find matching series",
                      f"The metadata source couldn't find the series '{series_name}'")
-
+    def on_missing_rar_tools(self,exception):
+        print("asdas")
+        box = mb.get_onetime_messagebox()("missing_rar_tools")
+        box.with_title("Missing Rar Tools"). \
+            with_description("CBR files can't be read because third party rar tools are missing. Skipping files"). \
+            with_icon(mb.get_onetime_messagebox().icon_error). \
+            with_actions([mb.get_box_button()(0, "Ok")]). \
+            build().prompt()
+        print("asdas")
     #########################################################
     # Processing Methods
     ############

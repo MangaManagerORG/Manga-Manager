@@ -2,24 +2,9 @@ import configparser
 import logging
 import os
 
-from src.Settings import SettingHeading
+from src.Settings.SettingsDefault import default_settings
 
 logger = logging.getLogger()
-default_settings = {
-    SettingHeading.Main: [
-        {"library_path": ""},
-        {"covers_folder_path": ""},
-        {"cache_cover_images": True},
-        {"selected_layout": "default"},
-    ],
-    SettingHeading.WebpConverter: [
-        {"default_base_path": ""},
-    ],
-    SettingHeading.ExternalSources: [
-        {"default_metadata_source": "AniList"},
-        {"default_cover_source": "MangaDex"},
-    ],
-}
 
 
 class Settings:
@@ -76,6 +61,13 @@ class Settings:
         self._create_section(section)
         if key not in self.config_parser[section]:
             self.config_parser.set(section, key, str(value))
+
+    def get_default(self, section, key, default_value):
+        """
+        Returns default value and creates the key if it doesn't exist
+        """
+        self.set_default(section, key, default_value)
+        return self.get(section, key)
 
     def set(self, section, key, value):
         """Sets a key's value. Will Save to disk and reload Settings"""

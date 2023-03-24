@@ -7,7 +7,7 @@ import requests
 
 from src.Common.utils import clean_filename
 from src.DynamicLibController.models.CoverSourceInterface import ICoverSource, Cover
-from src.Settings.SettingHeading import SettingHeading
+from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
 
 logger = logging.getLogger()

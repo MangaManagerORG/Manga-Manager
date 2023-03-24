@@ -5,7 +5,7 @@ import unittest
 import zipfile
 
 from common.models import ComicInfo
-from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 
 TEST_COMIC_INFO_STRING = """
 <ComicInfo>

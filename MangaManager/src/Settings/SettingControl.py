@@ -22,7 +22,7 @@ class SettingControl(abc.ABC):
     def __init__(self, key, name, control_type, value='', tooltip='', validate=None, format_value=None):
         self.key = key
         self.name = name
-        self.control_type = control_type
+        self.control_type: SettingControlType = control_type
         self.value = value
         self.tooltip = tooltip
         self.validate = validate

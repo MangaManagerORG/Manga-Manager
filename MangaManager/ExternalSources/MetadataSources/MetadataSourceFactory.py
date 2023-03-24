@@ -1,13 +1,16 @@
 import logging
 
-from src.DynamicLibController.models.IMetadataSource import IMetadataSource
+# Import all the scrapers here to ensure globals() has the key in it for dynamic instantiation
 from .Providers.AniList import AniList
 from .Providers.ComicVine import ComicVine
-# Import all the scrapers here to ensure globals() has the key in it for dynamic instantiation
 from .Providers.MangaUpdates import MangaUpdates
 
 logger = logging.getLogger()
 
+# Avoid IDE cleaning imports
+MangaUpdates.__dont_clean = ""
+AniList.__dont_clean = ""
+ComicVine.__dont_clean = ""
 
 # NOTE: This is a stopgap solution until dynamic loader is implemented
 class ScraperFactory:
@@ -24,7 +27,7 @@ class ScraperFactory:
     def __init__(self):
         pass
 
-    def get_scraper(self, setting_name) -> IMetadataSource:
+    def get_scraper(self, setting_name):
         if setting_name not in self.providers:
             try:
                 cls = globals()[setting_name]
