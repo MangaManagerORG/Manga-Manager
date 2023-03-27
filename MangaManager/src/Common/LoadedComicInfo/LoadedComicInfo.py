@@ -196,7 +196,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
             # Directly backup the metadata if it's at root.
             if self.is_cinfo_at_root:
-                if Settings().get(SettingHeading.Main, "create_backup_comicinfo"):
+                if Settings().get(SettingHeading.Main, "create_backup_comicinfo") is 'True':
                     zout.writestr(f"Old_{COMICINFO_FILE}.bak", zin.read(COMICINFO_FILE))
                     logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
                 is_metadata_backed = True
@@ -227,7 +227,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
                         continue
 
                     # If filename is comicinfo save as old_comicinfo.xml
-                    if Settings().get(SettingHeading.Main, "create_backup_comicinfo"):
+                    if Settings().get(SettingHeading.Main, "create_backup_comicinfo") is 'True':
                         zout.writestr(f"Old_{item.filename}.bak", zin.read(item.filename))
                         logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
                     # Stop accepting more comicinfo files.
