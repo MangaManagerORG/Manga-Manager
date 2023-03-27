@@ -10,7 +10,6 @@ from src.Common.errors import MissingRarTool
 
 logger = logging.getLogger("LoadedCInfo")
 COMICINFO_FILE = 'ComicInfo.xml'
-COMICINFO_FILE_BACKUP = 'Old_ComicInfo.xml.bak'
 COVER_NAME = "!0000_Cover"
 BACKCOVER_NAME = "9999_Back"
 _LOG_TAG_WEBP = "Convert Webp"
@@ -90,7 +89,7 @@ class LoadedFileMetadata(ILoadedComicInfo):
             self.original_cinfo_object_before_session = copy.copy(self.cinfo_object)
         else:
             self.cinfo_object = ComicInfo()
-            logger.info(LOG_TAG + "No metadata file was found.A new file will be created")
+            logger.info(LOG_TAG + "No metadata file was found. A new file will be created")
         self.original_cinfo_object = copy.copy(self.cinfo_object)
         self.original_cinfo_object_before_session = copy.copy(self.cinfo_object)
 

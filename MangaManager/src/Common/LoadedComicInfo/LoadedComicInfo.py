@@ -16,6 +16,7 @@ from .CoverActions import CoverActions
 from .ILoadedComicInfo import ILoadedComicInfo
 from .LoadedFileCoverData import LoadedFileCoverData
 from .LoadedFileMetadata import LoadedFileMetadata
+from ...Settings import Settings, SettingHeading
 
 logger = logging.getLogger("LoadedCInfo")
 COMICINFO_FILE = 'ComicInfo.xml'
@@ -138,7 +139,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_path))
         os.close(tmpfd)
 
-        with ArchiveFile(self.file_path,'r') as zin:
+        with ArchiveFile(self.file_path, 'r') as zin:
             initial_file_count = len(zin.namelist())
 
             with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
@@ -153,7 +154,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         logger.debug(f"[{'Processing':13s}] Data from old file copied to new file")
         # Delete old file and rename new file to old name
         try:
-            with ArchiveFile(self.file_path,'r') as zin:
+            with ArchiveFile(self.file_path, 'r') as zin:
                 assert initial_file_count == len(zin.namelist())
             os.remove(self.file_path)
             os.rename(tmpname, self.file_path)
@@ -171,7 +172,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             raise
 
         self.original_cinfo_object = copy.copy(self.cinfo_object)
-        logger.info(f"Succesfully recompressed '{self.file_name}'")
+        logger.info(f"Successfully recompressed '{self.file_name}'")
 
         if (self.cover_cache or self.backcover_cache) and has_cover_action:
             logger.info(f"Updating covers")
@@ -195,8 +196,9 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
             # Directly backup the metadata if it's at root.
             if self.is_cinfo_at_root:
-                zout.writestr(f"Old_{COMICINFO_FILE}.bak", zin.read(COMICINFO_FILE))
-                logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
+                if Settings().get(SettingHeading.Main, "create_backup_comicinfo"):
+                    zout.writestr(f"Old_{COMICINFO_FILE}.bak", zin.read(COMICINFO_FILE))
+                    logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
                 is_metadata_backed = True
             self.has_metadata = True
 
@@ -214,7 +216,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             if write_metadata:
                 # Discard old backup
                 if item.filename.endswith(
-                        COMICINFO_FILE_BACKUP):  # Skip file, efectively deleting old backup
+                        COMICINFO_FILE_BACKUP):  # Skip file, effectively deleting old backup
                     logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Skipped old backup file")
                     continue
 
@@ -225,8 +227,9 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
                         continue
 
                     # If filename is comicinfo save as old_comicinfo.xml
-                    zout.writestr(f"Old_{item.filename}.bak", zin.read(item.filename))
-                    logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
+                    if Settings().get(SettingHeading.Main, "create_backup_comicinfo"):
+                        zout.writestr(f"Old_{item.filename}.bak", zin.read(item.filename))
+                        logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
                     # Stop accepting more comicinfo files.
                     is_metadata_backed = True
                     continue

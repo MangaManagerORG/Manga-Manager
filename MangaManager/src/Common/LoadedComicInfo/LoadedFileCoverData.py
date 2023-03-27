@@ -15,7 +15,6 @@ from .ILoadedComicInfo import ILoadedComicInfo
 
 logger = logging.getLogger("LoadedCInfo")
 COMICINFO_FILE = 'ComicInfo.xml'
-COMICINFO_FILE_BACKUP = 'Old_ComicInfo.xml.bak'
 COVER_NAME = "!0000_Cover"
 BACKCOVER_NAME = "9999_Back"
 _LOG_TAG_WEBP = "Convert Webp"

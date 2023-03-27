@@ -29,7 +29,7 @@ setting_control_map = {
         "library_path": SettingControl("library_path", "Library Path", SettingControlType.Text, "", "The path to your library. This location will be opened by default when choosing files"),
         "covers_folder_path": SettingControl("covers_folder_path", "Covers folder path", SettingControlType.Text, "", "The path to your covers. This location will be opened by default when choosing covers"),
         "cache_cover_images": SettingControl("cache_cover_images", "Cache cover images", SettingControlType.Bool, True, "If enabled, the covers of the file will be cached and shown in the ui"),
-        # "selected_layout": SettingControl("selected_layout", "* Active layout", SettingControlType.Options, "", "Selects the layout to be displayed"),
+        "create_backup_comicinfo": SettingControl("create_backup_comicinfo", "Create Backup XML", SettingControlType.Bool, True, "If enabled, all ComicInfo.xml existing within an archive will be backed up as Old_ComicInfo.xml.bak"),
         "move_to_template": SettingControl("move_to_template", "Rename filename", SettingControlType.Text, "",
                                            tooltip=f"Leave empty to not set.\nAvailable tags: {', '.join(['{'+key+'}' for key in LoadedComicInfo(None,ComicInfo,False).get_template_values().keys()])}",
                                            validate=lambda key,value: '['+", ".join(template_validation(re.findall(r'\{(\w+)\}', value))) + "] are not valid tags" if len(template_validation(re.findall(r'\{(\w+)\}', value)))!=0 else "")
