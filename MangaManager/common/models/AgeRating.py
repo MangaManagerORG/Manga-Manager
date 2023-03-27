@@ -10,7 +10,7 @@ class AgeRating(str, Enum):
     G = 'G'
     KIDSTO_ADULTS = 'Kids to Adults'
     M = 'M'
-    MA_15 = 'MA 15+'
+    MA_15 = 'MA15+'
     MATURE_17 = 'Mature 17+'
     PG = 'PG'
     R_18 = 'R18+'
