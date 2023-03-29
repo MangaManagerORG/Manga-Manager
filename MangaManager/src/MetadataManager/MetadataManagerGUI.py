@@ -92,9 +92,9 @@ class GUIApp(Tk, MetadataManagerLib):
     @property
     def prev_selected_items(self):
         """
-                Returns the list of selected loaded_cinfo if any is selected. Else returns loaded_cinfo list
-                :return:
-                """
+        Returns the list of selected loaded_cinfo if any is selected. Else returns loaded_cinfo list
+        :return:
+        """
         return self._prev_selected_items
 
     @property
@@ -103,7 +103,6 @@ class GUIApp(Tk, MetadataManagerLib):
         Returns the list of selected loaded_cinfo if any is selected. Else returns loaded_cinfo list
         :return:
         """
-
         return self.selected_files_treeview.get_selected() or self.loaded_cinfo_list
 
     #########################################################
@@ -129,8 +128,8 @@ class GUIApp(Tk, MetadataManagerLib):
         self.log.debug("Selecting files")
         # Open select files dialog
         selected_paths_list = askopenfiles(parent=self, initialdir=initial_dir,
-                                           title="Select file to apply cover",
-                                           filetypes=(("CB Files",(".cbz",".cbr")), ("CBZ Files", ".cbz"), ("CBR Files", ".cbr"), ("All Files", "*"),)
+                                           title="Select file(s)",
+                                           filetypes=(("CB* Files", (".cbz", ".cbr")), ("CBZ Files", ".cbz"), ("CBR Files", ".cbr"), ("All Files", "*"),)
                                            # ("Zip files", ".zip"))
                                            ) or []
 

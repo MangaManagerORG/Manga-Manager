@@ -88,11 +88,12 @@ class MainWindow(GUIApp):
         btn = ButtonWidget(master=control_frame, text="Open Files",
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
         try:
-            icon_path = ResourceLoader.get('../../../../res/open_file.png')
+            icon_path = ResourceLoader.get('open_file.png')
             btn.img_ref = tkinter.PhotoImage(name="open_file_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except: # Fixme linux throws resource not found
             self.log.exception("Exception loading the open_file icon")
+
         btn.configure(compound="left")
         btn.configure(command=self.select_files)
         btn.pack(side="left", fill="y", padx=(0, 5))
@@ -100,23 +101,23 @@ class MainWindow(GUIApp):
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         try:
-            icon_path = ResourceLoader.get('../../../../res/open_folder.png')
+            icon_path = ResourceLoader.get('open_folder.png')
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except:
             self.log.exception("Exception loading the open_file icon")
         btn.configure(compound="left")
         btn.configure(command=self.select_folder)
-        btn.pack(side="left", fill="y", padx=5)
+        btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(btn)
 
         self.clear_btn = ButtonWidget(master=control_frame, text="Clear", tooltip="Clean the metadata from the current view")
         self.clear_btn.configure(command=self.widget_mngr.clean_widgets)
         self.clear_btn.configure(image=self.clear_icon)
         self.clear_btn['state'] = 'disabled'
-        self.clear_btn.configure(compound="left", padx=5)
+        self.clear_btn.configure(compound="left")
 
-        self.clear_btn.pack(side="left", fill="y")
+        self.clear_btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(self.clear_btn)
 
         self.fetch_online_btn = ButtonWidget(master=control_frame, text="  Fetch\n  Online")
@@ -124,7 +125,7 @@ class MainWindow(GUIApp):
         self.fetch_online_btn.configure(compound="left")
         self.fetch_online_btn.configure(command=self.process_fetch_online)
         self.fetch_online_btn['state'] = 'disabled'
-        self.fetch_online_btn.pack(side="left", fill="y", padx=5)
+        self.fetch_online_btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(self.fetch_online_btn)
 
         self.process_btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
@@ -132,7 +133,7 @@ class MainWindow(GUIApp):
         self.process_btn.configure(image=self.save_icon)
         self.process_btn.configure(compound="left")
         self.process_btn['state'] = 'disabled'
-        self.process_btn.pack(side="left", fill="y", padx=5)
+        self.process_btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(self.process_btn)
 
         self.fill_from_filename_btn = ButtonWidget(master=control_frame, text="Filename Fill", tooltip="Fill data from Filename")
@@ -140,13 +141,13 @@ class MainWindow(GUIApp):
         self.fill_from_filename_btn.configure(image=self.filename_fill_icon)
         self.fill_from_filename_btn.configure(compound="left")
         self.fill_from_filename_btn['state'] = 'disabled'
-        self.fill_from_filename_btn.pack(side="left", fill="y", padx=5)
+        self.fill_from_filename_btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(self.fill_from_filename_btn)
 
         self.cover_manager_btn = ButtonWidget(master=control_frame, text="Cover Manager", tooltip="Opens covermanager for the loaded files")
         self.cover_manager_btn.configure(command=lambda: CoverManager(self, self))
         self.cover_manager_btn['state'] = 'disabled'
-        self.cover_manager_btn.pack(side="left", fill="y", padx=(20, 0))
+        self.cover_manager_btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(self.cover_manager_btn)
 
     def init_main_content_frame(self) -> None:
