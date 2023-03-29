@@ -109,8 +109,10 @@ class AniList(IMetadataSource):
             comicinfo.count = data.get("volumes")
 
         # Title (Series & LocalizedSeries)
-        title_english = data.get("title").get("english").strip() or ""
-        title_romaji = data.get("title").get("romaji").strip() or ""
+        title = data.get("title")
+        logger.info("[AniList] Fetch Data found title " + str(title) + " for " + comic_info_from_ui.series)
+        title_english = (data.get("title").get("english") or "").strip()
+        title_romaji = (data.get("title").get("romaji") or "").strip()
         if cls.romaji_as_series:
             comicinfo.series = title_romaji
             comicinfo.localized_series = title_english
