@@ -29,14 +29,21 @@ from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
 
 class GUIApp(Tk, MetadataManagerLib):
+    """
+    This is the main logic and app
+    """
     main_frame: Frame
-    _prev_selected_items: list[LoadedComicInfo] = []
+    """
+    A loading indicator to help not process changes in MainWindow when GUI is performing loading of files
+    """
     inserting_files = False
+    widget_mngr = WidgetManager()
+    control_mngr = ControlManager()
 
     def __init__(self):
         super(GUIApp, self).__init__()
-        self.widget_mngr = WidgetManager()
-        self.control_mngr = ControlManager()  # widgets that should be disabled while processing
+        #self.widget_mngr = WidgetManager()
+        #self.control_mngr = ControlManager()  # widgets that should be disabled while processing
         self.last_folder = ""
 
         # self.wm_minsize(1000, 660)
@@ -90,14 +97,6 @@ class GUIApp(Tk, MetadataManagerLib):
         return self.widget_mngr.cinfo_tags
 
     @property
-    def prev_selected_items(self):
-        """
-        Returns the list of selected loaded_cinfo if any is selected. Else returns loaded_cinfo list
-        :return:
-        """
-        return self._prev_selected_items
-
-    @property
     def selected_items(self):
         """
         Returns the list of selected loaded_cinfo if any is selected. Else returns loaded_cinfo list
@@ -129,7 +128,7 @@ class GUIApp(Tk, MetadataManagerLib):
         # Open select files dialog
         selected_paths_list = askopenfiles(parent=self, initialdir=initial_dir,
                                            title="Select file(s)",
-                                           filetypes=(("CB* Files", (".cbz", ".cbr")), ("CBZ Files", ".cbz"), ("CBR Files", ".cbr"), ("All Files", "*"),)
+                                           filetypes=(("CB* Files", (".cbz", ".cbr")), ("CBZ Files", ".cbz"), ("CBR Files", ".cbr"), ("All Files", "*"), ("Zip files", ".zip"))
                                            # ("Zip files", ".zip"))
                                            ) or []
 
@@ -191,7 +190,6 @@ class GUIApp(Tk, MetadataManagerLib):
         Displays the text "unsaved changes"
         :return:
         """
-
         if exist_unsaved_changes:  # Place the warning sign
             self.changes_saved.place(anchor=tkinter.NE, relx=0.885)
         else:  # remove the warning sign
@@ -211,7 +209,7 @@ class GUIApp(Tk, MetadataManagerLib):
 
     def show_not_saved_indicator(self, loaded_cinfo_list=None):
         """
-        Shows a litle triangle while files are not saved.
+        Shows a litle triangle when files are not saved and are modified
         :param loaded_cinfo_list:
         :param mark_saved:
         :return:
