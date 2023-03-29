@@ -8,6 +8,7 @@ from tkinter import Tk, Frame
 
 from common.models import ComicInfo
 from src.Common import ResourceLoader
+from src.Common.parser import parse_volume, parse_series, parse_number
 from src.Common.utils import get_platform, open_folder
 from src.MetadataManager.GUI.ControlManager import ControlManager
 from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
@@ -72,6 +73,9 @@ class GUIApp(Tk, MetadataManagerLib):
 
         icon_path = ResourceLoader.get('save_icon.png')
         self.save_icon = tkinter.PhotoImage(name="save_icon", master=self, file=icon_path)
+
+        icon_path = ResourceLoader.get('filename_fill_icon.png')
+        self.filename_fill_icon = tkinter.PhotoImage(name="filename_fill", master=self, file=icon_path)
 
     def report_callback_exception(self, *_):
         """
@@ -375,12 +379,56 @@ class GUIApp(Tk, MetadataManagerLib):
             else:
                 widget.configure(state="disabled")
 
+    def fill_from_filename(self) -> None:
+        """Handles taking the currently selected file and parsing any information out of it and writing to Empty fields"""
+        if not self.selected_files_path:
+            mb.showwarning(self.main_frame, "No files selected", "No files were selected.")
+            self.log.warning("No files selected")
+            return
+
+        self.control_mngr.toggle(enabled=False)
+        self.changes_saved.place_forget()
+        self.pb.start(len(self.loaded_cinfo_list))
+        # Make sure current view is saved:
+        self.process_gui_update(self.selected_items, self.selected_items)
+        any_items_changed = False
+        try:
+            for item in self.selected_items:
+                # We can parse Series, Volume, Number, and Scan Info
+                if not item.cinfo_object.volume:
+                    vol = parse_volume(item.file_name)
+                    if vol:
+                        item.cinfo_object.volume = vol
+                        item.has_changes = True
+                        any_items_changed = True
+
+                if not item.cinfo_object.series:
+                    series = parse_series(item.file_name)
+                    if series:
+                        item.cinfo_object.series = series
+                        item.has_changes = True
+                        any_items_changed = True
+
+                if not item.cinfo_object.number:
+                    number = parse_number(item.file_name)
+                    if number:
+                        item.cinfo_object.number = number
+                        item.has_changes = True
+                        any_items_changed = True
+        finally:
+            self.pb.stop()
+        self.show_not_saved_indicator(self.loaded_cinfo_list)
+        if any_items_changed:
+            self.show_not_saved_indicator(self.selected_items)
+            self._serialize_cinfolist_to_gui(self.selected_items)
+        self.control_mngr.toggle(enabled=True)
+
     def pre_process(self) -> None:
         """
         Handles UI stuff to be started prior to processing such as converting ui data to comicinfo and starting the timer
         """
         if not self.selected_files_path:
-            mb.showwarning(self.main_frame,"No files selected", "No files were selected.")
+            mb.showwarning(self.main_frame, "No files selected", "No files were selected.")
             self.log.warning("No files selected")
             return
         self.control_mngr.toggle(enabled=False)
