@@ -123,7 +123,14 @@ class Layout(GUIApp):
         btn.configure(command=self.pre_process)
         btn.configure(image=self.save_icon)
         btn.configure(compound="left")
-        btn.pack(side="left",fill="y", padx=5)
+        btn.pack(side="left", fill="y", padx=5)
+        self.control_mngr.append(btn)
+
+        btn = ButtonWidget(master=control_frame, text="Filename Fill", tooltip="Fill data from Filename")
+        btn.configure(command=self.fill_from_filename)
+        btn.configure(image=self.filename_fill_icon)
+        btn.configure(compound="left")
+        btn.pack(side="left", fill="y", padx=5)
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Cover Manager", tooltip="Opens covermanager for the loaded files")
