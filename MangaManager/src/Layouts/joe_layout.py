@@ -228,28 +228,42 @@ class Layout(GUIApp):
         numbering.pack(fill="both", expand=True)
 
         self.widget_mngr.Number = ComboBoxWidget(numbering, "Number", width=COMBO_WIDTH,
-                                                 tooltip="The chapter absolute number").grid(0, 0)
+                                                 tooltip="The chapter absolute number") \
+            .pack(side="left", expand=False, fill="x")
         self.widget_mngr.Volume = ComboBoxWidget(numbering, "Volume", width=COMBO_WIDTH,
-                                                 validation="int", default="-1").grid(0, 1)
+                                                 validation="int", default="-1") \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.Count = ComboBoxWidget(numbering, "Count", width=COMBO_WIDTH,
-                                                validation="int", default="-1").grid(0, 2)
+                                                validation="int", default="-1") \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
         self.widget_mngr.Format = OptionMenuWidget(numbering, "Format", "Format", COMBO_WIDTH, 18, "",
-                                                   Formats).grid(0, 3)
+                                                   Formats) \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
         self.widget_mngr.Manga = OptionMenuWidget(numbering, "Manga", "Manga", COMBO_WIDTH, 18,
-                                                  "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(0,4)
+                                                  "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")) \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
-        self.widget_mngr.Year = ComboBoxWidget(numbering, "Year", width=COMBO_WIDTH,
-                                               validation="int", default="-1").grid(1, 0)
-        self.widget_mngr.Month = ComboBoxWidget(numbering, "Month", width=COMBO_WIDTH,
-                                                validation="int", default="-1").grid(1, 1)
-        self.widget_mngr.Day = ComboBoxWidget(numbering, "Day", width=COMBO_WIDTH,
-                                              validation="int", default="-1").grid(1, 2)
-        self.widget_mngr.AgeRating = OptionMenuWidget(numbering, "AgeRating", "Age Rating", COMBO_WIDTH, 18,
-                                                      "Unknown", AgeRating.list()).grid(1, 3)
+        numbering2 = Frame(parent_frame)
+        numbering2.columnconfigure("all", weight=0)
+        numbering2.pack(fill="both", expand=True)
 
-        self.widget_mngr.LanguageISO = ComboBoxWidget(numbering, "LanguageISO", label_text="Language ISO",
-                                                      width=8, default="", default_values=languages).grid(1, 4)
+        self.widget_mngr.Year = ComboBoxWidget(numbering2, "Year", width=COMBO_WIDTH,
+                                               validation="int", default="-1") \
+            .pack(side="left", expand=False, fill="x")
+        self.widget_mngr.Month = ComboBoxWidget(numbering2, "Month", width=COMBO_WIDTH,
+                                                validation="int", default="-1") \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
+        self.widget_mngr.Day = ComboBoxWidget(numbering2, "Day", width=COMBO_WIDTH,
+                                              validation="int", default="-1") \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
+        self.widget_mngr.AgeRating = OptionMenuWidget(numbering2, "AgeRating", "Age Rating", COMBO_WIDTH, 18,
+                                                      "Unknown", AgeRating.list()) \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
+
+        self.widget_mngr.LanguageISO = ComboBoxWidget(numbering2, "LanguageISO", label_text="Language ISO",
+                                                      width=COMBO_WIDTH + 1, default="", default_values=languages) \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.Notes = ComboBoxWidget(parent_frame, cinfo_name="Notes").pack()
 
@@ -295,20 +309,25 @@ class Layout(GUIApp):
         self.widget_mngr.AlternateCount = ComboBoxWidget(numbering, "AlternateCount",
                                                          label_text="Alt Count", tooltip="Alternate Count",
                                                          width=COMBO_WIDTH,
-                                                         validation="int", default="-1").pack(side="left",expand=False,fill="x")
+                                                         validation="int", default="-1")\
+            .pack(side="left", expand=False, fill="x")
         self.widget_mngr.AlternateNumber = ComboBoxWidget(numbering, "AlternateNumber", width=COMBO_WIDTH,
                                                           label_text="Alt Number", tooltip="Alternate Number",
-                                                          validation="int").pack(side="left",expand=False,fill="x", padx=10)
+                                                          validation="int")\
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.StoryArcNumber = ComboBoxWidget(numbering, "StoryArcNumber", width=COMBO_WIDTH,
-                                                         label_text="Story Arc Number").pack(side="left",expand=False,fill="x")
+                                                         label_text="Story Arc Number")\
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.CommunityRating = ComboBoxWidget(numbering, cinfo_name="CommunityRating",
                                                           label_text="Community Rating",
                                                           width=COMBO_WIDTH,
-                                                          validation="rating").pack(side="left",expand=False,fill="x")
+                                                          validation="rating")\
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
         self.widget_mngr.BlackAndWhite = OptionMenuWidget(numbering, "BlackAndWhite", "Black And White", COMBO_WIDTH, 18,
-                                                          "Unknown", ("Unknown", "Yes", "No")).pack(side="left", expand=False,fill="x")
+                                                          "Unknown", ("Unknown", "Yes", "No"))\
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
                                                     width=COMBO_WIDTH,
