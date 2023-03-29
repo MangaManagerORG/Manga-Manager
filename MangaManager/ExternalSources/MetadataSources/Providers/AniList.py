@@ -112,7 +112,6 @@ class AniList(IMetadataSource):
         # Title (Series & LocalizedSeries)
         title = data.get("title")
         logger.info("[AniList] Fetch Data found title " + str(title) + " for " + comic_info_from_ui.series)
-        logger.info("[AniList] Payload: " + str(data))
         title_english = (data.get("title").get("english") or "").strip()
         title_romaji = (data.get("title").get("romaji") or "").strip()
         if cls.romaji_as_series:
