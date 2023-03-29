@@ -17,16 +17,14 @@ with open(ResourceLoader.get('languages.json'), 'r', encoding="utf-8") as f:
     languages = [language["isoCode"] for language in data]
 
 
-class Layout(GUIApp):
-    name = "joe"
-
+class MainGUI(GUIApp):
     def __init__(self):
         super().__init__()
         self.title("Manga Manager: Joe Layout")
 
-    #########################################################
-    # GUI Display Methods
-    ############
+        #########################################################
+        # GUI Display Methods
+        ############
 
         # Overview LAYOUT
         self.control_frame_top = Frame(self.main_frame)
