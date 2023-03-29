@@ -404,14 +404,14 @@ class GUIApp(Tk, MetadataManagerLib):
 
                 if not item.cinfo_object.series:
                     series = parse_series(item.file_name)
-                    if vol:
+                    if series:
                         item.cinfo_object.series = series
                         item.has_changes = True
                         any_items_changed = True
 
                 if not item.cinfo_object.number:
                     number = parse_number(item.file_name)
-                    if vol:
+                    if number:
                         item.cinfo_object.number = number
                         item.has_changes = True
                         any_items_changed = True
