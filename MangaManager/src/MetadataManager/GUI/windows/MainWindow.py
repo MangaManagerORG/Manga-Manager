@@ -3,6 +3,7 @@ import tkinter
 from tkinter import Frame, ttk
 from tkinter.ttk import Notebook
 
+from src.__version__ import __version__
 from common.models import Formats, AgeRating
 from src.Common import ResourceLoader
 from src.MetadataManager.CoverManager.CoverManager import CoverManager
@@ -17,10 +18,17 @@ with open(ResourceLoader.get('languages.json'), 'r', encoding="utf-8") as f:
     languages = [language["isoCode"] for language in data]
 
 
-class MainGUI(GUIApp):
+class MainWindow(GUIApp):
+    # The clear button
+    clear_btn = None
+    fetch_online_btn = None
+    process_btn = None
+    fill_from_filename_btn = None
+    cover_manager_btn = None
+
     def __init__(self):
         super().__init__()
-        self.title("Manga Manager: Joe Layout")
+        self.title("Manga Manager: v" + __version__.split(':')[0])
 
         #########################################################
         # GUI Display Methods
@@ -29,7 +37,7 @@ class MainGUI(GUIApp):
         # Overview LAYOUT
         self.control_frame_top = Frame(self.main_frame)
         self.control_frame_top.pack(fill="x", side="top",padx=30,pady=3)
-        self.display_control_frame()
+        self.display_menu_bar()
         ttk.Separator(self.main_frame, orient='horizontal').pack(fill="x")
 
         mid_content_frame = Frame(self.main_frame)
@@ -73,26 +81,26 @@ class MainGUI(GUIApp):
         self.image_cover_frame.pack(expand=False, fill='x')
         self.files_selected_frame.pack(expand=True, fill="both", pady=(20, 0))
 
-    def display_control_frame(self) -> None:
+    def display_menu_bar(self) -> None:
         # Action Buttons
         control_frame = self.control_frame_top
 
         btn = ButtonWidget(master=control_frame, text="Open Files",
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
         try:
-            icon_path = ResourceLoader.get('open_file.png')
+            icon_path = ResourceLoader.get('../../../../res/open_file.png')
             btn.img_ref = tkinter.PhotoImage(name="open_file_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except: # Fixme linux throws resource not found
             self.log.exception("Exception loading the open_file icon")
         btn.configure(compound="left")
         btn.configure(command=self.select_files)
-        btn.pack(side="left", fill="y", padx=(0,5))
+        btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         try:
-            icon_path = ResourceLoader.get('open_folder.png')
+            icon_path = ResourceLoader.get('../../../../res/open_folder.png')
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except:
@@ -102,39 +110,44 @@ class MainGUI(GUIApp):
         btn.pack(side="left", fill="y", padx=5)
         self.control_mngr.append(btn)
 
-        btn = ButtonWidget(master=control_frame, text="Clear", tooltip="Clean the metadata from the current view")
-        btn.configure(command=self.widget_mngr.clean_widgets)
-        btn.configure(image=self.clear_icon)
-        btn.configure(compound="left", padx=5)
+        self.clear_btn = ButtonWidget(master=control_frame, text="Clear", tooltip="Clean the metadata from the current view")
+        self.clear_btn.configure(command=self.widget_mngr.clean_widgets)
+        self.clear_btn.configure(image=self.clear_icon)
+        self.clear_btn['state'] = 'disabled'
+        self.clear_btn.configure(compound="left", padx=5)
 
-        btn.pack(side="left", fill="y")
-        self.control_mngr.append(btn)
+        self.clear_btn.pack(side="left", fill="y")
+        self.control_mngr.append(self.clear_btn)
 
-        btn = ButtonWidget(master=control_frame, text="  Fetch\n  Online")
-        btn.configure(image=self.fetch_online_icon)
-        btn.configure(compound="left")
-        btn.configure(command=self.process_fetch_online)
-        btn.pack(side="left", fill="y", padx=5)
-        self.control_mngr.append(btn)
+        self.fetch_online_btn = ButtonWidget(master=control_frame, text="  Fetch\n  Online")
+        self.fetch_online_btn.configure(image=self.fetch_online_icon)
+        self.fetch_online_btn.configure(compound="left")
+        self.fetch_online_btn.configure(command=self.process_fetch_online)
+        self.fetch_online_btn['state'] = 'disabled'
+        self.fetch_online_btn.pack(side="left", fill="y", padx=5)
+        self.control_mngr.append(self.fetch_online_btn)
 
-        btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
-        btn.configure(command=self.pre_process)
-        btn.configure(image=self.save_icon)
-        btn.configure(compound="left")
-        btn.pack(side="left", fill="y", padx=5)
-        self.control_mngr.append(btn)
+        self.process_btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
+        self.process_btn.configure(command=self.pre_process)
+        self.process_btn.configure(image=self.save_icon)
+        self.process_btn.configure(compound="left")
+        self.process_btn['state'] = 'disabled'
+        self.process_btn.pack(side="left", fill="y", padx=5)
+        self.control_mngr.append(self.process_btn)
 
-        btn = ButtonWidget(master=control_frame, text="Filename Fill", tooltip="Fill data from Filename")
-        btn.configure(command=self.fill_from_filename)
-        btn.configure(image=self.filename_fill_icon)
-        btn.configure(compound="left")
-        btn.pack(side="left", fill="y", padx=5)
-        self.control_mngr.append(btn)
+        self.fill_from_filename_btn = ButtonWidget(master=control_frame, text="Filename Fill", tooltip="Fill data from Filename")
+        self.fill_from_filename_btn.configure(command=self.fill_from_filename)
+        self.fill_from_filename_btn.configure(image=self.filename_fill_icon)
+        self.fill_from_filename_btn.configure(compound="left")
+        self.fill_from_filename_btn['state'] = 'disabled'
+        self.fill_from_filename_btn.pack(side="left", fill="y", padx=5)
+        self.control_mngr.append(self.fill_from_filename_btn)
 
-        btn = ButtonWidget(master=control_frame, text="Cover Manager", tooltip="Opens covermanager for the loaded files")
-        btn.configure(command=lambda: CoverManager(self, self))
-        btn.pack(side="left", fill="y",padx=(20,0))
-        self.control_mngr.append(btn)
+        self.cover_manager_btn = ButtonWidget(master=control_frame, text="Cover Manager", tooltip="Opens covermanager for the loaded files")
+        self.cover_manager_btn.configure(command=lambda: CoverManager(self, self))
+        self.cover_manager_btn['state'] = 'disabled'
+        self.cover_manager_btn.pack(side="left", fill="y", padx=(20, 0))
+        self.control_mngr.append(self.cover_manager_btn)
 
     def init_main_content_frame(self) -> None:
         self.notebook = Notebook(self.main_content_frame_right)
@@ -357,8 +370,8 @@ class MainGUI(GUIApp):
     # Implementations
     def on_file_selection_preview(self, *args):
         """
-        Method called when the users selects one or more files to previe the metadata
-        Called dinamically
+        Method called when the user selects one or more files to preview the metadata
+        Called dynamically
         :return:
         """
         new_selection, old_selection = args
@@ -366,4 +379,8 @@ class MainGUI(GUIApp):
         if not self.inserting_files:
             self.process_gui_update(old_selection, new_selection)
         self.image_cover_frame.update_cover_image(new_selection)
+
+        # When a file is selected (at least one), then enable the buttons
+        for btn in [self.fetch_online_btn, self.clear_btn, self.process_btn, self.fill_from_filename_btn]:
+            btn['state'] = 'normal'
 

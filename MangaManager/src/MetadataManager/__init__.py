@@ -1,7 +1,7 @@
 import logging
 
 from src.Common import ResourceLoader
-from src.MetadataManager.GUI.MainGUI import MainGUI
+from src.MetadataManager.GUI.windows.MainWindow import MainWindow
 from src.MetadataManager.GUI.OneTimeMessageBox import OneTimeMessageBox
 from src.MetadataManager.GUI.widgets.MessageBoxWidget import MessageBoxButton
 from src.Settings import Settings, SettingHeading
@@ -16,7 +16,7 @@ def execute_gui():
     Settings().set_default(SettingHeading.ExternalSources, 'default_metadata_source', "AniList")
     Settings().set_default(SettingHeading.ExternalSources, 'default_cover_source', "MangaDex")
 
-    app = MainGUI()
+    app = MainWindow()
 
     try:
         app.iconbitmap(icon_path)

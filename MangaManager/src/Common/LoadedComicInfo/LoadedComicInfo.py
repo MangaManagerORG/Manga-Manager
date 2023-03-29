@@ -82,7 +82,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             # Fixme: skip folders
             # Update: 05-01-23 At this point i don't remember why the fix me. I'm leaving it there.
             self.load_cover_info()
-            with ArchiveFile(self.file_path,'r') as self.archive:
+            with ArchiveFile(self.file_path, 'r') as self.archive:
                 if not self.cinfo_object:
                     self._load_metadata()
 
