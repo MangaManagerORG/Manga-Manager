@@ -13,6 +13,7 @@ default_settings = {
         {"library_path": ""},
         {"covers_folder_path": ""},
         {"cache_cover_images": True},
+        {"create_backup_comicinfo": True},
         # {"selected_layout": "default"},
         {"move_to_template": ""}
 

@@ -22,27 +22,42 @@ from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 
 logger = logging.getLogger("SettingsWidgetManager")
+
+
 def template_validation(key_list):
- return [keyword for keyword in key_list if keyword not in LoadedComicInfo(None,ComicInfo,False).get_template_values().keys()]
+    return [keyword for keyword in key_list if
+            keyword not in LoadedComicInfo(None, ComicInfo, False).get_template_values().keys()]
+
+
 setting_control_map = {
     SettingHeading.Main: {
-        "library_path": SettingControl("library_path", "Library Path", SettingControlType.Text, "", "The path to your library. This location will be opened by default when choosing files"),
-        "covers_folder_path": SettingControl("covers_folder_path", "Covers folder path", SettingControlType.Text, "", "The path to your covers. This location will be opened by default when choosing covers"),
-        "cache_cover_images": SettingControl("cache_cover_images", "Cache cover images", SettingControlType.Bool, True, "If enabled, the covers of the file will be cached and shown in the ui"),
-        # "selected_layout": SettingControl("selected_layout", "* Active layout", SettingControlType.Options, "", "Selects the layout to be displayed"),
+        "library_path": SettingControl("library_path", "Library Path", SettingControlType.Text, "",
+                                       "The path to your library. This location will be opened by default when choosing files"),
+        "covers_folder_path": SettingControl("covers_folder_path", "Covers folder path", SettingControlType.Text, "",
+                                             "The path to your covers. This location will be opened by default when choosing covers"),
+        "cache_cover_images": SettingControl("cache_cover_images", "Cache cover images", SettingControlType.Bool, True,
+                                             "If enabled, the covers of the file will be cached and shown in the ui"),
+        "create_backup_comicinfo": SettingControl("create_backup_comicinfo", "Create Backup XML",
+                                                  SettingControlType.Bool, True,
+                                                  "If enabled, all ComicInfo.xml existing within an archive will be backed up as Old_ComicInfo.xml.bak"),
         "move_to_template": SettingControl("move_to_template", "Rename filename", SettingControlType.Text, "",
-                                           tooltip=f"Leave empty to not set.\nAvailable tags: {', '.join(['{'+key+'}' for key in LoadedComicInfo(None,ComicInfo,False).get_template_values().keys()])}",
-                                           validate=lambda key,value: '['+", ".join(template_validation(re.findall(r'\{(\w+)\}', value))) + "] are not valid tags" if len(template_validation(re.findall(r'\{(\w+)\}', value)))!=0 else "")
+                                           tooltip=f"Leave empty to not set.\nAvailable tags: {', '.join(['{' + key + '}' for key in LoadedComicInfo(None, ComicInfo, False).get_template_values().keys()])}",
+                                           validate=lambda key, value: '[' + ", ".join(template_validation(
+                                               re.findall(r'\{(\w+)\}', value))) + "] are not valid tags" if len(
+                                               template_validation(re.findall(r'\{(\w+)\}', value))) != 0 else "")
     },
     SettingHeading.WebpConverter: {
-        "default_base_path": SettingControl("default_base_path", "Default base path", SettingControlType.Text, "", "The starting point where the glob will begin looking for files that match the pattern"),
+        "default_base_path": SettingControl("default_base_path", "Default base path", SettingControlType.Text, "",
+                                            "The starting point where the glob will begin looking for files that match the pattern"),
 
     },
     SettingHeading.ExternalSources: {
         "default_metadata_source": SettingControl("default_metadata_source", "Default metadata source",
                                                   SettingControlType.Options,
                                                   "The source that will be hit when looking for metadata"),
-        "default_cover_source": SettingControl("default_cover_source", "Default cover source", SettingControlType.Options, "The source that will be hit when looking for cover images"),
+        "default_cover_source": SettingControl("default_cover_source", "Default cover source",
+                                               SettingControlType.Options,
+                                               "The source that will be hit when looking for cover images"),
     },
     SettingHeading.MessageBox: {
     }
@@ -50,7 +65,7 @@ setting_control_map = {
 
 # TODO: Load dynamically loaded extensions (this will be moved in another PR)
 providers: list[IMetadataSource] = [ScraperFactory().get_scraper("MangaUpdates"),
-             ScraperFactory().get_scraper("AniList")]
+                                    ScraperFactory().get_scraper("AniList")]
 
 
 def populate_default_settings():
@@ -132,7 +147,7 @@ class SettingsWidgetManager:
             section = self.default_settings[setting_section]
 
             logger.info('Setting up settings for ' + section.pretty_name)
-            section_frame = Frame(master=self.widgets_frame, name="default_"+setting_section.name)
+            section_frame = Frame(master=self.widgets_frame, name="default_" + setting_section.name)
             section_frame.pack(expand=True, fill="both")
 
             self.settings_widget[section.pretty_name] = {}
@@ -144,10 +159,12 @@ class SettingsWidgetManager:
             settings = provider.settings
             for section in settings:
                 logger.info('Setting up settings for ' + provider.name)
-                section_frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name, name="provider_"+provider.name)
+                section_frame = LabelFrame(master=self.widgets_frame, text=section.pretty_name,
+                                           name="provider_" + provider.name)
                 section_frame.pack(expand=True, fill="both")
 
-                self.settings_widget[self.default_settings[SettingHeading.ExternalSources].pretty_name][section.pretty_name] = {}
+                self.settings_widget[self.default_settings[SettingHeading.ExternalSources].pretty_name][
+                    section.pretty_name] = {}
                 self.build_setting_entries(section_frame, section.values, section)
                 self.widgets_frame.add(section_frame, text=section.pretty_name)
 
@@ -165,9 +182,9 @@ class SettingsWidgetManager:
         # Update the control's value from Settings
         control.value = Settings().get(section.key, control.key)
 
-        row = FormBundleWidget(parent_frame)\
-            .with_label(title=control.name, tooltip=control.tooltip)\
-            .with_input(control=control, section=section)\
+        row = FormBundleWidget(parent_frame) \
+            .with_label(title=control.name, tooltip=control.tooltip) \
+            .with_input(control=control, section=section) \
             .build()
 
         self.bundles.append(row)
