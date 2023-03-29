@@ -196,7 +196,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
             # Directly backup the metadata if it's at root.
             if self.is_cinfo_at_root:
-                if Settings().get(SettingHeading.Main, "create_backup_comicinfo") == 'True':
+                if Settings().get(SettingHeading.Main, "create_backup_comicinfo") == 'True' and self.had_metadata_on_open:
                     zout.writestr(f"Old_{COMICINFO_FILE}.bak", zin.read(COMICINFO_FILE))
                     logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
                 is_metadata_backed = True
@@ -223,11 +223,11 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
                 if item.filename.endswith(COMICINFO_FILE):
                     # A root-level comicinfo was backed up already. This one is likely not where it should
                     if is_metadata_backed:
-                        logger.info(f"[{_LOG_TAG_WRITE_META:13s}] Skiping non compliant ComicInfo.xml")
+                        logger.info(f"[{_LOG_TAG_WRITE_META:13s}] Skipping non compliant ComicInfo.xml")
                         continue
 
                     # If filename is comicinfo save as old_comicinfo.xml
-                    if Settings().get(SettingHeading.Main, "create_backup_comicinfo") == 'True':
+                    if Settings().get(SettingHeading.Main, "create_backup_comicinfo") == 'True' and self.had_metadata_on_open:
                         zout.writestr(f"Old_{item.filename}.bak", zin.read(item.filename))
                         logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
                     # Stop accepting more comicinfo files.
@@ -241,7 +241,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
                         self._move_image(zin, zout=zout, item_=item, do_convert_to_webp=do_convert_webp)
                     case CoverActions.DELETE:
                         logger.trace(
-                            f"[{_LOG_TAG_RECOMPRESSING:13}] Skipping cover to efectively delete it. File: '{item.filename}'")
+                            f"[{_LOG_TAG_RECOMPRESSING:13}] Skipping cover to effectively delete it. File: '{item.filename}'")
                     case CoverActions.REPLACE:
                         with open(self.new_cover_path, "rb") as opened_image:
                             opened_image_io = io.BytesIO(opened_image.read())

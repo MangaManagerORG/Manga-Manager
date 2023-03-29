@@ -24,6 +24,7 @@ class LoadedFileMetadata(ILoadedComicInfo):
     original_cinfo_object: ComicInfo
     # Used to keep original state after being loaded for the first time. Useful to undo sesion changes
     original_cinfo_object_before_session: ComicInfo | None = None
+    had_metadata_on_open = False
 
     @property
     def cinfo_object(self):
@@ -69,6 +70,7 @@ class LoadedFileMetadata(ILoadedComicInfo):
                 self.is_cinfo_at_root = True
             xml_string = self.archive.read(cinfo_file).decode('utf-8')
             self.has_metadata = True
+            self.had_metadata_on_open = True
         except KeyError:
             xml_string = ""
         except rarfile.RarCannotExec:
