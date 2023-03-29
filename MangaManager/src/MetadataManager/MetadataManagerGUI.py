@@ -415,12 +415,9 @@ class GUIApp(Tk, MetadataManagerLib):
                         item.cinfo_object.number = number
                         item.has_changes = True
                         any_items_changed = True
-
-
         finally:
             self.pb.stop()
         self.show_not_saved_indicator(self.loaded_cinfo_list)
-        #self.new_edited_cinfo = None  # Nulling value to be safe
         if any_items_changed:
             self.show_not_saved_indicator(self.selected_items)
             self._serialize_cinfolist_to_gui(self.selected_items)
