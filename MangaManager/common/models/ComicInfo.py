@@ -103,6 +103,8 @@ class ComicInfo:
     def set_by_tag_name(self, tag, value):
         for key, v in comic_info_tag_map.items():
             if tag == v:
+                if value is None:
+                    value = ""
                 self.__setattr__(key, value)
 
     def get_by_tag_name(self, name) -> str:
@@ -116,7 +118,6 @@ class ComicInfo:
 
     @classmethod
     def from_xml(cls, xml_string):
-        # encoded_string = xml_string.encode("utf-8")
         root = ET.ElementTree(ET.fromstring(xml_string.encode("utf-8"), parser=ET.XMLParser(encoding='utf-8')))
         comic_info = cls()
         for prop in [a for a in dir(comic_info) if not a.startswith('__') and not callable(getattr(comic_info, a))]:
@@ -127,20 +128,20 @@ class ComicInfo:
     def to_xml(self):
         root = ET.Element("ComicInfo")
         for key, mapped_key in comic_info_tag_map.items():
-            value = str(getattr(self,key))
+            value = str(self.get_by_tag_name(mapped_key))
             if value:
                 ET.SubElement(root, mapped_key).text = value
 
         # prevent creation of self-closing tags
         for node in root.iter():
             if node.text is None:
-                node.text = ''
+                node.text = ""
         f = BytesIO()
         et = ET.ElementTree(root)
         ET.indent(et)
         et.write(f, encoding='utf-8', xml_declaration=True)
         ret_xml = f.getvalue()
-        return str(ret_xml,encoding="utf-8")
+        return str(ret_xml, encoding="utf-8")
         # print(f.getvalue())  # your XML file, encoded as UTF-8
         # output_xml = ET.tostring(root, encoding="UTF-8", xml_declaration=True, method='xml').decode("utf8")
         # return output_xml

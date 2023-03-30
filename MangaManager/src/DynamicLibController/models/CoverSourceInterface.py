@@ -5,6 +5,7 @@ from typing import final
 
 class ICoverSource(abc.ABC):
     name = None
+
     @classmethod
     @abc.abstractmethod
     def download(cls, identifier: str):
@@ -30,4 +31,3 @@ class Cover:
     url: str
 
     image_bytes: bytes
-

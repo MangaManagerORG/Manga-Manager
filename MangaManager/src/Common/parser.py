@@ -30,8 +30,7 @@ series_patterns = [
     re.compile(r'(?P<Series>.*)(\b|_|-|\s)(?:sp)\d', re.IGNORECASE),
     # [SugoiSugoi]_NEEDLESS_Vol.2_-_Disk_The_Informant_5_[ENG].rar, Yuusha Ga Shinda! - Vol.tbd Chapter 27.001 V2 Infection ①.cbz
     re.compile(r'^(?P<Series>.*)( |_)Vol\.?(\d+|tbd)', re.IGNORECASE),
-    # Mad Chimera World - Volume 005 - Chapter 026.cbz (couldn't figure out how to get Volume negative lookaround working on below regex),
-    # The Duke of Death and His Black Maid - Vol. 04 Ch. 054.5 - V4 Omake
+    # Mad Chimera World - Volume 005 - Chapter 026.cbz, The Duke of Death and His Black Maid - Vol. 04 Ch. 054.5 - V4 Omake
     re.compile(r'(?P<Series>.+?)(\s|_|-)+(?:Vol(ume|\.)?(\s|_|-)+\d+)(\s|_|-)+(?:(Ch|Chapter|Ch)\.?)(\s|_|-)+(?P<Chapter>\d+)', re.IGNORECASE),
     # Ichiban_Ushiro_no_Daimaou_v04_ch34_[VISCANS].zip, VanDread-v01-c01.zip
     re.compile(r'(?P<Series>.*)(\b|_)v(?P<Volume>\d+-?\d*)(\s|_|-)', re.IGNORECASE),

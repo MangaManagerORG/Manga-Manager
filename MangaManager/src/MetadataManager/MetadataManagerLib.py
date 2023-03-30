@@ -177,7 +177,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         """
         Creates a list of comicinfo with the comicinfo metadata from the selected files.
 
-        :raises CorruptedComicInfo: If the data inside ComicInfo.xml could not be read after trying to fix te data
+        :raises CorruptedComicInfo: If the data inside ComicInfo.xml could not be read after trying to fix the data
         :raises BadZipFile: If the provided zip is not a valid zip or is broken
         """
 
@@ -206,8 +206,6 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 self.on_badzipfile_error(e, file_path=file_path)
                 continue
             except MissingRarTool as e:
-
-                print("sdas")
                 if not missing_rar_tool:
                     logger.exception("Error loading the metadata for some files. No rar tools available", exc_info=False)
                     self.on_missing_rar_tools(e)
