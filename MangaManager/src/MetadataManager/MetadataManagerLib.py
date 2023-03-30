@@ -206,8 +206,6 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 self.on_badzipfile_error(e, file_path=file_path)
                 continue
             except MissingRarTool as e:
-
-                print("sdas")
                 if not missing_rar_tool:
                     logger.exception("Error loading the metadata for some files. No rar tools available", exc_info=False)
                     self.on_missing_rar_tools(e)
