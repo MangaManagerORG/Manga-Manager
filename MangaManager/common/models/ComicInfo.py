@@ -121,7 +121,7 @@ class ComicInfo:
         root = ET.ElementTree(ET.fromstring(xml_string.encode("utf-8"), parser=ET.XMLParser(encoding='utf-8')))
         comic_info = cls()
         for prop in [a for a in dir(comic_info) if not a.startswith('__') and not callable(getattr(comic_info, a))]:
-            comic_info.set_by_tag_name(prop, root.findtext(comic_info_tag_map[prop]))
+            comic_info.__setattr__(prop, root.findtext(comic_info_tag_map[prop]))
 
         return comic_info
 
