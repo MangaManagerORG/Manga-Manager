@@ -94,7 +94,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
 
     def load_metadata(self):
         try:
-            with ArchiveFile(self.file_path,'r') as self.archive:
+            with ArchiveFile(self.file_path, 'r') as self.archive:
                 if not self.cinfo_object:
                     self._load_metadata()
         except zipfile.BadZipFile:
@@ -111,7 +111,6 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
     def write_metadata(self, auto_unmark_changes=False):
         # print(self.cinfo_object.__dict__)
         logger.debug(f"[{'BEGIN WRITE':13s}] Writing metadata to file '{self.file_path}'")
-        # logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] ComicInfo file found in old file")
         try:
             self._process(write_metadata=True)
         finally:
