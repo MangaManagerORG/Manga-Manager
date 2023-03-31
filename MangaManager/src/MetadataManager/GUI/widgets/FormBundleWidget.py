@@ -39,6 +39,7 @@ class FormBundleWidget(Frame):
         return self
 
     def with_input(self, control: SettingControl, section: SettingSection):
+        # TODO: Figure out how to break this dependency on settings Window
         entry, string_var = setting_control_to_widget(self.row, control, section)
         self.control = control
         self.section = section

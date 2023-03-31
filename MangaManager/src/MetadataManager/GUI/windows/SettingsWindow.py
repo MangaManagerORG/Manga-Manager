@@ -90,7 +90,7 @@ def populate_default_settings():
     return default_settings
 
 
-class SettingsWidgetManager:
+class SettingsWindow:
 
     def save_settings(self):
         """

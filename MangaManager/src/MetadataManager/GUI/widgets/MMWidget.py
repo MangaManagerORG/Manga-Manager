@@ -1,14 +1,14 @@
 from idlelib.tooltip import Hovertip
 from tkinter.ttk import Combobox, OptionMenu, Frame, Label
 
-from src.MetadataManager.GUI.longtext import LongText
 from src.MetadataManager.GUI.utils import validate_int
+from src.MetadataManager.GUI.widgets.LongTextWidget import _LongText
 
 
 class MMWidget(Frame):
     validation: str | None = None
     widget_slave = None
-    widget: Combobox | LongText | OptionMenu
+    widget: Combobox | _LongText | OptionMenu
     name: str
     NONE = "~~# None ##~~"
 

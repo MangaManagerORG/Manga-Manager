@@ -24,7 +24,7 @@ from _tkinter import TclError
 
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget
-from src.MetadataManager.GUI.SettingsWidgetManager import SettingsWidgetManager
+from src.MetadataManager.GUI.windows.SettingsWindow import SettingsWindow
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
 
@@ -38,23 +38,19 @@ class GUIApp(Tk, MetadataManagerLib):
     """
     inserting_files = False
     widget_mngr = WidgetManager()
-    control_mngr = ControlManager()
+    control_mngr = ControlManager() # widgets that should be disabled while processing
 
     def __init__(self):
         super(GUIApp, self).__init__()
-        #self.widget_mngr = WidgetManager()
-        #self.control_mngr = ControlManager()  # widgets that should be disabled while processing
         self.last_folder = ""
 
         # self.wm_minsize(1000, 660)
         self.tk.eval('package require tile')
         self.geometry("1000x820")
-        # super(MetadataManagerLib, self).__init__()
         self.title("Manga Manager")
 
         self.selected_files_path = None
         self.loaded_cinfo_list: list[LoadedComicInfo] = []
-        # self.cinfo_tags: list[str] = []
         self.log = logging.getLogger("MetaManager.GUI")
 
         # MENU
@@ -180,7 +176,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self.widget_mngr.toggle_widgets(enabled=True)
 
     def show_settings(self):
-        SettingsWidgetManager(self)
+        SettingsWindow(self)
 
     def show_about(self):
         AboutWindow(self)
@@ -329,14 +325,14 @@ class GUIApp(Tk, MetadataManagerLib):
                 elif tag_values_len > 1:
                     widget.append_first(self.MULTIPLE_VALUES_CONFLICT)
 
-    def _serialize_gui_to_cinfo(self):
+    def _serialize_gui_to_cinfo(self) -> ComicInfo:
         """
         Parses current UI values to a 'new_edited_cinfo'
         :return:
         """
         # is_metadata_modified
         LOG_TAG = "[UI->CINFO] "
-        self.new_edited_cinfo = ComicInfo()
+        ci = ComicInfo()
         for cinfo_tag in self.widget_mngr.get_tags():
             widget = self.widget_mngr.get_widget(cinfo_tag)
             widget_value = widget.widget.get()
@@ -344,22 +340,23 @@ class GUIApp(Tk, MetadataManagerLib):
             match widget_value:
                 case self.MULTIPLE_VALUES_CONFLICT:
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Keeping original")
-                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, self.MULTIPLE_VALUES_CONFLICT)
+                    ci.set_by_tag_name(cinfo_tag, self.MULTIPLE_VALUES_CONFLICT)
                 case "None":
                     if widget.name == "Format":
-                        self.new_edited_cinfo.set_by_tag_name(cinfo_tag, "")
+                        ci.set_by_tag_name(cinfo_tag, "")
                 case widget.default:  # If it matches the default then do nothing
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Has default value")
                 case "":
-                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, "")
-                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted or was empty")
+                    ci.set_by_tag_name(cinfo_tag, "")
+                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was reset or was empty")
                 case _:
-                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, widget_value)
+                    ci.set_by_tag_name(cinfo_tag, widget_value)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")
                     # self.log.warning(f"Unhandled case: {widget_value}")
+        return ci
 
     def process_gui_update(self, old_selection: list[LoadedComicInfo], new_selection: list[LoadedComicInfo]):
-        self._serialize_gui_to_cinfo()
+        self.new_edited_cinfo = self._serialize_gui_to_cinfo()
         self.merge_changed_metadata(old_selection)
 
         self.show_not_saved_indicator(old_selection)
@@ -367,12 +364,12 @@ class GUIApp(Tk, MetadataManagerLib):
         # Display new selection data
         self._serialize_cinfolist_to_gui(new_selection)
 
-    def toggle_control_buttons(self, enabled=False) -> None:
-        for widget in self.control_mngr:
-            if enabled:
-                widget.configure(state="normal")
-            else:
-                widget.configure(state="disabled")
+    # def toggle_control_buttons(self, enabled=False) -> None:
+    #     for widget in self.control_mngr:
+    #         if enabled:
+    #             widget.configure(state="normal")
+    #         else:
+    #             widget.configure(state="disabled")
 
     def fill_from_filename(self) -> None:
         """Handles taking the currently selected file and parsing any information out of it and writing to Empty fields"""
@@ -473,18 +470,19 @@ class GUIApp(Tk, MetadataManagerLib):
     def process_fetch_online(self, *_):
         series_name = self.widget_mngr.get_widget("Series").get().strip()
         if series_name in (None, "", self.MULTIPLE_VALUES_CONFLICT):
-            mb.showwarning(self.main_frame,"Not a valid series name", "The current series name is empty or not valid.")
+            mb.showwarning(self.main_frame, "Not a valid series name", "The current series name is empty or not valid.")
             self.log.info("Not a valid series name - The current series name is empty or not valid.")
             return
 
-        # TODO: Populate temp with all fields from the UI
-        temp = ComicInfo()
-        temp.year = self.widget_mngr.get_widget("Year").get()
-        temp.number = self.widget_mngr.get_widget("Number").get()
-        temp.volume = self.widget_mngr.get_widget("Volume").get()
-        temp.series = series_name
+        # If multiple files are selected, validate that all files have the same series name
+        if len(self.selected_items) > 1:
+            if not all(series_name == item.cinfo_object.series.strip() for item in self.selected_items):
+                mb.showwarning(self.main_frame, "All series MUST match and may not contain blanks",
+                               "All files' series names are not the same.")
+                self.log.info("All series MUST match and may not contain blanks - All files' series names are not the same.")
+                return
 
-        cinfo = self.fetch_online(temp)
+        cinfo = self.fetch_online(self._serialize_gui_to_cinfo())
         if cinfo is None:
             return
 

@@ -385,3 +385,4 @@ class MainWindow(GUIApp):
         for btn in [self.fetch_online_btn, self.clear_btn, self.process_btn, self.fill_from_filename_btn]:
             btn['state'] = 'normal'
 
+
