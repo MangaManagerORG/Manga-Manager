@@ -1,7 +1,6 @@
 from idlelib.tooltip import Hovertip
-from tkinter import Frame, Label, Entry, Checkbutton, StringVar, BooleanVar, PhotoImage
+from tkinter import Frame, Label, Entry, Checkbutton, StringVar, BooleanVar
 
-from src.MetadataManager.GUI.SettingWidgetConverter import setting_control_to_widget
 from src.MetadataManager.GUI.widgets import ComboBoxWidget
 from src.Settings import SettingControl, SettingSection
 
@@ -18,9 +17,12 @@ class FormBundleWidget(Frame):
     # Reference held so UI can render it
     validation_label: Label
     validation_row: Frame
+    mapper_fn = None
 
-    def __init__(self, master, *_, **kwargs):
+    def __init__(self, master, mapper_fn, *_, **kwargs):
         super(FormBundleWidget, self).__init__(master, **kwargs)
+
+        self.mapper_fn = mapper_fn
 
         self.row = Frame(master)
         self.row.pack(expand=True, fill="x")
@@ -39,8 +41,7 @@ class FormBundleWidget(Frame):
         return self
 
     def with_input(self, control: SettingControl, section: SettingSection):
-        # TODO: Figure out how to break this dependency on settings Window
-        entry, string_var = setting_control_to_widget(self.row, control, section)
+        entry, string_var = self.mapper_fn(self.row, control, section)
         self.control = control
         self.section = section
         self.input_widget = entry

@@ -182,12 +182,8 @@ class MainWindow(GUIApp):
 
         self.display_extensions(self.extensions_tab_frame)
 
-
-
         self.changes_saved = tkinter.Label(master=self, text="Changes are not saved", font=('Arial', 10))
         self.focus()
-        self.log.warning("warn test")
-        self.log.error("error test")
 
     def display_main_content_widgets(self) -> None:
 

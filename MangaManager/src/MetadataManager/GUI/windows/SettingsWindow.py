@@ -4,7 +4,7 @@ import logging
 import re
 import tkinter
 from tkinter import ttk, Frame
-from tkinter.ttk import LabelFrame, Label, Notebook
+from tkinter.ttk import LabelFrame, Label, Notebook, Combobox
 
 from ExternalSources.MetadataSources import ScraperFactory
 from common.models import ComicInfo
@@ -182,7 +182,7 @@ class SettingsWindow:
         # Update the control's value from Settings
         control.value = Settings().get(section.key, control.key)
 
-        row = FormBundleWidget(parent_frame) \
+        row = FormBundleWidget(parent_frame, self.setting_control_to_widget) \
             .with_label(title=control.name, tooltip=control.tooltip) \
             .with_input(control=control, section=section) \
             .build()
@@ -192,3 +192,25 @@ class SettingsWindow:
     def build_setting_entries(self, parent_frame, settings, section):
         for i, setting in enumerate(settings):
             self.build_setting_entry(parent_frame, setting, section)
+
+    @staticmethod
+    def setting_control_to_widget(parent_frame: tkinter.Frame, control: SettingControl, section: SettingSection):
+        match control.control_type:
+            case SettingControlType.Text:
+                string_var = tkinter.StringVar(value=control.value, name=f"{section.pretty_name}.{control.key}")
+                entry = tkinter.Entry(master=parent_frame, width=80, textvariable=string_var)
+                entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
+            case SettingControlType.Bool:
+                value = control.value == 'True'
+                string_var = tkinter.BooleanVar(value=value, name=f"{section.pretty_name}.{control.key}")
+                entry = tkinter.Checkbutton(parent_frame, variable=string_var, onvalue=1, offvalue=0)
+                entry.pack(side="left")
+            case SettingControlType.Options:
+                string_var = tkinter.StringVar(value="default", name=f"{section.pretty_name}.{control.key}")
+                entry = Combobox(master=parent_frame, textvariable=string_var, width=30, state="readonly")
+                entry["values"] = control.values
+                entry.set(str(control.value))
+                entry.pack(side="left", expand=False, fill="x", padx=(5, 30))
+                entry.set(control.value)
+
+        return entry, string_var
