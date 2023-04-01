@@ -17,9 +17,12 @@ logger = logging.getLogger("MetaManager.Core")
 
 
 class _IMetadataManagerLib(abc.ABC):
-    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo):
+    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo,cursor,total):
         """
         Called when a loadedcomicinfo is loaded
+        :param loaded_cinfo:
+        :param cursor:
+        :param total:
         :return:
         """
 
@@ -85,6 +88,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
     ]
     MULTIPLE_VALUES_CONFLICT = "~~## Keep Original Value ##~~"
     tags_with_multiple_values = []
+    _abort_loading = False
 
     @property
     def loaded_cinfo_list_to_process(self) -> list[LoadedComicInfo]:
@@ -173,19 +177,27 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         self.new_edited_cinfo = None
         return any_has_changes
 
-    def open_cinfo_list(self) -> None:
+    def open_cinfo_list(self, abort_loading=False) -> bool:
         """
         Creates a list of comicinfo with the comicinfo metadata from the selected files.
 
         :raises CorruptedComicInfo: If the data inside ComicInfo.xml could not be read after trying to fix the data
         :raises BadZipFile: If the provided zip is not a valid zip or is broken
+
+        :return True: If the loading was successful
+        :return False: If the loading was not successful/aborted
         """
 
         logger.debug("Loading files")
         self.loaded_cinfo_list: list[LoadedComicInfo] = list()
         # Skip warnings if one was already displayed
         missing_rar_tool = False
-        for file_path in self.selected_files_path:
+        total_files = len(self.selected_files_path)
+        for i, file_path in enumerate(self.selected_files_path):
+            if abort_loading:
+                logger.info("Abort loading")
+                self.loaded_cinfo_list: list[LoadedComicInfo] = list()
+                return False
             try:
                 loaded_cinfo = LoadedComicInfo(path=file_path)
                 if Settings().get(SettingHeading.Main, 'cache_cover_images') and not self.is_cli:
@@ -213,9 +225,9 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 continue
 
             self.loaded_cinfo_list.append(loaded_cinfo)
-            self.on_item_loaded(loaded_cinfo)
+            abort_loading = self.on_item_loaded(loaded_cinfo=loaded_cinfo, cursor=i, total=total_files)
         logger.debug("Files selected")
-
+        return True
     def preview_export(self, loaded_cinfo):
         """
         Debug function to preview loaded_cinfo in terminal

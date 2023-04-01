@@ -235,7 +235,7 @@ class BulkLoadingTest(TKinterTestCase):
             cinfo.set_by_tag_name("Series", f"Series_sample - {i}")
             loaded_cinfo = LoadedComicInfo(filepath, comicinfo=cinfo).load_metadata()
             app.loaded_cinfo_list.append(loaded_cinfo)
-            app.on_item_loaded(loaded_cinfo)
+            app.on_item_loaded(loaded_cinfo, None, None)
 
         self.pump_events()
         app.focus_set()

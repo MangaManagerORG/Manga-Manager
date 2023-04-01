@@ -61,6 +61,11 @@ class RepeatedTimer(object):
 
 class ProgressBar(abc.ABC):
     running = False
+    PROCESSED_TAG = "$processed"
+    TOTAL_TAG = "$total"
+    ERRORS_TAG = "$errors"
+    ELAPSED_TIME_TAG = "$elapsed_time"
+    ESTIMATED_TIME_TAG = "$estimated_time"
     def __init__(self):
 
         self.timer = RepeatedTimer()
@@ -70,11 +75,7 @@ class ProgressBar(abc.ABC):
         self.processed_errors = 0
         self.total = -1
 
-        self.PROCESSED_TAG = "$processed"
-        self.TOTAL_TAG = "$total"
-        self.ERRORS_TAG = "$errors"
-        self.ELAPSED_TIME_TAG = "$elapsed_time"
-        self.ESTIMATED_TIME_TAG = "$estimated_time"
+
         self.template = Template(f"""Processed: {self.PROCESSED_TAG}/{self.TOTAL_TAG} files - {self.ERRORS_TAG} errors
 Elapsed time  : {self.ELAPSED_TIME_TAG}
 Estimated time: {self.ESTIMATED_TIME_TAG}""")

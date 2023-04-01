@@ -113,6 +113,9 @@ class MessageBoxWidget(Toplevel):
                        command=lambda btn=button: self._set_selected_value(btn.id)).pack(side="left", ipadx=20)
                 Label(self.control_frame).pack(side="left", padx=5)
         return self
+    def with_title_bar(self,value=True):
+        # Removing titlebar from the Dialogue
+        self.overrideredirect(value)
 
     def build(self):
         """

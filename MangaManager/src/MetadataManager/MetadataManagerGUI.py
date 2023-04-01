@@ -13,6 +13,7 @@ from src.Common.utils import get_platform, open_folder
 from src.MetadataManager.GUI.ControlManager import ControlManager
 from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.windows.AboutWindow import AboutWindow
+from src.MetadataManager.GUI.windows.LoadingWindow import LoadingWindow
 from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
 
@@ -39,6 +40,7 @@ class GUIApp(Tk, MetadataManagerLib):
     inserting_files = False
     widget_mngr = WidgetManager()
     control_mngr = ControlManager()
+    loading_window: LoadingWindow|None = None
 
     def __init__(self):
         super(GUIApp, self).__init__()
@@ -112,11 +114,8 @@ class GUIApp(Tk, MetadataManagerLib):
         # New file selection. Proceed to clean the ui to a new state
         self.control_mngr.lock()
         self.widget_mngr.toggle_widgets(False)
-        self.widget_mngr.clean_widgets()
-        self.image_cover_frame.clear()
-        self.selected_files_path = list()
-        self.selected_files_treeview.clear()
 
+        self.clean_selected()
         self.inserting_files = True
         # These are some tricks to make it easier to select files.
         # Saves last opened folder to not have to browse to it again
@@ -140,12 +139,19 @@ class GUIApp(Tk, MetadataManagerLib):
         self.selected_files_path = [file.name for file in selected_paths_list]
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
-        self.open_cinfo_list()
+        abort_loading = False
+        self.loading_window = LoadingWindow(len(self.selected_files_path),abort_flag=abort_loading)
 
-        self._serialize_cinfolist_to_gui()
+        if self.open_cinfo_list(abort_loading):
+            self._serialize_cinfolist_to_gui()
+        else:
+            self.clean_selected()
+
         self.inserting_files = False
         self.control_mngr.unlock()
         self.widget_mngr.toggle_widgets(enabled=True)
+        self.loading_window.finish_loading()
+        self.loading_window = None
 
     def select_folder(self):
         # New file selection. Proceed to clean the ui to a new state
@@ -172,12 +178,24 @@ class GUIApp(Tk, MetadataManagerLib):
         # self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
-        self.open_cinfo_list()
+        abort_loading = False
+        self.loading_window = LoadingWindow(len(self.selected_files_path),abort_flag=abort_loading)
 
-        self._serialize_cinfolist_to_gui()
+        if self.open_cinfo_list(abort_loading=abort_loading):
+            self._serialize_cinfolist_to_gui()
+        else:
+            self.clean_selected()
         self.inserting_files = False
         self.control_mngr.unlock()
         self.widget_mngr.toggle_widgets(enabled=True)
+        self.loading_window.finish_loading()
+        self.loading_window = None
+    def clean_selected(self):
+
+        self.widget_mngr.clean_widgets()
+        self.image_cover_frame.clear()
+        self.selected_files_path = list()
+        self.selected_files_treeview.clear()
 
     def show_settings(self):
         SettingsWidgetManager(self)
@@ -227,15 +245,21 @@ class GUIApp(Tk, MetadataManagerLib):
     # INTERFACE IMPLEMENTATIONS
     ############
 
-    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo):
+    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo, cursor, total) -> bool:
         """
         Called by backend when an item gets added to the loaded comic info list
+        Checks if abort was clicked
+        :param cursor:
+        :param total:
         :param loaded_cinfo:
         :return:
         """
+        self.loading_window.update()
+        self.loading_window.loaded_file(loaded_cinfo.file_name)
         self.selected_files_treeview.insert(loaded_cinfo)
         self.image_cover_frame.update_cover_image([loaded_cinfo])
         self.update()
+        return self.loading_window.abort_flag
 
     #########################################################
     # Errors handling / hooks implementations
@@ -284,7 +308,7 @@ class GUIApp(Tk, MetadataManagerLib):
     # Processing Methods
     ############
 
-    def _serialize_cinfolist_to_gui(self, loaded_cinfo_list=None):
+    def _serialize_cinfolist_to_gui(self, loaded_cinfo_list=None) -> bool:
         """
         Display the loaded cinfo values in the ui.
         If multiple values for one field, shows conflict (keeping values)
@@ -299,8 +323,7 @@ class GUIApp(Tk, MetadataManagerLib):
             self.image_cover_frame.update_cover_image(loaded_cinfo_list)
 
         # Iterate all cinfo tags. Should there be any values that are not equal. Show "different values selected"
-
-        for cinfo_tag in self.widget_mngr.get_tags():
+        for i, cinfo_tag in enumerate(self.widget_mngr.get_tags()):
             widget = self.widget_mngr.get_widget(cinfo_tag)
             tag_values = set()
             for loaded_cinfo in loaded_cinfo_list:
@@ -328,6 +351,7 @@ class GUIApp(Tk, MetadataManagerLib):
                     widget.update_listed_values(tag_values[0], widget.get_options())
                 elif tag_values_len > 1:
                     widget.append_first(self.MULTIPLE_VALUES_CONFLICT)
+        return True
 
     def _serialize_gui_to_cinfo(self):
         """
