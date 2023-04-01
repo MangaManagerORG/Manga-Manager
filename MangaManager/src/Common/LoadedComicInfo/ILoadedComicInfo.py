@@ -1,4 +1,4 @@
-class ILoadedComicInfo:
+class ILoadedComicInfo():
     """
         Helper class that loads the info that is required by the tools
 

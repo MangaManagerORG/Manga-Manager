@@ -28,6 +28,7 @@ _LOG_TAG_WRITE_META = 'Write Meta'
 _LOG_TAG_RECOMPRESSING = "Recompressing"
 move_to_value = ""
 
+zip_compression = zipfile.ZIP_STORED
 
 class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo):
 
@@ -134,6 +135,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
                 zf.writestr(COMICINFO_FILE, self._export_metadata())
                 logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
             self.has_metadata = True
+            return  # Nothing else to be done, return
 
         # Creates a tempfile in the directory the original file is at
         tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_path))
@@ -142,11 +144,12 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         with ArchiveFile(self.file_path, 'r') as zin:
             initial_file_count = len(zin.namelist())
 
-            with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
+            with zipfile.ZipFile(tmpname, "w", compression=zip_compression) as zout:  # The temp file where changes will be saved to
                 self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=do_convert_to_webp)
 
         has_cover_action = self.cover_action not in (CoverActions.RESET, None) or self.backcover_action not in (
             CoverActions.RESET, None)
+
         # Reset cover flags
         self.cover_action = CoverActions.RESET
         self.backcover_action = CoverActions.RESET
@@ -155,6 +158,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         # Delete old file and rename new file to old name
         try:
             with ArchiveFile(self.file_path, 'r') as zin:
+
                 assert initial_file_count == len(zin.namelist())
             os.remove(self.file_path)
             os.rename(tmpname, self.file_path)
@@ -324,3 +328,35 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             zout.write(cover_path, new_filename)
             logger.trace(
                 f"[{_LOG_TAG_RECOMPRESSING:13s}] Adding file '{new_filename}' to new tempfile")
+
+    @staticmethod
+    def recover_comicinfo_xml(file_path=None):
+        # Create a temporary zipfile and copy over all files except comicinfo.xml
+        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(file_path))
+        os.close(tmpfd)
+
+        try:
+            with zipfile.ZipFile(tmpname, "w", compression=zip_compression) as zout:
+                with zipfile.ZipFile(file_path, mode='r') as zin:
+                    for info in zin.infolist():
+                        if info.filename == COMICINFO_FILE_BACKUP:
+                            # Rename comicinfo.xml.bak to comicinfo.xml
+                            zout.writestr(COMICINFO_FILE, zin.read(info.filename))
+                        elif info.filename == COMICINFO_FILE:
+                            # Skip comicinfo.xml since it will be replaced
+                            continue
+                        else:
+                            zout.writestr(info, zin.read(info.filename))
+        # If we fail to delete original file we delete temp file effecively aborting the metadata update
+        except PermissionError:
+            logger.exception(f"[{'Processing':13s}] Permission error. Aborting and clearing temp files")
+            os.remove(
+                tmpname)  # Could be moved to a 'finally'? Don't want to risk it not clearing temp files properly
+            raise
+        except Exception:
+            logger.exception(f"[{'Processing':13s}] Unhandled exception. Create an issue so this gets investigated."
+                             f" Aborting and clearing temp files")
+            os.remove(tmpname)
+            raise
+        # Replace the original file with the temporary one
+        os.replace(tmpname, file_path)
