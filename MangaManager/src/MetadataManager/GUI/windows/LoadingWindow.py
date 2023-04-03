@@ -6,6 +6,8 @@ from src.MetadataManager.GUI.widgets import ProgressBarWidget
 
 
 class LoadingWindow(tkinter.Toplevel):
+    initialized: bool = False
+    abort_flag:bool = None
 
     def __init__(self, total,abort_flag):
         super().__init__()
@@ -36,21 +38,25 @@ class LoadingWindow(tkinter.Toplevel):
 
         abort_btn = tkinter.Button(content,text="Abort",command=self.set_abort)
         abort_btn.pack()
+        self.initialized = True
     def set_abort(self,*_):
-        self.abort_flag = True
-        self.pb.set_template("Aborting...\n")
-        self.after(2000, self.finish_loading)
+        if self.initialized:
+            self.abort_flag = True
+            self.pb.set_template("Aborting...\n")
+            self.after(2000, self.finish_loading)
     #
     #     self.pb = ProgressBar()
     #     self.pb.set_template(f"Loaded:{ProgressBar.PROCESSED_TAG}/{ProgressBar.TOTAL_TAG}\n")
 
     def loaded_file(self, value: str):
-        self.pb.set_template(f"Loading: {ProgressBar.PROCESSED_TAG}/{ProgressBar.TOTAL_TAG}\nLast loaded: '{value}'")
-        self.pb.increase_processed()
+        if self.initialized:
+            self.pb.set_template(f"Loading: {ProgressBar.PROCESSED_TAG}/{ProgressBar.TOTAL_TAG}\nLast loaded: '{value}'")
+            self.pb.increase_processed()
 
     def finish_loading(self):
-        self.grab_release()
-        self.destroy()
+        if self.initialized:
+            self.grab_release()
+            self.destroy()
 
 
 

@@ -140,7 +140,9 @@ class GUIApp(Tk, MetadataManagerLib):
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
         abort_loading = False
-        self.loading_window = LoadingWindow(len(self.selected_files_path),abort_flag=abort_loading)
+        self.loading_window = LoadingWindow(
+            len(self.selected_files_path), abort_flag=abort_loading) if len(
+            self.selected_files_path) > 1 else LoadingWindow
 
         if self.open_cinfo_list(abort_loading):
             self._serialize_cinfolist_to_gui()
@@ -150,7 +152,8 @@ class GUIApp(Tk, MetadataManagerLib):
         self.inserting_files = False
         self.control_mngr.unlock()
         self.widget_mngr.toggle_widgets(enabled=True)
-        self.loading_window.finish_loading()
+        if self.loading_window.initialized:
+            self.loading_window.finish_loading()
         self.loading_window = None
 
     def select_folder(self):
@@ -179,7 +182,9 @@ class GUIApp(Tk, MetadataManagerLib):
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
         abort_loading = False
-        self.loading_window = LoadingWindow(len(self.selected_files_path),abort_flag=abort_loading)
+        self.loading_window = LoadingWindow(
+            len(self.selected_files_path), abort_flag=abort_loading) if len(self.selected_files_path) > 1 else LoadingWindow
+        # self.loading_window = LoadingWindow(len(self.selected_files_path),abort_flag=abort_loading)
 
         if self.open_cinfo_list(abort_loading=abort_loading):
             self._serialize_cinfolist_to_gui()
@@ -254,8 +259,9 @@ class GUIApp(Tk, MetadataManagerLib):
         :param loaded_cinfo:
         :return:
         """
-        self.loading_window.update()
-        self.loading_window.loaded_file(loaded_cinfo.file_name)
+        if self.loading_window.initialized:
+            self.loading_window.update()
+            self.loading_window.loaded_file(loaded_cinfo.file_name)
         self.selected_files_treeview.insert(loaded_cinfo)
         self.image_cover_frame.update_cover_image([loaded_cinfo])
         self.update()
