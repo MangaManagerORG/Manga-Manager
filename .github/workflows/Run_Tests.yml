@@ -9,117 +9,188 @@ env:
   $$_ENV_DEVELOPMENT_MM_$$: true
   IMAGE_NAME: "thepromidius/manga-manager"
 jobs:
-  build:
+  test_linux:
     env:
       DISPLAY: ":99.0"
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [ '3.11' ]
-    name: Python ${{ matrix.python-version }} sample
+    name: Python ${{ matrix.python-version }} - Linux
     steps:
-        -   uses: actions/checkout@v3
-        -   uses: actions/setup-python@v4
-            with:
-                python-version: ${{ matrix.python-version }}
-                cache: 'pip'
-        -   run: sudo apt install xvfb
-        -   run: pip install -r requirements.txt
-        -   name: Start xvfb
-            run: |
-                Xvfb :99 -screen 0 1920x1080x24 &disown
-        -   name: Run the tests
-            run: |
-                python3 -m unittest discover -s MangaManager/tests -t MangaManager/
+      -
+        uses: actions/checkout@v3
+      -
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      -
+        run: sudo apt install xvfb
+      -
+        run: pip install -r requirements.txt
+      -
+        name: Start xvfb
+        run: |
+          Xvfb :99 -screen 0 1920x1080x24 &disown
+      -
+        name: Run the tests
+        run: |
+          cd MangaManager
+          python -m unittest discover -s tests -t .
+  
+  
+
+#  test_windows:
+#    env:
+#      DISPLAY: ":99.0"
+#    runs-on: windows-latest
+#    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/test' }}
+#    strategy:
+#      matrix:
+#        python-version: [ '3.11' ]
+#    name: Python ${{ matrix.python-version }} - Windows
+#    steps:
+#      -
+#        uses: actions/checkout@v3
+#      -
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: ${{ matrix.python-version }}
+#          cache: 'pip'
+#      -
+#        run: pip install -r requirements.txt
+#      -
+#        name: Run the tests
+#        run: |
+#          cd MangaManager
+#          python -m unittest discover -s tests -t .
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
     steps:
-      -   uses: actions/checkout@v3
-          with:
+      -
+        uses: actions/checkout@v3
+        with:
             fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      -   name: SonarCloud Scan
-          uses: SonarSource/sonarcloud-github-action@master
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  docker_dev:
-    name: Nightly Build
-    needs: [ build, sonarcloud ]
+
+  parse_versions:
+    name: Parse Versions Env
+    runs-on: ubuntu-latest
+    outputs:
+      latest_commit: ${{ steps.latest_commit.outputs.latest_commit }}
+      release_commit: ${{ steps.release_commit.outputs.release_commit }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set latest release commit hash (latest)
+        id: release_commit
+        run: |
+          release_url=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest)
+          tag_name=$(echo $release_url | jq -r '.tag_name')
+          tag_url=$(curl -s https://api.github.com/repos/${{ github.repository }}/git/ref/tags/$tag_name)
+          release_commit=$(echo $tag_url | jq -r '.object.sha')
+          short_release_commit=$(git rev-parse --short $release_commit)
+          echo "release_commit=$short_release_commit" >> $GITHUB_OUTPUT
+
+      - name: Set latest commit hash (develop)
+        id: latest_commit
+        run: |
+          latest_commit=$(git rev-parse --short HEAD)
+          echo "latest_commit=$latest_commit" >> $GITHUB_OUTPUT
+
+  docker_test:
+    name: Test and Build - Test Version
+    needs: [test_linux, sonarcloud, parse_versions]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/test' }}
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Replace "nightly" with commit hash
+        run: |
+          file_contents=$(head -n 1 MangaManager/src/__version__.py)
+          new_contents="${file_contents/nightly/nightly:${{ needs.parse_versions.outputs.latest_commit }}}"
+          echo "$new_contents" > MangaManager/src/__version__.py
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:test
+
+  docker_nightly:
+    name: Test and Build - Nightly Version
+    needs: [test_linux, sonarcloud, parse_versions ]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
     steps:
-      - name: Set up QEMU
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Replace "nightly" with commit hash
+        run: |
+          file_contents=$(head -n 1 MangaManager/src/__version__.py)
+          new_contents="${file_contents/nightly/nightly:${{ needs.parse_versions.outputs.latest_commit }}}"
+          echo "$new_contents" > MangaManager/src/__version__.py
+      -
+        name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
+      -
+        name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
+      -
+        name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v3
+      -
+        name: Build and push
+        uses: docker/build-push-action@v4
         with:
+          context: .
           push: true
           tags: ${{ env.IMAGE_NAME }}:nightly
+
   docker_stable:
     name: Stable Build
-    needs: [ build, sonarcloud ]
+    needs: [test_linux, sonarcloud ]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
-      - name: Set up QEMU
+      -
+        name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
+      -
+        name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
+      -
+        name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+      -
+        name: Build and push
         uses: docker/build-push-action@v3
         with:
           push: true
           tags: ${{ env.IMAGE_NAME }}:latest
-  docker_test:
-    name: Test Build
-    needs: [ build, sonarcloud ]
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/test' }}
-    steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: ${{ env.IMAGE_NAME }}:test
-  docker_rework:
-    name: Rework Build
-    needs: [ build, sonarcloud ]
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/rework/master' }}
-    steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: ${{ env.IMAGE_NAME }}:rework

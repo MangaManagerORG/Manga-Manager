@@ -3,14 +3,14 @@ import logging
 import tkinter
 from tkinter.ttk import Treeview
 
-from src.Common.loadedcomicinfo import LoadedComicInfo
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 
 logger = logging.getLogger()
 
 
-class TreeviewWidget(Treeview):
+class FileMultiSelectWidget(Treeview):
     def __init__(self, *args, **kwargs):
-        super(TreeviewWidget, self).__init__(*args, **kwargs)
+        super(FileMultiSelectWidget, self).__init__(*args, **kwargs)
         self.heading('#0', text='Click to select all files', command=self.select_all)
         # self.pack(expand=True, side="top")
         self.bind('<<TreeviewSelect>>', self._on_select)
@@ -37,8 +37,8 @@ class TreeviewWidget(Treeview):
         return [self.content.get(item) for item in self.selection()]
 
     def insert(self, loaded_cinfo: LoadedComicInfo, *args, **kwargs):
-        super(TreeviewWidget, self).insert("", 'end', loaded_cinfo.file_path, text=loaded_cinfo.file_name, tags=("darkmode", "important" ),*args,
-                                               **kwargs)
+        super(FileMultiSelectWidget, self).insert("", 'end', loaded_cinfo.file_path, text=loaded_cinfo.file_name, tags=("darkmode", "important"), *args,
+                                                  **kwargs)
         self.content[loaded_cinfo.file_path] = loaded_cinfo
         # self._call_hook_item_inserted(loaded_cinfo)
         self.select_all()
@@ -88,6 +88,7 @@ class TreeviewWidget(Treeview):
     def reset_loadedcinfo_changes(self, event=None):
         raise NotImplementedError()
 
+    @staticmethod
     def _run_hook(source: list[callable], *args):
         for hook_function in source:
             try:

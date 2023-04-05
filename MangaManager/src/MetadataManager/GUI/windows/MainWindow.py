@@ -1,35 +1,43 @@
-import locale
+import json
 import tkinter
-from os.path import abspath
 from tkinter import Frame, ttk
 from tkinter.ttk import Notebook
 
-from pkg_resources import resource_filename
-
-from src.MetadataManager import comicinfo
+from src.__version__ import __version__
+from common.models import Formats, AgeRating
+from src.Common import ResourceLoader
 from src.MetadataManager.CoverManager.CoverManager import CoverManager
-from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.GUI.ExceptionWindow import ExceptionFrame
-from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, TreeviewWidget, ProgressBarWidget, \
+from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ButtonWidget, FileMultiSelectWidget, ProgressBarWidget, \
     ComboBoxWidget, LongTextWidget, OptionMenuWidget
+from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 
+with open(ResourceLoader.get('languages.json'), 'r', encoding="utf-8") as f:
+    data = json.loads(f.read())
+    languages = [language["isoCode"] for language in data]
 
-class Layout(GUIApp):
-    name = "Joe Layout"
+
+class MainWindow(GUIApp):
+    # The clear button
+    clear_btn = None
+    fetch_online_btn = None
+    process_btn = None
+    fill_from_filename_btn = None
+    cover_manager_btn = None
 
     def __init__(self):
         super().__init__()
-        self.title("Manga Manager: Joe Layout")
+        self.title("Manga Manager: v" + __version__.split(':')[0])
 
-    #########################################################
-    # GUI Display Methods
-    ############
+        #########################################################
+        # GUI Display Methods
+        ############
 
         # Overview LAYOUT
         self.control_frame_top = Frame(self.main_frame)
         self.control_frame_top.pack(fill="x", side="top",padx=30,pady=3)
-        self.display_control_frame()
+        self.display_menu_bar()
         ttk.Separator(self.main_frame, orient='horizontal').pack(fill="x")
 
         mid_content_frame = Frame(self.main_frame)
@@ -59,7 +67,7 @@ class Layout(GUIApp):
 
         self.files_selected_frame.selected_files_label = tkinter.Label(self.files_selected_frame, text="Opened Files:")
         self.files_selected_frame.selected_files_label.pack(expand=False, fill="x")
-        self.selected_files_treeview = TreeviewWidget
+        self.selected_files_treeview = FileMultiSelectWidget
         self.selected_files_treeview.open_in_explorer = self._treeview_open_explorer
         self.selected_files_treeview.reset_loadedcinfo_changes = self._treview_reset
         self.selected_files_treeview = self.selected_files_treeview(self.files_selected_frame)#, padding=[-15, 0, 0, 0])  # padding -15 to remove the left indent
@@ -73,61 +81,74 @@ class Layout(GUIApp):
         self.image_cover_frame.pack(expand=False, fill='x')
         self.files_selected_frame.pack(expand=True, fill="both", pady=(20, 0))
 
-    def display_control_frame(self) -> None:
+    def display_menu_bar(self) -> None:
         # Action Buttons
         control_frame = self.control_frame_top
 
         btn = ButtonWidget(master=control_frame, text="Open Files",
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
         try:
-            icon_path = abspath(resource_filename(__name__, '../../res/open_file.png'))
-            btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
+            icon_path = ResourceLoader.get('open_file.png')
+            btn.img_ref = tkinter.PhotoImage(name="open_file_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except: # Fixme linux throws resource not found
             self.log.exception("Exception loading the open_file icon")
+
         btn.configure(compound="left")
         btn.configure(command=self.select_files)
-        btn.pack(side="left", fill="y", padx=(0,5))
+        btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
         try:
-            icon_path = abspath(resource_filename(__name__, '../../res/open_folder.png'))
+            icon_path = ResourceLoader.get('open_folder.png')
             btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
             btn.configure(image=btn.img_ref)
         except:
             self.log.exception("Exception loading the open_file icon")
         btn.configure(compound="left")
         btn.configure(command=self.select_folder)
-        btn.pack(side="left", fill="y", padx=5)
+        btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(btn)
 
-        btn = ButtonWidget(master=control_frame, text="Clear", tooltip="Clean the metadata from the current view")
-        btn.configure(command=self.widget_mngr.clean_widgets)
-        btn.configure(image=self.clear_icon)
-        btn.configure(compound="left", padx=5)
+        self.clear_btn = ButtonWidget(master=control_frame, text="Clear", tooltip="Clean the metadata from the current view")
+        self.clear_btn.configure(command=self.widget_mngr.clean_widgets)
+        self.clear_btn.configure(image=self.clear_icon)
+        self.clear_btn['state'] = 'disabled'
+        self.clear_btn.configure(compound="left")
 
-        btn.pack(side="left", fill="y")
-        self.control_mngr.append(btn)
+        self.clear_btn.pack(side="left", fill="y", padx=(0, 5))
+        self.control_mngr.append(self.clear_btn)
 
-        btn = ButtonWidget(master=control_frame, text="  Fetch\n  Online")
-        btn.configure(image=self.fetch_online_icon)
-        btn.configure(compound="left")
-        btn.configure(command=self.process_fetch_online)
-        btn.pack(side="left", fill="y", padx=5)
-        self.control_mngr.append(btn)
+        self.fetch_online_btn = ButtonWidget(master=control_frame, text="  Fetch\n  Online")
+        self.fetch_online_btn.configure(image=self.fetch_online_icon)
+        self.fetch_online_btn.configure(compound="left")
+        self.fetch_online_btn.configure(command=self.process_fetch_online)
+        self.fetch_online_btn['state'] = 'disabled'
+        self.fetch_online_btn.pack(side="left", fill="y", padx=(0, 5))
+        self.control_mngr.append(self.fetch_online_btn)
 
-        btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
-        btn.configure(command=self.pre_process)
-        btn.configure(image=self.save_icon)
-        btn.configure(compound="left")
-        btn.pack(side="left",fill="y", padx=5)
-        self.control_mngr.append(btn)
+        self.process_btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
+        self.process_btn.configure(command=self.pre_process)
+        self.process_btn.configure(image=self.save_icon)
+        self.process_btn.configure(compound="left")
+        self.process_btn['state'] = 'disabled'
+        self.process_btn.pack(side="left", fill="y", padx=(0, 5))
+        self.control_mngr.append(self.process_btn)
 
-        btn = ButtonWidget(master=control_frame, text="Cover Manager", tooltip="Opens covermanager for the loaded files")
-        btn.configure(command=lambda: CoverManager(self, self))
-        btn.pack(side="left", fill="y",padx=(20,0))
-        self.control_mngr.append(btn)
+        self.fill_from_filename_btn = ButtonWidget(master=control_frame, text="Filename Fill", tooltip="Fill data from Filename")
+        self.fill_from_filename_btn.configure(command=self.fill_from_filename)
+        self.fill_from_filename_btn.configure(image=self.filename_fill_icon)
+        self.fill_from_filename_btn.configure(compound="left")
+        self.fill_from_filename_btn['state'] = 'disabled'
+        self.fill_from_filename_btn.pack(side="left", fill="y", padx=(0, 5))
+        self.control_mngr.append(self.fill_from_filename_btn)
+
+        self.cover_manager_btn = ButtonWidget(master=control_frame, text="Cover Manager", tooltip="Opens covermanager for the loaded files")
+        self.cover_manager_btn.configure(command=lambda: CoverManager(self, self))
+        self.cover_manager_btn['state'] = 'disabled'
+        self.cover_manager_btn.pack(side="left", fill="y", padx=(0, 5))
+        self.control_mngr.append(self.cover_manager_btn)
 
     def init_main_content_frame(self) -> None:
         self.notebook = Notebook(self.main_content_frame_right)
@@ -165,7 +186,7 @@ class Layout(GUIApp):
 
         self.changes_saved = tkinter.Label(master=self, text="Changes are not saved", font=('Arial', 10))
         self.focus()
-        self.log.warn("warn test")
+        self.log.warning("warn test")
         self.log.error("error test")
 
     def display_main_content_widgets(self) -> None:
@@ -226,28 +247,42 @@ class Layout(GUIApp):
         numbering.pack(fill="both", expand=True)
 
         self.widget_mngr.Number = ComboBoxWidget(numbering, "Number", width=COMBO_WIDTH,
-                                                 tooltip="The chapter absolute number").grid(0, 0)
+                                                 tooltip="The chapter absolute number") \
+            .pack(side="left", expand=False, fill="x")
         self.widget_mngr.Volume = ComboBoxWidget(numbering, "Volume", width=COMBO_WIDTH,
-                                                 validation="int", default="-1").grid(0, 1)
+                                                 validation="int", default="-1") \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.Count = ComboBoxWidget(numbering, "Count", width=COMBO_WIDTH,
-                                                validation="int", default="-1").grid(0, 2)
+                                                validation="int", default="-1") \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
         self.widget_mngr.Format = OptionMenuWidget(numbering, "Format", "Format", COMBO_WIDTH, 18, "",
-                                                   comicinfo.format_list).grid(0, 3)
+                                                   Formats) \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
         self.widget_mngr.Manga = OptionMenuWidget(numbering, "Manga", "Manga", COMBO_WIDTH, 18,
-                                                  "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")).grid(0,4)
+                                                  "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")) \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
-        self.widget_mngr.Year = ComboBoxWidget(numbering, "Year", width=COMBO_WIDTH,
-                                               validation="int", default="-1").grid(1, 0)
-        self.widget_mngr.Month = ComboBoxWidget(numbering, "Month", width=COMBO_WIDTH,
-                                                validation="int", default="-1").grid(1, 1)
-        self.widget_mngr.Day = ComboBoxWidget(numbering, "Day", width=COMBO_WIDTH,
-                                              validation="int", default="-1").grid(1, 2)
-        self.widget_mngr.AgeRating = OptionMenuWidget(numbering, "AgeRating", "Age Rating", COMBO_WIDTH, 18,
-                                                      "Unknown", comicinfo.AgeRating.list()).grid(1, 3)
+        numbering2 = Frame(parent_frame)
+        numbering2.columnconfigure("all", weight=0)
+        numbering2.pack(fill="both", expand=True)
 
-        self.widget_mngr.LanguageISO = ComboBoxWidget(numbering, "LanguageISO", label_text="Language ISO",
-                                                      width=8, default="", default_values=list(locale.locale_alias.keys())).grid(1, 4)
+        self.widget_mngr.Year = ComboBoxWidget(numbering2, "Year", width=COMBO_WIDTH,
+                                               validation="int", default="-1") \
+            .pack(side="left", expand=False, fill="x")
+        self.widget_mngr.Month = ComboBoxWidget(numbering2, "Month", width=COMBO_WIDTH,
+                                                validation="int", default="-1") \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
+        self.widget_mngr.Day = ComboBoxWidget(numbering2, "Day", width=COMBO_WIDTH,
+                                              validation="int", default="-1") \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
+        self.widget_mngr.AgeRating = OptionMenuWidget(numbering2, "AgeRating", "Age Rating", COMBO_WIDTH, 18,
+                                                      "Unknown", AgeRating.list()) \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
+
+        self.widget_mngr.LanguageISO = ComboBoxWidget(numbering2, "LanguageISO", label_text="Language ISO",
+                                                      width=COMBO_WIDTH + 1, default="", default_values=languages) \
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.Notes = ComboBoxWidget(parent_frame, cinfo_name="Notes").pack()
 
@@ -293,20 +328,25 @@ class Layout(GUIApp):
         self.widget_mngr.AlternateCount = ComboBoxWidget(numbering, "AlternateCount",
                                                          label_text="Alt Count", tooltip="Alternate Count",
                                                          width=COMBO_WIDTH,
-                                                         validation="int", default="-1").pack(side="left",expand=False,fill="x")
+                                                         validation="int", default="-1")\
+            .pack(side="left", expand=False, fill="x")
         self.widget_mngr.AlternateNumber = ComboBoxWidget(numbering, "AlternateNumber", width=COMBO_WIDTH,
                                                           label_text="Alt Number", tooltip="Alternate Number",
-                                                          validation="int").pack(side="left",expand=False,fill="x", padx=10)
+                                                          validation="int")\
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.StoryArcNumber = ComboBoxWidget(numbering, "StoryArcNumber", width=COMBO_WIDTH,
-                                                         label_text="Story Arc Number").pack(side="left",expand=False,fill="x")
+                                                         label_text="Story Arc Number")\
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.CommunityRating = ComboBoxWidget(numbering, cinfo_name="CommunityRating",
                                                           label_text="Community Rating",
                                                           width=COMBO_WIDTH,
-                                                          validation="rating").pack(side="left",expand=False,fill="x")
+                                                          validation="rating")\
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
         self.widget_mngr.BlackAndWhite = OptionMenuWidget(numbering, "BlackAndWhite", "Black And White", COMBO_WIDTH, 18,
-                                                          "Unknown", ("Unknown", "Yes", "No")).pack(side="left", expand=False,fill="x")
+                                                          "Unknown", ("Unknown", "Yes", "No"))\
+            .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
                                                     width=COMBO_WIDTH,
@@ -331,8 +371,8 @@ class Layout(GUIApp):
     # Implementations
     def on_file_selection_preview(self, *args):
         """
-        Method called when the users selects one or more files to previe the metadata
-        Called dinamically
+        Method called when the user selects one or more files to preview the metadata
+        Called dynamically
         :return:
         """
         new_selection, old_selection = args
@@ -340,4 +380,8 @@ class Layout(GUIApp):
         if not self.inserting_files:
             self.process_gui_update(old_selection, new_selection)
         self.image_cover_frame.update_cover_image(new_selection)
+
+        # When a file is selected (at least one), then enable the buttons
+        for btn in [self.fetch_online_btn, self.clear_btn, self.process_btn, self.fill_from_filename_btn]:
+            btn['state'] = 'normal'
 

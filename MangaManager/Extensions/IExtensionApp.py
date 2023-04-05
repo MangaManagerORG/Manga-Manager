@@ -3,13 +3,16 @@ import tkinter
 from typing import final
 
 
-
 class IExtensionApp(tkinter.Toplevel, metaclass=abc.ABCMeta):
+    """
+        
+    """
     name = None
     embedded_ui = False
     master_frame = None
     master = None
-    _super= None
+    _super = None
+
     @final
     def __init__(self, master, super_=None, **kwargs):
         """

@@ -4,41 +4,46 @@ import glob
 import logging
 import os
 import tkinter
-from os.path import abspath
-from tkinter import Tk, Frame, messagebox as mb
+from tkinter import Tk, Frame
 
-from pkg_resources import resource_filename
-
+from common.models import ComicInfo
+from src.Common import ResourceLoader
+from src.Common.parser import parse_volume, parse_series, parse_number
 from src.Common.utils import get_platform, open_folder
-from src.MetadataManager import comicinfo
 from src.MetadataManager.GUI.ControlManager import ControlManager
-from src.Settings.SettingHeading import SettingHeading
+from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
+from src.MetadataManager.GUI.windows.AboutWindow import AboutWindow
+from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
 
 if get_platform() == "linux":
-    from src.MetadataManager.GUI.FileChooserWindow import askopenfiles,askdirectory
+    from src.MetadataManager.GUI.FileChooserWindow import askopenfiles, askdirectory
 else:
     from tkinter.filedialog import askopenfiles, askdirectory
 from _tkinter import TclError
 
-from src.Common.loadedcomicinfo import LoadedComicInfo
-from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget, \
-    HyperlinkLabelWidget
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget
 from src.MetadataManager.GUI.SettingsWidgetManager import SettingsWidgetManager
 from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
-from src.__version__ import __version__
-
 
 class GUIApp(Tk, MetadataManagerLib):
+    """
+    This is the main logic and app
+    """
     main_frame: Frame
-    _prev_selected_items: list[LoadedComicInfo] = []
+    """
+    A loading indicator to help not process changes in MainWindow when GUI is performing loading of files
+    """
     inserting_files = False
+    widget_mngr = WidgetManager()
+    control_mngr = ControlManager()
 
     def __init__(self):
         super(GUIApp, self).__init__()
-        self.widget_mngr = WidgetManager()
-        self.control_mngr = ControlManager()  # widgets that should be disabled while processing
+        #self.widget_mngr = WidgetManager()
+        #self.control_mngr = ControlManager()  # widgets that should be disabled while processing
         self.last_folder = ""
 
         # self.wm_minsize(1000, 660)
@@ -64,29 +69,32 @@ class GUIApp(Tk, MetadataManagerLib):
         # Add binds
         self.bind('<Control-o>', lambda x: self.select_files())
         self.bind('<Control-s>', lambda x: self.pre_process())
-        self.bind('<Control-f>', lambda x: self.fetch_online(self.widget_mngr.get_widget("Series")))
+        self.bind('<Control-f>', self.process_fetch_online)
 
         # Icons
-        icon_path = abspath(resource_filename(__name__, '../../res/clear_icon.png'))
+        icon_path = ResourceLoader.get('clear_icon.png')
         self.clear_icon = tkinter.PhotoImage(name="clear_icon", master=self, file=icon_path)
 
-        icon_path = abspath(resource_filename(__name__, '../../res/fetch_online_ico.png'))
+        icon_path = ResourceLoader.get('fetch_online_ico.png')
         self.fetch_online_icon = tkinter.PhotoImage(name="fetch_online_icon", master=self, file=icon_path)
 
-        icon_path = abspath(resource_filename(__name__, '../../res/save_icon.png'))
+        icon_path = ResourceLoader.get('save_icon.png')
         self.save_icon = tkinter.PhotoImage(name="save_icon", master=self, file=icon_path)
+
+        icon_path = ResourceLoader.get('filename_fill_icon.png')
+        self.filename_fill_icon = tkinter.PhotoImage(name="filename_fill", master=self, file=icon_path)
+
+    def report_callback_exception(self, *_):
+        """
+        Overrides builtin method so exceptions get loged and are not silent
+        :param _:
+        :return:
+        """
+        self.log.exception("Unhandled exception")
 
     @property
     def cinfo_tags(self):
         return self.widget_mngr.cinfo_tags
-
-    @property
-    def prev_selected_items(self):
-        """
-                Returns the list of selected loaded_cinfo if any is selected. Else returns loaded_cinfo list
-                :return:
-                """
-        return self._prev_selected_items
 
     @property
     def selected_items(self):
@@ -94,7 +102,6 @@ class GUIApp(Tk, MetadataManagerLib):
         Returns the list of selected loaded_cinfo if any is selected. Else returns loaded_cinfo list
         :return:
         """
-
         return self.selected_files_treeview.get_selected() or self.loaded_cinfo_list
 
     #########################################################
@@ -120,8 +127,8 @@ class GUIApp(Tk, MetadataManagerLib):
         self.log.debug("Selecting files")
         # Open select files dialog
         selected_paths_list = askopenfiles(parent=self, initialdir=initial_dir,
-                                           title="Select file to apply cover",
-                                           filetypes=(("CBZ Files", ".cbz"), ("All Files", "*"),)
+                                           title="Select file(s)",
+                                           filetypes=(("CB* Files", (".cbz", ".cbr")), ("CBZ Files", ".cbz"), ("CBR Files", ".cbr"), ("All Files", "*"), ("Zip files", ".zip"))
                                            # ("Zip files", ".zip"))
                                            ) or []
 
@@ -160,7 +167,7 @@ class GUIApp(Tk, MetadataManagerLib):
         # Open select files dialog
 
         folder_path = askdirectory(initialdir=initial_dir)
-        self.selected_files_path = glob.glob(root_dir=folder_path,pathname=os.path.join(folder_path, "**/*.cbz"),recursive=True)
+        self.selected_files_path = glob.glob(root_dir=folder_path,pathname=os.path.join(folder_path, "**/*.cbz"), recursive=True)
         # TODO: Auto select recursive or not
         # self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
 
@@ -173,34 +180,16 @@ class GUIApp(Tk, MetadataManagerLib):
         self.widget_mngr.toggle_widgets(enabled=True)
 
     def show_settings(self):
-        print("Show_settings")
         SettingsWidgetManager(self)
 
     def show_about(self):
-
-        top_level = tkinter.Toplevel(self)
-        frame = Frame(top_level)
-        frame.pack(pady=30, padx=30,fill="both")
-        HyperlinkLabelWidget(frame, "Github repo:", url_text="Go to Github rework main page", url="https://github.com/MangaManagerORG/Manga-Manager/tree/rework/master").pack(fill="x", expand=True, side="top", anchor="center")
-        HyperlinkLabelWidget(frame, "Get support:", url_text="Join MangaManager channel in Kavita discord", url="https://discord.gg/kavita-821879810934439936").pack(fill="x", expand=True, side="top", anchor="center")
-        HyperlinkLabelWidget(frame, "Report issue in GitHub",url_text="Create GitHub Issue", url="https://github.com/MangaManagerORG/Manga-Manager/issues/new?assignees=ThePromidius&labels=Rework+Issue&template=rework_issue.md&title=%5BRework+Issue%5D").pack(
-            fill="x", expand=True, side="top", anchor="center")
-        HyperlinkLabelWidget(frame, "Donate in Ko-fi",
-                       "https://ko-fi.com/thepromidius").pack(fill="x", expand=True, side="top", anchor="center")
-        tkinter.Label(frame, text="", font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
-
-        tkinter.Label(frame, text="Software licensed under the GNU General Public License v3.0",
-                      font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
-        tkinter.Label(frame, text=f"Version number: {__version__}", font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
-        # create close button
-        ButtonWidget(master=frame, text="Close", command=frame.destroy).pack()
+        AboutWindow(self)
 
     def are_unsaved_changes(self, exist_unsaved_changes=False):
         """
         Displays the text "unsaved changes"
         :return:
         """
-
         if exist_unsaved_changes:  # Place the warning sign
             self.changes_saved.place(anchor=tkinter.NE, relx=0.885)
         else:  # remove the warning sign
@@ -220,7 +209,7 @@ class GUIApp(Tk, MetadataManagerLib):
 
     def show_not_saved_indicator(self, loaded_cinfo_list=None):
         """
-        Shows a litle triangle while files are not saved.
+        Shows a litle triangle when files are not saved and are modified
         :param loaded_cinfo_list:
         :param mark_saved:
         :return:
@@ -258,7 +247,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self.update()
 
     def on_badzipfile_error(self, exception, file_path: LoadedComicInfo):  # pragma: no cover
-        mb.showerror("Error loading file",
+        mb.showerror(self.main_frame, "Error loading file",
                      f"Failed to read the file '{file_path}'.\nThis can be caused by wrong file format"
                      f" or broken file.\n"
                      f"Read the logs for more information.\n"
@@ -266,25 +255,31 @@ class GUIApp(Tk, MetadataManagerLib):
 
     def on_writing_exception(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
         self.pb.increase_failed()
-        mb.showerror("Unhandled exception",
+        mb.showerror(self.main_frame, "Unhandled exception",
                      "There was an exception that was not handled while writing the changes to the file."
                      "Please check the logs and raise an issue so this can be investigated")
 
     def on_writing_error(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
         self.pb.increase_failed()
-        mb.showerror("Error writing to file",
+        mb.showerror(self.main_frame,"Error writing to file",
                      "There was an error writing to the file. Please check the logs.")
 
     def on_corruped_metadata_error(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
-        mb.showwarning(f"Error reading the metadata from file",
+        mb.showwarning(self.main_frame, f"Error reading the metadata from file",
                        f"Failed to read metadata from '{loaded_info.file_path}'\n"
                        "The file data couldn't be parsed probably because of corrupted data or bad format.\n"
                        f"Recovery was attempted and failed.\nCreating new metadata object...")
 
     def on_manga_not_found(self, exception, series_name):   # pragma: no cover
-        mb.showerror("Couldn't find matching series",
+        mb.showerror(self.main_frame, "Couldn't find matching series",
                      f"The metadata source couldn't find the series '{series_name}'")
-
+    def on_missing_rar_tools(self,exception):
+        box = mb.get_onetime_messagebox()("missing_rar_tools")
+        box.with_title("Missing Rar Tools"). \
+            with_description("CBR files can't be read because third party rar tools are missing. Skipping files"). \
+            with_icon(mb.get_onetime_messagebox().icon_error). \
+            with_actions([mb.get_box_button()(0, "Ok")]). \
+            build().prompt()
     #########################################################
     # Processing Methods
     ############
@@ -309,7 +304,7 @@ class GUIApp(Tk, MetadataManagerLib):
             widget = self.widget_mngr.get_widget(cinfo_tag)
             tag_values = set()
             for loaded_cinfo in loaded_cinfo_list:
-                tag_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
+                tag_value = str(loaded_cinfo.cinfo_object.get_by_tag_name(cinfo_tag))
                 tag_values.add(tag_value if tag_value != widget.default else "")
             tag_values = tuple(tag_values)
             tag_values_len = len(tag_values)
@@ -341,7 +336,7 @@ class GUIApp(Tk, MetadataManagerLib):
         """
         # is_metadata_modified
         LOG_TAG = "[UI->CINFO] "
-        self.new_edited_cinfo = comicinfo.ComicInfo()
+        self.new_edited_cinfo = ComicInfo()
         for cinfo_tag in self.widget_mngr.get_tags():
             widget = self.widget_mngr.get_widget(cinfo_tag)
             widget_value = widget.widget.get()
@@ -349,17 +344,17 @@ class GUIApp(Tk, MetadataManagerLib):
             match widget_value:
                 case self.MULTIPLE_VALUES_CONFLICT:
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Keeping original")
-                    self.new_edited_cinfo.set_attr_by_name(cinfo_tag, self.MULTIPLE_VALUES_CONFLICT)
+                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, self.MULTIPLE_VALUES_CONFLICT)
                 case "None":
                     if widget.name == "Format":
-                        self.new_edited_cinfo.set_attr_by_name(cinfo_tag, "")
+                        self.new_edited_cinfo.set_by_tag_name(cinfo_tag, "")
                 case widget.default:  # If it matches the default then do nothing
                     self.log.trace(LOG_TAG + f"Omitting {cinfo_tag}. Has default value")
                 case "":
-                    self.new_edited_cinfo.set_attr_by_name(cinfo_tag, widget.default)
-                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted")
+                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, "")
+                    self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' content was resetted or was empty")
                 case _:
-                    self.new_edited_cinfo.set_attr_by_name(cinfo_tag, widget_value)
+                    self.new_edited_cinfo.set_by_tag_name(cinfo_tag, widget_value)
                     self.log.trace(LOG_TAG + f"Tag '{cinfo_tag}' has overwritten content: '{widget_value}'")
                     # self.log.warning(f"Unhandled case: {widget_value}")
 
@@ -379,12 +374,56 @@ class GUIApp(Tk, MetadataManagerLib):
             else:
                 widget.configure(state="disabled")
 
+    def fill_from_filename(self) -> None:
+        """Handles taking the currently selected file and parsing any information out of it and writing to Empty fields"""
+        if not self.selected_files_path:
+            mb.showwarning(self.main_frame, "No files selected", "No files were selected.")
+            self.log.warning("No files selected")
+            return
+
+        self.control_mngr.toggle(enabled=False)
+        self.changes_saved.place_forget()
+        self.pb.start(len(self.loaded_cinfo_list))
+        # Make sure current view is saved:
+        self.process_gui_update(self.selected_items, self.selected_items)
+        any_items_changed = False
+        try:
+            for item in self.selected_items:
+                # We can parse Series, Volume, Number, and Scan Info
+                if not item.cinfo_object.volume:
+                    vol = parse_volume(item.file_name)
+                    if vol:
+                        item.cinfo_object.volume = vol
+                        item.has_changes = True
+                        any_items_changed = True
+
+                if not item.cinfo_object.series:
+                    series = parse_series(item.file_name)
+                    if series:
+                        item.cinfo_object.series = series
+                        item.has_changes = True
+                        any_items_changed = True
+
+                if not item.cinfo_object.number:
+                    number = parse_number(item.file_name)
+                    if number:
+                        item.cinfo_object.number = number
+                        item.has_changes = True
+                        any_items_changed = True
+        finally:
+            self.pb.stop()
+        self.show_not_saved_indicator(self.loaded_cinfo_list)
+        if any_items_changed:
+            self.show_not_saved_indicator(self.selected_items)
+            self._serialize_cinfolist_to_gui(self.selected_items)
+        self.control_mngr.toggle(enabled=True)
+
     def pre_process(self) -> None:
         """
         Handles UI stuff to be started prior to processing such as converting ui data to comicinfo and starting the timer
         """
         if not self.selected_files_path:
-            mb.showwarning("No files selected", "No files were selected.")
+            mb.showwarning(self.main_frame, "No files selected", "No files were selected.")
             self.log.warning("No files selected")
             return
         self.control_mngr.toggle(enabled=False)
@@ -411,7 +450,7 @@ class GUIApp(Tk, MetadataManagerLib):
         else:
             for loaded_cinfo in self.selected_items:
                 _ = loaded_cinfo.cinfo_object
-                loaded_cinfo.cinfo_object.set_Series(os.path.basename(os.path.dirname(loaded_cinfo.file_path)))
+                loaded_cinfo.cinfo_object.series = os.path.basename(os.path.dirname(loaded_cinfo.file_path))
                 loaded_cinfo.has_changes = True
             self.show_not_saved_indicator(self.selected_items)
             self.widget_mngr.clean_widgets()
@@ -431,13 +470,21 @@ class GUIApp(Tk, MetadataManagerLib):
             tkinter.Button(parent_frame, text=loaded_extension.name, command=lambda load_ext=loaded_extension:
                            load_ext(parent_frame, super_=self)).pack(side="top")
 
-    def process_fetch_online(self):
-        series_name = self.widget_mngr.get_widget("Series").get()
+    def process_fetch_online(self, *_):
+        series_name = self.widget_mngr.get_widget("Series").get().strip()
         if series_name in (None, "", self.MULTIPLE_VALUES_CONFLICT):
-            mb.showwarning("Not a valid series name", "The current series name is empty or not valid.")
+            mb.showwarning(self.main_frame,"Not a valid series name", "The current series name is empty or not valid.")
             self.log.info("Not a valid series name - The current series name is empty or not valid.")
             return
-        cinfo = self.fetch_online(series_name)
+
+        # TODO: Populate temp with all fields from the UI
+        temp = ComicInfo()
+        temp.year = self.widget_mngr.get_widget("Year").get()
+        temp.number = self.widget_mngr.get_widget("Number").get()
+        temp.volume = self.widget_mngr.get_widget("Volume").get()
+        temp.series = series_name
+
+        cinfo = self.fetch_online(temp)
         if cinfo is None:
             return
 

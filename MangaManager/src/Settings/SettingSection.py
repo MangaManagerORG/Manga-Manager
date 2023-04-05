@@ -8,7 +8,9 @@ class SettingSection:
     pretty_name: str = ''
     values: list[SettingControl] = []
 
-    def __init__(self, name, key, values=[]):
+    def __init__(self, name, key, values=None):
+        if values is None:
+            values = list()
         self.pretty_name = name
         self.key = key
         self.values = values

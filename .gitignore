@@ -254,3 +254,5 @@ settings.ini
 
 # From Tests
 /MangaManager/*.cbz
+/.idea
+/PYTHON_MANGA_MANAGER_WORKFLOW.vsdx

@@ -4,19 +4,14 @@ import abc
 import logging
 from abc import ABC
 
-from ExternalSources import ScraperFactory
-
-from src import sources_factory
-from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError
+from ExternalSources.MetadataSources import ScraperFactory
+from common.models import ComicInfo
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError, MissingRarTool
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
-from src.Common.loadedcomicinfo import LoadedComicInfo
 from src.Common.terminalcolors import TerminalColors as TerCol
-from src.MetadataManager import comicinfo
-from src.MetadataManager.comicinfo import ComicInfo
-from src.Settings.SettingHeading import SettingHeading
+from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
-
-AniList = [source for source in sources_factory.get("MetadataSources") if source.name == "AniList"]
 
 logger = logging.getLogger("MetaManager.Core")
 
@@ -64,7 +59,11 @@ class _IMetadataManagerLib(abc.ABC):
         """
         Called when a series is not found in the api
         """
-
+    @abc.abstractmethod
+    def on_missing_rar_tools(self,exception):
+        """
+        Caññed whem rar tools are not available
+        """
 
 class MetadataManagerLib(_IMetadataManagerLib, ABC):
     """
@@ -82,7 +81,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                              "Imprint", "Genre", "Tags", "Web", "PageCount", "LanguageISO", "Format", "BlackAndWhite",
                              "Manga", "Characters", "Teams", "Locations", "ScanInformation", "StoryArc",
                              "StoryArcNumber", "SeriesGroup", "AgeRating", "CommunityRating",
-                             "MainCharacterOrTeam","Other", "Review",
+                             "MainCharacterOrTeam", "Other", "Review",
     ]
     MULTIPLE_VALUES_CONFLICT = "~~## Keep Original Value ##~~"
     tags_with_multiple_values = []
@@ -138,28 +137,38 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
 
         if not self.new_edited_cinfo:
             raise EditedCinfoNotSet()
+        if loaded_cinfo_list is None:
+            return False
         for loaded_cinfo in loaded_cinfo_list:
             logger.debug(LOG_TAG + f"Merging changes to {loaded_cinfo.file_path}")
             for cinfo_tag in self.cinfo_tags:
-                new_value = str(self.new_edited_cinfo.get_attr_by_name(cinfo_tag))
+                if cinfo_tag == "PageCount":
+                    continue
+                # Check if the ui has $Multiple_files_selected$
+                new_value = str(self.new_edited_cinfo.get_by_tag_name(cinfo_tag))
                 if new_value == self.MULTIPLE_VALUES_CONFLICT:
                     logger.trace(LOG_TAG + f"Ignoring {cinfo_tag}. Keeping old values")
                     continue
-                old_value = str(loaded_cinfo.cinfo_object.get_attr_by_name(cinfo_tag))
+
+                # Check if the new value in the ui is the same as the one in the comicinfo
+                old_value = str(loaded_cinfo.cinfo_object.get_by_tag_name(cinfo_tag))
                 if old_value == new_value:
                     logger.trace(LOG_TAG + f"Ignoring {cinfo_tag}. Field has not changed")
                     continue
+
+                # Nothing matches so overriding comicinfo value with whatever is in the ui
                 if cinfo_tag not in loaded_cinfo.changed_tags:
                     loaded_cinfo.changed_tags.append((cinfo_tag, old_value, new_value))
                 logger.debug(LOG_TAG + f"[{cinfo_tag:15s}] {TerCol.GREEN}Updating{TerCol.RESET} - Old '{TerCol.RED}{old_value}{TerCol.RESET}' vs "
                              f"New: '{TerCol.YELLOW}{new_value}{TerCol.RESET}' - Keeping {TerCol.YELLOW}new{TerCol.RESET} value")
-                loaded_cinfo.cinfo_object.set_attr_by_name(cinfo_tag, new_value)
+                loaded_cinfo.cinfo_object.set_by_tag_name(cinfo_tag, new_value)
                 loaded_cinfo.has_changes = True
                 any_has_changes = True
-            if any((loaded_cinfo.cover_action is not None,loaded_cinfo.backcover_action is not None)):
+
+            # Check if covers are modified
+            if any((loaded_cinfo.cover_action is not None, loaded_cinfo.backcover_action is not None)):
                 any_has_changes = True
                 loaded_cinfo.has_changes = True
-            # if loaded_cinfo.is_metadata_modified(self.cinfo_tags):
 
         self.new_edited_cinfo = None
         return any_has_changes
@@ -168,12 +177,14 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         """
         Creates a list of comicinfo with the comicinfo metadata from the selected files.
 
-        :raises CorruptedComicInfo: If the data inside ComicInfo.xml could not be read after trying to fix te data
+        :raises CorruptedComicInfo: If the data inside ComicInfo.xml could not be read after trying to fix the data
         :raises BadZipFile: If the provided zip is not a valid zip or is broken
         """
 
         logger.debug("Loading files")
         self.loaded_cinfo_list: list[LoadedComicInfo] = list()
+        # Skip warnings if one was already displayed
+        missing_rar_tool = False
         for file_path in self.selected_files_path:
             try:
                 loaded_cinfo = LoadedComicInfo(path=file_path)
@@ -183,7 +194,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                     loaded_cinfo.load_metadata()
             except CorruptedComicInfo as e:
                 # Logging is handled already in LoadedComicInfo load_metadata method
-                loaded_cinfo = LoadedComicInfo(path=file_path, comicinfo=comicinfo.ComicInfo()).load_metadata()
+                loaded_cinfo = LoadedComicInfo(path=file_path, comicinfo=ComicInfo()).load_metadata()
                 self.on_corruped_metadata_error(e, loaded_info=loaded_cinfo or file_path)
                 continue
             except BadZipFile as e:
@@ -194,6 +205,13 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 logger.error("Bad zip file. The file seems to be broken", exc_info=True)
                 self.on_badzipfile_error(e, file_path=file_path)
                 continue
+            except MissingRarTool as e:
+                if not missing_rar_tool:
+                    logger.exception("Error loading the metadata for some files. No rar tools available", exc_info=False)
+                    self.on_missing_rar_tools(e)
+                missing_rar_tool = True
+                continue
+
             self.loaded_cinfo_list.append(loaded_cinfo)
             self.on_item_loaded(loaded_cinfo)
         logger.debug("Files selected")
@@ -205,22 +223,17 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         :return:
         """
         ...
-        # print(loaded_cinfo.__dict__)
-        # export = StringIO()
-        # print(loaded_cinfo.cinfo_object is None)
-        # loaded_cinfo.cinfo_object.export(export, 0)
-        # print(export.getvalue())
 
-    def fetch_online(self, series_name):
+    def fetch_online(self, partial_comic_info):
         selected_source = ScraperFactory().get_scraper(Settings().get(SettingHeading.ExternalSources, 'default_metadata_source'))
         if not selected_source:
             raise Exception("Unhandled exception. Metadata sources are not loaded or there's a bug in it."
                             "Raise an issue if this happens.")
         try:
-            return selected_source.get_cinfo(series_name)
+            return selected_source.get_cinfo(partial_comic_info)
         except MangaNotFoundError as e:
             logger.exception(str(e))
-            self.on_manga_not_found(e, series_name)
+            self.on_manga_not_found(e, partial_comic_info)
             return None
 
 

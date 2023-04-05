@@ -10,7 +10,6 @@ requests.s3423 = ""  # Random patch so import does not get cleaned up
 from pkg_resources import resource_filename
 
 logger = logging.getLogger()
-_CONFIG_PATH = "config.ini"
 MM_PATH = Path(Path.home(), "MangaManager")
 MM_PATH.mkdir(exist_ok=True, parents=True)
 DEV_BUILD = f'{environ.get("$$_ENV_DEVELOPMENT_MM_$$")}'
@@ -24,18 +23,9 @@ EXTENSIONS_DIR.mkdir(exist_ok=True)
 SOURCES_DIR = Path(sub_mm_path, "ExternalSources")
 SOURCES_DIR.mkdir(exist_ok=True)
 
-CONFIG_PATH = Path(MM_PATH, _CONFIG_PATH)
-
-sources_factory = {
-    "MetadataSources": [],
-    "CoverSources": []
-}
 
 from src.DynamicLibController.extension_manager import load_extensions
 try:
     loaded_extensions = load_extensions(EXTENSIONS_DIR)
 except Exception:
     logger.exception("Exception loading the extensions")
-
-# Load sources
-from src.DynamicLibController import sources_manager

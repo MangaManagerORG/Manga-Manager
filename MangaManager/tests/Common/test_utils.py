@@ -1,7 +1,7 @@
 import unittest
 
-from src.Common.utils import update_people_from_mapping
-from src.MetadataManager.comicinfo import ComicInfo
+from common.models import ComicInfo
+from src.DynamicLibController.models.IMetadataSource import IMetadataSource
 
 
 class MyTestCase(unittest.TestCase):
@@ -31,13 +31,13 @@ class MyTestCase(unittest.TestCase):
 
         comicinfo = ComicInfo()
 
-        update_people_from_mapping(data["authors"], people_mapping, comicinfo,
+        IMetadataSource.update_people_from_mapping(data["authors"], people_mapping, comicinfo,
                                    lambda item: item["name"],
                                    lambda item: item["role"])
 
-        self.assertEqual("Author 1", comicinfo.Writer)
-        self.assertEqual("Artist 1", comicinfo.Penciller)
-        self.assertEqual("Artist 1", comicinfo.Inker)
+        self.assertEqual("Author 1", comicinfo.writer)
+        self.assertEqual("Artist 1", comicinfo.penciller)
+        self.assertEqual("Artist 1", comicinfo.inker)
 
 
 if __name__ == '__main__':

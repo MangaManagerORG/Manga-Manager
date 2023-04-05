@@ -1,6 +1,6 @@
 import unittest
 
-from src.MetadataManager.comicinfo import AgeRating, Manga, YesNo, format_list
+from common.models import AgeRating, Manga, YesNo, Formats
 
 
 class LoadedCInfo_Utils(unittest.TestCase):
@@ -11,4 +11,4 @@ class LoadedCInfo_Utils(unittest.TestCase):
             with self.subTest(f"Testing {class_} has list method"):
                 self.assertTrue(len(class_.list()) > 1)
         with self.subTest("Testing format_list is populated"):
-            self.assertTrue(len(format_list) > 1)
+            self.assertTrue(len(Formats) > 1)

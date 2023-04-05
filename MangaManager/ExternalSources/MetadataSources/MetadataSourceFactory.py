@@ -1,6 +1,16 @@
+import logging
+
 # Import all the scrapers here to ensure globals() has the key in it for dynamic instantiation
-from .MangaUpdates import MangaUpdates
-from .AniList import AniList
+from .Providers.AniList import AniList
+from .Providers.ComicVine import ComicVine
+from .Providers.MangaUpdates import MangaUpdates
+
+logger = logging.getLogger()
+
+# Avoid IDE cleaning imports
+MangaUpdates.__dont_clean = ""
+AniList.__dont_clean = ""
+ComicVine.__dont_clean = ""
 
 # NOTE: This is a stopgap solution until dynamic loader is implemented
 class ScraperFactory:
@@ -18,7 +28,11 @@ class ScraperFactory:
         pass
 
     def get_scraper(self, setting_name):
-        if not setting_name in self.providers:
-            cls = globals()[setting_name]
+        if setting_name not in self.providers:
+            try:
+                cls = globals()[setting_name]
+            except KeyError:
+                logger.exception(f"Failed to load setting name '{setting_name}'")
+                return
             self.providers[setting_name] = cls()
         return self.providers[setting_name]

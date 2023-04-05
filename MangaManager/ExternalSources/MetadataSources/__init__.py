@@ -1,3 +1,6 @@
-from .MangaUpdates import MangaUpdates
-from .AniList import AniList
+
 from .MetadataSourceFactory import ScraperFactory
+from .Providers.AniList import AniList
+from .Providers.MangaUpdates import MangaUpdates
+
+print("MetadataSources module loaded")

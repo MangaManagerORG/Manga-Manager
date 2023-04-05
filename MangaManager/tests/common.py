@@ -9,8 +9,9 @@ import zipfile
 
 import _tkinter
 from PIL import Image
+from lxml import etree
 
-from src.Common.loadedcomicinfo import COMICINFO_FILE, LoadedComicInfo
+from src.Common.LoadedComicInfo.LoadedComicInfo import COMICINFO_FILE, LoadedComicInfo
 
 
 def create_dummy_files(nfiles):
@@ -23,7 +24,7 @@ def create_dummy_files(nfiles):
     return test_files_names
 
 
-def create_test_cbz(nfiles, nimages=4, metadata: LoadedComicInfo = None) -> list[str]:
+def create_test_cbz(nfiles, nimages=4, loaded_cinfo: LoadedComicInfo = None) -> list[str]:
     image = Image.new('RGB', (100, 100), 'white')
     buffer = io.BytesIO()
     image.save(buffer, 'JPEG')
@@ -33,9 +34,9 @@ def create_test_cbz(nfiles, nimages=4, metadata: LoadedComicInfo = None) -> list
         out_tmp_zipname = f"Test__{i}_Generated{random.randint(1, 6000)}.cbz"
         test_files_names.append(out_tmp_zipname)
         with zipfile.ZipFile(out_tmp_zipname, "w") as zf:
-            if metadata is not None:
+            if loaded_cinfo is not None:
                 # noinspection PyProtectedMember
-                zf.writestr(COMICINFO_FILE, metadata._export_metadata())
+                zf.writestr(COMICINFO_FILE, loaded_cinfo._export_metadata())
             for j in range(nimages):
                 zf.writestr(f"{str(j).zfill(3)}.png", buffer.getvalue())
 
@@ -179,3 +180,23 @@ class CustomConfigParser2(configparser.ConfigParser):
             # super().read("./test_path")
         else:
             super().read(filenames, *args, **kwargs)
+
+
+def is_valid_xml(xml:str) -> bool:
+    # Load the XML file and XSD schema
+    try:
+        xml_file = etree.fromstring(xml.encode("utf-8"),parser=etree.XMLParser(encoding='utf-8'))
+    except ValueError:
+     print("dasd")
+    xsd_schema = etree.parse('common/models/ComicInfo.xds')
+
+    # Create a validator object
+    xml_validator = etree.XMLSchema(xsd_schema)
+
+    # Validate the XML file against the XSD schema
+    is_valid = xml_validator.validate(xml_file)
+    if not is_valid:
+        print(xml)
+        for error in xml_validator.error_log:
+            print(f'{error.message} (line {error.line}, column {error.column})')
+    return is_valid

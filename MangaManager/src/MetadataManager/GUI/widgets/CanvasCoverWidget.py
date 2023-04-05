@@ -1,18 +1,19 @@
 import pathlib
 from idlelib.tooltip import Hovertip
-from os.path import basename, abspath
+from os.path import basename
 from tkinter import Frame, Label, StringVar, Event, Canvas, NW, CENTER, Button
 from tkinter.filedialog import askopenfile
 
 from PIL import Image, ImageTk
-from pkg_resources import resource_filename
 
-from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
-from src.Settings.SettingHeading import SettingHeading
+from src.Common import ResourceLoader
+from src.Common.LoadedComicInfo.CoverActions import CoverActions
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
 
 window_width, window_height = 0, 0
-action_template = abspath(resource_filename(__name__, '../../../../res/cover_action_template.png'))
+action_template = ResourceLoader.get('cover_action_template.png')
 MULTIPLE_FILES_SELECTED = "Multiple Files Selected"
 
 
@@ -76,7 +77,7 @@ class CoverFrame(Frame):
         images_frame.grid(column=0, row=1, sticky="nsew")
 
         overlay_image = Image.open(action_template)
-        overlay_image = overlay_image.resize((190, 260), Image.ANTIALIAS)
+        overlay_image = overlay_image.resize((190, 260), Image.NEAREST)
 
         # COVER
         self.cover_frame = Frame(images_frame)
@@ -319,7 +320,7 @@ class CoverFrame(Frame):
 
         image = Image.open(
             pathlib.Path(action_template))
-        image = image.resize((190, 260), Image.ANTIALIAS)
+        image = image.resize((190, 260), Image.NEAREST)
         self.watermark = ImageTk.PhotoImage(image, master=self.cover_canvas)
         self._watermark_image_id = self.cover_canvas.create_image(150, 150, image=self.watermark)
         self.cover_canvas.tag_lower(self._image_id)

@@ -5,7 +5,7 @@ import os
 import sys
 from pathlib import Path
 
-from Extensions.Interface import IExtensionApp
+from Extensions.IExtensionApp import IExtensionApp
 from src import sub_mm_path
 
 logger = logging.getLogger()

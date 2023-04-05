@@ -5,7 +5,6 @@ import logging
 from pathlib import Path
 
 from logging_setup import add_trace_level, setup_logging
-from src.Settings.Settings import Settings
 
 add_trace_level()
 
@@ -44,10 +43,10 @@ LOGFILE_PATH = Path(LOGS_PATH, "MangaManager.log")
 setup_logging(LOGFILE_PATH, args.loglevel)
 logger = logging.getLogger()
 
-
+from src.Settings.Settings import Settings
 from src.Common.errors import NoFilesSelected
 from src.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
-
+from src.__version__ import __version__ as version
 
 
 
@@ -85,6 +84,6 @@ if __name__ == '__main__':
         selected_files = get_selected_files(args.selected_files_cli)
 
     else:
-        logger.info(f"Starting: GUI Manga Manager. Welcome")
+        logger.info(f"Starting: GUI Manga Manager v{version}. Welcome")
         from src.MetadataManager import execute_gui
         execute_gui()

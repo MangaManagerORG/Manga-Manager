@@ -2,43 +2,46 @@ import copy
 import logging
 import platform
 import tkinter
-from os.path import abspath
+from idlelib.tooltip import Hovertip
 from tkinter import Frame, CENTER, Button, NW
-from tkinter import messagebox as mb
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Treeview
 
+import numpy as np
 from PIL import Image, ImageTk
-from pkg_resources import resource_filename
 
-from src.Common.loadedcomicinfo import LoadedComicInfo, CoverActions
-from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, CanvasCoverWidget
+from src.Common import ResourceLoader
+from src.Common.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
+from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
+from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, CanvasCoverWidget
 from src.MetadataManager.MetadataManagerGUI import GUIApp
-from src.Settings.SettingHeading import SettingHeading
+from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
 
-action_template = abspath(resource_filename(__name__, '../../../res/cover_action_template.png'))
-
-
-def on_button_click(_, loaded_cinfo: LoadedComicInfo, front_or_back):
-    print("Clicked button.")
-    print(f"Is: {front_or_back}")
-    print(f"Path: {loaded_cinfo.file_path}")
-
+action_template = ResourceLoader.get('cover_action_template.png')
 
 logger = logging.getLogger()
+overlay_image: Image = None
+
 
 class ComicFrame(CoverFrame):
     def __init__(self, master, loaded_cinfo: LoadedComicInfo):
+        """
+        Custom Implementation of the CoverFrame for cover Manager
+
+        :param master: Parent window
+        :param loaded_cinfo: The lcinfo to display covers from
+        """
         super(CoverFrame, self).__init__(master, highlightbackground="black")
+
         self.loaded_cinfo: LoadedComicInfo = loaded_cinfo
-        self.configure(highlightthickness=2, highlightcolor="grey", highlightbackground="grey", padx=20, pady=20)
-
-        overlay_image = Image.open(action_template)
-        overlay_image = overlay_image.resize((190, 260), Image.ANTIALIAS)
-
+        self.configure(highlightthickness=2, highlightcolor="grey", highlightbackground="grey", padx=20, pady=10)
+        title = tkinter.Label(self,
+                              text=f"{loaded_cinfo.file_name[:70]}{'...' if len(loaded_cinfo.file_name) > 70 else ''}")
+        Hovertip(title, loaded_cinfo.file_name, 20)
+        title.pack(expand=True)
         # COVER
         self.cover_frame = Frame(self)
         self.cover_frame.pack(side="left")
@@ -77,7 +80,7 @@ class ComicFrame(CoverFrame):
         btn = Button(btn_frame, text="Reset", command=lambda:
         self.cover_action(self.loaded_cinfo, action=CoverActions.RESET))
         btn.pack(side="left", fill="x", expand=True)
-        self.cover_action(self.loaded_cinfo, auto_trigger=True,proc_update=False)
+        self.cover_action(self.loaded_cinfo, auto_trigger=True, proc_update=False)
 
         # BACK COVER
         self.backcover_frame = Frame(self)
@@ -121,7 +124,7 @@ class ComicFrame(CoverFrame):
         btn.pack(side="left", fill="x", expand=True)
 
         # Load backcover
-        self.backcover_action(self.loaded_cinfo, auto_trigger=True,proc_update=False)
+        self.backcover_action(self.loaded_cinfo, auto_trigger=True, proc_update=False)
 
 
 class CoverManager(tkinter.Toplevel):
@@ -135,14 +138,26 @@ class CoverManager(tkinter.Toplevel):
         Initializes the toplevel window but hides the window.
         """
         if self.name is None:  # Check if the "name" attribute has been set
-            raise ValueError(f"Error initializing the {self.__class__.__name__} Extension. The 'name' attribute must be set in the ExtensionApp class.")
+            raise ValueError(
+                f"Error initializing the {self.__class__.__name__} Extension. The 'name' attribute must be set in the ExtensionApp class.")
         # if self.embedded_ui:
-        super().__init__(master=master,**kwargs)
+        super().__init__(master=master, **kwargs)
         self.title(self.__class__.name)
         if super_ is not None:
             self._super = super_
+        global overlay_image
+        overlay_image = Image.open(action_template)
+        overlay_image = overlay_image.resize((190, 260), Image.NEAREST)
 
         self.serve_gui()
+        if not self._super.loaded_cinfo_list:
+            mb.showwarning(self, "No files selected", "No files were selected so none will be displayed in cover manager")
+            # self.deiconify()
+            self.destroy()
+            return
+
+        # bind the redraw function to the <Configure> event
+        # so that it will be called whenever the window is resized
         self.bind("<Configure>", self.redraw)
 
     def redraw(self, event):
@@ -176,11 +191,12 @@ class CoverManager(tkinter.Toplevel):
         num_widgets = width // 414
         try:
             logger.trace(f"Number of widgets per row: {num_widgets}")
-            logger.trace(f"Number of rows: {len(self.scrolled_widget.winfo_children())/num_widgets}")
+            logger.trace(f"Number of rows: {len(self.scrolled_widget.winfo_children()) / num_widgets}")
         except ZeroDivisionError:
             pass
         # redraw the widgets
-        widgets_to_redraw = list(reversed(copy.copy(self.scrolled_widget.winfo_children())))  # self.scrolled_widget.grid_slaves()
+        widgets_to_redraw = list(
+            reversed(copy.copy(self.scrolled_widget.winfo_children())))  # self.scrolled_widget.grid_slaves()
         i = 0
         j = 0
         while widgets_to_redraw:
@@ -205,7 +221,6 @@ class CoverManager(tkinter.Toplevel):
             self.state('zoomed')
         side_panel_control = Frame(self)
         side_panel_control.pack(side="right", expand=False, fill="y")
-        #
         ctr_btn = Frame(self)
         ctr_btn.pack()
         #
@@ -215,23 +230,42 @@ class CoverManager(tkinter.Toplevel):
         tree.heading("#1", text="Filename")
         tree.column("#2", anchor=CENTER, width=80)
         tree.heading("#2", text="Type")
-        tree.pack(expand=True, fill="y", pady=(80,0), padx=30, side="top")
+        tree.pack(expand=True, fill="y", pady=(80, 0), padx=30, side="top")
         action_buttons = Frame(side_panel_control)
-        action_buttons.pack(ipadx=20,ipady=20,pady=(0,80), fill="x", padx=30)
+        action_buttons.pack(ipadx=20, ipady=20, pady=(0, 80), fill="x", padx=30)
 
         ButtonWidget(master=action_buttons, text="Delete Selected",
                      tooltip="Deletes the image for the selected cover/backcovers",
-                     command=lambda: self.run_bulk_action(CoverActions.DELETE)).pack(side="top", fill="x")
+                     command=lambda: self.run_bulk_action(CoverActions.DELETE)).pack(side="top", fill="x", ipady=10)
         ButtonWidget(master=action_buttons, text="Append to Selected",
                      tooltip="Appends the image for the selected cover/backcovers",
-                     command=lambda: self.run_bulk_action(CoverActions.APPEND)).pack( side="top", fill="x")
+                     command=lambda: self.run_bulk_action(CoverActions.APPEND)).pack(side="top", fill="x", ipady=10)
         ButtonWidget(master=action_buttons, text="Replace Selected",
                      tooltip="Replaces the image for the selected cover/backcovers",
-                     command=lambda: self.run_bulk_action(CoverActions.REPLACE)).pack(side="top", fill="x")
+                     command=lambda: self.run_bulk_action(CoverActions.REPLACE)).pack(side="top", fill="x", ipady=10)
         ButtonWidget(master=action_buttons, text="Clear Selection",
-                     command=self.clear_selection).pack(fill="x")
+                     command=self.clear_selection).pack(fill="x", ipady=10)
         ButtonWidget(master=action_buttons, text="Close window",
-                     command=self.exit_btn).pack(fill="x",ipady=10)
+                     command=self.exit_btn).pack(fill="x", ipady=10)
+
+        self.select_similar_btn = ButtonWidget(master=action_buttons, text="Select similar", state="disabled",
+                                               command=self.select_similar)
+        self.select_similar_btn.pack(fill="x", ipady=10)
+
+        frame = Frame(action_buttons)
+        frame.pack(fill="x", pady=(10, 0))
+        tkinter.Label(frame, text="Delta %").pack(side="left")
+        self.delta_entry = tkinter.Entry(frame, width="10")
+        self.delta_entry.insert(0, "90")
+        self.delta_entry.pack(side="left")
+
+        frame = tkinter.LabelFrame(action_buttons, text="Scan:")
+        frame.pack(fill="x", expand=True, pady=(0, 5))
+        self.scan_covers = tkinter.BooleanVar(value=True)
+        self.scan_backcovers = tkinter.BooleanVar(value=False)
+
+        tkinter.Checkbutton(frame, text="Covers", variable=self.scan_covers).pack()
+        tkinter.Checkbutton(frame, text="Back Covers", variable=self.scan_backcovers).pack()
 
         content_frame = Frame(self)
         content_frame.pack(fill="both", side="left", expand=True)
@@ -245,16 +279,7 @@ class CoverManager(tkinter.Toplevel):
         self.prev_width = 0
         self.last_folder = ""
         self.selected_frames: list[tuple[ComicFrame, str]] = []
-        # bind the redraw function to the <Configure> event
-        # so that it will be called whenever the window is resized
 
-        if not self._super.loaded_cinfo_list:
-            mb.showwarning("No files selected", "No files were selected so none will be displayed in cover manager", parent=self)
-            # self.deiconify()
-            self.destroy()
-            return
-
-        # self.redraw(None)
         for i, cinfo in enumerate(self._super.loaded_cinfo_list):
             # create a ComicFrame for each LoadedComicInfo object
             comic_frame = ComicFrame(self.scrolled_widget, cinfo)
@@ -267,17 +292,17 @@ class CoverManager(tkinter.Toplevel):
             comic_frame.grid()
         self.redraw(None)
 
-    def select_frame(self, _, frame: ComicFrame, pos):
-        print(pos)
+    def select_frame(self, _, frame: ComicFrame, pos: str):
+        """
+        Selects the frame. Adds to selected frames and modifies its border to show green as "selected"
+        """
         if (frame, pos) in self.selected_frames:
             for children in self.tree.get_children():
                 if self.tree_dict[children]["cinfo"] == frame.loaded_cinfo and self.tree_dict[children]["type"] == pos:
                     self.selected_frames.remove((frame, pos))
                     self.tree.delete(children)
                     del self.tree_dict[children]
-            print("green" if frame in self.selected_frames else "gray")
             if pos == "front":
-
                 frame.cover_canvas.configure(highlightbackground="#f0f0f0", highlightcolor="white")
             else:
                 frame.backcover_canvas.configure(highlightbackground="#f0f0f0", highlightcolor="white")
@@ -290,12 +315,20 @@ class CoverManager(tkinter.Toplevel):
                 frame.cover_canvas.configure(highlightbackground="green", highlightcolor="green")
             else:
                 frame.backcover_canvas.configure(highlightbackground="green", highlightcolor="green")
+        # noinspection PyTypeChecker
+        self.select_similar_btn.configure(state="normal" if len(self.selected_frames) == 1 else "disabled")
 
     def run_bulk_action(self, action: CoverActions):
+        """
+        Applies the action to currently selected files
+        :param action:
+        :return:
+        """
         new_cover_file = None
         cover = None
         if action == CoverActions.APPEND or action == CoverActions.REPLACE:
-            new_cover_file = askopenfile(parent=self,initialdir=Settings().get(SettingHeading.Main, 'covers_folder_path')).name
+            new_cover_file = askopenfile(parent=self,
+                                         initialdir=Settings().get(SettingHeading.Main, 'covers_folder_path')).name
 
         for frame, type_ in self.selected_frames:
             # create a ComicFrame for each LoadedComicInfo object
@@ -341,6 +374,10 @@ class CoverManager(tkinter.Toplevel):
             canva.itemconfig(canva.image_id, image=cover, state="normal")
 
     def clear_selection(self):
+        """
+        Clears the selected files
+        :return:
+        """
         while self.selected_frames:
             frame, pos = self.selected_frames.pop()
             frame.cover_canvas.configure(highlightbackground="#f0f0f0", highlightcolor="white")
@@ -349,3 +386,80 @@ class CoverManager(tkinter.Toplevel):
         for children in self.tree.get_children():
             self.tree.delete(children)
             del self.tree_dict[children]
+
+    ########################
+    # Cover scanner methods
+    ########################
+    # TODO: Add tests
+    def select_similar(self):
+        """
+        Compares the selected file with all the loaded covers and backcovers
+        Selects files that match.
+        :return:
+        """
+        assert len(self.selected_frames) == 1
+        frame, pos = self.selected_frames[0]
+        if pos == "front":
+            selected_photoimage: ImageTk.PhotoImage = frame.loaded_cinfo.get_cover_cache()
+        else:
+            selected_photoimage: ImageTk.PhotoImage = frame.loaded_cinfo.get_cover_cache(True)
+
+        selected_image = ImageTk.getimage(selected_photoimage)
+        x = np.array(selected_image.histogram())
+        self.clear_selection()
+        # Compare all covers:
+        for comicframe in self.scrolled_widget.winfo_children():
+            comicframe: ComicFrame
+            lcinfo: LoadedComicInfo = comicframe.loaded_cinfo
+            try:
+                if self.scan_covers.get():
+                    self._scan_images(lcinfo=lcinfo, x=x, is_backcover=False, comicframe=comicframe)
+                if self.scan_backcovers.get():
+                    self._scan_images(lcinfo=lcinfo, x=x, is_backcover=True, comicframe=comicframe)
+            except Exception:
+                logger.exception(f"Failed to compare images for file {comicframe.loaded_cinfo.file_name}")
+
+    def _scan_images(self, x, lcinfo:LoadedComicInfo, comicframe, is_backcover=False):
+        """
+
+        :param x: Numpy array containing the selected image histogram
+        :param lcinfo: The loaded comicinfo of the compared image
+        :param is_backcover:
+        :param comicframe: The comicframe the lcinfo is linked to
+        :return:
+        """
+        image = lcinfo.get_cover_cache(is_backcover)
+        if image is None:
+            logger.error(f"Failed to compare cover image. File is not loaded. File '{lcinfo.file_name}'")
+        else:
+            compared_image = ImageTk.getimage(image)
+            self._compare_images(x, compared_image, comicframe, "back" if is_backcover else "front")
+
+    def _compare_images(self, x, compared_image, comicframe, pos):
+        delta = float(self.delta_entry.get())
+        y = np.array(compared_image.histogram())
+        if self.compare_image(x, y, delta=delta):
+            self.select_frame(None, frame=comicframe, pos=pos)
+
+    @staticmethod
+    def compare_image(x, y, delta:float):
+        """
+        Compares the image histograms
+        :param img1: Image Object
+        :param imge2: Image Object
+        :param x: Numpy array containing the selected image histogram
+        :param y: Numpy array containing the selected image histogram
+        :param delta: 1-100 match value
+        :return:
+        """
+        actual_error = 0
+        if len(x) == len(y):
+            error = np.sqrt(((x - y) ** 2).mean())
+            error = str(error)[:2]
+            actual_error = float(100) - float(error)
+            logger.debug(f"Match percentage: {actual_error}%")
+            if actual_error >= delta:
+                logger.trace("Matched image")
+                return True
+            else:
+                logger.trace("Images not similar")

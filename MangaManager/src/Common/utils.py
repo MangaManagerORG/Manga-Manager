@@ -321,17 +321,13 @@ def match_pyfiles_with_foldername(file_path):
     folder, file_ = extract_folder_and_module(file_path)
     return folder == file_
 
-def update_people_from_mapping(people: list[object], mapping, comicinfo, name_selector, role_selector):
-    if comicinfo is None:
-        return
 
-    for person in people:
-        name = name_selector(person)
-        role = role_selector(person)
+def parse_bool(value: str) -> bool:
+    match value.lower():
+        case "true" | "1" | 1:
+            return True
+        case "false" | "0" | 0:
+            return False
+        case _:
+            raise ValueError(f"Invalid boolean string: {value}")
 
-        for map_role in mapping:
-            if map_role == role:
-                for fields in mapping[map_role]:
-                    comicinfo.set_attr_by_name(fields, name.strip())
-
-        print(f"No mapping found for: {name} as {role}")
