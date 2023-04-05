@@ -77,7 +77,7 @@ class IMetadataSource(IMMExtension):
             logging.info(f"No mapping found for: '{name}' as '{role}'")
 
     @staticmethod
-    def clean_description(summary: str, remove_source: bool):
+    def clean_description(summary: str, remove_source: bool) -> str:
         """
         Removes HTML text like <br> from String
         Removes "(Source ...)" from String when flag is set to True
@@ -86,6 +86,8 @@ class IMetadataSource(IMMExtension):
         :param remove_source:
         :return:
         """
+        if summary is None:
+            return ""
         # Remove HTML
         s = MLStripper()
         s.feed(summary.strip())
