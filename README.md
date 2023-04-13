@@ -64,3 +64,7 @@ Requirements in requirements.txt
 #### Additional for Linux
 - tkinter
 - idlelib
+
+## FAQ
+### No rar tools detected on windows.
+Download [unrar](https://www.winrar.es/descargas/unrar), execute it and select a place to decompress the contents. A file `unrar.exe` will be decompressed and you can move so it sits alongside MangaManager.exe file.

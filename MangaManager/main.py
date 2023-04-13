@@ -46,7 +46,7 @@ logger = logging.getLogger()
 from src.Settings.Settings import Settings
 from src.Common.errors import NoFilesSelected
 from src.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
-
+from src.__version__ import __version__ as version
 
 
 
@@ -84,6 +84,6 @@ if __name__ == '__main__':
         selected_files = get_selected_files(args.selected_files_cli)
 
     else:
-        logger.info(f"Starting: GUI Manga Manager. Welcome")
+        logger.info(f"Starting: GUI Manga Manager v{version}. Welcome")
         from src.MetadataManager import execute_gui
         execute_gui()
