@@ -380,12 +380,6 @@ class GUIApp(Tk, MetadataManagerLib):
         # Display new selection data
         self._serialize_cinfolist_to_gui(new_selection)
 
-    # def toggle_control_buttons(self, enabled=False) -> None:
-    #     for widget in self.control_mngr:
-    #         if enabled:
-    #             widget.configure(state="normal")
-    #         else:
-    #             widget.configure(state="disabled")
 
     def fill_from_filename(self) -> None:
         """Handles taking the currently selected file and parsing any information out of it and writing to Empty fields"""
