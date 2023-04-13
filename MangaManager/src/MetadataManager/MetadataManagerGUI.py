@@ -38,7 +38,7 @@ class GUIApp(Tk, MetadataManagerLib):
     """
     inserting_files = False
     widget_mngr = WidgetManager()
-    control_mngr = ControlManager() # widgets that should be disabled while processing
+    control_mngr = ControlManager()  # widgets that should be disabled while processing
 
     def __init__(self):
         super(GUIApp, self).__init__()
@@ -56,10 +56,16 @@ class GUIApp(Tk, MetadataManagerLib):
         # MENU
         self.main_frame = Frame(self)
 
+        icon_path = ResourceLoader.get('maintenance-icon.png')
+        self.settings_icon = tkinter.PhotoImage(name="settings", master=self, file=icon_path)
+
         self.main_frame.pack(expand=True, fill="both")
         frame = Frame(self)
         frame.place(anchor=tkinter.NE, relx=1)
-        ButtonWidget(master=frame, text="⚙ Settings", font=('Arial', 10), command=self.show_settings).pack(side="left")
+        btn = ButtonWidget(master=frame, text="Settings", image=self.settings_icon, font=('Arial', 10),
+                           command=self.show_settings)
+        btn.configure(image=self.settings_icon, command=self.select_folder, compound="left")
+        btn.pack(side="left", fill="y", padx=(0, 5))
         ButtonWidget(master=frame, text="About", font=('Arial', 10), command=self.show_about).pack(side="left")
 
         # Add binds
@@ -79,6 +85,12 @@ class GUIApp(Tk, MetadataManagerLib):
 
         icon_path = ResourceLoader.get('filename_fill_icon.png')
         self.filename_fill_icon = tkinter.PhotoImage(name="filename_fill", master=self, file=icon_path)
+
+        icon_path = ResourceLoader.get('open_folder.png')
+        self.open_folder_icon = tkinter.PhotoImage(name="open_folder", master=self, file=icon_path)
+
+        icon_path = ResourceLoader.get('open_file.png')
+        self.open_file_icon = tkinter.PhotoImage(name="open_file", master=self, file=icon_path)
 
     def report_callback_exception(self, *_):
         """
@@ -124,7 +136,8 @@ class GUIApp(Tk, MetadataManagerLib):
         # Open select files dialog
         selected_paths_list = askopenfiles(parent=self, initialdir=initial_dir,
                                            title="Select file(s)",
-                                           filetypes=(("CB* Files", (".cbz", ".cbr")), ("CBZ Files", ".cbz"), ("CBR Files", ".cbr"), ("All Files", "*"), ("Zip files", ".zip"))
+                                           filetypes=(("CB* Files", (".cbz", ".cbr")), ("CBZ Files", ".cbz"),
+                                                      ("CBR Files", ".cbr"), ("All Files", "*"), ("Zip files", ".zip"))
                                            # ("Zip files", ".zip"))
                                            ) or []
 
@@ -163,7 +176,8 @@ class GUIApp(Tk, MetadataManagerLib):
         # Open select files dialog
 
         folder_path = askdirectory(initialdir=initial_dir)
-        self.selected_files_path = glob.glob(root_dir=folder_path,pathname=os.path.join(folder_path, "**/*.cbz"), recursive=True)
+        self.selected_files_path = glob.glob(root_dir=folder_path, pathname=os.path.join(folder_path, "**/*.cbz"),
+                                             recursive=True)
         # TODO: Auto select recursive or not
         # self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
 
@@ -257,7 +271,7 @@ class GUIApp(Tk, MetadataManagerLib):
 
     def on_writing_error(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
         self.pb.increase_failed()
-        mb.showerror(self.main_frame,"Error writing to file",
+        mb.showerror(self.main_frame, "Error writing to file",
                      "There was an error writing to the file. Please check the logs.")
 
     def on_corruped_metadata_error(self, exception, loaded_info: LoadedComicInfo):  # pragma: no cover
@@ -266,16 +280,18 @@ class GUIApp(Tk, MetadataManagerLib):
                        "The file data couldn't be parsed probably because of corrupted data or bad format.\n"
                        f"Recovery was attempted and failed.\nCreating new metadata object...")
 
-    def on_manga_not_found(self, exception, series_name):   # pragma: no cover
+    def on_manga_not_found(self, exception, series_name):  # pragma: no cover
         mb.showerror(self.main_frame, "Couldn't find matching series",
                      f"The metadata source couldn't find the series '{series_name}'")
-    def on_missing_rar_tools(self,exception):
+
+    def on_missing_rar_tools(self, exception):
         box = mb.get_onetime_messagebox()("missing_rar_tools")
         box.with_title("Missing Rar Tools"). \
             with_description("CBR files can't be read because third party rar tools are missing. Skipping files"). \
             with_icon(mb.get_onetime_messagebox().icon_error). \
             with_actions([mb.get_box_button()(0, "Ok")]). \
             build().prompt()
+
     #########################################################
     # Processing Methods
     ############
@@ -443,7 +459,8 @@ class GUIApp(Tk, MetadataManagerLib):
 
     def _fill_foldername(self):
         if len(self.selected_items) == 1:
-            self.widget_mngr.get_widget("Series").set(os.path.basename(os.path.dirname(self.selected_items[0].file_path)))
+            self.widget_mngr.get_widget("Series").set(
+                os.path.basename(os.path.dirname(self.selected_items[0].file_path)))
         else:
             for loaded_cinfo in self.selected_items:
                 _ = loaded_cinfo.cinfo_object
@@ -465,7 +482,7 @@ class GUIApp(Tk, MetadataManagerLib):
         from src import loaded_extensions
         for loaded_extension in loaded_extensions:
             tkinter.Button(parent_frame, text=loaded_extension.name, command=lambda load_ext=loaded_extension:
-                           load_ext(parent_frame, super_=self)).pack(side="top")
+            load_ext(parent_frame, super_=self)).pack(side="top")
 
     def process_fetch_online(self, *_):
         series_name = self.widget_mngr.get_widget("Series").get().strip()
@@ -479,7 +496,8 @@ class GUIApp(Tk, MetadataManagerLib):
             if not all(series_name == item.cinfo_object.series.strip() for item in self.selected_items):
                 mb.showwarning(self.main_frame, "All series MUST match and may not contain blanks",
                                "All files' series names are not the same.")
-                self.log.info("All series MUST match and may not contain blanks - All files' series names are not the same.")
+                self.log.info(
+                    "All series MUST match and may not contain blanks - All files' series names are not the same.")
                 return
 
         cinfo = self.fetch_online(self._serialize_gui_to_cinfo())

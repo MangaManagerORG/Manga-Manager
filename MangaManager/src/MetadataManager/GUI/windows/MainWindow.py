@@ -87,59 +87,35 @@ class MainWindow(GUIApp):
 
         btn = ButtonWidget(master=control_frame, text="Open Files",
                            tooltip="Load the metadata and cover to edit them (Ctrl+O)")
-        try:
-            icon_path = ResourceLoader.get('open_file.png')
-            btn.img_ref = tkinter.PhotoImage(name="open_file_icon", master=btn, file=icon_path)
-            btn.configure(image=btn.img_ref)
-        except: # Fixme linux throws resource not found
-            self.log.exception("Exception loading the open_file icon")
-
-        btn.configure(compound="left")
-        btn.configure(command=self.select_files)
+        btn.configure(image=self.open_file_icon, command=self.select_files, compound="left")
         btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(btn)
 
         btn = ButtonWidget(master=control_frame, text="Open Folder")
-        try:
-            icon_path = ResourceLoader.get('open_folder.png')
-            btn.img_ref = tkinter.PhotoImage(name="open_folder_icon", master=btn, file=icon_path)
-            btn.configure(image=btn.img_ref)
-        except:
-            self.log.exception("Exception loading the open_file icon")
-        btn.configure(compound="left")
-        btn.configure(command=self.select_folder)
+        btn.configure(image=self.open_folder_icon, command=self.select_folder, compound="left")
         btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(btn)
 
         self.clear_btn = ButtonWidget(master=control_frame, text="Clear", tooltip="Clean the metadata from the current view")
-        self.clear_btn.configure(command=self.widget_mngr.clean_widgets)
-        self.clear_btn.configure(image=self.clear_icon)
+        self.clear_btn.configure(image=self.clear_icon, command=self.widget_mngr.clean_widgets, compound="left")
         self.clear_btn['state'] = 'disabled'
-        self.clear_btn.configure(compound="left")
-
         self.clear_btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(self.clear_btn)
 
-        self.fetch_online_btn = ButtonWidget(master=control_frame, text="  Fetch\n  Online")
-        self.fetch_online_btn.configure(image=self.fetch_online_icon)
-        self.fetch_online_btn.configure(compound="left")
-        self.fetch_online_btn.configure(command=self.process_fetch_online)
+        self.fetch_online_btn = ButtonWidget(master=control_frame, text="Fetch\n  Online")
+        self.fetch_online_btn.configure(image=self.fetch_online_icon, command=self.process_fetch_online, compound="left")
         self.fetch_online_btn['state'] = 'disabled'
         self.fetch_online_btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(self.fetch_online_btn)
 
         self.process_btn = ButtonWidget(master=control_frame, text="Process", tooltip="Save the metadata and cover changes (Ctrl+S)")
-        self.process_btn.configure(command=self.pre_process)
-        self.process_btn.configure(image=self.save_icon)
-        self.process_btn.configure(compound="left")
+        self.process_btn.configure(command=self.pre_process, image=self.save_icon, compound="left")
         self.process_btn['state'] = 'disabled'
         self.process_btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(self.process_btn)
 
         self.fill_from_filename_btn = ButtonWidget(master=control_frame, text="Filename Fill", tooltip="Fill data from Filename")
-        self.fill_from_filename_btn.configure(command=self.fill_from_filename)
-        self.fill_from_filename_btn.configure(image=self.filename_fill_icon)
-        self.fill_from_filename_btn.configure(compound="left")
+        self.fill_from_filename_btn.configure(image=self.filename_fill_icon, command=self.fill_from_filename, compound="left")
         self.fill_from_filename_btn['state'] = 'disabled'
         self.fill_from_filename_btn.pack(side="left", fill="y", padx=(0, 5))
         self.control_mngr.append(self.fill_from_filename_btn)
@@ -194,8 +170,8 @@ class MainWindow(GUIApp):
         parent_frame.pack(side="right", expand=True, fill="both")
         frame = Frame(parent_frame)
         frame.pack(fill="both", side="top")
-        label = tkinter.Label(frame,text="Series")
-        label.pack(fill="x",expand=False,side="top")
+        label = tkinter.Label(frame, text="Series")
+        label.pack(fill="x", expand=False, side="top")
         self.widget_mngr.Series = ComboBoxWidget(frame, cinfo_name="Series", label_text="",
                                                  tooltip="The name of the series").pack(side="left", expand=True,
                                                                                         fill="x")
@@ -237,25 +213,25 @@ class MainWindow(GUIApp):
         self.widget_mngr.Tags = ComboBoxWidget(parent_frame, cinfo_name="Tags").pack()
         self.widget_mngr.Web = ComboBoxWidget(parent_frame, cinfo_name="Web").pack()
 
-        COMBO_WIDTH = 17
+        combo_width = 17
         numbering = Frame(parent_frame)
         numbering.columnconfigure("all", weight=0)
         numbering.pack(fill="both", expand=True)
 
-        self.widget_mngr.Number = ComboBoxWidget(numbering, "Number", width=COMBO_WIDTH,
+        self.widget_mngr.Number = ComboBoxWidget(numbering, "Number", width=combo_width,
                                                  tooltip="The chapter absolute number") \
             .pack(side="left", expand=False, fill="x")
-        self.widget_mngr.Volume = ComboBoxWidget(numbering, "Volume", width=COMBO_WIDTH,
+        self.widget_mngr.Volume = ComboBoxWidget(numbering, "Volume", width=combo_width,
                                                  validation="int", default="-1") \
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
-        self.widget_mngr.Count = ComboBoxWidget(numbering, "Count", width=COMBO_WIDTH,
+        self.widget_mngr.Count = ComboBoxWidget(numbering, "Count", width=combo_width,
                                                 validation="int", default="-1") \
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
-        self.widget_mngr.Format = OptionMenuWidget(numbering, "Format", "Format", COMBO_WIDTH, 18, "",
+        self.widget_mngr.Format = OptionMenuWidget(numbering, "Format", "Format", combo_width, 18, "",
                                                    Formats) \
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
-        self.widget_mngr.Manga = OptionMenuWidget(numbering, "Manga", "Manga", COMBO_WIDTH, 18,
+        self.widget_mngr.Manga = OptionMenuWidget(numbering, "Manga", "Manga", combo_width, 18,
                                                   "Unknown", ("Unknown", "Yes", "No", "YesAndRightToLeft")) \
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
@@ -263,21 +239,21 @@ class MainWindow(GUIApp):
         numbering2.columnconfigure("all", weight=0)
         numbering2.pack(fill="both", expand=True)
 
-        self.widget_mngr.Year = ComboBoxWidget(numbering2, "Year", width=COMBO_WIDTH,
+        self.widget_mngr.Year = ComboBoxWidget(numbering2, "Year", width=combo_width,
                                                validation="int", default="-1") \
             .pack(side="left", expand=False, fill="x")
-        self.widget_mngr.Month = ComboBoxWidget(numbering2, "Month", width=COMBO_WIDTH,
+        self.widget_mngr.Month = ComboBoxWidget(numbering2, "Month", width=combo_width,
                                                 validation="int", default="-1") \
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
-        self.widget_mngr.Day = ComboBoxWidget(numbering2, "Day", width=COMBO_WIDTH,
+        self.widget_mngr.Day = ComboBoxWidget(numbering2, "Day", width=combo_width,
                                               validation="int", default="-1") \
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
-        self.widget_mngr.AgeRating = OptionMenuWidget(numbering2, "AgeRating", "Age Rating", COMBO_WIDTH, 18,
+        self.widget_mngr.AgeRating = OptionMenuWidget(numbering2, "AgeRating", "Age Rating", combo_width, 18,
                                                       "Unknown", AgeRating.list()) \
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.LanguageISO = ComboBoxWidget(numbering2, "LanguageISO", label_text="Language ISO",
-                                                      width=COMBO_WIDTH + 1, default="", default_values=languages) \
+                                                      width=combo_width + 1, default="", default_values=languages) \
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.Notes = ComboBoxWidget(parent_frame, cinfo_name="Notes").pack()
@@ -323,29 +299,29 @@ class MainWindow(GUIApp):
         numbering.pack(fill="x")
         self.widget_mngr.AlternateCount = ComboBoxWidget(numbering, "AlternateCount",
                                                          label_text="Alt Count", tooltip="Alternate Count",
-                                                         width=COMBO_WIDTH,
+                                                         width=combo_width,
                                                          validation="int", default="-1")\
             .pack(side="left", expand=False, fill="x")
-        self.widget_mngr.AlternateNumber = ComboBoxWidget(numbering, "AlternateNumber", width=COMBO_WIDTH,
+        self.widget_mngr.AlternateNumber = ComboBoxWidget(numbering, "AlternateNumber", width=combo_width,
                                                           label_text="Alt Number", tooltip="Alternate Number",
                                                           validation="int")\
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
-        self.widget_mngr.StoryArcNumber = ComboBoxWidget(numbering, "StoryArcNumber", width=COMBO_WIDTH,
+        self.widget_mngr.StoryArcNumber = ComboBoxWidget(numbering, "StoryArcNumber", width=combo_width,
                                                          label_text="Story Arc Number")\
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.CommunityRating = ComboBoxWidget(numbering, cinfo_name="CommunityRating",
                                                           label_text="Community Rating",
-                                                          width=COMBO_WIDTH,
+                                                          width=combo_width,
                                                           validation="rating")\
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
-        self.widget_mngr.BlackAndWhite = OptionMenuWidget(numbering, "BlackAndWhite", "Black And White", COMBO_WIDTH, 18,
+        self.widget_mngr.BlackAndWhite = OptionMenuWidget(numbering, "BlackAndWhite", "Black And White", combo_width, 18,
                                                           "Unknown", ("Unknown", "Yes", "No"))\
             .pack(side="left", expand=False, fill="x", padx=(10, 0))
 
         self.widget_mngr.PageCount = ComboBoxWidget(parent_frame, "PageCount", label_text="Page Count",
-                                                    width=COMBO_WIDTH,
+                                                    width=combo_width,
                                                     validation="int", default="0")
         self.widget_mngr.ScanInformation = ComboBoxWidget(parent_frame, cinfo_name="ScanInformation",
                                                           label_text="Scan Information").pack()
@@ -353,8 +329,8 @@ class MainWindow(GUIApp):
     def display_bottom_frame(self):
 
         frame = self.selection_progress_frame_bottom
-        # frame.configure(highlightbackground="black",highlightthickness=1)
-        tkinter.Label(frame, text="No files selected", textvariable=self.image_cover_frame.selected_file_path_var).pack(side="left")
+        tkinter.Label(frame, text="No files selected", textvariable=self.image_cover_frame.selected_file_path_var)\
+            .pack(side="left")
 
         progress_bar_frame = tkinter.Frame(frame)
         pb = self.pb = ProgressBarWidget(progress_bar_frame)

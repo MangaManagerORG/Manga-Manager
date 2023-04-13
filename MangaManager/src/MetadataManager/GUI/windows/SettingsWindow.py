@@ -91,41 +91,21 @@ def populate_default_settings():
 
 
 class SettingsWindow:
-
-    def save_settings(self):
-        """
-        Saves the settings from the GUI to Setting provider and extensions that dynamically loaded their settings
-        """
-        # Validate the setting is correct before allowing any persistence
-        is_errors = False
-        for bundle in self.bundles:
-            if bundle.control:
-                if not bundle.validate():
-                    is_errors = True
-        if is_errors:
-            return
-
-        for bundle in self.bundles:
-            if bundle.control:
-                Settings().set(bundle.section.key, bundle.control.key, bundle.format_output())
-
-        # Tell Extensions that an update to Settings has occurred
-        for provider in providers:
-            provider.save_settings()
-
-        Settings().save()
-
     def __init__(self, parent):
         self.strings_vars: list[tkinter.Variable] = []
         self.bundles: list[FormBundleWidget] = []
         self.default_settings = populate_default_settings()
 
-        settings_window = self.settings_window = tkinter.Toplevel(parent, pady=30, padx=30)
+        settings_window = self.settings_window = tkinter.Toplevel(parent, pady=10, padx=30)
         settings_window.geometry("900x420")
         settings_window.title("Settings")
 
         main_frame = tkinter.Frame(settings_window)
         main_frame.pack(fill="both")
+
+        # There is nothing that requires a restart yet, so I'm removing this
+        # frame = Label(master=main_frame, text="\nNote: Fields marked with * need a restart to take effect")
+        # frame.pack(expand=True, fill="both")
 
         style = ttk.Style(main_frame)
         style.configure('lefttab.TNotebook', tabposition='ws')
@@ -133,12 +113,14 @@ class SettingsWindow:
         self.widgets_frame.pack(expand=True, fill="both")
 
         control_frame = tkinter.Frame(settings_window)
-        control_frame.pack()
         ButtonWidget(master=control_frame, text="Save", tooltip="Saves the settings to the config file",
-                     command=self.save_settings).pack()
+                     command=self.save_settings) \
+            .pack(side="right", padx=(0, 5))
         ButtonWidget(master=control_frame, text="Open Settings Folder",
                      tooltip="Opens the folder where Manga Manager stores it's files",
-                     command=lambda x=None: open_folder(folder_path=MM_PATH)).pack()
+                     command=lambda x=None: open_folder(folder_path=MM_PATH)) \
+            .pack()
+        control_frame.pack(side="right")
 
         self.settings_widget = {}
         logger.info('Setting up settings for Manga Manager')
@@ -175,8 +157,7 @@ class SettingsWindow:
             self.build_setting_entry(frame, control=control, section=self.default_settings[SettingHeading.MessageBox])
 
         center(settings_window)
-        frame = Label(master=control_frame, text="\nNote: Fields marked with * need a restart to take effect")
-        frame.pack(expand=True, fill="both")
+
 
     def build_setting_entry(self, parent_frame, control: SettingControl, section):
         # Update the control's value from Settings
@@ -192,6 +173,30 @@ class SettingsWindow:
     def build_setting_entries(self, parent_frame, settings, section):
         for i, setting in enumerate(settings):
             self.build_setting_entry(parent_frame, setting, section)
+
+    def save_settings(self):
+        """
+        Saves the settings from the GUI to Setting provider and extensions that dynamically loaded their settings
+        """
+        # Validate the setting is correct before allowing any persistence
+        is_errors = False
+        for bundle in self.bundles:
+            if bundle.control:
+                if not bundle.validate():
+                    is_errors = True
+        if is_errors:
+            return
+
+        for bundle in self.bundles:
+            if bundle.control:
+                Settings().set(bundle.section.key, bundle.control.key, bundle.format_output())
+
+        # Tell Extensions that an update to Settings has occurred
+        for provider in providers:
+            provider.save_settings()
+
+        Settings().save()
+        self.settings_window.destroy()
 
     @staticmethod
     def setting_control_to_widget(parent_frame: tkinter.Frame, control: SettingControl, section: SettingSection):
