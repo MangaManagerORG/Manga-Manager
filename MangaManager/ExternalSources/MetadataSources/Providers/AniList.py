@@ -116,10 +116,12 @@ class AniList(IMetadataSource):
         title_romaji = (data.get("title").get("romaji") or "").strip()
         if cls.romaji_as_series:
             comicinfo.series = title_romaji
-            comicinfo.localized_series = title_english
+            if title_romaji != title_english:
+                comicinfo.localized_series = title_english
         else:
             comicinfo.series = title_english
-            comicinfo.localized_series = title_romaji
+            if title_romaji != title_english:
+                comicinfo.localized_series = title_romaji
 
         # Summary
         comicinfo.summary = IMetadataSource.clean_description(data.get("description"), remove_source=True)
