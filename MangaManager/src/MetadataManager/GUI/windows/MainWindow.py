@@ -325,6 +325,8 @@ class MainWindow(GUIApp):
                                                     validation="int", default="0")
         self.widget_mngr.ScanInformation = ComboBoxWidget(parent_frame, cinfo_name="ScanInformation",
                                                           label_text="Scan Information").pack()
+        self.widget_mngr.GTIN = ComboBoxWidget(parent_frame, cinfo_name="GTIN",
+                                                          label_text="GTIN").pack()
 
     def display_bottom_frame(self):
 

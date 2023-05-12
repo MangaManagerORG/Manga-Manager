@@ -46,7 +46,8 @@ comic_info_tag_map = {
     "community_rating": "CommunityRating",
     "black_and_white": "BlackAndWhite",
     "page_count": "PageCount",
-    "scan_information": "ScanInformation"
+    "scan_information": "ScanInformation",
+    "gtin": "GTIN"
 }
 
 
@@ -96,6 +97,7 @@ class ComicInfo:
     page_count = ""
     scan_information = ""
     other = ""
+    gtin = ""
 
     def __init__(self):
         pass
