@@ -55,18 +55,8 @@ class GUIApp(Tk, MetadataManagerLib):
 
         # MENU
         self.main_frame = Frame(self)
-
-        icon_path = ResourceLoader.get('maintenance-icon.png')
-        self.settings_icon = tkinter.PhotoImage(name="settings", master=self, file=icon_path)
-
         self.main_frame.pack(expand=True, fill="both")
-        frame = Frame(self)
-        frame.place(anchor=tkinter.NE, relx=1)
-        btn = ButtonWidget(master=frame, text="Settings", image=self.settings_icon, font=('Arial', 10),
-                           command=self.show_settings)
-        btn.configure(image=self.settings_icon, command=self.select_folder, compound="left")
-        btn.pack(side="left", fill="y", padx=(0, 5))
-        ButtonWidget(master=frame, text="About", font=('Arial', 10), command=self.show_about).pack(side="left")
+
 
         # Add binds
         self.bind('<Control-o>', lambda x: self.select_files())
@@ -74,6 +64,9 @@ class GUIApp(Tk, MetadataManagerLib):
         self.bind('<Control-f>', self.process_fetch_online)
 
         # Icons
+        icon_path = ResourceLoader.get('settings.png')
+        self.settings_icon = tkinter.PhotoImage(name="settings_icon", master=self, file=icon_path)
+
         icon_path = ResourceLoader.get('clear_icon.png')
         self.clear_icon = tkinter.PhotoImage(name="clear_icon", master=self, file=icon_path)
 
@@ -92,6 +85,13 @@ class GUIApp(Tk, MetadataManagerLib):
         icon_path = ResourceLoader.get('open_file.png')
         self.open_file_icon = tkinter.PhotoImage(name="open_file", master=self, file=icon_path)
 
+        # Floating icons
+        frame = Frame(self)
+        frame.place(anchor=tkinter.NE, relx=1,rely=0.003)
+        ButtonWidget(master=frame, text="Settings", image=self.settings_icon, font=('Arial', 10), compound="left",
+                     command=self.show_settings).pack(side="left", fill="y", padx=(0, 5))
+
+        ButtonWidget(master=frame, text="About", font=('Arial', 10), command=self.show_about).pack(side="left", fill="y", padx=(0, 5))
     def report_callback_exception(self, *_):
         """
         Overrides builtin method so exceptions get loged and are not silent
