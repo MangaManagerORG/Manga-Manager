@@ -27,32 +27,32 @@ def get_release_tag() -> Versions:
     data = response.json()
 
     # Filter out pre-releases
-    latest_version = None
-    prev_latest = None
-    prev_nightly = None
+
+    latest_release:dict = None
+    prev_latest_release:dict = None
+    nightly_release:dict = None
+
+
     for release in data:
-        if latest_version and prev_latest and prev_nightly:
+        if latest_release and prev_latest_release and nightly_release:
             break
 
         if release['draft']:
             continue
-        if not release['prerelease']:
-            if latest_version:
-                prev_latest = release['tag_name']
-                break
-            latest_version = release['tag_name']
-            continue
-        else:
-            if not prev_nightly:
-                prev_nightly = release['tag_name']
-                continue
 
-    if latest_version:
-        print(latest_version)
-        print(prev_latest)
-    else:
-        print('No non-pre-release version found.')
-    return Versions(prev_latest, latest_version,prev_nightly)
+        if release['prerelease']:
+            if not nightly_release:
+                nightly_release = release
+        else:
+            if not latest_release:
+                latest_release = release
+            else:
+                prev_latest_release = latest_release
+
+    if nightly_release['published_at'] < latest_release['published_at']:
+        nightly_release = latest_release
+
+    return Versions(prev_latest_release["tag_name"], latest_release["tag_name"],nightly_release["tag_name"])
 
 
 class AboutWindow:
