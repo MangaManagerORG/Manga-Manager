@@ -110,9 +110,10 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
     # INTERFACE METHODS
     def write_metadata(self, auto_unmark_changes=False):
         # print(self.cinfo_object.__dict__)
+        self.has_changes = self.cinfo_object.has_changes(self.original_cinfo_object)
         logger.debug(f"[{'BEGIN WRITE':13s}] Writing metadata to file '{self.file_path}'")
         try:
-            self._process(write_metadata=True)
+            self._process(write_metadata=self.has_changes)
         finally:
             if auto_unmark_changes:
                 self.has_changes = False
@@ -138,12 +139,22 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_path))
         os.close(tmpfd)
 
+        original_size = os.path.getsize(self.file_path)
         with ArchiveFile(self.file_path, 'r') as zin:
             initial_file_count = len(zin.namelist())
 
             with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
                 self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=do_convert_to_webp)
+            newfile_size = os.path.getsize(tmpname)
 
+            # If the new file is smaller than the original file, we process again with no webp conversion.
+            # Some source files have better png compression than webp
+            if original_size > newfile_size and do_convert_to_webp:
+                logger.info(f"[{'Processing':13s}] New file is smaller than original file. Procesing without webp "
+                            f"conversion")
+                os.remove(tmpname)
+                with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
+                    self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=False)
         has_cover_action = self.cover_action not in (CoverActions.RESET, None) or self.backcover_action not in (
             CoverActions.RESET, None)
         # Reset cover flags
@@ -192,6 +203,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         # Write the new metadata once
         if write_metadata:
             zout.writestr(COMICINFO_FILE, self._export_metadata())
+
             logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
             # Directly backup the metadata if it's at root.
             if self.is_cinfo_at_root:

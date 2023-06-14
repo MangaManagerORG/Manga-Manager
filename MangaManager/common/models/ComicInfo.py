@@ -147,3 +147,10 @@ class ComicInfo:
         # print(f.getvalue())  # your XML file, encoded as UTF-8
         # output_xml = ET.tostring(root, encoding="UTF-8", xml_declaration=True, method='xml').decode("utf8")
         # return output_xml
+
+    """Returns TRUE if it has changes"""
+    def has_changes(self, other):
+        for key in comic_info_tag_map.keys():
+            if getattr(self, key) != getattr(other, key):
+                return True
+        return False
