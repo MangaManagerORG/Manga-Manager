@@ -44,7 +44,7 @@ class ProgressBarWidget(ProgressBar):
         self.pb_label_variable = tkinter.StringVar(value=self.label_text)
         self.pb_label = tkinter.Label(pb_frame, justify="right", textvariable=self.pb_label_variable)
         self.pb_label.pack(expand=False, fill="x", side="right")
-        logger.info("Initialized progress bar")
+        logger.debug("Initialized progress bar")
 
     def update_progress_label(self):
         self.pb_label_variable.set(self.label_text)

@@ -94,7 +94,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
 
     def load_metadata(self):
         try:
-            with ArchiveFile(self.file_path,'r') as self.archive:
+            with ArchiveFile(self.file_path, 'r') as self.archive:
                 if not self.cinfo_object:
                     self._load_metadata()
         except zipfile.BadZipFile:
@@ -110,10 +110,10 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
     # INTERFACE METHODS
     def write_metadata(self, auto_unmark_changes=False):
         # print(self.cinfo_object.__dict__)
+        self.has_changes = self.cinfo_object.has_changes(self.original_cinfo_object)
         logger.debug(f"[{'BEGIN WRITE':13s}] Writing metadata to file '{self.file_path}'")
-        # logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] ComicInfo file found in old file")
         try:
-            self._process(write_metadata=True)
+            self._process(write_metadata=self.has_changes)
         finally:
             if auto_unmark_changes:
                 self.has_changes = False
@@ -138,15 +138,28 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         # Creates a tempfile in the directory the original file is at
         tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_path))
         os.close(tmpfd)
-
+        has_cover_action = self.cover_action not in (CoverActions.RESET, None) or self.backcover_action not in (
+            CoverActions.RESET, None)
+        original_size = os.path.getsize(self.file_path)
         with ArchiveFile(self.file_path, 'r') as zin:
             initial_file_count = len(zin.namelist())
 
             with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
                 self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=do_convert_to_webp)
+            newfile_size = os.path.getsize(tmpname)
 
-        has_cover_action = self.cover_action not in (CoverActions.RESET, None) or self.backcover_action not in (
-            CoverActions.RESET, None)
+            # If the new file is smaller than the original file, we process again with no webp conversion.
+            # Some source files have better png compression than webp
+            if original_size < newfile_size and do_convert_to_webp:
+                logger.warning(f"[{'Processing':13s}] New converted file is bigger than original file")
+                os.remove(tmpname)
+                if not has_cover_action and not write_metadata:
+                    logger.warning(f"[{'Processing':13s}] Keeping original files. No additional processing left")
+                    return
+                logger.warning(f"[{'Processing':13s}] Cover action or new metadata detected. Processing new covers without converting source to webp")
+                with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
+                    self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=False)
+
         # Reset cover flags
         self.cover_action = CoverActions.RESET
         self.backcover_action = CoverActions.RESET
@@ -165,6 +178,12 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             os.remove(
                 tmpname)  # Could be moved to a 'finally'? Don't want to risk it not clearing temp files properly
             raise
+        except FileNotFoundError:
+            try:
+                logger.exception(f"[{'Processing':13s}] File not found. Aborting and clearing temp files")
+                os.remove(tmpname)
+            except FileNotFoundError:
+                pass
         except Exception:
             logger.exception(f"[{'Processing':13s}] Unhandled exception. Create an issue so this gets investigated."
                              f" Aborting and clearing temp files")
@@ -172,10 +191,10 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             raise
 
         self.original_cinfo_object = copy.copy(self.cinfo_object)
-        logger.info(f"Successfully recompressed '{self.file_name}'")
+        logger.info(f"[{'Processing':13s}] Successfully recompressed '{self.file_name}'")
 
         if (self.cover_cache or self.backcover_cache) and has_cover_action:
-            logger.info(f"Updating covers")
+            logger.info("[{'Processing':13s}] Updating covers")
             self.load_cover_info()
 
     def _recompress(self, zin, zout, write_metadata, do_convert_webp):
@@ -193,6 +212,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         # Write the new metadata once
         if write_metadata:
             zout.writestr(COMICINFO_FILE, self._export_metadata())
+
             logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
             # Directly backup the metadata if it's at root.
             if self.is_cinfo_at_root:

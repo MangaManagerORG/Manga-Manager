@@ -1,21 +1,21 @@
 from enum import Enum
 
-
+# Keep this ordered in terms of progressing ratings, rather than alphabetical
 class AgeRating(str, Enum):
     UNKNOWN = 'Unknown'
-    ADULTS_ONLY_18 = 'Adults Only 18+'
+    RATING_PENDING = 'Rating Pending'
     EARLY_CHILDHOOD = 'Early Childhood'
     EVERYONE = 'Everyone'
-    EVERYONE_10 = 'Everyone 10+'
     G = 'G'
+    EVERYONE_10 = 'Everyone 10+'
+    PG = 'PG'
     KIDSTO_ADULTS = 'Kids to Adults'
-    M = 'M'
+    TEEN = 'Teen'
     MA_15 = 'MA15+'
     MATURE_17 = 'Mature 17+'
-    PG = 'PG'
+    M = 'M'
     R_18 = 'R18+'
-    RATING_PENDING = 'Rating Pending'
-    TEEN = 'Teen'
+    ADULTS_ONLY_18 = 'Adults Only 18+'
     X_18 = 'X18+'
 
     @classmethod
