@@ -24,7 +24,8 @@ def _run_process(list_of_files,progress_bar:ProgressBarWidget):
 
     for file in list_of_files:
 
-        logger.info(f"[WEBP CONVERT] Processing '{file}'")
+        logger.info(f"[Extension][WebpConvert] Processing file",
+                    extra={"processed_filename":file})
         try:
             # time.sleep(20)
             LoadedComicInfo(file, load_default_metadata=False).convert_to_webp()
