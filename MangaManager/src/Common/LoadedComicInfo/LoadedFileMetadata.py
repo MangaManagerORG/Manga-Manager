@@ -62,7 +62,7 @@ class LoadedFileMetadata(ILoadedComicInfo):
         LOG_TAG = f"[{'Reading Meta':13s}] "
         try:
             # If Comicinfo is not at root try to grab any ComicInfo.xml in the file
-            if "ComicInfo.xml" not in self.archive.namelist():
+            if COMICINFO_FILE not in self.archive.namelist():
                 cinfo_file = [filename.endswith(COMICINFO_FILE) for filename in self.archive.namelist()][
                                  0] or COMICINFO_FILE
             else:
@@ -76,6 +76,8 @@ class LoadedFileMetadata(ILoadedComicInfo):
         except rarfile.RarCannotExec:
             xml_string = ""
             raise MissingRarTool
+        except Exception:
+            xml_string = ""
 
 
         if xml_string:
