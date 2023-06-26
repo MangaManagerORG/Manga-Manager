@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import logging
 import re
+import requests
 from enum import StrEnum
 from typing import Optional
-
-import requests
 
 from common import get_invalid_person_tag
 from common.models import ComicInfo
@@ -15,6 +14,7 @@ from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
+
 pattern = r"anilist.com/manga/(\d+)"
 logger = logging.getLogger()
 class AniListPerson(StrEnum):
@@ -98,7 +98,7 @@ class AniList(IMetadataSource):
     @classmethod
     def _get_id_from_series(cls, cinfo: ComicInfo) -> Optional[int]:
 
-        manga_id = cls.get_manga_id_from_url(cinfo.series)
+        manga_id = cls.get_manga_id_from_url(cinfo.web)
         if manga_id is not None:
             return manga_id
 

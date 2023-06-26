@@ -480,7 +480,11 @@ class GUIApp(Tk, MetadataManagerLib):
 
     def process_fetch_online(self, *_):
         series_name = self.widget_mngr.get_widget("Series").get().strip()
-        if series_name in (None, "", self.MULTIPLE_VALUES_CONFLICT):
+        if series_name == self.MULTIPLE_VALUES_CONFLICT:
+            mb.showwarning(self.main_frame, "Not a valid series name. Multiple values conflict.")
+            self.log.info("Not a valid series name - Conflic with other series name in selection")
+            return
+        if series_name in (None, "") and self.widget_mngr.get_widget("Web").get() in (None,""):
             mb.showwarning(self.main_frame, "Not a valid series name", "The current series name is empty or not valid.")
             self.log.info("Not a valid series name - The current series name is empty or not valid.")
             return
