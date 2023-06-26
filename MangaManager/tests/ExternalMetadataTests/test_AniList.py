@@ -20,7 +20,7 @@ class TestSources(unittest.TestCase):
         from ExternalSources.MetadataSources import ScraperFactory
         scraper = ScraperFactory().get_scraper("AniList")
         cinfo = ComicInfo()
-        cinfo.series = "https://anilist.co/manga/98797/Adachi-to-Shimamura/"
+        cinfo.web = "https://anilist.co/manga/98797/Adachi-to-Shimamura/"
 
         ret_cinfo = scraper.get_cinfo(cinfo)
         print("Assert series name matches")
