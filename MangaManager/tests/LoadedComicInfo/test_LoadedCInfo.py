@@ -6,7 +6,6 @@ import zipfile
 
 from common.models import ComicInfo
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
-from src.Settings import Settings, SettingHeading
 
 TEST_COMIC_INFO_STRING = """
 <ComicInfo>
@@ -107,6 +106,7 @@ class LoadedComicInfo_MetadataTests(unittest.TestCase):
             with self.subTest(f"Testing individual file read metadata - {i + 1}/{len(self.test_files_names)}"):
                 cinfo = LoadedComicInfo(file_names).load_metadata()
                 cinfo.cinfo_object.notes = f"This text was modified - {self.random_int}"
+
                 cinfo.write_metadata()
 
 
@@ -122,11 +122,13 @@ class LoadedComicInfo_MetadataTests(unittest.TestCase):
                 self.assertEqual(f"This text was modified - {self.random_int}", cinfo.cinfo_object.notes)
 
     def test_simple_backup(self):
-        for i, file_names in enumerate(self.test_files_names):
+        for i, file_name in enumerate(self.test_files_names):
             with self.subTest(f"Backing up individual metadata - {i + 1}/{len(self.test_files_names)}"):
-                cinfo = LoadedComicInfo(file_names).load_metadata()
+                cinfo = LoadedComicInfo(file_name).load_metadata()
+                # No backup will be created if no modified metadata
+                cinfo.cinfo_object.notes = "Notes modified"
                 cinfo.write_metadata()
-                with zipfile.ZipFile(file_names, "r") as zf:
+                with zipfile.ZipFile(file_name, "r") as zf:
                     print("Asserting backup is in the file")
                     # In this test there should only be the backed up file because the new modified metadata file gets
                     # appended later, after the backup flow is run.

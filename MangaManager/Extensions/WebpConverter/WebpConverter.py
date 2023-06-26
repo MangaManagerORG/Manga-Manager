@@ -17,11 +17,15 @@ from src.Settings.Settings import Settings
 
 logger = logging.getLogger()
 
-
+def start_processing(_selected_files,_progress_bar):
+    processing_thread = threading.Thread(target=_run_process, args=(_selected_files,_progress_bar))
+    processing_thread.start()
 def _run_process(list_of_files,progress_bar:ProgressBarWidget):
-    progress_bar.running = True
+
     for file in list_of_files:
-        logger.info(f"[WEBP CONVERT] Processing '{file}'")
+
+        logger.info(f"[Extension][WebpConvert] Processing file",
+                    extra={"processed_filename":file})
         try:
             # time.sleep(20)
             LoadedComicInfo(file, load_default_metadata=False).convert_to_webp()
@@ -46,7 +50,7 @@ class WebpConverter(IExtensionApp):
     def pb_update(self):
         if self._progress_bar.running:
             self._progress_bar._update()
-            self.after(1000, self.pb_update)
+            self.after(20, self.pb_update)
 
     @property
     def selected_files(self):
@@ -56,10 +60,14 @@ class WebpConverter(IExtensionApp):
     def process(self):
         if not self._selected_files:
             return
-        self._progress_bar.start(len(self.selected_files))
-        th = threading.Thread(target=_run_process, args=(self.selected_files,self._progress_bar))
-        th.start()
+        self._progress_bar.start(len(self._selected_files))
+        self._progress_bar.running = True
         self.pb_update()
+        self.after(0, self.pb_update)
+        start_processing(self._selected_files,self._progress_bar)
+
+
+
 
     def select_base(self):
         self.base_path = filedialog.askdirectory(parent=self)  # select directory

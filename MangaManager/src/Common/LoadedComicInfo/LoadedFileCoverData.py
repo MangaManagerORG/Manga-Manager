@@ -133,7 +133,7 @@ class LoadedFileCoverData(ILoadedComicInfo):
                     if load_images:
                         self.get_cover_image_bytes(back_cover=True)
         except zipfile.BadZipFile:
-            logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",
+            logger.error(f"[{'Loading File':13s}] Failed to read file. File is not a zip file or is broken.",
                          exc_info=False)
             raise BadZipFile()
         except Exception:

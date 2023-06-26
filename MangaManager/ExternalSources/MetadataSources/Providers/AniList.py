@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import logging
-from enum import StrEnum
-
+import re
 import requests
+from enum import StrEnum
+from typing import Optional
 
 from common import get_invalid_person_tag
 from common.models import ComicInfo
@@ -14,6 +15,7 @@ from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 
+pattern = r"anilist.com/manga/(\d+)"
 logger = logging.getLogger()
 class AniListPerson(StrEnum):
     OriginalStory = "original_story",  # Original Story
@@ -86,19 +88,36 @@ class AniList(IMetadataSource):
         if len(invalid_people) == 0:
             return ""
         return ", ".join(invalid_people) + " are not a valid tags"
+    @staticmethod
+    def get_manga_id_from_url(url):
+        pattern = r"https:\/\/anilist\.co\/manga\/(\d+)"
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+        return None
+    @classmethod
+    def _get_id_from_series(cls, cinfo: ComicInfo) -> Optional[int]:
+
+        manga_id = cls.get_manga_id_from_url(cinfo.web)
+        if manga_id is not None:
+            return manga_id
+
+        try:
+            content = cls._search_for_manga_title_by_manga_title(cinfo.series, "MANGA", {})
+        except MangaNotFoundError:
+            content = cls.search_for_manga_title_by_manga_title_with_adult(cinfo.series, "MANGA", {})
+
+        if content is None:
+            return None
+        return content.get("id")
 
     @classmethod
     def get_cinfo(cls, comic_info_from_ui: ComicInfo) -> ComicInfo | None:
         comicinfo = ComicInfo()
-        try:
-            content = cls._search_for_manga_title_by_manga_title(comic_info_from_ui.series, "MANGA", {})
-        except MangaNotFoundError:
-            content = cls.search_for_manga_title_by_manga_title_with_adult(comic_info_from_ui.series, "MANGA", {})
-
-        if content is None:
+        serie_id = cls._get_id_from_series(comic_info_from_ui)
+        if serie_id is None:
             return None
-        content = content.get("id")
-        data = cls._search_details_by_series_id(content, "MANGA", {})
+        data = cls._search_details_by_series_id(serie_id, "MANGA", {})
 
         startdate = data.get("startDate")
         comicinfo.day = startdate.get("day")
@@ -116,10 +135,12 @@ class AniList(IMetadataSource):
         title_romaji = (data.get("title").get("romaji") or "").strip()
         if cls.romaji_as_series:
             comicinfo.series = title_romaji
-            comicinfo.localized_series = title_english
+            if title_romaji != title_english:
+                comicinfo.localized_series = title_english
         else:
             comicinfo.series = title_english
-            comicinfo.localized_series = title_romaji
+            if title_romaji != title_english:
+                comicinfo.localized_series = title_romaji
 
         # Summary
         comicinfo.summary = IMetadataSource.clean_description(data.get("description"), remove_source=True)

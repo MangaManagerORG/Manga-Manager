@@ -31,6 +31,9 @@ move_to_value = ""
 
 class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo):
 
+    @property
+    def _logging_extra(self):
+        return {"processed_filename": self.file_name}
 
     def __init__(self, path, comicinfo: ComicInfo = None, load_default_metadata=True):
         """
@@ -42,7 +45,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
 
         self.file_path = path or None
         self.file_name = None if path is None else os.path.basename(path)
-        logger.info(f"[{'Opening File':13s}] '{self.file_name}'")
+        logger.debug(f"[{'Loading File':13s}] '{self.file_name}'")
         self.cinfo_object = comicinfo
         if load_default_metadata:
             self.load_metadata()
@@ -87,18 +90,18 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
                     self._load_metadata()
 
         except zipfile.BadZipFile:
-            logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",
+            logger.error(f"[{'Loading File':13s}] Failed to read file. File is not a zip file or is broken.",
                          exc_info=False)
             raise BadZipFile()
         return self
 
     def load_metadata(self):
         try:
-            with ArchiveFile(self.file_path,'r') as self.archive:
+            with ArchiveFile(self.file_path, 'r') as self.archive:
                 if not self.cinfo_object:
                     self._load_metadata()
         except zipfile.BadZipFile:
-            logger.error(f"[{'OpeningFile':13s}] Failed to read file. File is not a zip file or is broken.",
+            logger.error(f"[{'Loading File':13s}] Failed to read file. File is not a zip file or is broken.",
                          exc_info=False)
             raise BadZipFile()
         return self
@@ -110,10 +113,10 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
     # INTERFACE METHODS
     def write_metadata(self, auto_unmark_changes=False):
         # print(self.cinfo_object.__dict__)
+        self.has_changes = self.cinfo_object.has_changes(self.original_cinfo_object)
         logger.debug(f"[{'BEGIN WRITE':13s}] Writing metadata to file '{self.file_path}'")
-        # logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] ComicInfo file found in old file")
         try:
-            self._process(write_metadata=True)
+            self._process(write_metadata=self.has_changes)
         finally:
             if auto_unmark_changes:
                 self.has_changes = False
@@ -127,55 +130,85 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
 
     # ACTUAL LOGIC
     def _process(self, write_metadata=False, do_convert_to_webp=False, **_):
-
+        logger.info(f"[{'PROCESSING':13s}] Processing file '{self.file_path}'")
         if write_metadata and not do_convert_to_webp and not self.has_metadata:
             with zipfile.ZipFile(self.file_path, mode='a', compression=zipfile.ZIP_STORED) as zf:
                 # We finally append our new ComicInfo file
                 zf.writestr(COMICINFO_FILE, self._export_metadata())
-                logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
+                logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file",
+                               extra=self._logging_extra)
             self.has_metadata = True
 
         # Creates a tempfile in the directory the original file is at
         tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_path))
         os.close(tmpfd)
-
-        with ArchiveFile(self.file_path, 'r') as zin:
-            initial_file_count = len(zin.namelist())
-
-            with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
-                self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=do_convert_to_webp)
-
         has_cover_action = self.cover_action not in (CoverActions.RESET, None) or self.backcover_action not in (
             CoverActions.RESET, None)
+        original_size = os.path.getsize(self.file_path)
+        with ArchiveFile(self.file_path, 'r') as zin:
+            initial_file_count = len(zin.namelist())
+            for s in zin.infolist():
+                if s.file_size != 0:
+                    orig_comp_type = s.compress_type
+                    break
+            with zipfile.ZipFile(tmpname, "w",compression=orig_comp_type) as zout:  # The temp file where changes will be saved to
+                self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=do_convert_to_webp)
+            newfile_size = os.path.getsize(tmpname)
+
+            # If the new file is smaller than the original file, we process again with no webp conversion.
+            # Some source files have better png compression than webp
+            if original_size < newfile_size and do_convert_to_webp:
+                logger.warning(f"[{'Processing':13s}] New converted file is bigger than original file",
+                               extra=self._logging_extra)
+                os.remove(tmpname)
+                if not has_cover_action and not write_metadata:
+                    logger.warning(f"[{'Processing':13s}]  ⤷ Keeping original files. No additional processing left")
+                    return
+                logger.warning(f"[{'Processing':13s}]  ⤷ Cover action or new metadata detected. Processing new covers without converting source to webp")
+                with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
+                    self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=False)
+
         # Reset cover flags
         self.cover_action = CoverActions.RESET
         self.backcover_action = CoverActions.RESET
 
-        logger.debug(f"[{'Processing':13s}] Data from old file copied to new file")
+        logger.debug(f"[{'Processing':13s}] Data from old file copied to new file",
+                               extra=self._logging_extra)
         # Delete old file and rename new file to old name
         try:
             with ArchiveFile(self.file_path, 'r') as zin:
                 assert initial_file_count == len(zin.namelist())
             os.remove(self.file_path)
             os.rename(tmpname, self.file_path)
-            logger.debug(f"[{'Processing':13s}] Successfully deleted old file and named tempfile as the old file")
+            logger.debug(f"[{'Processing':13s}] Successfully deleted old file and named tempfile as the old file",
+                               extra=self._logging_extra)
         # If we fail to delete original file we delete temp file effecively aborting the metadata update
         except PermissionError:
-            logger.exception(f"[{'Processing':13s}] Permission error. Aborting and clearing temp files")
+            logger.exception(f"[{'Processing':13s}] Permission error. Aborting and clearing temp files",
+                               extra=self._logging_extra)
             os.remove(
                 tmpname)  # Could be moved to a 'finally'? Don't want to risk it not clearing temp files properly
             raise
+        except FileNotFoundError:
+            try:
+                logger.exception(f"[{'Processing':13s}] File not found. Aborting and clearing temp files",
+                               extra=self._logging_extra)
+                os.remove(tmpname)
+            except FileNotFoundError:
+                pass
         except Exception:
             logger.exception(f"[{'Processing':13s}] Unhandled exception. Create an issue so this gets investigated."
-                             f" Aborting and clearing temp files")
+                             f" Aborting and clearing temp files",
+                               extra=self._logging_extra)
             os.remove(tmpname)
             raise
 
         self.original_cinfo_object = copy.copy(self.cinfo_object)
-        logger.info(f"Successfully recompressed '{self.file_name}'")
+        logger.info(f"[{'Processing':13s}] Successfully recompressed file",
+                               extra=self._logging_extra)
 
         if (self.cover_cache or self.backcover_cache) and has_cover_action:
-            logger.info(f"Updating covers")
+            logger.info("[{'Processing':13s}] Updating covers")
             self.load_cover_info()
 
     def _recompress(self, zin, zout, write_metadata, do_convert_webp):
@@ -193,6 +226,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         # Write the new metadata once
         if write_metadata:
             zout.writestr(COMICINFO_FILE, self._export_metadata())
+
             logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
             # Directly backup the metadata if it's at root.
             if self.is_cinfo_at_root:
@@ -212,7 +246,9 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
                                current_backcover_filename=self.backcover_filename)
 
         # Start iterating files.
-        for item in zin.infolist():
+        total = len(zin.namelist())
+        for i, item in enumerate(zin.infolist()):
+            counter = f"{i}/{total}"
             if write_metadata:
                 # Discard old backup
                 if item.filename.endswith(

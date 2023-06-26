@@ -1,8 +1,12 @@
 import logging
+import tkinter
 import traceback
 from tkinter import Frame
 from tkinter.font import Font
 from tkinter.ttk import Treeview, Style
+
+from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+
 logger = logging.getLogger()
 
 
@@ -15,11 +19,17 @@ class ExceptionHandler(logging.Handler):
         ei = record.exc_info
         parent_id = self.tree_widget.insert("", 'end', text=f"{record.levelname:12s} {record.msg}")
         self.tree_widget.dict[parent_id] = record
+        if "processed_filename" in record.__dict__:
+            self.tree_widget.insert(parent_id, 'end', text=f"Filename: '{record.processed_filename}'")
+        if "lcinfo" in record.__dict__:
+            lcinfo: LoadedComicInfo = record.__dict__["lcinfo"]
+            self.tree_widget.insert(parent_id, 'end', text=f"Filename: '{lcinfo.file_name}'")
         if ei:
+            stack_tab = self.tree_widget.insert(parent_id, 'end', text="Stack Trace info", open=False)
             exc_type, exc_value, exc_traceback = ei
             tb_str = ''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))
             for string in tb_str.split("\n"):
-                self.tree_widget.insert(parent_id, 'end', text=string)
+                self.tree_widget.insert(stack_tab, 'end', text=string)
 
 
 class ExceptionFrame(Frame):
@@ -32,6 +42,11 @@ class ExceptionFrame(Frame):
         self.tree.style = style
         self.tree.dict = dict()
         self.tree.pack(expand=True, fill='both')
+        self.selected_logging_level = tkinter.StringVar(self)
+        self.selected_logging_level.set("WARNING")
+        self.input_type = tkinter.OptionMenu(self,self.selected_logging_level,*("WARNING", "ERROR", "INFO", "DEBUG","TRACE"))
+        self.input_type.pack(side="left", fill="y")
+        self.selected_logging_level.trace("w", self.update_handler_level)
         handler = self.handler = ExceptionHandler(self.tree)
         handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         handler.setLevel(logging.WARNING)
@@ -45,7 +60,9 @@ class ExceptionFrame(Frame):
                 record = logging.umpumped_events.pop()
                 handler.emit(record)
 
-
+    def update_handler_level(self,*args):
+        self.handler.setLevel(logging.getLevelName(self.selected_logging_level.get()))
+        logger.info(f"Selected '{self.selected_logging_level.get()}' as UI logging level",extra={"ui":True})
 
     def __del__(self):
         logger.removeHandler(self.handler)

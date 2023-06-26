@@ -112,6 +112,7 @@ class ApplicationLevelBindManager(object):
         return on_mousewheel
 
 
+# This is used in CoverManager it seems
 # noinspection PyUnresolvedReferences
 class ScrolledFrame(ttk.Frame):
     VERTICAL = 'vertical'

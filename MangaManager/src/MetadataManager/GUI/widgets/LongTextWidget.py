@@ -1,7 +1,7 @@
 from tkinter.scrolledtext import ScrolledText
 
-from src.MetadataManager.GUI.longtext import LongText
-from .MMWidget import MMWidget
+
+from .MMWidget import MMWidget, _LongText
 
 
 class LongTextWidget(MMWidget):
@@ -17,6 +17,5 @@ class LongTextWidget(MMWidget):
         self.widget_slave.configure(height='5', width=width)
         self.widget_slave.pack(fill='both', side='top')
 
-        self.widget = LongText(name=cinfo_name)
+        self.widget = _LongText(name=cinfo_name)
         self.widget.linked_text_field = self.widget_slave
-

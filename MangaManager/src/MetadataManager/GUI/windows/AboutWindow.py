@@ -27,32 +27,32 @@ def get_release_tag() -> Versions:
     data = response.json()
 
     # Filter out pre-releases
-    latest_version = None
-    prev_latest = None
-    prev_nightly = None
+
+    latest_release:dict = None
+    prev_latest_release:dict = None
+    nightly_release:dict = None
+
+
     for release in data:
-        if latest_version and prev_latest and prev_nightly:
+        if latest_release and prev_latest_release and nightly_release:
             break
 
         if release['draft']:
             continue
-        if not release['prerelease']:
-            if latest_version:
-                prev_latest = release['tag_name']
-                break
-            latest_version = release['tag_name']
-            continue
-        else:
-            if not prev_nightly:
-                prev_nightly = release['tag_name']
-                continue
 
-    if latest_version:
-        print(latest_version)
-        print(prev_latest)
-    else:
-        print('No non-pre-release version found.')
-    return Versions(prev_latest, latest_version,prev_nightly)
+        if release['prerelease']:
+            if not nightly_release:
+                nightly_release = release
+        else:
+            if not latest_release:
+                latest_release = release
+            else:
+                prev_latest_release = latest_release
+
+    if nightly_release['published_at'] < latest_release['published_at']:
+        nightly_release = latest_release
+
+    return Versions(prev_latest_release["tag_name"], latest_release["tag_name"],nightly_release["tag_name"])
 
 
 class AboutWindow:
@@ -64,20 +64,19 @@ class AboutWindow:
         self.frame = tkinter.Frame(self.top_level)
         self.frame.pack(pady=30, padx=30, fill="both")
         HyperlinkLabelWidget(self.frame, "Github repo:", url_text="Go to Github rework main page",
-                             url="https://github.com/MangaManagerORG/Manga-Manager/tree/rework/master").pack(fill="x",
-                                                                                                             expand=True,
-                                                                                                             side="top",
-                                                                                                             anchor="center")
+                             url="https://github.com/MangaManagerORG/Manga-Manager/tree/rework/master") \
+            .pack(fill="x", expand=True, side="top", anchor="center")
         HyperlinkLabelWidget(self.frame, "Get support:", url_text="Join MangaManager channel in Kavita discord",
-                             url="https://discord.gg/kavita-821879810934439936").pack(fill="x", expand=True, side="top",
-                                                                                      anchor="center")
+                             url="https://discord.gg/kavita-821879810934439936")\
+            .pack(fill="x", expand=True, side="top", anchor="center")
         HyperlinkLabelWidget(self.frame, "Report issue in GitHub", url_text="Create GitHub Issue",
                              url="https://github.com/MangaManagerORG/Manga-Manager/issues/new?assignees=ThePromidius&labels=Rework+Issue&template=rework_issue.md&title=%5BRework+Issue%5D").pack(
             fill="x", expand=True, side="top", anchor="center")
         HyperlinkLabelWidget(self.frame, "Donate in Ko-fi",
-                             "https://ko-fi.com/thepromidius").pack(fill="x", expand=True, side="top", anchor="center")
-        tkinter.Label(self.frame, text="", font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top",
-                                                                                   anchor="center")
+                             "https://ko-fi.com/thepromidius")\
+            .pack(fill="x", expand=True, side="top", anchor="center")
+        tkinter.Label(self.frame, text="", font=("Helvetica", 12), justify="left")\
+            .pack(fill="x", expand=True, side="top", anchor="center")
 
         tkinter.Label(self.frame, text="Software licensed under the GNU General Public License v3.0",
                       font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
@@ -100,5 +99,3 @@ class AboutWindow:
 
     def close(self):
         self.top_level.destroy()
-if __name__ == '__main__':
-    get_release_tag()
