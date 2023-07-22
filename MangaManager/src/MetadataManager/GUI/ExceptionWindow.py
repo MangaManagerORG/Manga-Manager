@@ -46,6 +46,9 @@ class ExceptionFrame(Frame):
         self.selected_logging_level.set("WARNING")
         self.input_type = tkinter.OptionMenu(self,self.selected_logging_level,*("WARNING", "ERROR", "INFO", "DEBUG","TRACE"))
         self.input_type.pack(side="left", fill="y")
+
+        tkinter.Button(self,text="Clear logs",command=self.clear_treeview).pack(side="left", fill="y")
+
         self.selected_logging_level.trace("w", self.update_handler_level)
         handler = self.handler = ExceptionHandler(self.tree)
         handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
@@ -63,6 +66,10 @@ class ExceptionFrame(Frame):
     def update_handler_level(self,*args):
         self.handler.setLevel(logging.getLevelName(self.selected_logging_level.get()))
         logger.info(f"Selected '{self.selected_logging_level.get()}' as UI logging level",extra={"ui":True})
+
+    def clear_treeview(self):
+        # Delete all items in the Treeview
+        self.tree.delete(*self.tree.get_children())
 
     def __del__(self):
         logger.removeHandler(self.handler)
