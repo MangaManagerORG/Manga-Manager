@@ -1,6 +1,7 @@
 import configparser
 import logging
 import os
+from pathlib import Path
 
 from src.Settings.SettingsDefault import default_settings
 
@@ -11,11 +12,15 @@ class Settings:
     """ This is a singleton that holds settings.ini key/values """
     __instance = None
     config_parser = configparser.ConfigParser(interpolation=None)
+    _config_file: Path = Path(Path.home(), "MangaManager/settings.ini")
 
-    def __new__(cls, config_file='settings.ini'):
+    @property
+    def config_file(self):
+        return Settings._config_file
+    def __new__(cls):
         if Settings.__instance is None:
             Settings.__instance = object.__new__(cls)
-        Settings.__instance.config_file = os.path.abspath(config_file)
+            # Settings._config_file= os.path.abspath(config_file)
 
         if len(Settings.__instance.config_parser.sections()) == 0:
             logger.info('Loading Config from: {}'.format(Settings.__instance.config_file))
@@ -23,20 +28,20 @@ class Settings:
 
         return Settings.__instance
 
-    def __init__(self, config_file='settings.ini'):
-        self.config_file = config_file
+    def __init__(self):
+        # self.config_file = config_file
         if not os.path.exists(self.config_file):
             self.save()
         self.load()
 
     def save(self):
         """Save the current settings from memory to disk"""
-        with open(self.config_file, 'w') as configfile:
+        with open(self._config_file, 'w') as configfile:
             self.config_parser.write(configfile)
 
     def load(self):
         """Load the data from file and populate DefaultSettings"""
-        self.config_parser.read(self.config_file)
+        self.config_parser.read(self._config_file)
 
         # Ensure all default settings exists, else add them
         for section in default_settings:
@@ -54,7 +59,14 @@ class Settings:
         if not self.config_parser.has_section(section) or not self.config_parser.has_option(section, key):
             logger.error('Section or Key did not exist in settings: {}.{}'.format(section, key))
             return None
-        return self.config_parser.get(section, key).strip()
+        value = self.config_parser.get(section, key).strip()
+        match value.lower():
+            case "true":
+                return True
+            case "false":
+                return False
+            case _:
+                return value
 
     def set_default(self, section, key, value):
         """Sets a key's value only if it doesn't exist"""
@@ -79,3 +91,4 @@ class Settings:
     def _create_section(self, section):
         if section not in self.config_parser:
             self.config_parser.add_section(section)
+

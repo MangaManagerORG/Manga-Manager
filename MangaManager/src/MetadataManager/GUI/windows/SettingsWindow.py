@@ -163,7 +163,7 @@ class SettingsWindow:
         # Update the control's value from Settings
         control.value = Settings().get(section.key, control.key)
 
-        row = FormBundleWidget(parent_frame, self.setting_control_to_widget) \
+        row = FormBundleWidget(parent_frame, self.setting_control_to_widget, name=control.key) \
             .with_label(title=control.name, tooltip=control.tooltip) \
             .with_input(control=control, section=section) \
             .build()
