@@ -273,6 +273,7 @@ class CoverFrame(Frame):
         self.update()
 
     def clear(self):
+        self.tooltip_filename.text = "No file selected"
         try:
             self.cover_canvas.itemconfig(self.cover_canvas.image_id, state="hidden")
         except _tkinter.TclError as e:
@@ -282,6 +283,7 @@ class CoverFrame(Frame):
             else:
                 # If the error is caused by something else, re-raise the exception
                 raise e
+
         self.backcover_canvas.itemconfig(self.backcover_canvas.image_id, state="hidden")
         self.hide_actions()
 

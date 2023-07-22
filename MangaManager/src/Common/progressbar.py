@@ -61,6 +61,12 @@ class RepeatedTimer(object):
 
 class ProgressBar(abc.ABC):
     running = False
+    PROCESSED_TAG = "$processed"
+    TOTAL_TAG = "$total"
+    ERRORS_TAG = "$errors"
+    ELAPSED_TIME_TAG = "$elapsed_time"
+    ESTIMATED_TIME_TAG = "$estimated_time"
+
     def __init__(self):
 
         self.timer = RepeatedTimer()

@@ -13,6 +13,7 @@ from src.Common.utils import get_platform, open_folder
 from src.MetadataManager.GUI.ControlManager import ControlManager
 from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.windows.AboutWindow import AboutWindow
+from src.MetadataManager.GUI.windows.LoadingWindow import LoadingWindow
 from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
 
@@ -39,6 +40,7 @@ class GUIApp(Tk, MetadataManagerLib):
     inserting_files = False
     widget_mngr = WidgetManager()
     control_mngr = ControlManager()  # widgets that should be disabled while processing
+    loading_window: LoadingWindow | None = None
 
     def __init__(self):
         super(GUIApp, self).__init__()
@@ -149,9 +151,14 @@ class GUIApp(Tk, MetadataManagerLib):
         self.selected_files_path = [file.name for file in selected_paths_list]
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
-        self.open_cinfo_list()
+        self.loading_window = LoadingWindow(len(self.selected_files_path))
 
-        self._serialize_cinfolist_to_gui()
+        if self.open_cinfo_list(abort_load_check=self.loading_window.is_abort):
+            self._serialize_cinfolist_to_gui()
+        else:
+            self.clean_selected()
+        self.loading_window.finish_loading()
+        self.loading_window = None
         self.inserting_files = False
         self.control_mngr.unlock()
         self.widget_mngr.toggle_widgets(enabled=True)
@@ -182,9 +189,14 @@ class GUIApp(Tk, MetadataManagerLib):
         # self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
 
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
-        self.open_cinfo_list()
+        self.loading_window = LoadingWindow(len(self.selected_files_path))
 
-        self._serialize_cinfolist_to_gui()
+        if self.open_cinfo_list(self.loading_window.is_abort):
+            self._serialize_cinfolist_to_gui()
+        else:
+            self.clean_selected()
+        self.loading_window.finish_loading()
+        self.loading_window = None
         self.inserting_files = False
         self.control_mngr.unlock()
         self.widget_mngr.toggle_widgets(enabled=True)
@@ -237,16 +249,19 @@ class GUIApp(Tk, MetadataManagerLib):
     # INTERFACE IMPLEMENTATIONS
     ############
 
-    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo):
+    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo, cursor, total) -> bool:
         """
         Called by backend when an item gets added to the loaded comic info list
         :param loaded_cinfo:
         :return:
         """
+        if self.loading_window.initialized:
+            self.loading_window.update()
+            self.loading_window.loaded_file(loaded_cinfo.file_name)
         self.selected_files_treeview.insert(loaded_cinfo)
         self.image_cover_frame.update_cover_image([loaded_cinfo])
         self.update()
-
+        return self.loading_window.abort_flag
     #########################################################
     # Errors handling / hooks implementations
     ############
@@ -503,3 +518,10 @@ class GUIApp(Tk, MetadataManagerLib):
             return
 
         self._serialize_cinfolist_to_gui([LoadedComicInfo(None, cinfo, load_default_metadata=False)])
+
+    def clean_selected(self):
+
+        self.widget_mngr.clean_widgets()
+        self.image_cover_frame.clear()
+        self.selected_files_path = list()
+        self.selected_files_treeview.clear()
