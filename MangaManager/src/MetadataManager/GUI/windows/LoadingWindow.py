@@ -1,4 +1,5 @@
 import tkinter
+from unittest.mock import Mock
 
 from src.Common.progressbar import ProgressBar
 from src.MetadataManager.GUI.utils import center
@@ -8,6 +9,15 @@ from src.MetadataManager.GUI.widgets import ProgressBarWidget
 class LoadingWindow(tkinter.Toplevel):
     initialized: bool = False
     # abort_flag:bool = None
+    def __new__(cls, total, *args, **kwargs):
+        if total <=1:
+            a = Mock()
+            a.is_abort = lambda :False
+            a.abort_flag = False
+            return a
+
+        else:
+            return super(LoadingWindow, cls).__new__(cls)
 
     def __init__(self, total):
         super().__init__()
