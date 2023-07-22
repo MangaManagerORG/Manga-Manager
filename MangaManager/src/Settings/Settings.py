@@ -6,13 +6,13 @@ from pathlib import Path
 from src.Settings.SettingsDefault import default_settings
 
 logger = logging.getLogger()
-
+SETTING_FILE = "settings.ini"
 
 class Settings:
     """ This is a singleton that holds settings.ini key/values """
     __instance = None
     config_parser = configparser.ConfigParser(interpolation=None)
-    _config_file: Path = Path(Path.home(), "MangaManager/settings.ini")
+    _config_file: Path = Path(Path.home(), "MangaManager/" + SETTING_FILE)
 
     @property
     def config_file(self):
@@ -30,18 +30,24 @@ class Settings:
 
     def __init__(self):
         # self.config_file = config_file
-        if not os.path.exists(self.config_file):
-            self.save()
-        self.load()
-
+        if os.path.exists(self.config_file):
+            self.load()
+        else:
+            if not os.path.exists(SETTING_FILE):
+                self.save()
+                self.load()
+            else:
+                self.load(SETTING_FILE)
+                self.save()
     def save(self):
         """Save the current settings from memory to disk"""
         with open(self._config_file, 'w') as configfile:
             self.config_parser.write(configfile)
 
-    def load(self):
+    def load(self,override_settings_from=None):
         """Load the data from file and populate DefaultSettings"""
-        self.config_parser.read(self._config_file)
+
+        self.config_parser.read(override_settings_from or self._config_file) # migration, change file location
 
         # Ensure all default settings exists, else add them
         for section in default_settings:

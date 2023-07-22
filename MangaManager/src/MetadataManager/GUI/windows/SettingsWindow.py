@@ -206,7 +206,10 @@ class SettingsWindow:
                 entry = tkinter.Entry(master=parent_frame, width=80, textvariable=string_var)
                 entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
             case SettingControlType.Bool:
-                value = control.value == 'True'
+                if isinstance(control.value,bool):
+                    value = control.value
+                else:
+                    value = control.value == 'True'
                 string_var = tkinter.BooleanVar(value=value, name=f"{section.pretty_name}.{control.key}")
                 entry = tkinter.Checkbutton(parent_frame, variable=string_var, onvalue=1, offvalue=0)
                 entry.pack(side="left")
