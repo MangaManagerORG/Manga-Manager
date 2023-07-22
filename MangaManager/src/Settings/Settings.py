@@ -97,4 +97,9 @@ class Settings:
     def _create_section(self, section):
         if section not in self.config_parser:
             self.config_parser.add_section(section)
+    def _load_test(self):
+        Settings._config_file = "test_settings.ini"
+        Settings.config_parser = configparser.ConfigParser(interpolation=None)
+        self.save()
+        self.load()
 

@@ -17,7 +17,9 @@ class SettingsTest(unittest.TestCase):
 
     def test_Settings_will_set_values(self):
         s = Settings()
+        s._load_test()
         self.assertEqual(s.get(SettingHeading.Main, 'library_path'), '')
+
         s.set(SettingHeading.Main, 'library_path', 'test_dir')
         self.assertEqual(s.get(SettingHeading.Main, 'library_path'), 'test_dir')
 
