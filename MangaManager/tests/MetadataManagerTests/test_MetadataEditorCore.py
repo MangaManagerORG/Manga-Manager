@@ -93,7 +93,7 @@ class CoreTesting(unittest.TestCase):
         # Setup
         self.test_files_names = create_dummy_files(2)
         self.instance.selected_files_path = self.test_files_names
-        self.instance.open_cinfo_list()
+        self.instance.open_cinfo_list(lambda : False)
         self.assertEqual(2, len(self.instance.loaded_cinfo_list))
 
     def test_process_should_raise_exception_if_no_new_cinfo(self):
