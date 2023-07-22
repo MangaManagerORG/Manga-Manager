@@ -23,9 +23,5 @@ EXTENSIONS_DIR.mkdir(exist_ok=True)
 SOURCES_DIR = Path(sub_mm_path, "ExternalSources")
 SOURCES_DIR.mkdir(exist_ok=True)
 
+loaded_extensions =  []
 
-from src.DynamicLibController.extension_manager import load_extensions
-try:
-    loaded_extensions = load_extensions(EXTENSIONS_DIR)
-except Exception:
-    logger.exception("Exception loading the extensions")

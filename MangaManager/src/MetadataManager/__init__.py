@@ -1,5 +1,5 @@
 import logging
-
+import src
 from src.Common import ResourceLoader
 from src.MetadataManager.GUI.windows.MainWindow import MainWindow
 from src.MetadataManager.GUI.OneTimeMessageBox import OneTimeMessageBox
@@ -10,6 +10,13 @@ logger = logging.getLogger()
 
 icon_path = ResourceLoader.get('icon.ico')
 
+
+def load_extensions():
+    from src.DynamicLibController.extension_manager import load_extensions
+    try:
+        src.loaded_extensions = load_extensions(src.EXTENSIONS_DIR)
+    except Exception:
+        logger.exception("Exception loading the extensions")
 
 def execute_gui():
     # Ensure there are some settings, if not, set them as the default

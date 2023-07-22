@@ -44,6 +44,8 @@ setup_logging(LOGFILE_PATH, args.loglevel)
 logger = logging.getLogger()
 
 from src.Settings.Settings import Settings
+# Create initial ini with defaults else load existing
+Settings().load()
 from src.Common.errors import NoFilesSelected
 from src.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
 from src.__version__ import __version__ as version
@@ -69,8 +71,7 @@ def get_selected_files(glob_path) -> list[str]:
         raise NoFilesSelected()
     return file_paths
 
-# Create initial ini with defaults else load existing
-Settings('settings.ini').load()
+
 
 
 if __name__ == '__main__':

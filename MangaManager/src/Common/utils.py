@@ -323,6 +323,8 @@ def match_pyfiles_with_foldername(file_path):
 
 
 def parse_bool(value: str) -> bool:
+    if isinstance(value,bool):
+        return value
     match value.lower():
         case "true" | "1" | 1:
             return True
