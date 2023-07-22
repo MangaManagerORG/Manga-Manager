@@ -7,9 +7,9 @@ from src.MetadataManager.GUI.widgets import ProgressBarWidget
 
 class LoadingWindow(tkinter.Toplevel):
     initialized: bool = False
-    abort_flag:bool = None
+    # abort_flag:bool = None
 
-    def __init__(self, total,abort_flag):
+    def __init__(self, total):
         super().__init__()
         content = tkinter.Frame(self,background="white",borderwidth=3,border=3,highlightcolor="black",highlightthickness=2,highlightbackground="black")
         content.pack(ipadx=20, ipady=20,expand=False,fill="both")
@@ -22,7 +22,7 @@ class LoadingWindow(tkinter.Toplevel):
         # Make the windows always on top
         self.attributes("-topmost", True)
         self.lift()
-        self.abort_flag = abort_flag
+        self.abort_flag = False
         # Force focus on this window
         self.grab_set()
         center(self)
@@ -39,6 +39,8 @@ class LoadingWindow(tkinter.Toplevel):
         abort_btn = tkinter.Button(content,text="Abort",command=self.set_abort)
         abort_btn.pack()
         self.initialized = True
+    def is_abort(self):
+        return self.abort_flag
     def set_abort(self,*_):
         if self.initialized:
             self.abort_flag = True
