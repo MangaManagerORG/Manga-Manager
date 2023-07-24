@@ -173,7 +173,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         self.new_edited_cinfo = None
         return any_has_changes
 
-    def open_cinfo_list(self, abort_load_check:callable) -> bool:
+    def open_cinfo_list(self, abort_load_check:callable,append_items=False) -> bool:
         """
         Creates a list of comicinfo with the comicinfo metadata from the selected files.
 
@@ -182,7 +182,9 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         """
 
         logger.debug("Loading files")
-        self.loaded_cinfo_list: list[LoadedComicInfo] = list()
+        if append_items is False:
+            self.loaded_cinfo_list: list[LoadedComicInfo] = list()
+
         # Skip warnings if one was already displayed
         missing_rar_tool = False
         total_files = len(self.selected_files_path)

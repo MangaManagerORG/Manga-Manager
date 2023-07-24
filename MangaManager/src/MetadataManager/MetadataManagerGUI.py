@@ -176,7 +176,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self.inserting_files = True
         self.loading_window = LoadingWindow(len(self.selected_files_path))
 
-        if self.open_cinfo_list(self.loading_window.is_abort):
+        if self.open_cinfo_list(self.loading_window.is_abort,append_and_keep):
             self._serialize_cinfolist_to_gui()
         else:
             self.clean_selected()
