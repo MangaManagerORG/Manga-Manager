@@ -15,7 +15,8 @@ default_settings = {
         {"cache_cover_images": True},
         {"create_backup_comicinfo": True},
         # {"selected_layout": "default"},
-        {"move_to_template": ""}
+        {"move_to_template": ""},
+        {"clean_ui_on_drag_drop":False}
 
     ],
     SettingHeading.WebpConverter: [
