@@ -10,7 +10,7 @@ logger = logging.getLogger()
 
 class OptionMenuWidget(MMWidget):
     def __init__(self, master: tkinter.Frame, cinfo_name, label_text=None, width=None, max_width=None, default=None, values=None):
-        super(OptionMenuWidget, self).__init__(master=master)
+        super(OptionMenuWidget, self).__init__(master=master,name=cinfo_name.lower())
         if values is None:
             values = []
         if label_text is None:

@@ -35,18 +35,18 @@ class MainWindow(GUIApp):
         ############
 
         # Overview LAYOUT
-        self.control_frame_top = Frame(self.main_frame)
+        self.control_frame_top = Frame(self.main_frame,name="control_frame")
         self.control_frame_top.pack(fill="x", side="top",padx=30,pady=3)
         self.display_menu_bar()
         ttk.Separator(self.main_frame, orient='horizontal').pack(fill="x")
 
-        mid_content_frame = Frame(self.main_frame)
+        mid_content_frame = Frame(self.main_frame,name="mid_content_frame")
         mid_content_frame.pack(fill="both", expand=True)
-        self.file_selection_frame_left = Frame(mid_content_frame)
+        self.file_selection_frame_left = Frame(mid_content_frame,name="file_selection_frame")
         self.file_selection_frame_left.pack(side="left", padx=30, expand=False, fill="both")
         self.display_side_bar()
 
-        self.main_content_frame_right = Frame(mid_content_frame,pady=10)
+        self.main_content_frame_right = Frame(mid_content_frame,pady=10,name="main_content_frame_right")
         self.main_content_frame_right.pack(fill="both", side="right", expand=True, padx=(0, 20))
         self.init_main_content_frame()
         self.display_main_content_widgets()

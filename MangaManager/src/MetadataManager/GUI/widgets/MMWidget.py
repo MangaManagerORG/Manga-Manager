@@ -61,8 +61,8 @@ class MMWidget(Frame):
     name: str
     NONE = "~~# None ##~~"
 
-    def __init__(self, master):
-        super(MMWidget, self).__init__(master)
+    def __init__(self, master,name):
+        super(MMWidget, self).__init__(master,name=name)
 
     def set(self, value):
         if value is None:
