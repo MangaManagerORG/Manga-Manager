@@ -5,10 +5,10 @@ from .MMWidget import MMWidget
 
 
 class ComboBoxWidget(MMWidget):
-    def __init__(self, master, cinfo_name, label_text=None, default_values=None, width=None, default="",
+    def __init__(self, master, cinfo_name:str, label_text=None, default_values=None, width=None, default="",
                  validation=None, tooltip: str = None):
 
-        super(ComboBoxWidget, self).__init__(master=master)
+        super(ComboBoxWidget, self).__init__(master=master,name=cinfo_name.lower())
 
         if label_text is None:
             label_text = cinfo_name

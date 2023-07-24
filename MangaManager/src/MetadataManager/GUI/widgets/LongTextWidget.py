@@ -6,7 +6,7 @@ from .MMWidget import MMWidget, _LongText
 
 class LongTextWidget(MMWidget):
     def __init__(self, master, cinfo_name, label_text=None, width: int = None):
-        super(LongTextWidget, self).__init__(master)
+        super(LongTextWidget, self).__init__(master,name=cinfo_name.lower())
         if label_text is None:
             label_text = cinfo_name
         self.set_label(label_text)

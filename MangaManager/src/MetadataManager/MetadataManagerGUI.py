@@ -22,7 +22,7 @@ if get_platform() == "linux":
 else:
     from tkinter.filedialog import askopenfiles, askdirectory
 from _tkinter import TclError
-
+from tkinterdnd2.TkinterDnD import Tk
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget
 from src.MetadataManager.GUI.windows.SettingsWindow import SettingsWindow
@@ -119,15 +119,6 @@ class GUIApp(Tk, MetadataManagerLib):
     ############
 
     def select_files(self):
-        # New file selection. Proceed to clean the ui to a new state
-        self.control_mngr.lock()
-        self.widget_mngr.toggle_widgets(False)
-        self.widget_mngr.clean_widgets()
-        self.image_cover_frame.clear()
-        self.selected_files_path = list()
-        self.selected_files_treeview.clear()
-
-        self.inserting_files = True
         # These are some tricks to make it easier to select files.
         # Saves last opened folder to not have to browse to it again
         if not self.last_folder:
@@ -149,30 +140,9 @@ class GUIApp(Tk, MetadataManagerLib):
                 self.last_folder = selected_parent_folder
 
         self.selected_files_path = [file.name for file in selected_paths_list]
-
-        self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
-        self.loading_window = LoadingWindow(len(self.selected_files_path))
-
-        if self.open_cinfo_list(abort_load_check=self.loading_window.is_abort):
-            self._serialize_cinfolist_to_gui()
-        else:
-            self.clean_selected()
-        self.loading_window.finish_loading()
-        self.loading_window = None
-        self.inserting_files = False
-        self.control_mngr.unlock()
-        self.widget_mngr.toggle_widgets(enabled=True)
+        self.load_selected_files()
 
     def select_folder(self):
-        # New file selection. Proceed to clean the ui to a new state
-        self.control_mngr.lock()
-        self.widget_mngr.toggle_widgets(enabled=False)
-        self.widget_mngr.clean_widgets()
-        self.image_cover_frame.clear()
-        self.selected_files_path = list()
-        self.selected_files_treeview.clear()
-
-        self.inserting_files = True
         # These are some tricks to make it easier to select files.
         # Saves last opened folder to not have to browse to it again
         if not self.last_folder:
@@ -187,11 +157,27 @@ class GUIApp(Tk, MetadataManagerLib):
                                              recursive=True)
         # TODO: Auto select recursive or not
         # self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
+        self.load_selected_files()
 
+    def load_selected_files(self,new_selection:list=None,is_event_dragdrop = False):
+
+        self.control_mngr.lock()
+        self.widget_mngr.toggle_widgets(enabled=False)
+        append_and_keep = is_event_dragdrop and not Settings().get(SettingHeading.Main,"remove_old_selection_on_drag_drop")
+        if append_and_keep: # Should keep previously selected files. Just load the new ones in selection
+            self.selected_files_path = list(set((self.selected_files_path or []) + new_selection))
+        else:
+            # Append new files and keep the old ones
+            self.widget_mngr.clean_widgets()  # New file selection. Proceed to clean the ui to a new state
+            self.image_cover_frame.clear()
+            self.selected_files_path = self.selected_files_path if new_selection is None else new_selection
+            self.selected_files_treeview.clear()
+        self.selected_files_path = sorted(self.selected_files_path)
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
+        self.inserting_files = True
         self.loading_window = LoadingWindow(len(self.selected_files_path))
 
-        if self.open_cinfo_list(self.loading_window.is_abort):
+        if self.open_cinfo_list(self.loading_window.is_abort,append_and_keep):
             self._serialize_cinfolist_to_gui()
         else:
             self.clean_selected()
