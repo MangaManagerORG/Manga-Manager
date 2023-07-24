@@ -140,6 +140,7 @@ class GUIApp(Tk, MetadataManagerLib):
                 self.last_folder = selected_parent_folder
 
         self.selected_files_path = [file.name for file in selected_paths_list]
+        self.load_selected_files()
 
     def select_folder(self):
         # These are some tricks to make it easier to select files.
@@ -169,9 +170,9 @@ class GUIApp(Tk, MetadataManagerLib):
             # Append new files and keep the old ones
             self.widget_mngr.clean_widgets()  # New file selection. Proceed to clean the ui to a new state
             self.image_cover_frame.clear()
-            self.selected_files_path = list() if new_selection is None else new_selection
+            self.selected_files_path = self.selected_files_path if new_selection is None else new_selection
             self.selected_files_treeview.clear()
-
+        self.selected_files_path = sorted(self.selected_files_path)
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
         self.inserting_files = True
         self.loading_window = LoadingWindow(len(self.selected_files_path))
