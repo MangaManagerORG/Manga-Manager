@@ -22,7 +22,7 @@ if get_platform() == "linux":
 else:
     from tkinter.filedialog import askopenfiles, askdirectory
 from _tkinter import TclError
-
+from tkinterdnd2.TkinterDnD import Tk
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget
 from src.MetadataManager.GUI.windows.SettingsWindow import SettingsWindow

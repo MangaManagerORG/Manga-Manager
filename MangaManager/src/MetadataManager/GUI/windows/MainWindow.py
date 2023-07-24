@@ -1,7 +1,10 @@
 import json
+import re
 import tkinter
 from tkinter import Frame, ttk
 from tkinter.ttk import Notebook
+
+from tkinterdnd2 import DND_FILES
 
 from src.__version__ import __version__
 from common.models import Formats, AgeRating
@@ -17,7 +20,7 @@ with open(ResourceLoader.get('languages.json'), 'r', encoding="utf-8") as f:
     data = json.loads(f.read())
     languages = [language["isoCode"] for language in data]
 
-
+EXTRACT_PATHS = re.compile(r'{(.*?)}')
 class MainWindow(GUIApp):
     # The clear button
     clear_btn = None
@@ -71,6 +74,10 @@ class MainWindow(GUIApp):
         self.selected_files_treeview.open_in_explorer = self._treeview_open_explorer
         self.selected_files_treeview.reset_loadedcinfo_changes = self._treview_reset
         self.selected_files_treeview = self.selected_files_treeview(self.files_selected_frame)#, padding=[-15, 0, 0, 0])  # padding -15 to remove the left indent
+
+        self.selected_files_treeview.drop_target_register(DND_FILES)
+        self.selected_files_treeview.dnd_bind('<<Drop>>', self.on_drop)
+
         self.selected_files_treeview.pack(expand=True, fill="both")
         # Selected Covers
         self.image_cover_frame = CoverFrame(self.side_info_frame)
@@ -80,7 +87,11 @@ class MainWindow(GUIApp):
         # self.selected_files_treview.update_cover_image = self.image_cover_frame.update_cover_image TODO:this is commented check if needed. Levaing it as it is in merge
         self.image_cover_frame.pack(expand=False, fill='x')
         self.files_selected_frame.pack(expand=True, fill="both", pady=(20, 0))
+    def on_drop(self,event):
+        files_str = event.data
+        files = EXTRACT_PATHS.findall(files_str)
 
+        self.load_selected_files(files)
     def display_menu_bar(self) -> None:
         # Action Buttons
         control_frame = self.control_frame_top
