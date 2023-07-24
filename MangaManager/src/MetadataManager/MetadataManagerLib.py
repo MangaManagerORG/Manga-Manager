@@ -189,6 +189,10 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         if total_files == 0:
             return False
         for i, file_path in enumerate(self.selected_files_path):
+            if any(file_path in comic.file_path for comic in self.loaded_cinfo_list):
+                logger.warning("Skipped loading file: File already loaded",extra={'processed_filename':file_path})
+                continue
+
             if abort_load_check():
                 logger.info("Abort loading")
                 self.loaded_cinfo_list: list[LoadedComicInfo] = list()

@@ -158,14 +158,20 @@ class GUIApp(Tk, MetadataManagerLib):
         # self.selected_files_path = [str(Path(folder_path, file)) for file in os.listdir(folder_path) if file.endswith(".cbz")]
         self.load_selected_files()
 
-    def load_selected_files(self,new_selection=None):
+    def load_selected_files(self,new_selection:list=None,is_event_dragdrop = False):
 
         self.control_mngr.lock()
         self.widget_mngr.toggle_widgets(enabled=False)
-        self.widget_mngr.clean_widgets() # New file selection. Proceed to clean the ui to a new state
-        self.image_cover_frame.clear()
-        self.selected_files_path = list() if new_selection is None else new_selection
-        self.selected_files_treeview.clear()
+        append_and_keep = is_event_dragdrop and not Settings().get(SettingHeading.Main,"remove_old_selection_on_drag_drop")
+        if append_and_keep: # Should keep previously selected files. Just load the new ones in selection
+            self.selected_files_path = list(set((self.selected_files_path or []) + new_selection))
+        else:
+            # Append new files and keep the old ones
+            self.widget_mngr.clean_widgets()  # New file selection. Proceed to clean the ui to a new state
+            self.image_cover_frame.clear()
+            self.selected_files_path = list() if new_selection is None else new_selection
+            self.selected_files_treeview.clear()
+
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
         self.inserting_files = True
         self.loading_window = LoadingWindow(len(self.selected_files_path))

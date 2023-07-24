@@ -87,11 +87,7 @@ class MainWindow(GUIApp):
         # self.selected_files_treview.update_cover_image = self.image_cover_frame.update_cover_image TODO:this is commented check if needed. Levaing it as it is in merge
         self.image_cover_frame.pack(expand=False, fill='x')
         self.files_selected_frame.pack(expand=True, fill="both", pady=(20, 0))
-    def on_drop(self,event):
-        files_str = event.data
-        files = EXTRACT_PATHS.findall(files_str)
 
-        self.load_selected_files(files)
     def display_menu_bar(self) -> None:
         # Action Buttons
         control_frame = self.control_frame_top
@@ -370,4 +366,8 @@ class MainWindow(GUIApp):
         for btn in [self.fetch_online_btn, self.clear_btn, self.process_btn, self.fill_from_filename_btn]:
             btn['state'] = 'normal'
 
+    def on_drop(self,event):
+        files_str = event.data
+        files = EXTRACT_PATHS.findall(files_str)
 
+        self.load_selected_files(files,is_event_dragdrop=True)
