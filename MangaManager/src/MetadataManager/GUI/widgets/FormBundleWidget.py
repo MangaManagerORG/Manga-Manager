@@ -19,8 +19,8 @@ class FormBundleWidget(Frame):
     validation_row: Frame
     mapper_fn = None
 
-    def __init__(self, master, mapper_fn, *_, **kwargs):
-        super(FormBundleWidget, self).__init__(master, **kwargs)
+    def __init__(self, master, mapper_fn,name=None, *_, **kwargs):
+        super(FormBundleWidget, self).__init__(master, name=name, **kwargs)
 
         self.mapper_fn = mapper_fn
 

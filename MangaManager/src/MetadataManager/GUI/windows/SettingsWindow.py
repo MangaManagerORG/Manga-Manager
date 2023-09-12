@@ -44,7 +44,8 @@ setting_control_map = {
                                            tooltip=f"Leave empty to not set.\nAvailable tags: {', '.join(['{' + key + '}' for key in LoadedComicInfo(None, ComicInfo, False).get_template_values().keys()])}",
                                            validate=lambda key, value: '[' + ", ".join(template_validation(
                                                re.findall(r'\{(\w+)\}', value))) + "] are not valid tags" if len(
-                                               template_validation(re.findall(r'\{(\w+)\}', value))) != 0 else "")
+                                               template_validation(re.findall(r'\{(\w+)\}', value))) != 0 else ""),
+        "clean_ui_on_drag_drop": SettingControl("remove_old_selection_on_drag_drop","Clean previous selection\non drag and drop", SettingControlType.Bool, True, "After you drag and drop, previous selected files will be discarded")
     },
     SettingHeading.WebpConverter: {
         "default_base_path": SettingControl("default_base_path", "Default base path", SettingControlType.Text, "",
@@ -163,7 +164,7 @@ class SettingsWindow:
         # Update the control's value from Settings
         control.value = Settings().get(section.key, control.key)
 
-        row = FormBundleWidget(parent_frame, self.setting_control_to_widget) \
+        row = FormBundleWidget(parent_frame, self.setting_control_to_widget, name=control.key) \
             .with_label(title=control.name, tooltip=control.tooltip) \
             .with_input(control=control, section=section) \
             .build()
@@ -206,7 +207,10 @@ class SettingsWindow:
                 entry = tkinter.Entry(master=parent_frame, width=80, textvariable=string_var)
                 entry.pack(side="right", expand=True, fill="x", padx=(5, 30))
             case SettingControlType.Bool:
-                value = control.value == 'True'
+                if isinstance(control.value,bool):
+                    value = control.value
+                else:
+                    value = control.value == 'True'
                 string_var = tkinter.BooleanVar(value=value, name=f"{section.pretty_name}.{control.key}")
                 entry = tkinter.Checkbutton(parent_frame, variable=string_var, onvalue=1, offvalue=0)
                 entry.pack(side="left")

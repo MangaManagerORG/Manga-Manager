@@ -1,7 +1,10 @@
 import json
+import re
 import tkinter
 from tkinter import Frame, ttk
 from tkinter.ttk import Notebook
+
+from tkinterdnd2 import DND_FILES
 
 from src.__version__ import __version__
 from common.models import Formats, AgeRating
@@ -17,7 +20,7 @@ with open(ResourceLoader.get('languages.json'), 'r', encoding="utf-8") as f:
     data = json.loads(f.read())
     languages = [language["isoCode"] for language in data]
 
-
+EXTRACT_PATHS = re.compile(r'{(.*?)}')
 class MainWindow(GUIApp):
     # The clear button
     clear_btn = None
@@ -35,18 +38,18 @@ class MainWindow(GUIApp):
         ############
 
         # Overview LAYOUT
-        self.control_frame_top = Frame(self.main_frame)
+        self.control_frame_top = Frame(self.main_frame,name="control_frame")
         self.control_frame_top.pack(fill="x", side="top",padx=30,pady=3)
         self.display_menu_bar()
         ttk.Separator(self.main_frame, orient='horizontal').pack(fill="x")
 
-        mid_content_frame = Frame(self.main_frame)
+        mid_content_frame = Frame(self.main_frame,name="mid_content_frame")
         mid_content_frame.pack(fill="both", expand=True)
-        self.file_selection_frame_left = Frame(mid_content_frame)
+        self.file_selection_frame_left = Frame(mid_content_frame,name="file_selection_frame")
         self.file_selection_frame_left.pack(side="left", padx=30, expand=False, fill="both")
         self.display_side_bar()
 
-        self.main_content_frame_right = Frame(mid_content_frame,pady=10)
+        self.main_content_frame_right = Frame(mid_content_frame,pady=10,name="main_content_frame_right")
         self.main_content_frame_right.pack(fill="both", side="right", expand=True, padx=(0, 20))
         self.init_main_content_frame()
         self.display_main_content_widgets()
@@ -71,6 +74,10 @@ class MainWindow(GUIApp):
         self.selected_files_treeview.open_in_explorer = self._treeview_open_explorer
         self.selected_files_treeview.reset_loadedcinfo_changes = self._treview_reset
         self.selected_files_treeview = self.selected_files_treeview(self.files_selected_frame)#, padding=[-15, 0, 0, 0])  # padding -15 to remove the left indent
+
+        self.selected_files_treeview.drop_target_register(DND_FILES)
+        self.selected_files_treeview.dnd_bind('<<Drop>>', self.on_drop)
+
         self.selected_files_treeview.pack(expand=True, fill="both")
         # Selected Covers
         self.image_cover_frame = CoverFrame(self.side_info_frame)
@@ -359,4 +366,8 @@ class MainWindow(GUIApp):
         for btn in [self.fetch_online_btn, self.clear_btn, self.process_btn, self.fill_from_filename_btn]:
             btn['state'] = 'normal'
 
+    def on_drop(self,event):
+        files_str = event.data
+        files = EXTRACT_PATHS.findall(files_str)
 
+        self.load_selected_files(files,is_event_dragdrop=True)

@@ -17,7 +17,7 @@ logger = logging.getLogger("MetaManager.Core")
 
 
 class _IMetadataManagerLib(abc.ABC):
-    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo):
+    def on_item_loaded(self, loaded_cinfo: LoadedComicInfo,cursor,total):
         """
         Called when a loadedcomicinfo is loaded
         :return:
@@ -173,7 +173,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         self.new_edited_cinfo = None
         return any_has_changes
 
-    def open_cinfo_list(self) -> None:
+    def open_cinfo_list(self, abort_load_check:callable,append_items=False) -> bool:
         """
         Creates a list of comicinfo with the comicinfo metadata from the selected files.
 
@@ -182,10 +182,23 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         """
 
         logger.debug("Loading files")
-        self.loaded_cinfo_list: list[LoadedComicInfo] = list()
+        if append_items is False:
+            self.loaded_cinfo_list: list[LoadedComicInfo] = list()
+
         # Skip warnings if one was already displayed
         missing_rar_tool = False
-        for file_path in self.selected_files_path:
+        total_files = len(self.selected_files_path)
+        if total_files == 0:
+            return False
+        for i, file_path in enumerate(self.selected_files_path):
+            if any(file_path in comic.file_path for comic in self.loaded_cinfo_list):
+                logger.warning("Skipped loading file: File already loaded",extra={'processed_filename':file_path})
+                continue
+
+            if abort_load_check():
+                logger.info("Abort loading")
+                self.loaded_cinfo_list: list[LoadedComicInfo] = list()
+                return False
             try:
                 loaded_cinfo = LoadedComicInfo(path=file_path)
                 if Settings().get(SettingHeading.Main, 'cache_cover_images') and not self.is_cli:
@@ -213,8 +226,11 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                 continue
 
             self.loaded_cinfo_list.append(loaded_cinfo)
-            self.on_item_loaded(loaded_cinfo)
+            self.on_item_loaded(loaded_cinfo=loaded_cinfo, cursor=i, total=total_files)
+
+            # self.on_item_loaded(loaded_cinfo)
         logger.debug("Files selected")
+        return True
 
     def preview_export(self, loaded_cinfo):
         """

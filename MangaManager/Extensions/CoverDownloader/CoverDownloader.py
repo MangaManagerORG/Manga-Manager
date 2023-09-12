@@ -1,9 +1,8 @@
 from tkinter import Label, Frame, Entry
 
-from src.DynamicLibController.models.CoverSourceInterface import Cover
 
 
-def get_cover_from_source_dummy() -> list[Cover]:
+def get_cover_from_source_dummy() -> list:
     ...
 
 
