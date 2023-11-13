@@ -12,9 +12,9 @@ icon_path = ResourceLoader.get('icon.ico')
 
 
 def load_extensions():
-    from src.DynamicLibController.extension_manager import load_extensions
+    from src.DynamicLibController.extension_manager import load_extensions as ld_ext
     try:
-        src.loaded_extensions = load_extensions(src.EXTENSIONS_DIR)
+        src.loaded_extensions = ld_ext(src.EXTENSIONS_DIR)
     except Exception:
         logger.exception("Exception loading the extensions")
 
@@ -22,7 +22,7 @@ def execute_gui():
     # Ensure there are some settings, if not, set them as the default
     Settings().set_default(SettingHeading.ExternalSources, 'default_metadata_source', "AniList")
     Settings().set_default(SettingHeading.ExternalSources, 'default_cover_source', "MangaDex")
-
+    load_extensions()
     app = MainWindow()
 
     try:
