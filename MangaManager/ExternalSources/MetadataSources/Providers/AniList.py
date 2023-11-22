@@ -171,7 +171,7 @@ class AniList(IMetadataSource):
         try:
             return response.json()['data']['Media']
         except TypeError:
-            logger.exception("Wrong data format recieved when parsing response json")
+            logger.exception("Wrong data format received when parsing response json")
             return None
 
     @classmethod

@@ -96,7 +96,7 @@ class GUIApp(Tk, MetadataManagerLib):
         ButtonWidget(master=frame, text="About", font=('Arial', 10), command=self.show_about).pack(side="left", fill="y", padx=(0, 5))
     def report_callback_exception(self, *_):
         """
-        Overrides builtin method so exceptions get loged and are not silent
+        Overrides builtin method so exceptions get logged and are not silent
         :param _:
         :return:
         """
@@ -217,7 +217,7 @@ class GUIApp(Tk, MetadataManagerLib):
 
     def show_not_saved_indicator(self, loaded_cinfo_list=None):
         """
-        Shows a litle triangle when files are not saved and are modified
+        Shows a little triangle when files are not saved and are modified
         :param loaded_cinfo_list:
         :param mark_saved:
         :return:

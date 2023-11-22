@@ -45,7 +45,7 @@ class _IMetadataManagerLib(abc.ABC):
     def on_writing_error(self, exception, loaded_info: LoadedComicInfo):
         """
         Called while trying to save to the file.
-        Posible callees (but not limited to): FailedBackup,
+        Possible callees (but not limited to): FailedBackup,
         """
 
     @abc.abstractmethod
@@ -62,7 +62,7 @@ class _IMetadataManagerLib(abc.ABC):
     @abc.abstractmethod
     def on_missing_rar_tools(self,exception):
         """
-        Caññed whem rar tools are not available
+        Caññed when rar tools are not available
         """
 
 class MetadataManagerLib(_IMetadataManagerLib, ABC):
@@ -100,7 +100,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
         """
         LOG_TAG = "[Processing] "
         if not self.loaded_cinfo_list:
-            self.loaded_cinfo_list_to_proces: list[LoadedComicInfo] = list()
+            self.loaded_cinfo_list_to_process: list[LoadedComicInfo] = list()
             raise NoComicInfoLoaded()
         try:
             for loaded_cinfo in self.loaded_cinfo_list:
@@ -123,7 +123,7 @@ class MetadataManagerLib(_IMetadataManagerLib, ABC):
                     logger.exception("Unhandled exception saving changes")
                     self.on_writing_exception(exception=e, loaded_info=loaded_cinfo)
         finally:
-            self.loaded_cinfo_list_to_proces: list[LoadedComicInfo] = list()
+            self.loaded_cinfo_list_to_process: list[LoadedComicInfo] = list()
 
     def merge_changed_metadata(self, loaded_cinfo_list: list[LoadedComicInfo]) -> bool:
         """

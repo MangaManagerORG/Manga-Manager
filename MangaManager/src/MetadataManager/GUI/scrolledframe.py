@@ -84,7 +84,7 @@ class ApplicationLevelBindManager(object):
     @staticmethod
     def make_onmousewheel_cb(widget, orient, factor=1):
         """Create a callback to manage mousewheel events
-        orient: string (posible values: ('x', 'y'))
+        orient: string (possible values: ('x', 'y'))
         widget: widget that implement tk xview and yview methods
         """
         _os = platform.system()

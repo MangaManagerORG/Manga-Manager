@@ -8,8 +8,8 @@ def validate_int(value) -> bool:
     :param value:
     :return: true if matches
     """
-    ilegal_chars = [character for character in str(value) if not INT_PATTERN.match(character)]
-    return not ilegal_chars
+    illegal_chars = [character for character in str(value) if not INT_PATTERN.match(character)]
+    return not illegal_chars
 
 
 def center(win):

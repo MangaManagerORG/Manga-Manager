@@ -6,7 +6,7 @@ class ComicPageType(str, Enum):
     INNER_COVER = 'InnerCover'
     ROUNDUP = 'Roundup'
     STORY = 'Story'
-    ADVERTISMENT = 'Advertisment'
+    ADVERTISEMENT = 'Advertisement'
     EDITORIAL = 'Editorial'
     LETTERS = 'Letters'
     PREVIEW = 'Preview'

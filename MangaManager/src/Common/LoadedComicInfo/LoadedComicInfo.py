@@ -182,7 +182,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             os.rename(tmpname, self.file_path)
             logger.debug(f"[{'Processing':13s}] Successfully deleted old file and named tempfile as the old file",
                                extra=self._logging_extra)
-        # If we fail to delete original file we delete temp file effecively aborting the metadata update
+        # If we fail to delete original file we delete temp file effectively aborting the metadata update
         except PermissionError:
             logger.exception(f"[{'Processing':13s}] Permission error. Aborting and clearing temp files",
                                extra=self._logging_extra)
@@ -293,7 +293,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
                         self._move_image(zin, zout=zout, item_=item, do_convert_to_webp=do_convert_webp)
                     case CoverActions.DELETE:
                         logger.trace(
-                            f"[{_LOG_TAG_RECOMPRESSING:13}] Skipping back cover to efectively delete it. File: '{item.filename}'")
+                            f"[{_LOG_TAG_RECOMPRESSING:13}] Skipping back cover to effectively delete it. File: '{item.filename}'")
                     case CoverActions.REPLACE:
                         with open(self.new_backcover_path, "rb") as opened_image:
                             opened_image_io = io.BytesIO(opened_image.read())
@@ -315,7 +315,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         :param zin: The input zipfile object
         :param zout: The output zipfile where the bytes will be copied over
         :param item_: The zipfile 'item' object
-        :param do_convert_to_webp: Should the bytes be converted to webp formate
+        :param do_convert_to_webp: Should the bytes be converted to webp format
         :param new_filename: If a new filename is desired this should be set. Else it will use original filename
         :param image: Bytes of the image if the data wants to be overwritten
         :return:
@@ -347,7 +347,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         file_name, ext = os.path.splitext(os.path.basename(cover_path))
         new_filename = f"{os.path.join(os.path.dirname(current_backcover_filename), '~') if is_backcover else ''}{BACKCOVER_NAME if is_backcover else COVER_NAME}{ext}"
         logger.trace(
-            f"[{_LOG_TAG_RECOMPRESSING:13}] Apending cover to efectively delete it. Loading '{cover_path}'")
+            f"[{_LOG_TAG_RECOMPRESSING:13}] Appending cover to effectively delete it. Loading '{cover_path}'")
 
         if do_convert_to_webp:
             with open(cover_path, "rb") as opened_image:

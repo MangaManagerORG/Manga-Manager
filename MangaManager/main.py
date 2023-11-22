@@ -20,7 +20,7 @@ parser.add_argument(
     default=logging.INFO)
 parser.add_argument(
     '--trace',
-    help="Prints INSANE ammount of debug statements",
+    help="Prints INSANE amount of debug statements",
     action="store_const", dest="loglevel", const=logging.TRACE,
 )
 

@@ -22,7 +22,7 @@ class LoadedFileMetadata(ILoadedComicInfo):
 
     _cinfo_object: ComicInfo
     original_cinfo_object: ComicInfo
-    # Used to keep original state after being loaded for the first time. Useful to undo sesion changes
+    # Used to keep original state after being loaded for the first time. Useful to undo session changes
     original_cinfo_object_before_session: ComicInfo | None = None
     had_metadata_on_open = False
 
