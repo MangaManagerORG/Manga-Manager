@@ -5,7 +5,8 @@ import tkinter
 from idlelib.tooltip import Hovertip
 from pathlib import Path
 from tkinter import font
-from tkinter import ttk, Frame
+from tkinter import ttk
+from tkinter.ttk import Frame
 
 from src.MetadataManager.GUI.widgets import ScrolledFrameWidget
 

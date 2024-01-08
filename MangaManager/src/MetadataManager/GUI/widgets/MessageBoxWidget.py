@@ -1,4 +1,5 @@
-from tkinter import Button, Label, Frame, Toplevel
+from tkinter.ttk import Button, Label, Frame
+from tkinter import Toplevel
 
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.utils import center
