@@ -247,6 +247,8 @@ class CoverManager(tkinter.Toplevel):
                      command=self.clear_selection).pack(fill="x", ipady=10)
         ButtonWidget(master=action_buttons, text="Close window",
                      command=self.exit_btn).pack(fill="x", ipady=10)
+        ButtonWidget(master=action_buttons, text="Process Changes",
+                     command=self.process).pack(fill="x", ipady=10)
 
         self.select_similar_btn = ButtonWidget(master=action_buttons, text="Select similar", state="disabled",
                                                command=self.select_similar)
@@ -291,7 +293,11 @@ class CoverManager(tkinter.Toplevel):
                                                                                                   "back"))
             comic_frame.grid()
         self.redraw(None)
+    def process(self):
 
+        frames_with_actions = [frame for frame in self.scrolled_widget.winfo_children() if frame.loaded_cinfo.cover_action or frame.loaded_cinfo.backcover_action]
+        self._super.pre_process()
+        self.reload_images(frames_with_actions)
     def select_frame(self, _, frame: ComicFrame, pos: str):
         """
         Selects the frame. Adds to selected frames and modifies its border to show green as "selected"
@@ -463,3 +469,42 @@ class CoverManager(tkinter.Toplevel):
                 return True
             else:
                 logger.trace("Images not similar")
+
+    def reload_images(self,frames=None):
+        if frames is None:
+            frames = self.scrolled_widget.winfo_children()
+        for frame in frames:
+            # create a ComicFrame for each LoadedComicInfo object
+            frame: ComicFrame
+
+            loaded_cinfo = frame.loaded_cinfo
+
+            cover_cache = loaded_cinfo.cover_cache if loaded_cinfo.new_cover_cache is None else loaded_cinfo.new_cover_cache
+            backcover_cache = loaded_cinfo.backcover_cache if loaded_cinfo.new_backcover_cache is None else loaded_cinfo.new_backcover_cache
+
+            for type_, cover in (("front",cover_cache),("back",backcover_cache)):
+                canva: CanvasCoverWidget = frame.cover_canvas if type_ == "front" else frame.backcover_canvas
+                action = loaded_cinfo.cover_action if type_ == "front" else loaded_cinfo.backcover_action
+                if not cover:
+                    canva.itemconfig(canva.overlay_id, image=canva.overlay_image, state="hidden")
+                    canva.itemconfig(canva.no_image_warning_id, state="normal")
+                    canva.itemconfig(canva.action_id, text="")
+                    canva.itemconfig(canva.image_id, state="hidden")
+                else:
+                    # A cover exists. Hide warning
+                    canva.itemconfig(canva.no_image_warning_id, state="hidden")
+                canva.itemconfig(canva.overlay_id, image=canva.overlay_image, state="normal")
+                canva.itemconfig(canva.image_id, image=cover, state="normal")
+                match action:
+                    case CoverActions.APPEND | CoverActions.REPLACE:
+                        canva.itemconfig(canva.action_id,
+                                         text="Append" if
+                                         action == CoverActions.APPEND else "Replace", state="normal")
+                    case CoverActions.DELETE:
+                        canva.itemconfig(canva.action_id, text="Delete", state="normal")
+                    case _:
+                        canva.itemconfig(canva.overlay_id, state="hidden")
+                        canva.itemconfig(canva.action_id, text="", state="normal")
+
+                # Update the displayed cover
+                canva.itemconfig(canva.image_id, image=cover, state="normal")
