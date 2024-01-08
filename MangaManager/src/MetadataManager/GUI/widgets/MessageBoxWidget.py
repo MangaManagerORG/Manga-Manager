@@ -110,7 +110,7 @@ class MessageBoxWidget(Toplevel):
         if not self.disabled:
             # button is a MessageBoxButton class with id, title
             for button in action_buttons:
-                Button(self.control_frame, text=button.title, padx=10, pady=5, borderwidth=3,
+                Button(self.control_frame, text=button.title,
                        command=lambda btn=button: self._set_selected_value(btn.id)).pack(side="left", ipadx=20)
                 Label(self.control_frame).pack(side="left", padx=5)
         return self
