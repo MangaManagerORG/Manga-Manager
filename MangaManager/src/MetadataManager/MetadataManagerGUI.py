@@ -138,7 +138,8 @@ class GUIApp(Tk, MetadataManagerLib):
             selected_parent_folder = os.path.dirname(selected_paths_list[0].name)
             if self.last_folder != selected_parent_folder or not self.last_folder:
                 self.last_folder = selected_parent_folder
-
+        else:
+            return
         self.selected_files_path = [file.name for file in selected_paths_list]
         self.load_selected_files()
 
@@ -153,6 +154,8 @@ class GUIApp(Tk, MetadataManagerLib):
         # Open select files dialog
 
         folder_path = askdirectory(initialdir=initial_dir)
+        if not folder_path:
+            return
         self.selected_files_path = glob.glob(root_dir=folder_path, pathname=os.path.join(folder_path, "**/*.cbz"),
                                              recursive=True)
         # TODO: Auto select recursive or not
