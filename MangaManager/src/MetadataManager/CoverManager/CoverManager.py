@@ -245,6 +245,15 @@ class CoverManager(tkinter.Toplevel):
                      command=lambda: self.run_bulk_action(CoverActions.REPLACE)).pack(side="top", fill="x", ipady=10)
         ButtonWidget(master=action_buttons, text="Clear Selection",
                      command=self.clear_selection).pack(fill="x", ipady=10)
+
+        frame = Frame(master=action_buttons)
+        frame.pack(fill="x",ipady=10)
+        ButtonWidget(master=frame, text="Select all covers",
+                     command=self.select_all_covers).pack(fill="x", ipady=10,side=tkinter.LEFT, expand=True)
+        ButtonWidget(master=frame, text="Select all back-covers",
+                     command=self.select_all_backcovers).pack(fill="x", ipady=10, side=tkinter.RIGHT, expand=True)
+
+
         ButtonWidget(master=action_buttons, text="Close window",
                      command=self.exit_btn).pack(fill="x", ipady=10)
         ButtonWidget(master=action_buttons, text="Process Changes",
@@ -298,6 +307,16 @@ class CoverManager(tkinter.Toplevel):
         frames_with_actions = [frame for frame in self.scrolled_widget.winfo_children() if frame.loaded_cinfo.cover_action or frame.loaded_cinfo.backcover_action]
         self._super.pre_process()
         self.reload_images(frames_with_actions)
+
+    def select_all_covers(self):
+        for frame in self.scrolled_widget.winfo_children():
+            frame:ComicFrame
+            self.select_frame(None,frame=frame,pos="front")
+    def select_all_backcovers(self):
+        for frame in self.scrolled_widget.winfo_children():
+            frame: ComicFrame
+            self.select_frame(None,frame=frame, pos="back")
+
     def select_frame(self, _, frame: ComicFrame, pos: str):
         """
         Selects the frame. Adds to selected frames and modifies its border to show green as "selected"
