@@ -5,13 +5,14 @@ import tkinter
 from idlelib.tooltip import Hovertip
 from tkinter import Frame, CENTER, Button, NW
 from tkinter.filedialog import askopenfile
-from tkinter.ttk import Treeview
+from tkinter.ttk import Treeview, Checkbutton
 
 import numpy as np
 from PIL import Image, ImageTk
 
 from src.Common import ResourceLoader
 from src.Common.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
+from src.MetadataManager.CoverManager import torchlib
 from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
@@ -275,8 +276,8 @@ class CoverManager(tkinter.Toplevel):
         self.scan_covers = tkinter.BooleanVar(value=True)
         self.scan_backcovers = tkinter.BooleanVar(value=False)
 
-        tkinter.Checkbutton(frame, text="Covers", variable=self.scan_covers).pack()
-        tkinter.Checkbutton(frame, text="Back Covers", variable=self.scan_backcovers).pack()
+        Checkbutton(frame, text="Covers", variable=self.scan_covers).pack()
+        Checkbutton(frame, text="Back Covers", variable=self.scan_backcovers).pack()
 
         content_frame = Frame(self)
         content_frame.pack(fill="both", side="left", expand=True)
@@ -430,17 +431,36 @@ class CoverManager(tkinter.Toplevel):
             selected_photoimage: ImageTk.PhotoImage = frame.loaded_cinfo.get_cover_cache(True)
 
         selected_image = ImageTk.getimage(selected_photoimage)
-        x = np.array(selected_image.histogram())
+        # x = np.array(selected_image.histogram())
         self.clear_selection()
         # Compare all covers:
+        delta = float(self.delta_entry.get())
+
         for comicframe in self.scrolled_widget.winfo_children():
             comicframe: ComicFrame
             lcinfo: LoadedComicInfo = comicframe.loaded_cinfo
             try:
                 if self.scan_covers.get():
-                    self._scan_images(lcinfo=lcinfo, x=x, is_backcover=False, comicframe=comicframe)
+                    photo_image = lcinfo.get_cover_cache()
+                    if photo_image is None:
+                        logger.error(f"Failed to compare front cover image. File is not loaded. File '{lcinfo.file_name}'")
+
+                    else:
+                        score = round(torchlib.generateScore(torchlib.convert_PIL(selected_image),torchlib.convert_PIL(ImageTk.getimage(photo_image))), 2)
+                        if score > delta:
+                            self.select_frame(None, frame=comicframe, pos="front")
+
                 if self.scan_backcovers.get():
-                    self._scan_images(lcinfo=lcinfo, x=x, is_backcover=True, comicframe=comicframe)
+                    photo_image = lcinfo.get_cover_cache(True)
+                    if photo_image is None:
+                        logger.error(f"Failed to compare back cover image. File is not loaded. File '{lcinfo.file_name}'")
+                    else:
+                        score = round(torchlib.generateScore(torchlib.convert_PIL(selected_image),
+                                                torchlib.convert_PIL(
+                                                    ImageTk.getimage(photo_image))
+                                                ),2)
+                        if score > delta:
+                            self.select_frame(None, frame=comicframe, pos="back")
             except Exception:
                 logger.exception(f"Failed to compare images for file {comicframe.loaded_cinfo.file_name}")
 
@@ -461,7 +481,7 @@ class CoverManager(tkinter.Toplevel):
             self._compare_images(x, compared_image, comicframe, "back" if is_backcover else "front")
 
     def _compare_images(self, x, compared_image, comicframe, pos):
-        delta = float(self.delta_entry.get())
+
         y = np.array(compared_image.histogram())
         if self.compare_image(x, y, delta=delta):
             self.select_frame(None, frame=comicframe, pos=pos)
