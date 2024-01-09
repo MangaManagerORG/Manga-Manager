@@ -8,6 +8,7 @@ ENV GUIAUTOSTART=true
 
 WORKDIR /tmp
 COPY requirements.txt /tmp/
+COPY requirements.txt /app/
 
 # Copy App
 COPY --chown=$UID:$GID [ "/MangaManager", "/app" ]
@@ -27,7 +28,7 @@ RUN apt-get update && \
     python3-tk \
     python3-pip && \
     # Manga Manager Dependencies
-    python3 -m pip install -r requirements.txt && \
+    python3.11 -m pip install -r requirements.txt && \
     # Cleanup
     apt-get autoclean && \
     rm -rf \
@@ -35,7 +36,7 @@ RUN apt-get update && \
     /var/tmp/* \
     /tmp/* && \
     # Try making python3 callable by just running "python" on Ubuntu :) (optional)
-    ln -s /usr/bin/python3 /usr/bin/python || true && \
+    ln -s /usr/bin/python3.11 /usr/bin/python || true && \
     chmod -R +x /app
 
 # Setup environment & branding/customization
