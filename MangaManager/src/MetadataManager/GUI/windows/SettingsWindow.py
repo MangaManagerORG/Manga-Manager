@@ -45,8 +45,8 @@ setting_control_map = {
                                            validate=lambda key, value: '[' + ", ".join(template_validation(
                                                re.findall(r'\{(\w+)\}', value))) + "] are not valid tags" if len(
                                                template_validation(re.findall(r'\{(\w+)\}', value))) != 0 else ""),
-        "clean_ui_on_drag_drop": SettingControl("remove_old_selection_on_drag_drop","Clean previous selection\non drag and drop", SettingControlType.Bool, True, "After you drag and drop, previous selected files will be discarded"),
-        "togle_dark_mode": SettingControl("darkmode_enabled","Enable darkmode", SettingControlType.Bool,value=False)
+        "remove_old_selection_on_drag_drop": SettingControl("remove_old_selection_on_drag_drop","Clean previous selection\non drag and drop", SettingControlType.Bool, True, "After you drag and drop, previous selected files will be discarded"),
+        "darkmode_enabled": SettingControl("darkmode_enabled","Enable darkmode", SettingControlType.Bool,value=False)
     },
     SettingHeading.WebpConverter: {
         "default_base_path": SettingControl("default_base_path", "Default base path", SettingControlType.Text, "",
