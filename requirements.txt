@@ -10,8 +10,4 @@ numpy~=1.24.2
 rarfile
 tkinterdnd2
 sv-ttk
-OpenCV-Python
-sentence_transformers
-open_clip_torch
-requests
-git+https://github.com/openai/CLIP.git
+

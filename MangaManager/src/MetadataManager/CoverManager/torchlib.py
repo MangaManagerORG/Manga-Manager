@@ -1,3 +1,10 @@
+print("Importing torchlib")
+# pip requirements:
+# OpenCV-Python
+# sentence_transformers
+# open_clip_torch
+# requests
+# git+https://github.com/openai/CLIP.git
 import PIL
 import torch
 import open_clip

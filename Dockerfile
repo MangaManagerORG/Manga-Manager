@@ -23,7 +23,7 @@ RUN apt-get update && \
     xubuntu-default-settings \
     xubuntu-icon-theme \
     unrar\
-    git\
+#    git\
     # Python \
     idle-python3.11 \
     python3-tk \
