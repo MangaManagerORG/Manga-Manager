@@ -12,7 +12,7 @@ from PIL import Image, ImageTk
 
 from src.Common import ResourceLoader
 from src.Common.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
-
+from src.MetadataManager.CoverManager import torchlib
 from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
@@ -451,7 +451,7 @@ class CoverManager(tkinter.Toplevel):
         :return:
         """
 
-        # from src.MetadataManager.CoverManager import torchlib
+
 
         assert len(self.selected_frames) == 1
         frame, pos = self.selected_frames[0]
@@ -466,33 +466,33 @@ class CoverManager(tkinter.Toplevel):
         # Compare all covers:
         delta = float(self.delta_entry.get())
 
-        # for comicframe in self.scrolled_widget.winfo_children():
-        #     comicframe: ComicFrame
-        #     lcinfo: LoadedComicInfo = comicframe.loaded_cinfo
-        #     try:
-        #         if self.scan_covers.get():
-        #             photo_image = lcinfo.get_cover_cache()
-        #             if photo_image is None:
-        #                 logger.error(f"Failed to compare front cover image. File is not loaded. File '{lcinfo.file_name}'")
-        #
-        #             else:
-        #                 score = round(torchlib.generateScore(torchlib.convert_PIL(selected_image),torchlib.convert_PIL(ImageTk.getimage(photo_image))), 2)
-        #                 if score > delta:
-        #                     self.select_frame(None, frame=comicframe, pos="front")
-        #
-        #         if self.scan_backcovers.get():
-        #             photo_image = lcinfo.get_cover_cache(True)
-        #             if photo_image is None:
-        #                 logger.error(f"Failed to compare back cover image. File is not loaded. File '{lcinfo.file_name}'")
-        #             else:
-        #                 score = round(torchlib.generateScore(torchlib.convert_PIL(selected_image),
-        #                                         torchlib.convert_PIL(
-        #                                             ImageTk.getimage(photo_image))
-        #                                         ),2)
-        #                 if score > delta:
-        #                     self.select_frame(None, frame=comicframe, pos="back")
-        #     except Exception:
-        #         logger.exception(f"Failed to compare images for file {comicframe.loaded_cinfo.file_name}")
+        for comicframe in self.scrolled_widget.winfo_children():
+            comicframe: ComicFrame
+            lcinfo: LoadedComicInfo = comicframe.loaded_cinfo
+            try:
+                if self.scan_covers.get():
+                    photo_image = lcinfo.get_cover_cache()
+                    if photo_image is None:
+                        logger.error(f"Failed to compare front cover image. File is not loaded. File '{lcinfo.file_name}'")
+
+                    else:
+                        score = round(torchlib.generateScore(torchlib.convert_PIL(selected_image),torchlib.convert_PIL(ImageTk.getimage(photo_image))), 2)
+                        if score > delta:
+                            self.select_frame(None, frame=comicframe, pos="front")
+
+                if self.scan_backcovers.get():
+                    photo_image = lcinfo.get_cover_cache(True)
+                    if photo_image is None:
+                        logger.error(f"Failed to compare back cover image. File is not loaded. File '{lcinfo.file_name}'")
+                    else:
+                        score = round(torchlib.generateScore(torchlib.convert_PIL(selected_image),
+                                                torchlib.convert_PIL(
+                                                    ImageTk.getimage(photo_image))
+                                                ),2)
+                        if score > delta:
+                            self.select_frame(None, frame=comicframe, pos="back")
+            except Exception:
+                logger.exception(f"Failed to compare images for file {comicframe.loaded_cinfo.file_name}")
 
     def _scan_images(self, x, lcinfo:LoadedComicInfo, comicframe, is_backcover=False):
         """
