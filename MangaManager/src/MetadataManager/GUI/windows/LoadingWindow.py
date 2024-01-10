@@ -10,7 +10,7 @@ from src.MetadataManager.GUI.widgets import ProgressBarWidget
 class LoadingWindow(tkinter.Toplevel):
     initialized: bool = False
     # abort_flag:bool = None
-    def __new__(cls, total, *args, **kwargs):
+    def __new__(cls,master, total, *args, **kwargs):
         if total <=1:
             a = Mock()
             a.is_abort = lambda :False
@@ -20,8 +20,8 @@ class LoadingWindow(tkinter.Toplevel):
         else:
             return super(LoadingWindow, cls).__new__(cls)
 
-    def __init__(self, total):
-        super().__init__()
+    def __init__(self,master, total):
+        super().__init__(master=master)
 
         content = tkinter.Frame(self,borderwidth=3,border=3,highlightcolor="black",highlightthickness=2,highlightbackground="black")
         content.pack(ipadx=20, ipady=20,expand=False,fill="both")
@@ -35,10 +35,12 @@ class LoadingWindow(tkinter.Toplevel):
 
         self.abort_flag = False
         # Force focus on this window
-        self.grab_set()
+        # self.grab_set()
+        # self.focus_force()
         center(self)
-        self.attributes("-topmost", True)
+        # self.attributes("-topmost", True)
         self.lift()
+        self.transient(master)
 
         self.overrideredirect(True)
 
@@ -77,6 +79,6 @@ class LoadingWindow(tkinter.Toplevel):
 
 if __name__ == '__main__':
     root = tkinter.Tk()
-    a = LoadingWindow(2,False)
+    a = LoadingWindow(root,2,False)
     a.loaded_file("asda")
     root.mainloop()

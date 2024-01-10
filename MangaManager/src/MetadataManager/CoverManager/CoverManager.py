@@ -6,17 +6,20 @@ from idlelib.tooltip import Hovertip
 from tkinter import Frame, CENTER, Button, NW
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Treeview, Checkbutton
-
+from tkinter import messagebox
 import numpy as np
 from PIL import Image, ImageTk
 
 from src.Common import ResourceLoader
 from src.Common.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
 from src.MetadataManager.CoverManager import torchlib
+from src.MetadataManager.GUI import MessageBox
 from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, CanvasCoverWidget
+from src.MetadataManager.GUI.widgets.MessageBoxWidget import MessageBoxWidget, MessageBoxButton
+from src.MetadataManager.GUI.windows.LoadingWindow import LoadingWindow
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
@@ -335,6 +338,7 @@ class CoverManager(tkinter.Toplevel):
         frames_with_actions = [frame for frame in self.scrolled_widget.winfo_children() if frame.loaded_cinfo.cover_action or frame.loaded_cinfo.backcover_action]
         self._super.pre_process()
         self.reload_images(frames_with_actions)
+        messagebox.showinfo("Processing done", "The processing has finished.",parent=self)
 
     def select_all_covers(self):
         for frame in self.scrolled_widget.winfo_children():
@@ -462,13 +466,17 @@ class CoverManager(tkinter.Toplevel):
 
         selected_image = ImageTk.getimage(selected_photoimage)
         # x = np.array(selected_image.histogram())
-        self.clear_selection()
+        # self.clear_selection()
         # Compare all covers:
         delta = float(self.delta_entry.get())
-
-        for comicframe in self.scrolled_widget.winfo_children():
+        comicsframes = list(reversed(self.scrolled_widget.winfo_children()))
+        loadbar = LoadingWindow(self,len(comicsframes))
+        for i, comicframe in enumerate(comicsframes):
+            if comicframe == frame:
+                continue
             comicframe: ComicFrame
             lcinfo: LoadedComicInfo = comicframe.loaded_cinfo
+            self.update()
             try:
                 if self.scan_covers.get():
                     photo_image = lcinfo.get_cover_cache()
@@ -493,7 +501,8 @@ class CoverManager(tkinter.Toplevel):
                             self.select_frame(None, frame=comicframe, pos="back")
             except Exception:
                 logger.exception(f"Failed to compare images for file {comicframe.loaded_cinfo.file_name}")
-
+            loadbar.loaded_file("")
+        loadbar.finish_loading()
     def _scan_images(self, x, lcinfo:LoadedComicInfo, comicframe, is_backcover=False):
         """
 
