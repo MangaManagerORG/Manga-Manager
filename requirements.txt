@@ -10,4 +10,3 @@ numpy~=1.24.2
 rarfile
 tkinterdnd2
 sv-ttk
-
