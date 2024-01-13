@@ -1,11 +1,18 @@
 from MangaManager.src.__version__ import __version__ as version_
-from datetime import date
 from platform import system
-import PyInstaller
+from datetime import date
+from datetime import datetime
 build_version = version_.split(":")[-1]
 build_date = date.today()
 release_name = "_".join(
-    ["MangaManager",str(build_date.year),str(build_date.month),str(build_date.day),system(), build_version])
+    ["MangaManager",
+     str(build_date.year),
+     str(build_date.month),
+     str(build_date.day),
+     str(datetime.now().hour).zfill(2),
+     str(datetime.now().minute).zfill(2),
+     str(datetime.now().second).zfill(2),
+     system(), build_version, "_cuda"])
 
 a = Analysis(
     ['main.py'],
