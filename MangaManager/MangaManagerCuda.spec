@@ -47,9 +47,10 @@ exe = EXE(
     console=False,
     icon=['res/icon.ico'],
 )
-coll = COLLECT(exe,
+
+coll_Cuda = COLLECT(exe,
                a.binaries,
                a.datas,
                strip=None,
                upx=True,
-               name=release_name)
+               name=release_name + "cuda")

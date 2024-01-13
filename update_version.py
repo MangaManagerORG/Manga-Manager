@@ -28,6 +28,8 @@ def update_version_file():
     repo = git.Repo(Path(__file__).parent)
     repo.git.add("MangaManager/src/__version__.py")
     repo.git.commit(m="Bump version hash")
+    repo.create_tag(tag + "_" + new_hash)
+
 
 
 
