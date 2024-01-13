@@ -17,6 +17,8 @@ def update_version_file():
     version = ":".join(version_data.split(":")[:-2])
     new_hash = prev_rev_hash + '"'
     new_version = ":".join((version, tag, new_hash))
+    os.popen("git add 'MangaManager/src/__version__.py'")
+    os.popen("git commit -m 'Bump version hash'")
 
     # Update the version file with the modified data
     with open(version_file_path, "w") as version_file:
