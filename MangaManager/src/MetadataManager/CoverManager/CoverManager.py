@@ -7,7 +7,6 @@ from tkinter import Frame, CENTER, Button, NW
 from tkinter.filedialog import askopenfile
 from tkinter.ttk import Treeview, Checkbutton
 from tkinter import messagebox
-import numpy as np
 from PIL import Image, ImageTk
 
 from src.Common import ResourceLoader
@@ -519,34 +518,28 @@ class CoverManager(tkinter.Toplevel):
             compared_image = ImageTk.getimage(image)
             self._compare_images(x, compared_image, comicframe, "back" if is_backcover else "front")
 
-    def _compare_images(self, x, compared_image, comicframe, pos):
-
-        y = np.array(compared_image.histogram())
-        # if self.compare_image(x, y, delta=delta):
-        #     self.select_frame(None, frame=comicframe, pos=pos)
-
-    @staticmethod
-    def compare_image(x, y, delta:float):
-        """
-        Compares the image histograms
-        :param img1: Image Object
-        :param imge2: Image Object
-        :param x: Numpy array containing the selected image histogram
-        :param y: Numpy array containing the selected image histogram
-        :param delta: 1-100 match value
-        :return:
-        """
-        actual_error = 0
-        if len(x) == len(y):
-            error = np.sqrt(((x - y) ** 2).mean())
-            error = str(error)[:2]
-            actual_error = float(100) - float(error)
-            logger.debug(f"Match percentage: {actual_error}%")
-            if actual_error >= delta:
-                logger.trace("Matched image")
-                return True
-            else:
-                logger.trace("Images not similar")
+    # @staticmethod
+    # def compare_image(x, y, delta:float):
+    #     """
+    #     Compares the image histograms
+    #     :param img1: Image Object
+    #     :param imge2: Image Object
+    #     :param x: Numpy array containing the selected image histogram
+    #     :param y: Numpy array containing the selected image histogram
+    #     :param delta: 1-100 match value
+    #     :return:
+    #     """
+    #     actual_error = 0
+    #     if len(x) == len(y):
+    #         error = np.sqrt(((x - y) ** 2).mean())
+    #         error = str(error)[:2]
+    #         actual_error = float(100) - float(error)
+    #         logger.debug(f"Match percentage: {actual_error}%")
+    #         if actual_error >= delta:
+    #             logger.trace("Matched image")
+    #             return True
+    #         else:
+    #             logger.trace("Images not similar")
 
     def reload_images(self,frames=None):
         if frames is None:

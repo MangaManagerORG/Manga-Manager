@@ -279,12 +279,26 @@ class CoverFrame(Frame):
         except _tkinter.TclError as e:
             if str(e).startswith('image "pyimage') and str(e).endswith(f' doesn\'t exist'):
                 # Handle the case where the image with the given id doesn't exist
-                logger.warning("Attempted to configure an item with an image that no longer exists", exc_info=True)
+                # self.cover_canvas.image_id = self.cover_canvas.create_image(0, 0, anchor=NW)
+                # self.cover_canvas.scale("all", -1, 1, 0.63, 0.87)
+                # self.cover_canvas.tag_lower(self.cover_canvas.image_id)
+                logger.warning("[kinda debug] Attempted to configure an item with an image that no longer exists", exc_info=True)
             else:
                 # If the error is caused by something else, re-raise the exception
                 raise e
-
-        self.backcover_canvas.itemconfig(self.backcover_canvas.image_id, state="hidden")
+        try:
+            self.backcover_canvas.itemconfig(self.backcover_canvas.image_id, state="hidden")
+        except _tkinter.TclError as e:
+            if str(e).startswith('image "pyimage') and str(e).endswith(f' doesn\'t exist'):
+                # Handle the case where the image with the given id doesn't exist
+                logger.warning("[kinda debug] Attempted to configure an item with an image that no longer exists", exc_info=True)
+                # self.backcover_canvas.create_image()
+                # self.backcover_canvas.image_id = self.backcover_canvas.create_image(0, 0, anchor=NW)
+                # self.backcover_canvas.scale("all", -1, 1, 0.63, 0.87)
+                # self.backcover_canvas.tag_lower(self.backcover_canvas.image_id)
+            else:
+                # If the error is caused by something else, re-raise the exception
+                raise e
         self.hide_actions()
 
     def update_cover_image(self, loadedcomicinfo_list: list[LoadedComicInfo], **__):
