@@ -1,5 +1,8 @@
 import logging
+import tkinter
+
 import src
+from common.TkErrorCatcher import TkErrorCatcher
 from src.Common import ResourceLoader
 from src.MetadataManager.GUI.windows.MainWindow import MainWindow
 from src.MetadataManager.GUI.OneTimeMessageBox import OneTimeMessageBox
@@ -23,7 +26,12 @@ def execute_gui():
     Settings().set_default(SettingHeading.ExternalSources, 'default_metadata_source', "AniList")
     Settings().set_default(SettingHeading.ExternalSources, 'default_cover_source', "MangaDex")
     load_extensions()
+
+    # Override TK error catcher with custom
+    tkinter.CallWrapper = TkErrorCatcher
+
     app = MainWindow()
+
     if Settings().get(SettingHeading.Main, 'darkmode_enabled'):
         sv_ttk.use_dark_theme()
     else:

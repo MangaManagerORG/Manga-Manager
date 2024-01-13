@@ -19,8 +19,6 @@ class CoverData:
         """
         return f"Cover{'_Vol.'+str(self.volume).zfill(2) if self.volume else ''}{'_' + self.locale if self.locale else ''}{self.extension}"
 
-    def exists(self,dest_path):
-        return Path(dest_path,self.dest_filename).exists()
 
     def __init__(self,source_filename=None,volume=None,locale=None):
 

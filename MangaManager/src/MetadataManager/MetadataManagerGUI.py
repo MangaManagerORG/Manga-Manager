@@ -30,6 +30,7 @@ from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
 
 class GUIApp(Tk, MetadataManagerLib):
+
     """
     This is the main logic and app
     """

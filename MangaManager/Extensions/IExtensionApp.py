@@ -33,6 +33,7 @@ class IExtensionApp(tkinter.Toplevel, metaclass=abc.ABCMeta):
         #     self.master_frame = frame
         if not self.master:
             return Exception("Tried to initialize ui with no master window")
+        self.init_settings()
         self.serve_gui()
         # self.withdraw()  # Hide the window
 
@@ -50,7 +51,7 @@ class IExtensionApp(tkinter.Toplevel, metaclass=abc.ABCMeta):
         Settings().save()
 
         # Load any saved settings into memory to overwrite defaults
-        self.save_settings()
+        # self.save_settings()
 
     def _initialize(self):
         ...

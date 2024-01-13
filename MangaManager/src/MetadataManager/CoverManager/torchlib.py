@@ -1,6 +1,5 @@
 import logging
 
-print("Importing torchlib")
 # pip requirements:
 # OpenCV-Python
 # sentence_transformers
@@ -8,7 +7,10 @@ print("Importing torchlib")
 # requests
 # git+https://github.com/openai/CLIP.git
 
+logger = logging.getLogger()
+
 try:
+    raise ImportError
     import PIL
     import torch
     import open_clip
@@ -18,6 +20,7 @@ try:
     from sentence_transformers import util
     from PIL import Image
 
+    logger.info("Torch libraries successfully imported")
     # image processing model
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, _, preprocess = open_clip.create_model_and_transforms('ViT-B-16-plus-240', pretrained="laion400m_e32")
@@ -46,7 +49,7 @@ try:
         # return cv2.cvtColor(cv2_img, cv2.COLOR_RGB2BGR)
         return cvtColor(array(pil_img), COLOR_BGR2RGB)
 except ImportError:
-    logging.getLogger().exception("Missing dependecies for torch. disabling similarity")
+    logger.warning("Missing dependecies for torch. disabling similarity")
 
 
     def convert_PIL(*_):
