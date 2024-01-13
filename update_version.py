@@ -18,8 +18,8 @@ def update_version_file():
     tag = "stable" if branch == "main" else "nightly"
     prev_rev_hash = os.popen("git rev-parse --short HEAD").read().strip()
     version = ":".join(version_data.split(":")[:-2])
-    new_hash = prev_rev_hash + '"'
-    new_version = ":".join((version, tag, new_hash))
+    new_hash = prev_rev_hash
+    new_version = ":".join((version, tag, new_hash + '"'))
     # os.popen("git add MangaManager/src/__version__.py && git commit -m 'Bump version hash'")
     # Update the version file with the modified data
     with open(version_file_path, "w") as version_file:
@@ -27,8 +27,10 @@ def update_version_file():
 
     repo = git.Repo(Path(__file__).parent)
     repo.git.add("MangaManager/src/__version__.py")
-    repo.git.commit(m="Bump version hash")
+    commit = repo.git.commit(m="Bump version hash")
+    # ref = os.popen("git rev-parse --short HEAD").read().strip()
     repo.create_tag(tag + "_" + new_hash)
+
 
 
 
