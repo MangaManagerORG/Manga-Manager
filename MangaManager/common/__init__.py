@@ -1,4 +1,4 @@
-from .models import PeopleTags
+from ComicInfo.models import PeopleTags
 
 
 def get_invalid_person_tag(people: str):

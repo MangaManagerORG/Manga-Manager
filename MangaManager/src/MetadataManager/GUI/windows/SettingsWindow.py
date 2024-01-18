@@ -7,7 +7,7 @@ from tkinter import ttk, Frame
 from tkinter.ttk import LabelFrame, Label, Notebook, Combobox
 
 from ExternalSources.MetadataSources import ScraperFactory
-from common.models import ComicInfo
+from ComicInfo import ComicInfo
 from src import MM_PATH
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.Common.utils import open_folder
@@ -16,8 +16,7 @@ from src.MetadataManager.GUI.utils import center
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.GUI.widgets.FormBundleWidget import FormBundleWidget
 from src.Settings import SettingHeading
-from src.Settings.SettingControl import SettingControl
-from src.Settings.SettingControlType import SettingControlType
+from src.Settings.SettingControl import SettingControl, SettingControlType
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 import sv_ttk

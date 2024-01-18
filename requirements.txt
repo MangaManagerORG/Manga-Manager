@@ -12,3 +12,4 @@ tkinterdnd2
 sv-ttk
 git-python
 python-slugify
+ComicInfo

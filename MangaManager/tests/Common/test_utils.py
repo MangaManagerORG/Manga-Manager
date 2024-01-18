@@ -1,6 +1,6 @@
 import unittest
 
-from common.models import ComicInfo
+from ComicInfo import ComicInfo
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
 
 

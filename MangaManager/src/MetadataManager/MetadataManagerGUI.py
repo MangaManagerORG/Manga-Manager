@@ -6,7 +6,7 @@ import os
 import tkinter
 from tkinter import Tk, Frame
 
-from common.models import ComicInfo
+from ComicInfo import ComicInfo
 from src.Common import ResourceLoader
 from src.Common.parser import parse_volume, parse_series, parse_number
 from src.Common.utils import get_platform, open_folder

@@ -4,11 +4,10 @@ from enum import StrEnum
 import requests
 
 from common import get_invalid_person_tag
-from common.models import ComicInfo
+from ComicInfo import ComicInfo
 from src.Common.errors import MangaNotFoundError
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
-from src.Settings.SettingControl import SettingControl
-from src.Settings.SettingControlType import SettingControlType
+from src.Settings.SettingControl import SettingControl, SettingControlType
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 
