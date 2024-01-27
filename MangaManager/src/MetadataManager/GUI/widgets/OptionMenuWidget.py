@@ -1,7 +1,8 @@
 import logging
 import tkinter
 from tkinter.ttk import Combobox
-from ComicInfo.models import AgeRating, Formats, YesNo, Manga
+
+from common.models import AgeRating, Formats, YesNo, Manga
 from .MMWidget import MMWidget
 
 logger = logging.getLogger()

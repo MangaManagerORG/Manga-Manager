@@ -4,7 +4,7 @@ from html.parser import HTMLParser
 from io import StringIO
 from typing import final
 
-from ComicInfo import ComicInfo
+from common.models import ComicInfo
 from src.Settings import Settings, SettingSection, SettingControl
 from .ExtensionsInterface import IMMExtension
 

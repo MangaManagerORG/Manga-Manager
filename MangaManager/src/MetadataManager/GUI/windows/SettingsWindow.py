@@ -7,7 +7,7 @@ from tkinter import ttk, Frame
 from tkinter.ttk import LabelFrame, Label, Notebook, Combobox
 
 from ExternalSources.MetadataSources import ScraperFactory
-from ComicInfo import ComicInfo
+from common.models import ComicInfo
 from src import MM_PATH
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.Common.utils import open_folder
@@ -16,10 +16,11 @@ from src.MetadataManager.GUI.utils import center
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.GUI.widgets.FormBundleWidget import FormBundleWidget
 from src.Settings import SettingHeading
-from src.Settings.SettingControl import SettingControl, SettingControlType
+from src.Settings.SettingControl import SettingControl
+from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
-import sv_ttk
+
 logger = logging.getLogger("SettingsWidgetManager")
 
 
@@ -44,8 +45,7 @@ setting_control_map = {
                                            validate=lambda key, value: '[' + ", ".join(template_validation(
                                                re.findall(r'\{(\w+)\}', value))) + "] are not valid tags" if len(
                                                template_validation(re.findall(r'\{(\w+)\}', value))) != 0 else ""),
-        "remove_old_selection_on_drag_drop": SettingControl("remove_old_selection_on_drag_drop","Clean previous selection\non drag and drop", SettingControlType.Bool, True, "After you drag and drop, previous selected files will be discarded"),
-        "darkmode_enabled": SettingControl("darkmode_enabled","Enable darkmode", SettingControlType.Bool,value=False)
+        "clean_ui_on_drag_drop": SettingControl("remove_old_selection_on_drag_drop","Clean previous selection\non drag and drop", SettingControlType.Bool, True, "After you drag and drop, previous selected files will be discarded")
     },
     SettingHeading.WebpConverter: {
         "default_base_path": SettingControl("default_base_path", "Default base path", SettingControlType.Text, "",
@@ -197,10 +197,6 @@ class SettingsWindow:
             provider.save_settings()
 
         Settings().save()
-        if Settings().get(SettingHeading.Main, 'darkmode_enabled'):
-            sv_ttk.use_dark_theme()
-        else:
-            sv_ttk.use_light_theme()
         self.settings_window.destroy()
 
     @staticmethod
@@ -216,7 +212,7 @@ class SettingsWindow:
                 else:
                     value = control.value == 'True'
                 string_var = tkinter.BooleanVar(value=value, name=f"{section.pretty_name}.{control.key}")
-                entry = ttk.Checkbutton(parent_frame, variable=string_var, onvalue=1, offvalue=0)
+                entry = tkinter.Checkbutton(parent_frame, variable=string_var, onvalue=1, offvalue=0)
                 entry.pack(side="left")
             case SettingControlType.Options:
                 string_var = tkinter.StringVar(value="default", name=f"{section.pretty_name}.{control.key}")

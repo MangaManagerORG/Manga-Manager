@@ -1,6 +1,5 @@
 import logging
 import tkinter
-from tkinter import Label
 from tkinter.ttk import Progressbar, Style
 
 from src.Common.progressbar import ProgressBar
@@ -43,7 +42,7 @@ class ProgressBarWidget(ProgressBar):
                                         mode="determinate")  # create progress bar
         self.progress_bar.pack(expand=False, fill="x", side="top")
         self.pb_label_variable = tkinter.StringVar(value=self.label_text)
-        self.pb_label = Label(pb_frame, justify="right", textvariable=self.pb_label_variable, bg='#fff', fg='#f00')
+        self.pb_label = tkinter.Label(pb_frame, justify="right", textvariable=self.pb_label_variable)
         self.pb_label.pack(expand=False, fill="x", side="right")
         logger.debug("Initialized progress bar")
 

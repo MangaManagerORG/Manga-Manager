@@ -1,5 +1,4 @@
 import tkinter
-from tkinter import ttk
 from unittest.mock import Mock
 
 from src.Common.progressbar import ProgressBar
@@ -10,7 +9,7 @@ from src.MetadataManager.GUI.widgets import ProgressBarWidget
 class LoadingWindow(tkinter.Toplevel):
     initialized: bool = False
     # abort_flag:bool = None
-    def __new__(cls,master, total, *args, **kwargs):
+    def __new__(cls, total, *args, **kwargs):
         if total <=1:
             a = Mock()
             a.is_abort = lambda :False
@@ -20,27 +19,23 @@ class LoadingWindow(tkinter.Toplevel):
         else:
             return super(LoadingWindow, cls).__new__(cls)
 
-    def __init__(self,master, total):
-        super().__init__(master=master)
-
-        content = tkinter.Frame(self,borderwidth=3,border=3,highlightcolor="black",highlightthickness=2,highlightbackground="black")
+    def __init__(self, total):
+        super().__init__()
+        content = tkinter.Frame(self,background="white",borderwidth=3,border=3,highlightcolor="black",highlightthickness=2,highlightbackground="black")
         content.pack(ipadx=20, ipady=20,expand=False,fill="both")
 
         self.title = "Loading Files"
         self.loading_label_value = tkinter.StringVar(content, name="Loading_label")
-        self.loading_label = ttk.Label(content, textvariable=self.loading_label_value)
+        self.loading_label = tkinter.Label(content, textvariable=self.loading_label_value)
         # Removing titlebar from the Dialogue
         self.geometry("300x100+30+30")
         # Make the windows always on top
-
+        self.attributes("-topmost", True)
+        self.lift()
         self.abort_flag = False
         # Force focus on this window
-        # self.grab_set()
-        # self.focus_force()
+        self.grab_set()
         center(self)
-        # self.attributes("-topmost", True)
-        self.lift()
-        self.transient(master)
 
         self.overrideredirect(True)
 
@@ -51,7 +46,7 @@ class LoadingWindow(tkinter.Toplevel):
         self.pb.set_template(f"Loaded:{ProgressBar.PROCESSED_TAG}/{ProgressBar.TOTAL_TAG}\n")
         self.pb.start(total)
 
-        abort_btn = ttk.Button(content,text="Abort",command=self.set_abort)
+        abort_btn = tkinter.Button(content,text="Abort",command=self.set_abort)
         abort_btn.pack()
         self.initialized = True
     def is_abort(self):
@@ -79,6 +74,6 @@ class LoadingWindow(tkinter.Toplevel):
 
 if __name__ == '__main__':
     root = tkinter.Tk()
-    a = LoadingWindow(root,2,False)
+    a = LoadingWindow(2,False)
     a.loaded_file("asda")
     root.mainloop()

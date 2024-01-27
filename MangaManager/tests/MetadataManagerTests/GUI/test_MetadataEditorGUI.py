@@ -4,7 +4,7 @@ import os
 import random
 from tkinter.filedialog import askopenfiles
 
-from ComicInfo import ComicInfo
+from common.models import ComicInfo
 from logging_setup import add_trace_level
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.MetadataManager import MetadataManagerGUI

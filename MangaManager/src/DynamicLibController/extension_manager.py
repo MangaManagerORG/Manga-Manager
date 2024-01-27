@@ -54,10 +54,10 @@ def load_extensions(extensions_directory,) -> list[IExtensionApp]:
         try:
             extension_module = importlib.import_module(f"Extensions.{'.'.join(extract_folder_and_module(extension_file))}",package=EXTENSIONS_DIRECTORY)
         except ModuleNotFoundError:
-            logger.exception(f"Failed to Import Extension module: {extension_file}")
+            logger.exception(f"Failed to Import Extension: {extension_file}")
             continue
         except Exception:
-            logger.exception(f"Unhandled exception. Extension module {extension_file}")
+            logger.exception(f"Failed to Load extension {extension_file}")
 
         # Get the ExtensionApp subclasses from the module
         extension_classes = [

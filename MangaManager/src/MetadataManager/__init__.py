@@ -1,23 +1,20 @@
 import logging
-import tkinter
-
 import src
-from common.TkErrorCatcher import TkErrorCatcher
 from src.Common import ResourceLoader
 from src.MetadataManager.GUI.windows.MainWindow import MainWindow
 from src.MetadataManager.GUI.OneTimeMessageBox import OneTimeMessageBox
 from src.MetadataManager.GUI.widgets.MessageBoxWidget import MessageBoxButton
 from src.Settings import Settings, SettingHeading
-import sv_ttk
+
 logger = logging.getLogger()
 
 icon_path = ResourceLoader.get('icon.ico')
 
 
 def load_extensions():
-    from src.DynamicLibController.extension_manager import load_extensions as ld_ext
+    from src.DynamicLibController.extension_manager import load_extensions
     try:
-        src.loaded_extensions = ld_ext(src.EXTENSIONS_DIR)
+        src.loaded_extensions = load_extensions(src.EXTENSIONS_DIR)
     except Exception:
         logger.exception("Exception loading the extensions")
 
@@ -25,17 +22,9 @@ def execute_gui():
     # Ensure there are some settings, if not, set them as the default
     Settings().set_default(SettingHeading.ExternalSources, 'default_metadata_source', "AniList")
     Settings().set_default(SettingHeading.ExternalSources, 'default_cover_source', "MangaDex")
-    load_extensions()
-
-    # Override TK error catcher with custom
-    tkinter.CallWrapper = TkErrorCatcher
 
     app = MainWindow()
 
-    if Settings().get(SettingHeading.Main, 'darkmode_enabled'):
-        sv_ttk.use_dark_theme()
-    else:
-        sv_ttk.use_light_theme()
     try:
         app.iconbitmap(icon_path)
     except:
@@ -45,4 +34,5 @@ def execute_gui():
         with_title("Welcome to MangaManager"). \
         with_actions([MessageBoxButton(0, "Thanks")]). \
         build().prompt()
+
     app.mainloop()

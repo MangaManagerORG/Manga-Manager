@@ -4,7 +4,7 @@ import zipfile
 from unittest.mock import patch, MagicMock
 
 import src.Common.LoadedComicInfo.LoadedComicInfo
-from ComicInfo import ComicInfo
+from common.models import ComicInfo
 from logging_setup import add_trace_level
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.Common.errors import CorruptedComicInfo, NoComicInfoLoaded

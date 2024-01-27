@@ -7,7 +7,7 @@ from tkinter.ttk import Notebook
 from tkinterdnd2 import DND_FILES
 
 from src.__version__ import __version__
-from ComicInfo.models import Formats, AgeRating
+from common.models import Formats, AgeRating
 from src.Common import ResourceLoader
 from src.MetadataManager.CoverManager.CoverManager import CoverManager
 from src.MetadataManager.GUI.ExceptionWindow import ExceptionFrame
