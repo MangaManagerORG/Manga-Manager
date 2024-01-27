@@ -7,7 +7,6 @@ import pathlib
 import threading
 import tkinter
 import tkinter.ttk as ttk
-from concurrent.futures import ProcessPoolExecutor
 from tkinter import filedialog
 
 from Extensions.IExtensionApp import IExtensionApp
@@ -18,15 +17,23 @@ from src.Settings.Settings import Settings
 
 logger = logging.getLogger()
 
+def start_processing(_selected_files,_progress_bar):
+    processing_thread = threading.Thread(target=_run_process, args=(_selected_files,_progress_bar))
+    processing_thread.start()
+def _run_process(list_of_files,progress_bar:ProgressBarWidget):
 
-def convert(file):
-    try:
-        LoadedComicInfo(file, load_default_metadata=False).convert_to_webp()
-    except:
-        logger.exception("Exception converting")
+    for file in list_of_files:
 
-
-
+        logger.info(f"[Extension][WebpConvert] Processing file",
+                    extra={"processed_filename":file})
+        try:
+            # time.sleep(20)
+            LoadedComicInfo(file, load_default_metadata=False).convert_to_webp()
+            progress_bar.increase_processed()
+        except Exception:
+            logger.exception(f"Failed to convert to webp '{file}'")
+            progress_bar.increase_failed()
+    progress_bar.running = False
 
 
 class WebpConverter(IExtensionApp):
@@ -56,22 +63,10 @@ class WebpConverter(IExtensionApp):
         self._progress_bar.start(len(self._selected_files))
         self._progress_bar.running = True
         self.pb_update()
-        pool = ProcessPoolExecutor()
-        for file in self._selected_files:
+        self.after(0, self.pb_update)
+        start_processing(self._selected_files,self._progress_bar)
 
-            logger.debug(f"[Extension][WebpConvert] Processing file",
-                        extra={"processed_filename": file})
-            future = pool.submit(convert, file)
-            future.add_done_callback(self.done_callback)
-        self._progress_bar.running = False
 
-    def done_callback(self,future):
-        try:
-            result = future.result()
-            self._progress_bar.increase_processed()
-        except Exception:
-            logger.exception("Exception converting file")
-            self._progress_bar.increase_failed()
 
 
     def select_base(self):

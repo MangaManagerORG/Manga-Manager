@@ -1,6 +1,5 @@
 import logging
 import tkinter
-from tkinter import ttk
 from typing import NamedTuple
 
 import requests
@@ -62,7 +61,7 @@ class AboutWindow:
 
     def __init__(self, parent):
         self.top_level = tkinter.Toplevel(parent)
-        self.frame = ttk.Frame(self.top_level)
+        self.frame = tkinter.Frame(self.top_level)
         self.frame.pack(pady=30, padx=30, fill="both")
         HyperlinkLabelWidget(self.frame, "Github repo:", url_text="Go to Github rework main page",
                              url="https://github.com/MangaManagerORG/Manga-Manager/tree/rework/master") \
@@ -76,10 +75,10 @@ class AboutWindow:
         HyperlinkLabelWidget(self.frame, "Donate in Ko-fi",
                              "https://ko-fi.com/thepromidius")\
             .pack(fill="x", expand=True, side="top", anchor="center")
-        ttk.Label(self.frame, text="", font=("Helvetica", 12), justify="left")\
+        tkinter.Label(self.frame, text="", font=("Helvetica", 12), justify="left")\
             .pack(fill="x", expand=True, side="top", anchor="center")
 
-        ttk.Label(self.frame, text="Software licensed under the GNU General Public License v3.0",
+        tkinter.Label(self.frame, text="Software licensed under the GNU General Public License v3.0",
                       font=("Helvetica", 12), justify="left").pack(fill="x", expand=True, side="top", anchor="center")
 
         version_url = "https://github.com/MangaManagerORG/Manga-Manager/releases/latest"

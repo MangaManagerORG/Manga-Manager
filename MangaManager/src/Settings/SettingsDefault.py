@@ -16,8 +16,7 @@ default_settings = {
         {"create_backup_comicinfo": True},
         # {"selected_layout": "default"},
         {"move_to_template": ""},
-        {"remove_old_selection_on_drag_drop":True},
-        {"darkmode_enabled":False}
+        {"remove_old_selection_on_drag_drop":True}
 
     ],
     SettingHeading.WebpConverter: [

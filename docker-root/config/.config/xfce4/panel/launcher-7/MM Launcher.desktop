@@ -1,7 +1,8 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=python3.11 /app/main.py
+# Exec=python /app/main.py
+Exec=/config/Desktop/MangaManager_23_02_02_Beta_linux_01
 Icon=
 StartupNotify=true
 Terminal=False
