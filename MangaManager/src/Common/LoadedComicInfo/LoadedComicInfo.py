@@ -248,6 +248,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         # Start iterating files.
         total = len(zin.namelist())
         for i, item in enumerate(zin.infolist()):
+            logger.trace(f"processing {item} from {zin.filename}")
             counter = f"{i}/{total}"
             if write_metadata:
                 # Discard old backup
