@@ -1,6 +1,6 @@
 import unittest
 
-from common.models import AgeRating, Manga, YesNo, Formats
+from ComicInfo.models import AgeRating, Manga, YesNo, Formats
 
 
 class LoadedCInfo_Utils(unittest.TestCase):

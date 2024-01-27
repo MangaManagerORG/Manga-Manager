@@ -1,7 +1,13 @@
 import abc
 from typing import Callable
+from enum import Enum
 
-from .SettingControlType import SettingControlType
+
+class SettingControlType(Enum):
+    Bool = 0,
+    Text = 1,
+    Options = 2,
+    Number = 3
 
 
 class SettingControl(abc.ABC):

@@ -5,7 +5,7 @@ import logging
 from abc import ABC
 
 from ExternalSources.MetadataSources import ScraperFactory
-from common.models import ComicInfo
+from ComicInfo import ComicInfo
 from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from src.Common.errors import EditedCinfoNotSet, MangaNotFoundError, MissingRarTool
 from src.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile

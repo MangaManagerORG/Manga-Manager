@@ -20,7 +20,7 @@ ALT_COVER_PATTERN = re.compile(f"(?i)({'|'.join([cover_r3_alt])})")
 IS_IMAGE_PATTERN = re.compile(rf"(?i).*.(?:{'|'.join(IMAGE_EXTENSIONS)})$")
 
 logger = logging.getLogger()
-from PIL import Image
+from PIL import Image, ImageStat
 
 try:
     from anytree import Node, RenderTree
@@ -132,21 +132,38 @@ def get_new_webp_name(currentName: str) -> str:
         filename = filename.strip(".")
     return filename + ".webp"
 
-
-def convert_to_webp(image_bytes_to_convert: IO[bytes]) -> bytes:
+max_dimensions = (16383, 16383)
+def convert_to_webp(image_raw_data: IO[bytes]) -> bytes:
     """
     Converts the provided image to webp and returns the converted image bytes
     :param image_bytes_to_convert: The image that has to be converted
     :return:
     """
-    # TODO: Bulletproof image passed not image
-    image = Image.open(image_bytes_to_convert).convert()
-    # print(image.size, image.mode, len(image.getdata()))
-    converted_image = BytesIO()
-
-    image.save(converted_image, format="webp")
-    image.close()
-    return converted_image.getvalue()
+    try:
+        logger.info("Converting image")
+        image = Image.open(image_raw_data)
+        # Check if resizing is needed
+        is_grayscale = image.mode in ('L', 'LA') or all(
+            min(channel) == max(channel) for channel in ImageStat.Stat(image).extrema
+        )
+        # Choose resampling method based on image content
+        if is_grayscale:
+            # For grayscale images (e.g., manga pages)
+            resample_method = Image.NEAREST  # or Image.BILINEAR
+        else:
+            # For colored images (e.g., covers)
+            resample_method = Image.BICUBIC  # or Image.LANCZOS
+        # Check if resizing is needed
+        if any(dim > max_dim for dim, max_dim in zip(image.size, max_dimensions)):
+            # Resize the image with the chosen resampling method
+            image.thumbnail(max_dimensions, resample=resample_method)
+        converted_image_data = BytesIO()
+        image.save(converted_image_data, format="webp")
+        converted_image_data.seek(0)
+        return converted_image_data.getvalue()
+    except Exception as e:
+        logger.error(f"Exception converting image: {e}")
+        raise
 
 
 def get_platform():

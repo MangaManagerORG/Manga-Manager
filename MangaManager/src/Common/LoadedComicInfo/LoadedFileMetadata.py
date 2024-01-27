@@ -4,7 +4,7 @@ import logging
 import rarfile
 from lxml.etree import XMLSyntaxError
 
-from common.models import ComicInfo
+from ComicInfo import ComicInfo
 from src.Common.LoadedComicInfo.ILoadedComicInfo import ILoadedComicInfo
 from src.Common.errors import MissingRarTool
 

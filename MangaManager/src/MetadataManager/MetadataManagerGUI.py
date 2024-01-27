@@ -6,7 +6,7 @@ import os
 import tkinter
 from tkinter import Tk, Frame
 
-from common.models import ComicInfo
+from ComicInfo import ComicInfo
 from src.Common import ResourceLoader
 from src.Common.parser import parse_volume, parse_series, parse_number
 from src.Common.utils import get_platform, open_folder
@@ -30,6 +30,7 @@ from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
 
 
 class GUIApp(Tk, MetadataManagerLib):
+
     """
     This is the main logic and app
     """
@@ -138,7 +139,8 @@ class GUIApp(Tk, MetadataManagerLib):
             selected_parent_folder = os.path.dirname(selected_paths_list[0].name)
             if self.last_folder != selected_parent_folder or not self.last_folder:
                 self.last_folder = selected_parent_folder
-
+        else:
+            return
         self.selected_files_path = [file.name for file in selected_paths_list]
         self.load_selected_files()
 
@@ -153,6 +155,8 @@ class GUIApp(Tk, MetadataManagerLib):
         # Open select files dialog
 
         folder_path = askdirectory(initialdir=initial_dir)
+        if not folder_path:
+            return
         self.selected_files_path = glob.glob(root_dir=folder_path, pathname=os.path.join(folder_path, "**/*.cbz"),
                                              recursive=True)
         # TODO: Auto select recursive or not
@@ -175,7 +179,7 @@ class GUIApp(Tk, MetadataManagerLib):
         self.selected_files_path = sorted(self.selected_files_path)
         self.log.debug(f"Selected files [{', '.join(self.selected_files_path)}]")
         self.inserting_files = True
-        self.loading_window = LoadingWindow(len(self.selected_files_path))
+        self.loading_window = LoadingWindow(self.master, len(self.selected_files_path))
 
         if self.open_cinfo_list(self.loading_window.is_abort,append_and_keep):
             self._serialize_cinfolist_to_gui()

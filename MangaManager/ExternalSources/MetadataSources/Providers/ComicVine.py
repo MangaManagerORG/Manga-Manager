@@ -3,10 +3,10 @@ from abc import ABC
 
 import requests
 
-from common.models import ComicInfo
+from ComicInfo import ComicInfo
 from src.Common.errors import MangaNotFoundError
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
-from src.Settings import SettingSection, SettingControl, SettingControlType, Settings
+from src.Settings import SettingSection, SettingControl, Settings
 
 
 class ComicVine(IMetadataSource, ABC):

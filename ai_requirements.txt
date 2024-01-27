@@ -1,0 +1,7 @@
+
+OpenCV-Python
+sentence_transformers
+open_clip_torch
+requests
+git+https://github.com/openai/CLIP.git
+-i https://download.pytorch.org/whl/cu118 torch torchvision torchaudio

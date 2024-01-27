@@ -8,7 +8,7 @@ import tempfile
 import zipfile
 from typing import IO
 
-from common.models import ComicInfo
+from ComicInfo import ComicInfo
 from src.Common.errors import BadZipFile
 from src.Common.utils import IS_IMAGE_PATTERN, get_new_webp_name, convert_to_webp
 from .ArchiveFile import ArchiveFile
@@ -248,6 +248,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         # Start iterating files.
         total = len(zin.namelist())
         for i, item in enumerate(zin.infolist()):
+            logger.trace(f"processing {item} from {zin.filename}")
             counter = f"{i}/{total}"
             if write_metadata:
                 # Discard old backup

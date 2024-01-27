@@ -5,17 +5,20 @@ import tkinter
 from idlelib.tooltip import Hovertip
 from tkinter import Frame, CENTER, Button, NW
 from tkinter.filedialog import askopenfile
-from tkinter.ttk import Treeview
-
-import numpy as np
+from tkinter.ttk import Treeview, Checkbutton
+from tkinter import messagebox
 from PIL import Image, ImageTk
 
 from src.Common import ResourceLoader
 from src.Common.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
+from src.MetadataManager.CoverManager import torchlib
+from src.MetadataManager.GUI import MessageBox
 from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
 from src.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, CanvasCoverWidget
+from src.MetadataManager.GUI.widgets.MessageBoxWidget import MessageBoxWidget, MessageBoxButton
+from src.MetadataManager.GUI.windows.LoadingWindow import LoadingWindow
 from src.MetadataManager.MetadataManagerGUI import GUIApp
 from src.Settings import SettingHeading
 from src.Settings.Settings import Settings
@@ -137,6 +140,8 @@ class CoverManager(tkinter.Toplevel):
         """
         Initializes the toplevel window but hides the window.
         """
+        self.last_width = None
+        self.last_height = None
         if self.name is None:  # Check if the "name" attribute has been set
             raise ValueError(
                 f"Error initializing the {self.__class__.__name__} Extension. The 'name' attribute must be set in the ExtensionApp class.")
@@ -160,7 +165,7 @@ class CoverManager(tkinter.Toplevel):
         # so that it will be called whenever the window is resized
         self.bind("<Configure>", self.redraw)
 
-    def redraw(self, event):
+    def redraw(self, event,frames=None):
         """
         Redraws the widgets in the scrolled widget based on the current size of the window.
 
@@ -174,19 +179,34 @@ class CoverManager(tkinter.Toplevel):
         """
         width = self.winfo_width()
         height = self.winfo_height()
-        if not event:
+        if self.last_width is None and self.last_height is None:
+            self.last_width = width
+            self.last_height = height
+        elif self.last_width == width and self.last_height == height:
             return
-        if not (width != event.width or height != event.height):
-            return
+        else:
+            self.last_width = width
+            self.last_height = height
+        if event:
 
-        width = self.winfo_width() - 300
+            if isinstance(event.widget,ComicFrame):
+                return
+
+        width = self.winfo_width()- 120
         if width == self.prev_width:
             return
-        childrens = self.scrolled_widget.winfo_children()
-        for child in childrens:
-            child.grid_forget()
-        if not self.scrolled_widget.winfo_children():
-            return
+        if frames is None:
+            childrens = self.scrolled_widget.winfo_children()
+            for child in childrens:
+                child.grid_forget()
+            if not self.scrolled_widget.winfo_children():
+                return
+            widgets_to_redraw = list(
+                reversed(copy.copy(self.scrolled_widget.winfo_children())))  # self.scrolled_widget.grid_slaves()
+        else:
+            childrens = frames
+            widgets_to_redraw = frames# self.scrolled_widget.grid_slaves()
+        width = width - self.side_panel_control.winfo_width()
 
         num_widgets = width // 414
         try:
@@ -195,14 +215,16 @@ class CoverManager(tkinter.Toplevel):
         except ZeroDivisionError:
             pass
         # redraw the widgets
-        widgets_to_redraw = list(
-            reversed(copy.copy(self.scrolled_widget.winfo_children())))  # self.scrolled_widget.grid_slaves()
+
         i = 0
         j = 0
         while widgets_to_redraw:
             if j >= num_widgets:
+                if i%12 == 0:
+                    self.update()
                 i += 1
                 j = 0
+
             widgets_to_redraw.pop().grid(row=i, column=j)
             j += 1
 
@@ -219,19 +241,19 @@ class CoverManager(tkinter.Toplevel):
             self.attributes('-zoomed', True)
         elif platform.system() == "Windows":
             self.state('zoomed')
-        side_panel_control = Frame(self)
-        side_panel_control.pack(side="right", expand=False, fill="y")
+        self.side_panel_control = Frame(self)
+        self.side_panel_control.pack(side="right", expand=False, fill="y")
         ctr_btn = Frame(self)
         ctr_btn.pack()
         #
         #
-        tree = self.tree = Treeview(side_panel_control, columns=("Filename", "type"), show="headings", height=8)
+        tree = self.tree = Treeview(self.side_panel_control, columns=("Filename", "type"), show="headings", height=8)
         tree.column("#1")
         tree.heading("#1", text="Filename")
         tree.column("#2", anchor=CENTER, width=80)
         tree.heading("#2", text="Type")
         tree.pack(expand=True, fill="y", pady=(80, 0), padx=30, side="top")
-        action_buttons = Frame(side_panel_control)
+        action_buttons = Frame(self.side_panel_control)
         action_buttons.pack(ipadx=20, ipady=20, pady=(0, 80), fill="x", padx=30)
 
         ButtonWidget(master=action_buttons, text="Delete Selected",
@@ -245,8 +267,19 @@ class CoverManager(tkinter.Toplevel):
                      command=lambda: self.run_bulk_action(CoverActions.REPLACE)).pack(side="top", fill="x", ipady=10)
         ButtonWidget(master=action_buttons, text="Clear Selection",
                      command=self.clear_selection).pack(fill="x", ipady=10)
+
+        frame = Frame(master=action_buttons)
+        frame.pack(fill="x",ipady=10)
+        ButtonWidget(master=frame, text="Select all covers",
+                     command=self.select_all_covers).pack(fill="x", ipady=10,side=tkinter.LEFT, expand=True)
+        ButtonWidget(master=frame, text="Select all back-covers",
+                     command=self.select_all_backcovers).pack(fill="x", ipady=10, side=tkinter.RIGHT, expand=True)
+
+
         ButtonWidget(master=action_buttons, text="Close window",
                      command=self.exit_btn).pack(fill="x", ipady=10)
+        ButtonWidget(master=action_buttons, text="Process Changes",
+                     command=self.process).pack(fill="x", ipady=10)
 
         self.select_similar_btn = ButtonWidget(master=action_buttons, text="Select similar", state="disabled",
                                                command=self.select_similar)
@@ -264,8 +297,8 @@ class CoverManager(tkinter.Toplevel):
         self.scan_covers = tkinter.BooleanVar(value=True)
         self.scan_backcovers = tkinter.BooleanVar(value=False)
 
-        tkinter.Checkbutton(frame, text="Covers", variable=self.scan_covers).pack()
-        tkinter.Checkbutton(frame, text="Back Covers", variable=self.scan_backcovers).pack()
+        Checkbutton(frame, text="Covers", variable=self.scan_covers).pack()
+        Checkbutton(frame, text="Back Covers", variable=self.scan_backcovers).pack()
 
         content_frame = Frame(self)
         content_frame.pack(fill="both", side="left", expand=True)
@@ -279,18 +312,41 @@ class CoverManager(tkinter.Toplevel):
         self.prev_width = 0
         self.last_folder = ""
         self.selected_frames: list[tuple[ComicFrame, str]] = []
-
+        self.shadow_frame_size = None
+        frames = []
         for i, cinfo in enumerate(self._super.loaded_cinfo_list):
+
             # create a ComicFrame for each LoadedComicInfo object
             comic_frame = ComicFrame(self.scrolled_widget, cinfo)
+
 
             comic_frame.cover_canvas.bind("<Button-1>",
                                           lambda event, frame_=comic_frame: self.select_frame(event, frame_, "front"))
             comic_frame.backcover_canvas.bind("<Button-1>",
                                               lambda event, frame_=comic_frame: self.select_frame(event, frame_,
                                                                                                   "back"))
-            comic_frame.grid()
-        self.redraw(None)
+            # comic_frame.grid()
+            if self.shadow_frame_size is None:
+                comic_frame.grid()
+                self.shadow_frame_size = comic_frame.winfo_width()
+                comic_frame.grid_forget()
+            frames.append(comic_frame)
+        self.redraw(None,frames=frames)
+    def process(self):
+
+        frames_with_actions = [frame for frame in self.scrolled_widget.winfo_children() if frame.loaded_cinfo.cover_action or frame.loaded_cinfo.backcover_action]
+        self._super.pre_process()
+        self.reload_images(frames_with_actions)
+        messagebox.showinfo("Processing done", "The processing has finished.",parent=self)
+
+    def select_all_covers(self):
+        for frame in self.scrolled_widget.winfo_children():
+            frame:ComicFrame
+            self.select_frame(None,frame=frame,pos="front")
+    def select_all_backcovers(self):
+        for frame in self.scrolled_widget.winfo_children():
+            frame: ComicFrame
+            self.select_frame(None,frame=frame, pos="back")
 
     def select_frame(self, _, frame: ComicFrame, pos: str):
         """
@@ -397,6 +453,9 @@ class CoverManager(tkinter.Toplevel):
         Selects files that match.
         :return:
         """
+
+
+
         assert len(self.selected_frames) == 1
         frame, pos = self.selected_frames[0]
         if pos == "front":
@@ -405,20 +464,44 @@ class CoverManager(tkinter.Toplevel):
             selected_photoimage: ImageTk.PhotoImage = frame.loaded_cinfo.get_cover_cache(True)
 
         selected_image = ImageTk.getimage(selected_photoimage)
-        x = np.array(selected_image.histogram())
-        self.clear_selection()
+        # x = np.array(selected_image.histogram())
+        # self.clear_selection()
         # Compare all covers:
-        for comicframe in self.scrolled_widget.winfo_children():
+        delta = float(self.delta_entry.get())
+        comicsframes = list(reversed(self.scrolled_widget.winfo_children()))
+        loadbar = LoadingWindow(self,len(comicsframes))
+        for i, comicframe in enumerate(comicsframes):
+            if comicframe == frame:
+                continue
             comicframe: ComicFrame
             lcinfo: LoadedComicInfo = comicframe.loaded_cinfo
+            self.update()
             try:
                 if self.scan_covers.get():
-                    self._scan_images(lcinfo=lcinfo, x=x, is_backcover=False, comicframe=comicframe)
+                    photo_image = lcinfo.get_cover_cache()
+                    if photo_image is None:
+                        logger.error(f"Failed to compare front cover image. File is not loaded. File '{lcinfo.file_name}'")
+
+                    else:
+                        score = round(torchlib.generateScore(torchlib.convert_PIL(selected_image),torchlib.convert_PIL(ImageTk.getimage(photo_image))), 2)
+                        if score > delta:
+                            self.select_frame(None, frame=comicframe, pos="front")
+
                 if self.scan_backcovers.get():
-                    self._scan_images(lcinfo=lcinfo, x=x, is_backcover=True, comicframe=comicframe)
+                    photo_image = lcinfo.get_cover_cache(True)
+                    if photo_image is None:
+                        logger.error(f"Failed to compare back cover image. File is not loaded. File '{lcinfo.file_name}'")
+                    else:
+                        score = round(torchlib.generateScore(torchlib.convert_PIL(selected_image),
+                                                torchlib.convert_PIL(
+                                                    ImageTk.getimage(photo_image))
+                                                ),2)
+                        if score > delta:
+                            self.select_frame(None, frame=comicframe, pos="back")
             except Exception:
                 logger.exception(f"Failed to compare images for file {comicframe.loaded_cinfo.file_name}")
-
+            loadbar.loaded_file("")
+        loadbar.finish_loading()
     def _scan_images(self, x, lcinfo:LoadedComicInfo, comicframe, is_backcover=False):
         """
 
@@ -435,31 +518,64 @@ class CoverManager(tkinter.Toplevel):
             compared_image = ImageTk.getimage(image)
             self._compare_images(x, compared_image, comicframe, "back" if is_backcover else "front")
 
-    def _compare_images(self, x, compared_image, comicframe, pos):
-        delta = float(self.delta_entry.get())
-        y = np.array(compared_image.histogram())
-        if self.compare_image(x, y, delta=delta):
-            self.select_frame(None, frame=comicframe, pos=pos)
+    # @staticmethod
+    # def compare_image(x, y, delta:float):
+    #     """
+    #     Compares the image histograms
+    #     :param img1: Image Object
+    #     :param imge2: Image Object
+    #     :param x: Numpy array containing the selected image histogram
+    #     :param y: Numpy array containing the selected image histogram
+    #     :param delta: 1-100 match value
+    #     :return:
+    #     """
+    #     actual_error = 0
+    #     if len(x) == len(y):
+    #         error = np.sqrt(((x - y) ** 2).mean())
+    #         error = str(error)[:2]
+    #         actual_error = float(100) - float(error)
+    #         logger.debug(f"Match percentage: {actual_error}%")
+    #         if actual_error >= delta:
+    #             logger.trace("Matched image")
+    #             return True
+    #         else:
+    #             logger.trace("Images not similar")
 
-    @staticmethod
-    def compare_image(x, y, delta:float):
-        """
-        Compares the image histograms
-        :param img1: Image Object
-        :param imge2: Image Object
-        :param x: Numpy array containing the selected image histogram
-        :param y: Numpy array containing the selected image histogram
-        :param delta: 1-100 match value
-        :return:
-        """
-        actual_error = 0
-        if len(x) == len(y):
-            error = np.sqrt(((x - y) ** 2).mean())
-            error = str(error)[:2]
-            actual_error = float(100) - float(error)
-            logger.debug(f"Match percentage: {actual_error}%")
-            if actual_error >= delta:
-                logger.trace("Matched image")
-                return True
-            else:
-                logger.trace("Images not similar")
+    def reload_images(self,frames=None):
+        if frames is None:
+            frames = self.scrolled_widget.winfo_children()
+        for frame in frames:
+            # create a ComicFrame for each LoadedComicInfo object
+            frame: ComicFrame
+
+            loaded_cinfo = frame.loaded_cinfo
+
+            cover_cache = loaded_cinfo.cover_cache if loaded_cinfo.new_cover_cache is None else loaded_cinfo.new_cover_cache
+            backcover_cache = loaded_cinfo.backcover_cache if loaded_cinfo.new_backcover_cache is None else loaded_cinfo.new_backcover_cache
+
+            for type_, cover in (("front",cover_cache),("back",backcover_cache)):
+                canva: CanvasCoverWidget = frame.cover_canvas if type_ == "front" else frame.backcover_canvas
+                action = loaded_cinfo.cover_action if type_ == "front" else loaded_cinfo.backcover_action
+                if not cover:
+                    canva.itemconfig(canva.overlay_id, image=canva.overlay_image, state="hidden")
+                    canva.itemconfig(canva.no_image_warning_id, state="normal")
+                    canva.itemconfig(canva.action_id, text="")
+                    canva.itemconfig(canva.image_id, state="hidden")
+                else:
+                    # A cover exists. Hide warning
+                    canva.itemconfig(canva.no_image_warning_id, state="hidden")
+                canva.itemconfig(canva.overlay_id, image=canva.overlay_image, state="normal")
+                canva.itemconfig(canva.image_id, image=cover, state="normal")
+                match action:
+                    case CoverActions.APPEND | CoverActions.REPLACE:
+                        canva.itemconfig(canva.action_id,
+                                         text="Append" if
+                                         action == CoverActions.APPEND else "Replace", state="normal")
+                    case CoverActions.DELETE:
+                        canva.itemconfig(canva.action_id, text="Delete", state="normal")
+                    case _:
+                        canva.itemconfig(canva.overlay_id, state="hidden")
+                        canva.itemconfig(canva.action_id, text="", state="normal")
+
+                # Update the displayed cover
+                canva.itemconfig(canva.image_id, image=cover, state="normal")

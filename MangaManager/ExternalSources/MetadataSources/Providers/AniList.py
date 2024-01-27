@@ -7,16 +7,17 @@ from enum import StrEnum
 from typing import Optional
 
 from common import get_invalid_person_tag
-from common.models import ComicInfo
+from ComicInfo import ComicInfo
 from src.Common.errors import MangaNotFoundError
 from src.DynamicLibController.models.IMetadataSource import IMetadataSource
-from src.Settings.SettingControl import SettingControl
-from src.Settings.SettingControlType import SettingControlType
+from src.Settings.SettingControl import SettingControl, SettingControlType
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 
 pattern = r"anilist.com/manga/(\d+)"
 logger = logging.getLogger()
+
+
 class AniListPerson(StrEnum):
     OriginalStory = "original_story",  # Original Story
     CharacterDesign = "character_design",  # Character Design
@@ -88,6 +89,7 @@ class AniList(IMetadataSource):
         if len(invalid_people) == 0:
             return ""
         return ", ".join(invalid_people) + " are not a valid tags"
+
     @staticmethod
     def get_manga_id_from_url(url):
         pattern = r"https:\/\/anilist\.co\/manga\/(\d+)"
@@ -95,6 +97,7 @@ class AniList(IMetadataSource):
         if match:
             return match.group(1)
         return None
+
     @classmethod
     def _get_id_from_series(cls, cinfo: ComicInfo) -> Optional[int]:
 

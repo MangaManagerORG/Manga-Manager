@@ -1,4 +1,5 @@
-from tkinter import Checkbutton, BooleanVar
+from tkinter import BooleanVar
+from tkinter.ttk import Checkbutton
 
 from src.Common.utils import parse_bool
 from src.MetadataManager.GUI.widgets.MessageBoxWidget import MessageBoxWidget

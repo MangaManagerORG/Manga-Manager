@@ -1,6 +1,6 @@
 import unittest
 
-from common.models import ComicInfo
+from ComicInfo import ComicInfo
 from tests.common import is_valid_xml
 
 

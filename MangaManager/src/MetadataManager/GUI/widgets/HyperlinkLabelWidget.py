@@ -1,5 +1,5 @@
 import webbrowser
-from tkinter import Frame, Label
+from tkinter.ttk import Frame, Label
 
 
 class HyperlinkLabelWidget(Frame):
