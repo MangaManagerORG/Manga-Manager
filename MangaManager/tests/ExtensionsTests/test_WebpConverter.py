@@ -4,7 +4,7 @@ from logging_setup import add_trace_level
 add_trace_level()
 
 # Fixme reimplement extensions
-# class LoadedComicInfoConversToWebpTests(unittest.TestCase):
+# class LoadedComicInfoConvertsToWebpTests(unittest.TestCase):
 #     def setUp(self) -> None:
 #         print(os.getcwd())
 #         # Make sure there are no test files else delete them:

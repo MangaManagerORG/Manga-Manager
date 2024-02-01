@@ -155,7 +155,7 @@ def parameterized_class(attrs, input_values=None, classname_func=None,  **__):
 
 # configparser patch stuff
 def custom_get_item(key):
-    if key == 'DynamicProgramingParamaters':
+    if key == 'DynamicProgramingParameters':
         return {'wealth_state_total': 'Just a test 3!'}
     else:
         raise KeyError(str(key))
@@ -163,7 +163,7 @@ def custom_get_item(key):
 
 class CustomConfigParser1(configparser.ConfigParser):
     def __getitem__(self, key):
-        if key == 'DynamicProgramingParamaters':
+        if key == 'DynamicProgramingParameters':
             return {'wealth_state_total': 'Just a test 4!'}
         else:
             raise KeyError(str(key))
@@ -174,7 +174,7 @@ class CustomConfigParser2(configparser.ConfigParser):
         # Intercept the calls to configparser -> read and replace it to read from your test data
         if './path' == filenames:
             # Option 1: If you want to manually write the configuration here
-            self.read_string("[DynamicProgramingParamaters]\nwealth_state_total = Just a test 5!")
+            self.read_string("[DynamicProgramingParameters]\nwealth_state_total = Just a test 5!")
 
             # Option 2: If you have a test configuration file
             # super().read("./test_path")

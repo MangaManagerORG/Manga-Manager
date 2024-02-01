@@ -18,7 +18,7 @@ for ext in extensions:
 
 
 @parameterized_class(('GUI',), loaded_layouts)
-class DinamicLayoutTests(TKinterTestCase):
+class DynamicLayoutTests(TKinterTestCase):
     test_files_names = None
 
     def setUp(self) -> None:

@@ -182,7 +182,7 @@ class FileChooser(tkinter.Toplevel):
         self.entry.event_generate("<Button-1>")
 
     def change_to_entry(self, *_):
-        self.clear_search_chilren()
+        self.clear_search_children()
         self.entry = entry = TreeAutocompleteCombobox(self.search_bar)
         entry.set(self.current_search_path)
         entry.set_completion_list(self.current_search_path, os.listdir(entry.get()))
@@ -194,7 +194,7 @@ class FileChooser(tkinter.Toplevel):
 
         entry.pack(expand=False, fill="x", anchor="center")
 
-    def clear_search_chilren(self, *_):
+    def clear_search_children(self, *_):
         """
         Removes all widgets in the search bar frame
         :param event:
@@ -216,7 +216,7 @@ class FileChooser(tkinter.Toplevel):
             self.prev_path.append(self.current_search_path)
         else:
             self.prev_path.pop()
-        self.clear_search_chilren()
+        self.clear_search_children()
 
         parts = Path(new_path).parts
         current_iter_path = ""

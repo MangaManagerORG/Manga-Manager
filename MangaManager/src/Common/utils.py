@@ -70,7 +70,7 @@ def clean_filename(sourcestring, removestring=" %:/,.\\[]<>*?\""):
     Raises:
         | No exception is raised.
     """
-    # remove the undesireable characters
+    # remove the undesirable characters
     return ''.join([c for c in sourcestring if c not in removestring])
 
 
