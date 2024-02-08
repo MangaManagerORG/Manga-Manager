@@ -88,13 +88,13 @@ class MangaUpdates(IMetadataSource):
         try:
             response = requests.post('https://api.mangaupdates.com/v1/series/search', json=search_params)
         except Exception as e:
-            cls.logger.exception(e, extra=logging_info)
-            cls.logger.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
+            cls._log.exception(e, extra=logging_info)
+            cls._log.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
                              extra=logging_info)
             return None
 
-        cls.logger.debug(f'Search Params: {search_params}')
-        # cls.logger.debug(f'Response JSON: {response.json()}')
+        cls._log.debug(f'Search Params: {search_params}')
+        # cls._log.debug(f'Response JSON: {response.json()}')
 
         if len(response.json()['results']) == 0:
             raise MangaNotFoundError("MangaUpdates",search_params['search'])
@@ -114,8 +114,8 @@ class MangaUpdates(IMetadataSource):
         try:
             series_details = requests.get('https://api.mangaupdates.com/v1/series/' + str(cls._get_series_id(search_params, {})))
         except Exception as e:
-            cls.logger.exception(e, extra=logging_info)
-            cls.logger.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
+            cls._log.exception(e, extra=logging_info)
+            cls._log.warning('Manga Manager is unfamiliar with this error. Please log an issue for investigation.',
                              extra=logging_info)
             return None
             
