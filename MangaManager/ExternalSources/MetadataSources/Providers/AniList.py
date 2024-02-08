@@ -16,7 +16,7 @@ from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
 
 pattern = r"anilist.com/manga/(\d+)"
-logger = logging.getLogger()
+
 class AniListPerson(StrEnum):
     OriginalStory = "original_story",  # Original Story
     CharacterDesign = "character_design",  # Character Design
@@ -130,7 +130,7 @@ class AniList(IMetadataSource):
 
         # Title (Series & LocalizedSeries)
         title = data.get("title")
-        logger.info("[AniList] Fetch Data found title " + str(title) + " for " + comic_info_from_ui.series)
+        cls._log.info("[AniList] Fetch Data found title " + str(title) + " for " + comic_info_from_ui.series)
         title_english = (data.get("title").get("english") or "").strip()
         title_romaji = (data.get("title").get("romaji") or "").strip()
         if cls.romaji_as_series:
@@ -159,19 +159,19 @@ class AniList(IMetadataSource):
             if response.status_code == 429:  # Anilist rate-limit code
                 raise AniListRateLimit()
         except AniListRateLimit:
-            logger.exception("Hitted anilist ratelimit")
+            cls._log.exception("Hitted anilist ratelimit")
             return None
         except Exception:
-            logger.exception("Unhandled exception making the request to anilist")
+            cls._log.exception("Unhandled exception making the request to anilist")
             return None
 
-        logger.debug(f'Query: {query}')
-        logger.debug(f'Variables: {variables}')
+        cls._log.debug(f'Query: {query}')
+        cls._log.debug(f'Variables: {variables}')
         # self.logger.debug(f'Response JSON: {response.json()}')
         try:
             return response.json()['data']['Media']
         except TypeError:
-            logger.exception("Wrong data format recieved when parsing response json")
+            cls._log.exception("Wrong data format recieved when parsing response json")
             return None
 
     @classmethod
