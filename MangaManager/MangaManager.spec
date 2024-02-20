@@ -1,19 +1,28 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_all
 
+datas = []
+binaries = []
+hiddenimports = ['PIL._tkinter_finder','tkinterdnd2.TkinterDnD']
+collects = [collect_all('sv_ttk'),collect_all('tkinterdnd2')]
+for ret in collects:
+    datas += ret[0]
+    binaries += ret[1]
+    hiddenimports += ret[2]
 
 block_cipher = None
 added_files = [
          ( 'res/*', 'res'),
          ('ExternalSources', 'ExternalSources'),
          ('Extensions', 'Extensions')
-         ]
+         ] +datas
 
 a = Analysis(
     ['main.py'],
     pathex=[],
-    binaries=[],
+    binaries=binaries,
     datas=added_files,
-    hiddenimports=['PIL._tkinter_finder'],
+    hiddenimports=hiddenimports,
     hookspath=['pyinstaller_hooks'],
     hooksconfig={},
     runtime_hooks=[],
