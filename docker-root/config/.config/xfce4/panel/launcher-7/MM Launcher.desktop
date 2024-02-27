@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=python /app/main.py
+Exec=python3.11 /app/main.py
 Icon=
 StartupNotify=true
 Terminal=False

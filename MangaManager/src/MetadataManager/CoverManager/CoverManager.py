@@ -5,13 +5,14 @@ import tkinter
 from idlelib.tooltip import Hovertip
 from tkinter import Frame, CENTER, Button, NW
 from tkinter.filedialog import askopenfile
-from tkinter.ttk import Treeview
+from tkinter.ttk import Treeview, Checkbutton
 
 import numpy as np
 from PIL import Image, ImageTk
 
 from src.Common import ResourceLoader
 from src.Common.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
+
 from src.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from src.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from src.MetadataManager.GUI.widgets import ButtonWidget
@@ -137,6 +138,8 @@ class CoverManager(tkinter.Toplevel):
         """
         Initializes the toplevel window but hides the window.
         """
+        self.last_width = None
+        self.last_height = None
         if self.name is None:  # Check if the "name" attribute has been set
             raise ValueError(
                 f"Error initializing the {self.__class__.__name__} Extension. The 'name' attribute must be set in the ExtensionApp class.")
@@ -160,7 +163,7 @@ class CoverManager(tkinter.Toplevel):
         # so that it will be called whenever the window is resized
         self.bind("<Configure>", self.redraw)
 
-    def redraw(self, event):
+    def redraw(self, event,frames=None):
         """
         Redraws the widgets in the scrolled widget based on the current size of the window.
 
@@ -174,19 +177,34 @@ class CoverManager(tkinter.Toplevel):
         """
         width = self.winfo_width()
         height = self.winfo_height()
-        if not event:
+        if self.last_width is None and self.last_height is None:
+            self.last_width = width
+            self.last_height = height
+        elif self.last_width == width and self.last_height == height:
             return
-        if not (width != event.width or height != event.height):
-            return
+        else:
+            self.last_width = width
+            self.last_height = height
+        if event:
 
-        width = self.winfo_width() - 300
+            if isinstance(event.widget,ComicFrame):
+                return
+
+        width = self.winfo_width()- 120
         if width == self.prev_width:
             return
-        childrens = self.scrolled_widget.winfo_children()
-        for child in childrens:
-            child.grid_forget()
-        if not self.scrolled_widget.winfo_children():
-            return
+        if frames is None:
+            childrens = self.scrolled_widget.winfo_children()
+            for child in childrens:
+                child.grid_forget()
+            if not self.scrolled_widget.winfo_children():
+                return
+            widgets_to_redraw = list(
+                reversed(copy.copy(self.scrolled_widget.winfo_children())))  # self.scrolled_widget.grid_slaves()
+        else:
+            childrens = frames
+            widgets_to_redraw = frames# self.scrolled_widget.grid_slaves()
+        width = width - self.side_panel_control.winfo_width()
 
         num_widgets = width // 414
         try:
@@ -195,14 +213,16 @@ class CoverManager(tkinter.Toplevel):
         except ZeroDivisionError:
             pass
         # redraw the widgets
-        widgets_to_redraw = list(
-            reversed(copy.copy(self.scrolled_widget.winfo_children())))  # self.scrolled_widget.grid_slaves()
+
         i = 0
         j = 0
         while widgets_to_redraw:
             if j >= num_widgets:
+                if i%12 == 0:
+                    self.update()
                 i += 1
                 j = 0
+
             widgets_to_redraw.pop().grid(row=i, column=j)
             j += 1
 
@@ -219,19 +239,19 @@ class CoverManager(tkinter.Toplevel):
             self.attributes('-zoomed', True)
         elif platform.system() == "Windows":
             self.state('zoomed')
-        side_panel_control = Frame(self)
-        side_panel_control.pack(side="right", expand=False, fill="y")
+        self.side_panel_control = Frame(self)
+        self.side_panel_control.pack(side="right", expand=False, fill="y")
         ctr_btn = Frame(self)
         ctr_btn.pack()
         #
         #
-        tree = self.tree = Treeview(side_panel_control, columns=("Filename", "type"), show="headings", height=8)
+        tree = self.tree = Treeview(self.side_panel_control, columns=("Filename", "type"), show="headings", height=8)
         tree.column("#1")
         tree.heading("#1", text="Filename")
         tree.column("#2", anchor=CENTER, width=80)
         tree.heading("#2", text="Type")
         tree.pack(expand=True, fill="y", pady=(80, 0), padx=30, side="top")
-        action_buttons = Frame(side_panel_control)
+        action_buttons = Frame(self.side_panel_control)
         action_buttons.pack(ipadx=20, ipady=20, pady=(0, 80), fill="x", padx=30)
 
         ButtonWidget(master=action_buttons, text="Delete Selected",
@@ -275,8 +295,8 @@ class CoverManager(tkinter.Toplevel):
         self.scan_covers = tkinter.BooleanVar(value=True)
         self.scan_backcovers = tkinter.BooleanVar(value=False)
 
-        tkinter.Checkbutton(frame, text="Covers", variable=self.scan_covers).pack()
-        tkinter.Checkbutton(frame, text="Back Covers", variable=self.scan_backcovers).pack()
+        Checkbutton(frame, text="Covers", variable=self.scan_covers).pack()
+        Checkbutton(frame, text="Back Covers", variable=self.scan_backcovers).pack()
 
         content_frame = Frame(self)
         content_frame.pack(fill="both", side="left", expand=True)
@@ -290,8 +310,10 @@ class CoverManager(tkinter.Toplevel):
         self.prev_width = 0
         self.last_folder = ""
         self.selected_frames: list[tuple[ComicFrame, str]] = []
-
+        self.shadow_frame_size = None
+        frames = []
         for i, cinfo in enumerate(self._super.loaded_cinfo_list):
+
             # create a ComicFrame for each LoadedComicInfo object
             comic_frame = ComicFrame(self.scrolled_widget, cinfo)
 
@@ -300,8 +322,13 @@ class CoverManager(tkinter.Toplevel):
             comic_frame.backcover_canvas.bind("<Button-1>",
                                               lambda event, frame_=comic_frame: self.select_frame(event, frame_,
                                                                                                   "back"))
-            comic_frame.grid()
-        self.redraw(None)
+            # comic_frame.grid()
+            if self.shadow_frame_size is None:
+                comic_frame.grid()
+                self.shadow_frame_size = comic_frame.winfo_width()
+                comic_frame.grid_forget()
+            frames.append(comic_frame)
+        self.redraw(None,frames=frames)
     def process(self):
 
         frames_with_actions = [frame for frame in self.scrolled_widget.winfo_children() if frame.loaded_cinfo.cover_action or frame.loaded_cinfo.backcover_action]
