@@ -20,7 +20,6 @@ from src.Settings.SettingControl import SettingControl
 from src.Settings.SettingControlType import SettingControlType
 from src.Settings.SettingSection import SettingSection
 from src.Settings.Settings import Settings
-import sv_ttk
 logger = logging.getLogger("SettingsWidgetManager")
 
 
@@ -198,10 +197,6 @@ class SettingsWindow:
             provider.save_settings()
 
         Settings().save()
-        if Settings().get(SettingHeading.Main, 'darkmode_enabled'):
-            sv_ttk.use_dark_theme()
-        else:
-            sv_ttk.use_light_theme()
         self.settings_window.destroy()
 
     @staticmethod
