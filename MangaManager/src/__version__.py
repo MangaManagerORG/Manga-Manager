@@ -1,1 +1,1 @@
-__version__ = "1.0.4:nightly:22a21f1"
+__version__ = "1.0.4:nightly:fd61604"
