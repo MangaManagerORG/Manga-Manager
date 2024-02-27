@@ -1,3 +1,5 @@
+# from update_version import update_version_file
+# update_version_file()
 from MangaManager.src.__version__ import __version__ as version_
 from platform import system
 from datetime import date
@@ -13,7 +15,9 @@ release_name = "_".join(
      str(datetime.now().minute).zfill(2),
      str(datetime.now().second).zfill(2),
      system(), build_version, "_Cuda"])
+# from PyInstaller.utils.hooks import collect_all
 
+# datas = collect_all('open_clip')
 a = Analysis(
     ['main.py'],
     pathex=[],
@@ -23,10 +27,8 @@ a = Analysis(
          ('ExternalSources', 'ExternalSources'),
          ('Extensions', 'Extensions'),
          # THe following are picked from env variable. Please run python to include possible missing files
-         ('../venv_3.11/Lib/site-packages/sv_ttk/*','sv_ttk'), # To save the sv_ttk.tcl file - MISSING IMPORT
-         ('../venv_3.11/Lib/site-packages/sv_ttk/theme*','sv_ttk/theme'), # To save the sv_ttk.tcl file - MISSING IMPORT
-         ('../venv_3.11/Lib/site-packages/open_clip/model_configs/ViT-B-16-plus-240.json','open_clip/model_configs'), # To save the sv_ttk.tcl file - MISSING IMPORT
-         ('../venv_3.11/Lib/site-packages/open_clip/bpe_simple_vocab_16e6.txt.gz','open_clip') # To save the sv_ttk.tcl file - MISSING IMPORT
+         ('../.venv/Lib/site-packages/open_clip/model_configs/ViT-B-16-plus-240.json','open_clip/model_configs'), # To save the sv_ttk.tcl file - MISSING IMPORT
+         ('../.venv/Lib/site-packages/open_clip/bpe_simple_vocab_16e6.txt.gz','open_clip') # To save the sv_ttk.tcl file - MISSING IMPORT
 
          ],
     hiddenimports=['PIL._tkinter_finder','tkinterdnd2.TkinterDnD','slugify'],

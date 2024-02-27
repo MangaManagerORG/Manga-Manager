@@ -1,3 +1,5 @@
+# from update_version import update_version_file
+# update_version_file()
 import os
 import pathlib
 import platform
@@ -12,6 +14,7 @@ if platform.system() == "Windows":
     venv_path = VENV + "/Lib"
 else:
     venv_path = VENV + "/lib/python3.11"
+
 release_name = "_".join(
     ["MangaManager",
      str(build_date.year),
@@ -21,8 +24,9 @@ release_name = "_".join(
      str(datetime.now().minute).zfill(2),
      str(datetime.now().second).zfill(2),
      system(), build_version, "_NoCuda"])
-open_clip_libs = [(venv_path + '/site-packages/open_clip/model_configs/ViT-B-16-plus-240.json','open_clip/model_configs'), # To save the sv_ttk.tcl file - MISSING IMPORT
-                (venv_path + '/site-packages/open_clip/bpe_simple_vocab_16e6.txt.gz','open_clip')] if pathlib.Path(venv_path,"site-packages","open_clip").exists() else [] # To save the sv_ttk.tcl file - MISSING IMPORT],
+open_clip_libs = []
+    # (venv_path + '/site-packages/open_clip/model_configs/ViT-B-16-plus-240.json','open_clip/model_configs'), # To save the sv_ttk.tcl file - MISSING IMPORT
+    #             (venv_path + '/site-packages/open_clip/bpe_simple_vocab_16e6.txt.gz','open_clip')] if pathlib.Path(venv_path,"site-packages","open_clip").exists() else [] # To save the sv_ttk.tcl file - MISSING IMPORT],
 a = Analysis(
     ['main.py'],
     pathex=[],
@@ -31,19 +35,16 @@ a = Analysis(
          ( 'res/*', 'res'),
          ('ExternalSources', 'ExternalSources'),
          ('Extensions', 'Extensions'),
-         # THe following are picked from env variable. Please run python to include possible missing files
-         (venv_path + '/site-packages/sv_ttk/*','sv_ttk'), # To save the sv_ttk.tcl file - MISSING IMPORT
-         (venv_path + '/site-packages/sv_ttk/theme*','sv_ttk/theme'), # To save the sv_ttk.tcl file - MISSING IMPORT
          ] + open_clip_libs,
     hiddenimports=['PIL._tkinter_finder','tkinterdnd2.TkinterDnD','slugify'],
     hookspath=['MangaManager/pyinstaller_hooks'],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['torch','numpy','cv2'''],
+    excludes=['torch','numpy','cv2','open_clip','torchvision','torchaudio','tensorflow'],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     noarchive=False,
-    paths=[venv_path +"/site-packages"] # So it loads libraries from dev env first
+    # paths=[venv_path +"/site-packages"] # So it loads libraries from dev env first
 #    collect_all=True
 )
 

@@ -1,16 +1,21 @@
-import logging
-
+"""
 # pip requirements:
 # OpenCV-Python
 # sentence_transformers
 # open_clip_torch
 # requests
 # git+https://github.com/openai/CLIP.git
+# torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+"""
+import logging
+
+
 
 logger = logging.getLogger()
 
 try:
-    raise ImportError
+    # raise ImportError
     import PIL
     import torch
     import open_clip
@@ -23,6 +28,8 @@ try:
     logger.info("Torch libraries successfully imported")
     # image processing model
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    if device == "cuda":
+        logger.warning("Using CUDA")
     model, _, preprocess = open_clip.create_model_and_transforms('ViT-B-16-plus-240', pretrained="laion400m_e32")
     model.to(device)
     def imageEncoder(img):
@@ -50,6 +57,7 @@ try:
         return cvtColor(array(pil_img), COLOR_BGR2RGB)
 except ImportError:
     logger.warning("Missing dependecies for torch. disabling similarity")
+    logger.exception("Please install")
 
 
     def convert_PIL(*_):
