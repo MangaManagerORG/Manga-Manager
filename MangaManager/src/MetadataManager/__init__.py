@@ -8,7 +8,7 @@ from src.MetadataManager.GUI.windows.MainWindow import MainWindow
 from src.MetadataManager.GUI.OneTimeMessageBox import OneTimeMessageBox
 from src.MetadataManager.GUI.widgets.MessageBoxWidget import MessageBoxButton
 from src.Settings import Settings, SettingHeading
-import sv_ttk
+
 logger = logging.getLogger()
 
 icon_path = ResourceLoader.get('icon.ico')
@@ -32,10 +32,6 @@ def execute_gui():
 
     app = MainWindow()
 
-    if Settings().get(SettingHeading.Main, 'darkmode_enabled'):
-        sv_ttk.use_dark_theme()
-    else:
-        sv_ttk.use_light_theme()
     try:
         app.iconbitmap(icon_path)
     except:
