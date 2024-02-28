@@ -43,38 +43,39 @@ LOGFILE_PATH = Path(LOGS_PATH, "MangaManager.log")
 setup_logging(LOGFILE_PATH, args.loglevel)
 logger = logging.getLogger()
 
-from MangaManager.Settings.Settings import Settings
-# Create initial ini with defaults else load existing
-Settings().load()
-from MangaManager.Common.errors import NoFilesSelected
-from MangaManager.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
-from MangaManager.__version__ import __version__ as version
-
-
-
-# <Arguments parser>
-
-
-class ToolS(enum.Enum):
-    NONE = 0
-    METADATA = 1
-    WEBP = 5
-
-    @classmethod
-    def list(cls):
-        return list(map(lambda c: c.name, cls))
-
-
-def get_selected_files(glob_path) -> list[str]:
-    file_paths = glob.glob(glob_path)
-    if not file_paths:
-        raise NoFilesSelected()
-    return file_paths
-
-
-
-
 if __name__ == '__main__':
+    from MangaManager.Settings.Settings import Settings
+    # Create initial ini with defaults else load existing
+    Settings().load()
+    from MangaManager.Common.errors import NoFilesSelected
+    from MangaManager.MetadataManager.MetadataManagerCLI import App as CLIMetadataApp
+    from MangaManager.__version__ import __version__ as version
+
+
+
+    # <Arguments parser>
+
+
+    class ToolS(enum.Enum):
+        NONE = 0
+        METADATA = 1
+        WEBP = 5
+
+        @classmethod
+        def list(cls):
+            return list(map(lambda c: c.name, cls))
+
+
+    def get_selected_files(glob_path) -> list[str]:
+        file_paths = glob.glob(glob_path)
+        if not file_paths:
+            raise NoFilesSelected()
+        return file_paths
+
+
+
+
+
     if args.selected_files_cli:
         logger.info(f"Starting: CLI Metadata app")
         selected_files = get_selected_files(args.selected_files_cli)

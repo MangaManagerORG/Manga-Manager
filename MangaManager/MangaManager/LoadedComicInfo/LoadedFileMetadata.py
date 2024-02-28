@@ -5,7 +5,7 @@ import rarfile
 from lxml.etree import XMLSyntaxError
 
 from ComicInfo import ComicInfo
-from MangaManager.LoadedComicInfo.ILoadedComicInfo import ILoadedComicInfo
+from .ILoadedComicInfo import ILoadedComicInfo
 from MangaManager.Common.errors import MissingRarTool
 
 logger = logging.getLogger("LoadedCInfo")

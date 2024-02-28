@@ -24,4 +24,3 @@ SOURCES_DIR = Path(sub_mm_path, "ExternalSources")
 SOURCES_DIR.mkdir(exist_ok=True)
 
 loaded_extensions =  []
-

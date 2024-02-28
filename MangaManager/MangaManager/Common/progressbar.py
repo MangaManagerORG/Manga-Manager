@@ -4,7 +4,7 @@ import time
 from string import Template
 from threading import Timer
 
-from MangaManager.Common.utils import get_elapsed_time, get_estimated_time
+from .utils import get_elapsed_time, get_estimated_time
 
 logger = logging.getLogger()
 

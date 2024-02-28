@@ -12,7 +12,6 @@ from MangaManager.Common.utils import obtain_cover_filename
 from .ArchiveFile import ArchiveFile
 from .CoverActions import CoverActions
 from .ILoadedComicInfo import ILoadedComicInfo
-from MangaManager.Settings import Settings, SettingHeading
 
 logger = logging.getLogger("LoadedCInfo")
 COMICINFO_FILE = 'ComicInfo.xml'
@@ -112,7 +111,13 @@ class LoadedFileCoverData(ILoadedComicInfo):
             self.new_cover_cache = None
         self._new_backcover_path = path
 
-    def load_cover_info(self, load_images=True):
+    def load_cover_info(self, load_images=True,cache_cover_images=True):
+        """
+
+        :param load_images:
+        :param cache_cover_images: bool(Settings().get(SettingHeading.Main, 'cache_cover_images'))
+        :return:
+        """
         try:
             with ArchiveFile(self.file_path,'r') as self.archive:
                 cover_info = obtain_cover_filename(self.archive.namelist())
@@ -124,7 +129,7 @@ class LoadedFileCoverData(ILoadedComicInfo):
                     logger.warning(f"[{'CoverParsing':13s}] Couldn't parse any cover")
                 else:
                     logger.info(f"[{'CoverParsing':13s}] Cover parsed as '{self.cover_filename}'")
-                    if bool(Settings().get(SettingHeading.Main, 'cache_cover_images')):
+                    if cache_cover_images:
                         self.get_cover_image_bytes()
 
                 if not self.backcover_filename:

@@ -16,7 +16,6 @@ from .CoverActions import CoverActions
 from .ILoadedComicInfo import ILoadedComicInfo
 from .LoadedFileCoverData import LoadedFileCoverData
 from .LoadedFileMetadata import LoadedFileMetadata
-from MangaManager.Settings import Settings, SettingHeading
 
 logger = logging.getLogger("LoadedCInfo")
 COMICINFO_FILE = 'ComicInfo.xml'
@@ -116,20 +115,27 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
         self.has_changes = self.cinfo_object.has_changes(self.original_cinfo_object)
         logger.debug(f"[{'BEGIN WRITE':13s}] Writing metadata to file '{self.file_path}'")
         try:
-            self._process(write_metadata=self.has_changes)
+            self._process(write_metadata=self.has_changes, do_create_backup_comicinfo=True)
         finally:
             if auto_unmark_changes:
                 self.has_changes = False
 
     def convert_to_webp(self):
         logger.debug(f"[{'BEGIN CONVERT':13s}] Converting to webp: '{self.file_path}'")
-        self._process(do_convert_to_webp=True)
+        self._process(do_convert_to_webp=True, do_create_backup_comicinfo=True)
 
     def _export_metadata(self) -> str:
         return str(self.cinfo_object.to_xml())
 
     # ACTUAL LOGIC
-    def _process(self, write_metadata=False, do_convert_to_webp=False, **_):
+    def _process(self, write_metadata=False, do_convert_to_webp=False, do_create_backup_comicinfo=True, **_):
+        """
+
+        :param write_metadata:
+        :param do_convert_to_webp:
+        :param do_create_backup_comicinfo: Settings().get(SettingHeading.Main, "create_backup_comicinfo") == 'True'
+        :return:
+        """
         logger.info(f"[{'PROCESSING':13s}] Processing file '{self.file_path}'")
         if write_metadata and not do_convert_to_webp and not self.has_metadata:
             with zipfile.ZipFile(self.file_path, mode='a', compression=zipfile.ZIP_STORED) as zf:
@@ -152,7 +158,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
                     orig_comp_type = s.compress_type
                     break
             with zipfile.ZipFile(tmpname, "w",compression=orig_comp_type) as zout:  # The temp file where changes will be saved to
-                self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=do_convert_to_webp)
+                self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=do_convert_to_webp,do_create_backup_comicinfo=False)
             newfile_size = os.path.getsize(tmpname)
 
             # If the new file is smaller than the original file, we process again with no webp conversion.
@@ -166,7 +172,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
                     return
                 logger.warning(f"[{'Processing':13s}]  ⤷ Cover action or new metadata detected. Processing new covers without converting source to webp")
                 with zipfile.ZipFile(tmpname, "w") as zout:  # The temp file where changes will be saved to
-                    self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=False)
+                    self._recompress(zin, zout, write_metadata=write_metadata, do_convert_webp=False,do_create_backup_comicinfo=do_create_backup_comicinfo)
 
         # Reset cover flags
         self.cover_action = CoverActions.RESET
@@ -211,7 +217,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             logger.info("[{'Processing':13s}] Updating covers")
             self.load_cover_info()
 
-    def _recompress(self, zin, zout, write_metadata, do_convert_webp):
+    def _recompress(self, zin, zout, write_metadata, do_convert_webp,do_create_backup_comicinfo):
         """
         Given 2 input and output zipfiles copy content of one zipfile to the new one.
         Files that matches certain criteria gets skipped and not copied over, hence deleted.
@@ -230,7 +236,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
             logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] New ComicInfo.xml appended to the file")
             # Directly backup the metadata if it's at root.
             if self.is_cinfo_at_root:
-                if Settings().get(SettingHeading.Main, "create_backup_comicinfo") == 'True' and self.had_metadata_on_open:
+                if do_create_backup_comicinfo and self.had_metadata_on_open:
                     zout.writestr(f"Old_{COMICINFO_FILE}.bak", zin.read(COMICINFO_FILE))
                     logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
                 is_metadata_backed = True
@@ -264,7 +270,7 @@ class LoadedComicInfo(LoadedFileMetadata, LoadedFileCoverData, ILoadedComicInfo)
                         continue
 
                     # If filename is comicinfo save as old_comicinfo.xml
-                    if Settings().get(SettingHeading.Main, "create_backup_comicinfo") == 'True' and self.had_metadata_on_open:
+                    if do_create_backup_comicinfo and self.had_metadata_on_open:
                         zout.writestr(f"Old_{item.filename}.bak", zin.read(item.filename))
                         logger.debug(f"[{_LOG_TAG_WRITE_META:13s}] Backup for comicinfo.xml created")
                     # Stop accepting more comicinfo files.

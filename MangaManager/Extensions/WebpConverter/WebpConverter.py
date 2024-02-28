@@ -6,26 +6,16 @@ import os
 import pathlib
 import tkinter
 import tkinter.ttk as ttk
-from concurrent.futures import ProcessPoolExecutor
 from tkinter import filedialog
 
 from Extensions.IExtensionApp import IExtensionApp
-from MangaManager.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from Extensions.WebpConverter.processing import convert
 from MangaManager.Common.utils import ShowPathTreeAsDict
 from MangaManager.MetadataManager.GUI.widgets import ScrolledFrameWidget, ProgressBarWidget
+from MangaManager.ProcessingPool import ProcessingPool
 from MangaManager.Settings.Settings import Settings
 
 logger = logging.getLogger()
-
-
-def convert(file):
-    try:
-        LoadedComicInfo(file, load_default_metadata=False).convert_to_webp()
-    except:
-        logger.exception("Exception converting")
-
-
-
 
 
 class WebpConverter(IExtensionApp):
@@ -55,7 +45,7 @@ class WebpConverter(IExtensionApp):
         self._progress_bar.start(len(self._selected_files))
         self._progress_bar.running = True
         self.pb_update()
-        pool = ProcessPoolExecutor()
+        pool = ProcessingPool()
         for file in self._selected_files:
 
             logger.debug(f"[Extension][WebpConvert] Processing file",
@@ -67,7 +57,10 @@ class WebpConverter(IExtensionApp):
     def done_callback(self,future):
         try:
             result = future.result()
-            self._progress_bar.increase_processed()
+            if result:
+                self._progress_bar.increase_processed()
+            else:
+                self._progress_bar.increase_failed()
         except Exception:
             logger.exception("Exception converting file")
             self._progress_bar.increase_failed()

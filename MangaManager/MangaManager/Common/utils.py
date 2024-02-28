@@ -9,7 +9,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import IO
 
-from MangaManager.Common.naturalsorter import natsort_key_with_path_support
+from .naturalsorter import natsort_key_with_path_support
 
 # Patterns for picking cover
 IMAGE_EXTENSIONS = ('png', 'jpg', 'jpeg', 'tiff', 'bmp', 'gif', 'webp')
