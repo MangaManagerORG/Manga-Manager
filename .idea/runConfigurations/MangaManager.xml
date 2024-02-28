@@ -1,13 +1,14 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="MangaManager" type="PythonConfigurationType" factoryName="Python">
     <module name="MangaManagerV2" />
+    <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>
       <env name="PYTHONUNBUFFERED" value="1" />
     </envs>
     <option name="SDK_HOME" value="" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/MangaManager" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/" />
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="false" />
     <option name="ADD_SOURCE_ROOTS" value="false" />
@@ -23,7 +24,7 @@
         <ENTRY IS_ENABLED="false" PARSER="env" IS_EXECUTABLE="false" PATH="dev.env" />
       </ENTRIES>
     </EXTENSION>
-    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MangaManager/main.py" />
+    <option name="SCRIPT_NAME" value="src/main.py" />
     <option name="PARAMETERS" value="" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
