@@ -4,29 +4,39 @@ import glob
 import logging
 import os
 import pathlib
+import threading
 import tkinter
 import tkinter.ttk as ttk
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from tkinter import filedialog
 
 from Extensions.IExtensionApp import IExtensionApp
-from Extensions.WebpConverter.processing import convert
 from MangaManager.Common.utils import ShowPathTreeAsDict
+from MangaManager.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from MangaManager.MetadataManager.GUI.widgets import ScrolledFrameWidget, ProgressBarWidget
-from MangaManager.Settings.Settings import Settings
+
 
 logger = logging.getLogger()
-class ProcessingPool(object):
-    _instance = None
 
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = object.__new__(cls)
-            cls._instance.pool = ProcessPoolExecutor()
-        return cls._instance
 
-    def submit(self, func, *args, **kwargs):
-        return self.pool.submit(func, *args, **kwargs)
+def start_processing(_selected_files, _progress_bar):
+    processing_thread = threading.Thread(target=_run_process, args=(_selected_files, _progress_bar))
+    processing_thread.start()
+
+
+def _run_process(list_of_files, progress_bar: ProgressBarWidget):
+    for file in list_of_files:
+
+        logger.info(f"[Extension][WebpConvert] Processing file",
+                    extra={"processed_filename": file})
+        try:
+            # time.sleep(20)
+            LoadedComicInfo(file, load_default_metadata=False).convert_to_webp()
+            progress_bar.increase_processed()
+        except Exception:
+            logger.exception(f"Failed to convert to webp '{file}'")
+            progress_bar.increase_failed()
+    progress_bar.running = False
 
 
 class WebpConverter(IExtensionApp):
@@ -56,14 +66,8 @@ class WebpConverter(IExtensionApp):
         self._progress_bar.start(len(self._selected_files))
         self._progress_bar.running = True
         self.pb_update()
-        pool = ProcessingPool()
-        for file in self._selected_files:
-
-            logger.debug(f"[Extension][WebpConvert] Processing file",
-                        extra={"processed_filename": file})
-            future = pool.submit(convert, file)
-            future.add_done_callback(self.done_callback)
-        self._progress_bar.running = False
+        self.after(0, self.pb_update)
+        start_processing(self._selected_files, self._progress_bar)
 
     def done_callback(self,future):
         try:
@@ -119,6 +123,7 @@ class WebpConverter(IExtensionApp):
 
         frame = tkinter.Frame(self.master)
         frame.pack(fill="both", expand=True, padx=20, pady=20)
+        from MangaManager.Settings.Settings import Settings
         default_base_setting = Settings().get('Webp Converter', 'default_base_path')
         self.selected_base_path = tkinter.StringVar(None, value=default_base_setting)
         self.base_path = default_base_setting
