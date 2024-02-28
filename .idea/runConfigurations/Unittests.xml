@@ -1,10 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Unittests" type="tests" factoryName="Unittests">
     <module name="MangaManagerV2" />
+    <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <option name="SDK_HOME" value="" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/MangaManager" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="false" />
     <option name="ADD_SOURCE_ROOTS" value="false" />
@@ -21,7 +22,7 @@
     </EXTENSION>
     <option name="_new_pattern" value="&quot;&quot;" />
     <option name="_new_additionalArguments" value="&quot;discover -s tests -t .&quot;" />
-    <option name="_new_target" value="&quot;$PROJECT_DIR$/MangaManager/tests&quot;" />
+    <option name="_new_target" value="&quot;$PROJECT_DIR$/src/tests&quot;" />
     <option name="_new_targetType" value="&quot;PATH&quot;" />
     <method v="2" />
   </configuration>
