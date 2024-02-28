@@ -6,7 +6,7 @@ import git
 def update_version_file():
     """Updates the version file with the hash from prev-rev."""
     version_file_path = os.path.join(
-        os.path.dirname(__file__), "MangaManager", "__version__.py"
+        os.path.dirname(__file__), "src/MangaManager", "__version__.py"
     )
 
     # Read the version file
