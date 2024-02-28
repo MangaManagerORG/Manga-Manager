@@ -6,16 +6,27 @@ import os
 import pathlib
 import tkinter
 import tkinter.ttk as ttk
+from concurrent.futures import ProcessPoolExecutor
 from tkinter import filedialog
 
 from Extensions.IExtensionApp import IExtensionApp
 from Extensions.WebpConverter.processing import convert
 from MangaManager.Common.utils import ShowPathTreeAsDict
 from MangaManager.MetadataManager.GUI.widgets import ScrolledFrameWidget, ProgressBarWidget
-from MangaManager.ProcessingPool import ProcessingPool
 from MangaManager.Settings.Settings import Settings
 
 logger = logging.getLogger()
+class ProcessingPool(object):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = object.__new__(cls)
+            cls._instance.pool = ProcessPoolExecutor()
+        return cls._instance
+
+    def submit(self, func, *args, **kwargs):
+        return self.pool.submit(func, *args, **kwargs)
 
 
 class WebpConverter(IExtensionApp):

@@ -188,7 +188,7 @@ def is_valid_xml(xml:str) -> bool:
         xml_file = etree.fromstring(xml.encode("utf-8"),parser=etree.XMLParser(encoding='utf-8'))
     except ValueError:
      print("dasd")
-    xsd_schema = etree.parse('common/models/ComicInfo.xds')
+    xsd_schema = etree.parse('MangaManager/Common/models/ComicInfo.xds')
 
     # Create a validator object
     xml_validator = etree.XMLSchema(xsd_schema)
