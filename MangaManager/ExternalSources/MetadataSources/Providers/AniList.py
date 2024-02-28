@@ -6,13 +6,13 @@ import requests
 from enum import StrEnum
 from typing import Optional
 
-from common import get_invalid_person_tag
+from MangaManager.Common import get_invalid_person_tag
 from ComicInfo import ComicInfo
-from src.Common.errors import MangaNotFoundError
-from src.DynamicLibController.models.IMetadataSource import IMetadataSource
-from src.Settings.SettingControl import SettingControl, SettingControlType
-from src.Settings.SettingSection import SettingSection
-from src.Settings.Settings import Settings
+from MangaManager.Common.errors import MangaNotFoundError
+from MangaManager.DynamicLibController.models.IMetadataSource import IMetadataSource
+from MangaManager.Settings.SettingControl import SettingControl, SettingControlType
+from MangaManager.Settings.SettingSection import SettingSection
+from MangaManager.Settings.Settings import Settings
 
 pattern = r"anilist.com/manga/(\d+)"
 logger = logging.getLogger()

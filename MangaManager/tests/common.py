@@ -11,7 +11,7 @@ import _tkinter
 from PIL import Image
 from lxml import etree
 
-from src.Common.LoadedComicInfo.LoadedComicInfo import COMICINFO_FILE, LoadedComicInfo
+from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import COMICINFO_FILE, LoadedComicInfo
 
 
 def create_dummy_files(nfiles):

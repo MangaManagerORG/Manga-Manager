@@ -1,7 +1,7 @@
 import unittest
 
 from ComicInfo import ComicInfo
-from src.DynamicLibController.models.IMetadataSource import IMetadataSource
+from MangaManager.DynamicLibController.models.IMetadataSource import IMetadataSource
 
 
 class MyTestCase(unittest.TestCase):

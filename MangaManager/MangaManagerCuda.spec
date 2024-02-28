@@ -1,6 +1,6 @@
 # from update_version import update_version_file
 # update_version_file()
-from MangaManager.src.__version__ import __version__ as version_
+from MangaManager.MangaManager.__version__ import __version__ as version_
 from platform import system
 from datetime import date
 from datetime import datetime

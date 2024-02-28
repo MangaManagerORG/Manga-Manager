@@ -5,10 +5,10 @@ from pathlib import Path
 
 import requests
 
-from src.Common.utils import clean_filename
-from src.DynamicLibController.models.CoverSourceInterface import ICoverSource, Cover
-from src.Settings import SettingHeading
-from src.Settings.Settings import Settings
+from MangaManager.Common.utils import clean_filename
+from MangaManager.DynamicLibController.models.CoverSourceInterface import ICoverSource, Cover
+from MangaManager.Settings import SettingHeading
+from MangaManager.Settings.Settings import Settings
 
 logger = logging.getLogger()
 

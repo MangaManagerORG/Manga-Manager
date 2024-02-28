@@ -11,10 +11,10 @@ from concurrent.futures import ProcessPoolExecutor
 from tkinter import filedialog
 
 from Extensions.IExtensionApp import IExtensionApp
-from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
-from src.Common.utils import ShowPathTreeAsDict
-from src.MetadataManager.GUI.widgets import ScrolledFrameWidget, ProgressBarWidget
-from src.Settings.Settings import Settings
+from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from MangaManager.Common.utils import ShowPathTreeAsDict
+from MangaManager.MetadataManager.GUI.widgets import ScrolledFrameWidget, ProgressBarWidget
+from MangaManager.Settings.Settings import Settings
 
 logger = logging.getLogger()
 

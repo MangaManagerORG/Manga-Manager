@@ -6,9 +6,9 @@ from tkinter.filedialog import askopenfiles
 
 from ComicInfo import ComicInfo
 from logging_setup import add_trace_level
-from src.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
-from src.MetadataManager import MetadataManagerGUI
-from src.MetadataManager.MetadataManagerLib import MetadataManagerLib
+from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from MangaManager.MetadataManager import MetadataManagerGUI
+from MangaManager.MetadataManager.MetadataManagerLib import MetadataManagerLib
 from tests.common import create_dummy_files, TKinterTestCase, parameterized_class, create_test_cbz
 
 add_trace_level()

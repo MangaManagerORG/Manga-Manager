@@ -1,7 +1,7 @@
 import os.path
 import unittest
 
-from src.Settings import SettingHeading, Settings
+from MangaManager.Settings import SettingHeading, Settings
 
 
 class SettingsTest(unittest.TestCase):

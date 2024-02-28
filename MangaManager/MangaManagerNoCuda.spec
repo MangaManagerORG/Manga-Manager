@@ -3,7 +3,7 @@
 import os
 import pathlib
 import platform
-from MangaManager.src.__version__ import __version__ as version_
+from MangaManager.MangaManager.__version__ import __version__ as version_
 from platform import system
 from datetime import date
 from datetime import datetime

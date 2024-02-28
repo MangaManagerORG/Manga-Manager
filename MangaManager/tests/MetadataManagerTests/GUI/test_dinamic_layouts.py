@@ -2,7 +2,7 @@ import glob
 import importlib
 import os
 
-from src.MetadataManager import MetadataManagerGUI
+from MangaManager.MetadataManager import MetadataManagerGUI
 from tests.common import create_dummy_files, TKinterTestCase, parameterized_class
 
 layouts_path = os.path.abspath("src/Layouts")

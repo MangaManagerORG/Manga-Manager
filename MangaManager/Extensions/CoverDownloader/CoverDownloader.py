@@ -18,9 +18,9 @@ from Extensions.CoverDownloader.CoverData import CoverData
 from Extensions.CoverDownloader.MangaDex import parse_mangadex_id
 from Extensions.CoverDownloader.exceptions import UrlNotFound
 from Extensions.IExtensionApp import IExtensionApp
-from src.MetadataManager.GUI.widgets import ProgressBarWidget
+from MangaManager.MetadataManager.GUI.widgets import ProgressBarWidget
 # from src.MetadataManager.GUI.tooltip import ToolTip
-from src.Settings import Settings, SettingHeading, SettingSection, SettingControl, SettingControlType
+from MangaManager.Settings import Settings, SettingHeading, SettingSection, SettingControl, SettingControlType
 
 logger = logging.getLogger()
 def get_cover_from_source_dummy() -> list:

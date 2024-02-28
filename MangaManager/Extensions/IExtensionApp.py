@@ -2,7 +2,7 @@ import abc
 import tkinter
 from typing import final
 
-from src.Settings import SettingSection, SettingControl, Settings
+from MangaManager.Settings import SettingSection, SettingControl, Settings
 
 
 class IExtensionApp(tkinter.Toplevel, metaclass=abc.ABCMeta):

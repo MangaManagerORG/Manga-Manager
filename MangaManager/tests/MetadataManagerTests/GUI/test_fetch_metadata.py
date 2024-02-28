@@ -3,7 +3,7 @@ import importlib
 import os
 
 from logging_setup import add_trace_level
-from src.MetadataManager.MetadataManagerGUI import GUIApp
+from MangaManager.MetadataManager.MetadataManagerGUI import GUIApp
 from tests.common import TKinterTestCase, parameterized_class
 
 add_trace_level()
