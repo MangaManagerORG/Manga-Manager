@@ -36,7 +36,7 @@ jobs:
       -
         name: Run the tests
         run: |
-          cd MangaManager
+          cd src
           python -m unittest discover -s tests -t .
   
   
