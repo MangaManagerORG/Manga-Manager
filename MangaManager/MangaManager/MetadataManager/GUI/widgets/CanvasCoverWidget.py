@@ -1,6 +1,5 @@
 import logging
 import pathlib
-import tkinter
 from idlelib.tooltip import Hovertip
 from os.path import basename
 from tkinter import Frame, Label, StringVar, Event, Canvas, NW, CENTER, Button
@@ -10,8 +9,8 @@ import _tkinter
 from PIL import Image, ImageTk
 
 from MangaManager.Common import ResourceLoader
-from MangaManager.Common.LoadedComicInfo.CoverActions import CoverActions
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from MangaManager.LoadedComicInfo.CoverActions import CoverActions
+from MangaManager.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from MangaManager.Settings import SettingHeading
 from MangaManager.Settings.Settings import Settings
 

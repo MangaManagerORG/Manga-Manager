@@ -4,12 +4,12 @@ import logging
 import re
 import tkinter
 from tkinter import ttk, Frame
-from tkinter.ttk import LabelFrame, Label, Notebook, Combobox
+from tkinter.ttk import LabelFrame, Notebook, Combobox
 
 from ExternalSources.MetadataSources import ScraperFactory
 from ComicInfo import ComicInfo
 from MangaManager import MM_PATH
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from MangaManager.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from MangaManager.Common.utils import open_folder
 from MangaManager.DynamicLibController.models import IMetadataSource
 from MangaManager.MetadataManager.GUI.utils import center

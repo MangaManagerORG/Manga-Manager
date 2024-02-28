@@ -5,7 +5,6 @@ import unittest
 import zipfile
 
 from ComicInfo import ComicInfo
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from MangaManager.Settings import Settings, SettingHeading
 
 TEST_COMIC_INFO_STRING = """

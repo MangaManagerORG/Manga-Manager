@@ -3,10 +3,10 @@ import unittest
 import zipfile
 from unittest.mock import patch, MagicMock
 
-import MangaManager.Common.LoadedComicInfo.LoadedComicInfo
+import MangaManager.LoadedComicInfo.LoadedComicInfo
 from ComicInfo import ComicInfo
 from logging_setup import add_trace_level
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from MangaManager.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from MangaManager.Common.errors import CorruptedComicInfo, NoComicInfoLoaded
 from MangaManager.Common.errors import EditedCinfoNotSet, BadZipFile
 from MangaManager.MetadataManager import MetadataManagerLib
@@ -27,7 +27,7 @@ class CoreTesting(unittest.TestCase):
 
     def tearDown(self) -> None:
         # Some cases patch LoadedComicInfo. patchin back just in case
-        MangaManager.Common.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = LoadedComicInfo
+        MangaManager.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = LoadedComicInfo
         print("Teardown:")
         for filename in self.test_files_names:
             print(f"     Deleting: {filename}")  # , self._testMethodName)
@@ -117,7 +117,7 @@ class ErrorHandlingTests(unittest.TestCase):
 
     def tearDown(self) -> None:
         # Some cases patch LoadedComicInfo. patchin back just in case
-        MangaManager.Common.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = LoadedComicInfo
+        MangaManager.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = LoadedComicInfo
         print("Teardown:")
         for filename in self.test_files_names:
             print(f"     Deleting: {filename}")  # , self._testMethodName)
@@ -137,7 +137,7 @@ class ErrorHandlingTests(unittest.TestCase):
             raise BadZipFile()
 
         RaiseBadZip.__init__ = raise_badzip
-        MangaManager.Common.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = RaiseBadZip
+        MangaManager.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = RaiseBadZip
 
         self.instance.selected_files_path = self.test_files_names = create_dummy_files(2)
 
@@ -156,11 +156,11 @@ class ErrorHandlingTests(unittest.TestCase):
         def raise_badzip(*_, **__):
             # Exception raised but then we create a new object with a brand new comicinfo.
             # Fix back patched class and raise exception
-            MangaManager.Common.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = LoadedComicInfo
+            MangaManager.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = LoadedComicInfo
             raise CorruptedComicInfo("")
 
         RaiseCorruptedMeta.__init__ = raise_badzip
-        MangaManager.Common.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = RaiseCorruptedMeta
+        MangaManager.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = RaiseCorruptedMeta
 
         self.instance.selected_files_path = self.test_files_names = create_dummy_files(2)
 
@@ -184,7 +184,7 @@ class ErrorHandlingTests(unittest.TestCase):
                     super().write_metadata(auto_unmark_changes)
                 
 
-        MangaManager.Common.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = RaisePermissionError
+        MangaManager.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = RaisePermissionError
 
         self.instance.selected_files_path = self.test_files_names = create_dummy_files(2)
         self.instance.loaded_cinfo_list = [RaisePermissionError(path) for path in self.test_files_names]
@@ -205,7 +205,7 @@ class ErrorHandlingTests(unittest.TestCase):
             def write_metadata(self, auto_unmark_changes=False):
                 raise Exception("Exception. This exception is raised as part of one unit test. Safe to ignore")
 
-        MangaManager.Common.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = RaisePermissionError
+        MangaManager.LoadedComicInfo.LoadedComicInfo.LoadedComicInfo = RaisePermissionError
 
         self.instance.selected_files_path = self.test_files_names = create_dummy_files(2)
         self.instance.loaded_cinfo_list = [RaisePermissionError(path) for path in self.test_files_names]

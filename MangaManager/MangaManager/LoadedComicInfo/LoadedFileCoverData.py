@@ -12,7 +12,7 @@ from MangaManager.Common.utils import obtain_cover_filename
 from .ArchiveFile import ArchiveFile
 from .CoverActions import CoverActions
 from .ILoadedComicInfo import ILoadedComicInfo
-from ...Settings import Settings, SettingHeading
+from MangaManager.Settings import Settings, SettingHeading
 
 logger = logging.getLogger("LoadedCInfo")
 COMICINFO_FILE = 'ComicInfo.xml'

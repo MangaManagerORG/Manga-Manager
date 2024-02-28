@@ -4,7 +4,7 @@ import zipfile
 
 from PIL import Image
 
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
+from MangaManager.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
 from MangaManager.Common.utils import obtain_cover_filename
 from tests.common import CBZManipulationTests, create_test_cbz
 

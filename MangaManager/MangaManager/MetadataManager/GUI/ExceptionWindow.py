@@ -5,7 +5,7 @@ from tkinter import Frame
 from tkinter.font import Font
 from tkinter.ttk import Treeview, Style
 
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from MangaManager.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 
 logger = logging.getLogger()
 

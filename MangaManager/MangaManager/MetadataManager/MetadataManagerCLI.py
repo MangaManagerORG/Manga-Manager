@@ -13,7 +13,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.validation import Validator
 
 from ComicInfo import ComicInfo
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from MangaManager.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from MangaManager.Common.utils import ShowPathTreeAsDict
 from MangaManager.MetadataManager.MetadataManagerLib import MetadataManagerLib
 

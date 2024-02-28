@@ -10,14 +10,12 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 
 from MangaManager.Common import ResourceLoader
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
+from MangaManager.LoadedComicInfo.LoadedComicInfo import CoverActions, LoadedComicInfo
 from MangaManager.MetadataManager.CoverManager import torchlib
-from MangaManager.MetadataManager.GUI import MessageBox
 from MangaManager.MetadataManager.GUI.MessageBox import MessageBoxWidgetFactory as mb
 from MangaManager.MetadataManager.GUI.scrolledframe import ScrolledFrame
 from MangaManager.MetadataManager.GUI.widgets import ButtonWidget
 from MangaManager.MetadataManager.GUI.widgets.CanvasCoverWidget import CoverFrame, CanvasCoverWidget
-from MangaManager.MetadataManager.GUI.widgets.MessageBoxWidget import MessageBoxWidget, MessageBoxButton
 from MangaManager.MetadataManager.GUI.windows.LoadingWindow import LoadingWindow
 from MangaManager.MetadataManager.MetadataManagerGUI import GUIApp
 from MangaManager.Settings import SettingHeading

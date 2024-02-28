@@ -6,7 +6,7 @@ from abc import ABC
 
 from ExternalSources.MetadataSources import ScraperFactory
 from ComicInfo import ComicInfo
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from MangaManager.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from MangaManager.Common.errors import EditedCinfoNotSet, MangaNotFoundError, MissingRarTool
 from MangaManager.Common.errors import NoComicInfoLoaded, CorruptedComicInfo, BadZipFile
 from MangaManager.Common.terminalcolors import TerminalColors as TerCol

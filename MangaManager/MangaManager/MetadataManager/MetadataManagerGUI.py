@@ -4,7 +4,7 @@ import glob
 import logging
 import os
 import tkinter
-from tkinter import Tk, Frame
+from tkinter import Frame
 
 from ComicInfo import ComicInfo
 from MangaManager.Common import ResourceLoader
@@ -23,7 +23,7 @@ else:
     from tkinter.filedialog import askopenfiles, askdirectory
 from _tkinter import TclError
 from tkinterdnd2.TkinterDnD import Tk
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from MangaManager.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from MangaManager.MetadataManager.GUI.widgets import ComboBoxWidget, OptionMenuWidget, WidgetManager, ButtonWidget
 from MangaManager.MetadataManager.GUI.windows.SettingsWindow import SettingsWindow
 from MangaManager.MetadataManager.MetadataManagerLib import MetadataManagerLib

@@ -4,14 +4,13 @@ import glob
 import logging
 import os
 import pathlib
-import threading
 import tkinter
 import tkinter.ttk as ttk
 from concurrent.futures import ProcessPoolExecutor
 from tkinter import filedialog
 
 from Extensions.IExtensionApp import IExtensionApp
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from MangaManager.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 from MangaManager.Common.utils import ShowPathTreeAsDict
 from MangaManager.MetadataManager.GUI.widgets import ScrolledFrameWidget, ProgressBarWidget
 from MangaManager.Settings.Settings import Settings

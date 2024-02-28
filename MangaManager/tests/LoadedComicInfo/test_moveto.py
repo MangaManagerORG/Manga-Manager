@@ -1,7 +1,7 @@
 import unittest
 
 from ComicInfo import ComicInfo
-from MangaManager.Common.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
+from MangaManager.LoadedComicInfo.LoadedComicInfo import LoadedComicInfo
 
 
 class MoveToTemplate(unittest.TestCase):
