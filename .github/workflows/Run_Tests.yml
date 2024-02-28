@@ -112,9 +112,9 @@ jobs:
       -
         name: Replace "nightly" with commit hash
         run: |
-          file_contents=$(head -n 1 MangaManager/src/__version__.py)
+          file_contents=$(head -n 1 src/MangaManager/__version__.py)
           new_contents="${file_contents/nightly/nightly:${{ needs.parse_versions.outputs.latest_commit }}}"
-          echo "$new_contents" > MangaManager/src/__version__.py
+          echo "$new_contents" > src/MangaManager/__version__.py
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -147,9 +147,9 @@ jobs:
       -
         name: Replace "nightly" with commit hash
         run: |
-          file_contents=$(head -n 1 MangaManager/src/__version__.py)
+          file_contents=$(head -n 1 src/MangaManager/__version__.py)
           new_contents="${file_contents/nightly/nightly:${{ needs.parse_versions.outputs.latest_commit }}}"
-          echo "$new_contents" > MangaManager/src/__version__.py
+          echo "$new_contents" > src/MangaManager/__version__.py
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2

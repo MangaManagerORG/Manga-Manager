@@ -26,7 +26,7 @@ def update_version_file():
         version_file.write(new_version)
 
     repo = git.Repo(Path(__file__).parent)
-    repo.git.add("MangaManager/src/__version__.py")
+    repo.git.add("src/MangaManager/__version__.py")
     commit = repo.git.commit(m="Bump version hash")
     # ref = os.popen("git rev-parse --short HEAD").read().strip()
     repo.create_tag(tag + "_" + new_hash)
