@@ -63,8 +63,8 @@ class LoadedFileMetadata(ILoadedComicInfo):
         try:
             # If Comicinfo is not at root try to grab any ComicInfo.xml in the file
             if COMICINFO_FILE not in self.archive.namelist():
-                cinfo_file = [filename.endswith(COMICINFO_FILE) for filename in self.archive.namelist()][
-                                 0] or COMICINFO_FILE
+                cinfo_file = next((filename for filename in self.archive.namelist() 
+                                   if filename.endswith(COMICINFO_FILE))) or COMICINFO_FILE
             else:
                 cinfo_file = COMICINFO_FILE
                 self.is_cinfo_at_root = True
