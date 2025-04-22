@@ -35,7 +35,7 @@ class AniList(IMetadataSource):
     # Map the Role from API to the ComicInfo tags to write
     person_mapper = {}
     _HOW_METADATA_MAPS_TOOLTIP = "How metadata field will map to ComicInfo fields"
-    romaji_as_series = True
+    romaji_as_series = Settings().get(name, AniListSetting.SeriesTitleLanguage)
 
     def init_settings(self):
         self.settings = [
@@ -70,17 +70,6 @@ class AniList(IMetadataSource):
         ]
         super().init_settings()
 
-    def save_settings(self):
-        self.romaji_as_series = Settings().get(self.name, AniListSetting.SeriesTitleLanguage)
-        self.person_mapper["Original Story"] = Settings().get(self.name, AniListPerson.OriginalStory).split(',')
-        self.person_mapper["Original Creator"] = Settings().get(self.name, AniListPerson.OriginalStory).split(',')
-        self.person_mapper["Character Design"] = Settings().get(self.name, AniListPerson.CharacterDesign).split(',')
-        self.person_mapper["Story"] = Settings().get(self.name, AniListPerson.Story).split(',')
-        self.person_mapper["Art"] = Settings().get(self.name, AniListPerson.Art).split(',')
-        self.person_mapper["Story & Art"] = Settings().get(self.name, AniListPerson.Story).split(',') + Settings().get(
-            self.name, AniListPerson.Art).split(',')
-        self.person_mapper["Assistant"] = Settings().get(self.name, AniListPerson.Assistant).split(',')
-
     @staticmethod
     def is_valid_person_tag(key, value):
         invalid_people = get_invalid_person_tag(value)
@@ -95,6 +84,17 @@ class AniList(IMetadataSource):
         if match:
             return match.group(1)
         return None
+    @classmethod
+    def save_settings(cls):
+        cls.romaji_as_series = Settings().get(cls.name, AniListSetting.SeriesTitleLanguage)
+        cls.person_mapper["Original Story"] = Settings().get(cls.name, AniListPerson.OriginalStory).split(',')
+        cls.person_mapper["Original Creator"] = Settings().get(cls.name, AniListPerson.OriginalStory).split(',')
+        cls.person_mapper["Character Design"] = Settings().get(cls.name, AniListPerson.CharacterDesign).split(',')
+        cls.person_mapper["Story"] = Settings().get(cls.name, AniListPerson.Story).split(',')
+        cls.person_mapper["Art"] = Settings().get(cls.name, AniListPerson.Art).split(',')
+        cls.person_mapper["Story & Art"] = Settings().get(cls.name, AniListPerson.Story).split(',') + Settings().get(
+            cls.name, AniListPerson.Art).split(',')
+        cls.person_mapper["Assistant"] = Settings().get(cls.name, AniListPerson.Assistant).split(',')
     @classmethod
     def _get_id_from_series(cls, cinfo: ComicInfo) -> Optional[int]:
 
@@ -138,7 +138,7 @@ class AniList(IMetadataSource):
             if title_romaji != title_english:
                 comicinfo.localized_series = title_english
         else:
-            comicinfo.series = title_english
+            comicinfo.series = title_english if title_english != "" else title_romaji
             if title_romaji != title_english:
                 comicinfo.localized_series = title_romaji
 
